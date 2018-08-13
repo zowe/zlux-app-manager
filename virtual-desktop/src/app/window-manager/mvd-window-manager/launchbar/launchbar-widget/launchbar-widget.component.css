@@ -1,0 +1,95 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+.launchbar-clock {
+  display: inline-block;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 150px;
+  height: 60px;
+  z-index: 7;
+  color: #eee;
+  padding-left: 20px;
+  padding-top: 10px;
+  text-align: left;
+}
+
+.launchbar-user {
+  display: inline-block;
+  float: right;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #dde8f1;
+  margin-right: 10px;
+  margin-top: -18px;
+  background-image: url('../../../../../assets/images/launchbar/person.png');
+  background-size: 32px 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+}
+
+.launchbar-user:hover {
+  opacity: 0.9;
+}
+
+.launchbar-user-popup {
+  width: 145px;
+  height: 120px;
+  position: absolute;
+  bottom: 55px;
+  right: 0;
+  border-top-left-radius: 10px;
+  background: #dde8f1;
+  padding: 15px 30px;
+  z-index: 7;
+}
+
+.launchbar-user-popup.hidden {
+  display: none;
+}
+
+.launch-user-caret {
+  position: absolute;
+  bottom: 70px;
+  right: 10px;
+}
+
+.launchbar-seperator {
+  position: absolute;
+  bottom: 0;
+  height: 60px;
+  width: 5px;
+  background-color: #36617a;
+}
+
+.launchbar-seperator.right {
+  right: 0;
+}
+
+.launchbar-seperator.left {
+  left: 0;
+}
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+

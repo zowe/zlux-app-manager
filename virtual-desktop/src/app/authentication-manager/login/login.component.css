@@ -1,0 +1,155 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+.desktop-cover {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  transition: 0.5s filter ease-out;
+}
+
+.desktop-cover.active {
+  filter: blur(10px) grayscale(0.7) hue-rotate(30deg);
+}
+
+.login-overlay img {
+  margin: 1em;
+}
+
+.login-overlay {
+  width: 450px;
+  position: fixed;
+  top: 0; bottom: 0;
+  left: 0; right: 0;
+  margin: 0 auto;
+
+  text-align: center;
+  background: rgba(237, 250, 255, 0.8);
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-overlay > div {
+  padding: 20px 50px;
+  overflow: auto;
+}
+
+.login-panel {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.login-panel.hidden {
+  display: none;
+}
+
+.login-form {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+.login-form input {
+  width: 100%;
+  height: 40px;
+  padding-left: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px #777 solid;
+}
+
+.login-form .userid {
+  font-family: 'Roboto';
+  font-size: 19px;
+  color: #353535;
+}
+
+.login-form .password {
+  font-family: 'Roboto';
+  font-size: 19px;
+  text-transform: uppercase;
+}
+
+.login-form label {
+  font-family: 'Roboto';
+  font-size: 17px;
+  color: #474747;
+  margin-bottom: 0;
+}
+
+.login-button {
+  text-align: center;
+  user-select: none;
+  outline: none;
+  border: none;
+  background: transparent;
+}
+
+.login-button-icon {
+  display: inline-block;
+  width: 76px;
+  height: 76px;
+  background-image: url('../../../assets/images/login/login-btn-normal.png');
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.login-button > .login-button-icon:hover {
+  background-image: url('../../../assets/images/login/login-btn-hover.png');
+}
+
+.login-button > .login-button-icon:active {
+  background-image: url('../../../assets/images/login/login-btn-pressed.png');
+}
+
+.login-button:disabled {
+  opacity: 0.3;
+  filter: grayscale(100%); 
+}
+
+.login-label {
+  font-family: 'Roboto';
+  font-size: 20px;
+  color: #474747;
+}
+
+.login-click-blocker {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 3;
+}
+
+.login-error {
+  color: #f44336;
+  font-size: 12pt;
+}
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+

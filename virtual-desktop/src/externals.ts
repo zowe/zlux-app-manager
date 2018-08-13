@@ -1,0 +1,62 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+/* These will be packaged into a single bundle by the webpack bundling system.
+ * We then expose them to our module loader (requirejs) manually and use that
+ * to load the desktop and external plugins. These requires use webpack. */
+
+const libs: { [index: string]: {library: any} } = {
+  '@angular/core': require('@angular/core'),
+  '@angular/common': require('@angular/common'),
+  '@angular/http': require('@angular/http'),
+  '@angular/platform-browser': require('@angular/platform-browser'),
+  '@angular/platform-browser/animations': require('@angular/platform-browser/animations'),
+  '@angular/platform-browser-dynamic': require('@angular/platform-browser-dynamic'),
+  '@angular/cdk/portal': require('@angular/cdk/portal'),
+  '@angular/forms': require('@angular/forms'),
+  '@angular/router': require('@angular/router'),
+  '@angular/animations': require('@angular/animations'),
+  'rxjs/Rx': require('rxjs/Rx')
+};
+
+/* Expose modules to requirejs */
+for (const library in libs) {
+  if (libs[library]) {
+    (window as any).define(library, libs[library]);
+  } else {
+    console.log(`Missing library ${library}`);
+  }
+}
+
+/* Perform bootstrap using requirejs */
+(window as any).requirejs([
+  RocketMVD.uriBroker.pluginResourceUri(RocketMVD.PluginManager.getDesktopPlugin(), 'desktop.js')
+], (desktop: any) => {
+  /* Prepare the DOM for boostrapping */
+  const element = document.createElement('rs-com-root');
+  document.body.appendChild(element);
+
+  desktop.performBootstrap();
+});
+
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
