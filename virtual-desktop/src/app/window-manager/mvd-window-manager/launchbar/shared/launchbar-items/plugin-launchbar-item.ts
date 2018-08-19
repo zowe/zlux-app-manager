@@ -11,7 +11,6 @@
 */
 
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
-
 import { LaunchbarItem } from '../launchbar-item';
 
 export class PluginLaunchbarItem extends LaunchbarItem {
@@ -21,17 +20,13 @@ export class PluginLaunchbarItem extends LaunchbarItem {
     super();
   }
 
+
   get label(): string {
     return this.plugin.label;
   }
 
   get image(): string | null {
     return this.plugin.image;
-  }
-
-  get pinned(): boolean {
-    // TODO: integrate with config service
-    return this.plugin.hasWebContent;
   }
 
   get launchMetadata(): any {

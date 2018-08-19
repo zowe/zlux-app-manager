@@ -17,7 +17,7 @@
 
 <ng-template [ngIf]="isActive">
   <div class="launch-widget-popup">
-    <div class="launch-widget-row" *ngFor="let item of menuItems" (click)="clicked(item)">
+    <div class="launch-widget-row" *ngFor="let item of menuItems" (click)="clicked(item)" (contextmenu)="onRightClick($event, item)">
       <img class="icon" [src]="item.image">
       <p>{{item.label}}</p>
     </div>

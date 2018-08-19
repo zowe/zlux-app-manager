@@ -10,6 +10,10 @@
   Copyright Contributors to the Zowe Project.
 -->
 
+<ng-container *ngIf="contextMenuDef != null">
+  <com-rs-mvd-context-menu [xPos]="contextMenuDef.xPos" [yPos]="contextMenuDef.yPos" [menuItems]="contextMenuDef.items" (complete)="closeContextMenu()"></com-rs-mvd-context-menu>
+</ng-container>
+
 <rs-com-window-pane></rs-com-window-pane>
 <rs-com-launchbar></rs-com-launchbar>
 
