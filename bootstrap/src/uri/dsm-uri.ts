@@ -12,7 +12,14 @@
 
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager' 
 
+const proxy_path = 'zowe-zlux';
+const proxy_mode = (window.location.pathname.split('/')[1] == proxy_path) ? true : false;
+
 export class DsmUri implements ZLUX.UriBroker {
+
+  private proxyURL(url: string): string {
+    return proxy_mode ? `/${proxy_path}${url}` : url;
+  }
 
   unixFileMetadataUri(relativePath: string): string {
     relativePath;//suppress warning for now
@@ -62,7 +69,7 @@ export class DsmUri implements ZLUX.UriBroker {
   }
 
   pluginRootUri(pluginDefinition: ZLUX.Plugin): string {
-    return `/ZLUX/plugins/${pluginDefinition.getIdentifier()}/web/`
+    return this.proxyURL(`/ZLUX/plugins/${pluginDefinition.getIdentifier()}/web/`);
   }
 
   desktopRootUri(): string {
@@ -117,16 +124,16 @@ export class DsmUri implements ZLUX.UriBroker {
      Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/com.rs.configjs/services/data instead
    */
   pluginConfigForUserUri(pluginDefinition: ZLUX.Plugin, user:string, resourcePath:string, resourceName?:string) {
-    let name = resourceName ? '?name='+resourceName : '';
-    return `/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`;
+    let name = resourceName ? '?name='+resourceName : '';    
+    return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`);    
   }
 
   /**
      Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/com.rs.configjs/services/data instead
    */  
   pluginConfigForGroupUri(pluginDefinition: ZLUX.Plugin, group:string, resourcePath:string, resourceName?:string) {
-    let name = resourceName ? '?name='+resourceName : '';  
-    return `/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`;
+    let name = resourceName ? '?name='+resourceName : '';    
+    return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`);    
   }  
   
   pluginConfigUri(pluginDefinition: ZLUX.Plugin, resourcePath:string, resourceName?:string) {

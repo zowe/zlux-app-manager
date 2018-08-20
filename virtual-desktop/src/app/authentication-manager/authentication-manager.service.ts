@@ -42,7 +42,6 @@ export class AuthenticationManager {
     this.preLogoutActions.push(action);
   }
 
-
   getUsername(): string | null {
     return this.username;
   }
@@ -53,7 +52,7 @@ export class AuthenticationManager {
 
   checkSessionValidity(): Observable<any> {
     if (this.defaultUsername() != null) {
-      return this.http.get('/auth')
+      return this.http.get(RocketMVD.uriBroker.serverRootUri('auth'))
         .map(result => {
           let jsonMessage = result.json();
           if (jsonMessage && jsonMessage.categories) {
@@ -126,8 +125,8 @@ export class AuthenticationManager {
   }  
 
   performLogin(username: string, password: string): Observable<Response> {
-    return this.http.post('/auth', { username: username, password: password })
-      .map(result => {
+    return this.http.post(RocketMVD.uriBroker.serverRootUri('auth'), { username: username, password: password })
+    .map(result => {
         let jsonMessage = result.json();
         if (jsonMessage && jsonMessage.success === true) {
           window.localStorage.setItem('username', username);
@@ -146,7 +145,7 @@ export class AuthenticationManager {
 
   private performLogout(): Observable<Response> {
     this.performPreLogoutActions();    
-    return this.http.post('/auth-logout', {})
+    return this.http.post(RocketMVD.uriBroker.serverRootUri('auth-logout'), {})
       .map(response => {
         this.username = null;
         return response;

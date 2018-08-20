@@ -12,6 +12,9 @@
 
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
 
+const proxy_path = 'zowe-zlux';
+const proxy_mode = (window.location.pathname.split('/')[1] == proxy_path) ? true : false;
+
 export class MvdUri implements ZLUX.UriBroker {
   unixFileMetadataUri(path: string): string {
     return `${this.serverRootUri(`unixFileMetadata/${path}`)}`;
@@ -70,7 +73,7 @@ export class MvdUri implements ZLUX.UriBroker {
   }
 
   serverRootUri(uri: string): string {
-    return `/${uri}`;
+    return proxy_mode ? `/${proxy_path}/${uri}` : `/${uri}`;
   }
 
   pluginResourceUri(pluginDefinition: ZLUX.Plugin, relativePath: string): string {
@@ -82,9 +85,9 @@ export class MvdUri implements ZLUX.UriBroker {
 
   pluginListUri(pluginType?: ZLUX.PluginType): string {
     if (pluginType === undefined) {
-      return `/plugins?type=all`;
+      return `${this.serverRootUri(`plugins?type=all`)}`;
     }
-    return `/plugins?type=${pluginType}`;
+    return `${this.serverRootUri(`plugins?type=${pluginType}`)}`;
   }
 
   pluginWSUri(plugin: ZLUX.Plugin, serviceName: string, relativePath: string) {
