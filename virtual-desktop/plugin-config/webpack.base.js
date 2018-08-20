@@ -42,11 +42,6 @@ var config = {
         ]
       },
       {
-        /* JSON inline loader */
-        'test': /\.json$/,
-        'loader': 'json-loader'
-      },
-      {
         /* HTML URL resolution loader */
         'test': /\.html$/,
         'loader': 'html-loader'
