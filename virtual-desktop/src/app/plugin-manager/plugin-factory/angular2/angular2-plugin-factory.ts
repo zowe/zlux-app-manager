@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -65,7 +65,7 @@ class SimpleAngularComponentFactory extends ComponentFactory {
             const portal = new ComponentPortal(fullPlugin.componentNgComponent, null); /* TODO */
             const componentRef = outlet.attachComponentPortal(portal);
 
-            resolve(componentRef.instance as ZLUX.IComponent); 
+            resolve(componentRef.instance as ZLUX.IComponent);
           }).catch((failure: any) => {
             console.log(failure);
             reject();
@@ -112,7 +112,7 @@ export class Angular2PluginFactory extends PluginFactory {
     const scriptUrl = Angular2PluginFactory.getAngularComponentsURL(pluginDefinition);
 
     return new Promise((resolve, reject) => {
-      (window as any).require([scriptUrl], 
+      (window as any).require([scriptUrl],
         (components: MvdNativeAngularPluginComponentDefinition) => {
           const factoryDefs = components.getComponentFactoryDefinitions(pluginDefinition);
           factoryDefs.forEach((factory: AngularComponentFactoryDefinition) => {
@@ -154,34 +154,29 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
   getTranslationProviders(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<StaticProvider[]> {
-    // Get the locale id from the global
-    // According to Mozilla.org this will work well enough for the
-    // browsers we support (Chrome, Firefox, Edge, Safari)
-    // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/language
-    // TO DO: handle both language and local (e.g., both "en" and "en-US")
-    // MVD-1671: support lang-LOCALE and ability to fall back to lang if lang-LOCALE is not found
-    // MERGE QUESTION: should be put this in polyfills? abstract it somewhere? etc.?
-    const locale:string = navigator.language.split("-")[0];
-    // return no providers if fail to get translation file for locale
     const noProviders: StaticProvider[] = [];
-    // No locale or U.S. English: no translation providers
-    if (!locale || locale === 'en') {
+    const navigatorLanguage = navigator.language;
+    if (!navigatorLanguage || navigatorLanguage === 'en-US') {
       return Promise.resolve(noProviders);
     }
-    // Ex: 'locale/messages.es.xlf`
-    const translationFile = this.getTranslationFileURL(pluginDefinition, locale);
-    return this.getTranslationsWithSystemJs(translationFile)
-      .then( (translations: string ) => [
+    const [language, locale] = navigatorLanguage.split('-');
+    // ex.: messages.es-ES.xlf
+    const translationFileURL = this.getTranslationFileURL(pluginDefinition, navigatorLanguage);
+    // ex.: messages.es.xlf
+    const fallbackTranslationFileURL = (locale != null) ? this.getTranslationFileURL(pluginDefinition, language) : null;
+    return this.loadTranslations(translationFileURL)
+      .catch(err => (fallbackTranslationFileURL != null) ? this.loadTranslations(fallbackTranslationFileURL) : Observable.throw(err))
+      .toPromise()
+      .then((translations: string) => [
         { provide: TRANSLATIONS, useValue: translations },
         { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
-        { provide: LOCALE_ID, useValue: locale },
+        { provide: LOCALE_ID, useValue: navigatorLanguage }
       ])
-      .catch(() => noProviders); // ignore if file not found
+      .catch(() => noProviders);
   }
 
   getCompiler(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<Compiler> {
     return this.getTranslationProviders(pluginDefinition).then(providers => {
-      console.log(`providers ${JSON.stringify(providers)}`);
       const options: CompilerOptions = {
         providers: providers
       };
@@ -190,8 +185,8 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
 
-  getTranslationsWithSystemJs(file: string): Promise<string> {
-    return this.http.get(file).map(res => res.text()).toPromise();
+  loadTranslations(fileURL: string): Observable<string> {
+    return this.http.get(fileURL).map(res => res.text());
   }
 }
 
@@ -200,9 +195,9 @@ export class Angular2PluginFactory extends PluginFactory {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
