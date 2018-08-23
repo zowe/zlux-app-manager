@@ -10,9 +10,12 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, ElementRef, HostListener, Input, Output, EventEmitter } from '@angular/core';
-
+import { Component, ElementRef, HostListener, Input, Output, EventEmitter, Inject } from '@angular/core';
+import { Subject } from 'rxjs/Subject';
+import { PluginsDataService } from '../../services/plugins-data.service';
 import { LaunchbarItem } from '../shared/launchbar-item';
+import { ContextMenuItem } from 'pluginlib/inject-resources';
+import { WindowManagerService } from '../../shared/window-manager.service'
 
 @Component({
   selector: 'rs-com-launchbar-menu',
@@ -23,11 +26,14 @@ export class LaunchbarMenuComponent {
   @Input() menuItems: LaunchbarItem[];
   @Output() itemClicked: EventEmitter<LaunchbarItem>;
   @Output() menuStateChanged: EventEmitter<boolean>;
-
   private isActive: boolean = false;
+  contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
 
   constructor(
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    public windowManager: WindowManagerService,
+    private pluginsDataService: PluginsDataService,
+    @Inject(MVDHosting.Tokens.ApplicationManagerToken) public applicationManager: MVDHosting.ApplicationManagerInterface,
   ) {
     this.itemClicked = new EventEmitter();
     this.menuStateChanged = new EventEmitter<boolean>();
@@ -44,6 +50,13 @@ export class LaunchbarMenuComponent {
     this.emitState();
   }
 
+  closeApplication(item: LaunchbarItem): void {
+    let windowId = this.windowManager.getWindow(item.plugin);
+    if (windowId != null) {
+      this.windowManager.closeWindow(windowId);
+    }
+  }
+
   /**
    * Close the launchbar icon if the user clicks anywhere other than on the launchbar area
    */
@@ -57,6 +70,15 @@ export class LaunchbarMenuComponent {
 
   private emitState(): void {
     this.menuStateChanged.emit(this.isActive);
+  }
+
+  onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
+    var menuItems: ContextMenuItem[] =
+      [
+        this.pluginsDataService.pinContext(item)
+      ];
+    this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
+    return false;
   }
 }
 
