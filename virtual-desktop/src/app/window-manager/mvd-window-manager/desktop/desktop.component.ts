@@ -12,18 +12,32 @@
 
 import { Component, Inject } from '@angular/core';
 import { Http, Response } from '@angular/http';
+import { ContextMenuItem } from 'pluginlib/inject-resources';
+import { WindowManagerService } from '../shared/window-manager.service';
 
 @Component({
   selector: 'rs-com-mvd-desktop',
   templateUrl: 'desktop.component.html'
 })
 export class DesktopComponent {
-  constructor(
+contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
+
+constructor(
+    public windowManager: WindowManagerService,
     private http: Http,
     @Inject(MVDHosting.Tokens.AuthenticationManagerToken) private authenticationManager: MVDHosting.AuthenticationManagerInterface
   ) {
-    
+    this.contextMenuDef = null;
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
+  }
+  ngOnInit(): void {
+    this.windowManager.contextMenuRequested.subscribe(menuDef => {
+      this.contextMenuDef = menuDef;
+    });
+  }
+
+  closeContextMenu(): void {
+    this.contextMenuDef = null;
   }
 }
 

@@ -10,10 +10,14 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="launchbar-container" [class.active]="isActive">
+<div class="launchbar-container" id="container" [class.active]="isActive" (mousedown)="onMouseDownContainer($event)" (mousemove)="onMouseMoveContainer($event)" (mouseup)="onMouseUpContainer($event)">
   <rs-com-launchbar-menu [menuItems]="allItems" (itemClicked)="menuItemClicked($event)"  (menuStateChanged)="onStateChanged($event)"></rs-com-launchbar-menu>
   <div class="launchbar">
-    <rs-com-launchbar-icon *ngFor="let item of pinnedItems" [launchbarItem]="item" (iconClicked)="pinnedItemClicked(item)">
+    <rs-com-launchbar-icon *ngFor="let item of pinnedItems" [launchbarItem]="item" (contextmenu)="onRightClick($event, item)"
+    (mousedown)="onMouseDown($event, item)" (mousemove)="onMouseMove($event, item)">
+    </rs-com-launchbar-icon>
+    <rs-com-launchbar-icon *ngFor="let item of runningItems" [launchbarItem]="item" (contextmenu)="onRightClick($event, item)"
+    (mousedown)="onMouseDown($event, item)">
     </rs-com-launchbar-icon>
   </div>
   <rs-com-launchbar-widget (popupStateChanged)="onStateChanged($event)"></rs-com-launchbar-widget>

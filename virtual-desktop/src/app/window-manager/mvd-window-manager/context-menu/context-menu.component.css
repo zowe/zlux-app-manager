@@ -12,7 +12,7 @@
 
 .context-menu {
   position: absolute;
-  z-index: 999;
+  z-index: 20000;
   min-width: 180px;
   width: auto;
 }

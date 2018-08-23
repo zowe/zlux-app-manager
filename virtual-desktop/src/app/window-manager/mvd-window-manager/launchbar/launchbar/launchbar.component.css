@@ -21,6 +21,9 @@
   margin: 0;
   padding: 0;
   z-index: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .launchbar-container.active {
@@ -41,15 +44,20 @@
 .launchbar {
   height: 110px;
   box-sizing: border-box;
-  display: inline-block;
+  display: flex;
   background: transparent;
-  text-align: center;
+  text-align: left;
   z-index: 6;
   margin: 0;
   margin-left: 130px; /* Prevent overlap with launch widget on the left */
   margin-right: 150px; /* Prevent overlap with lauchbar clock and searcb bar on the right */
   padding: 0;
   padding-left: 25px;
+  padding-top: 0;
+}
+
+rs-com-launchbar-icon {
+  text-align: center;
 }
 
 
