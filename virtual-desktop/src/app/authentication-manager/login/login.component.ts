@@ -19,7 +19,7 @@ import { AuthenticationManager } from '../authentication-manager.service';
   styleUrls: [ 'login.component.css' ]
 })
 export class LoginComponent implements OnInit {
-  logo: string = require('../../../assets/images/login/zLUX_Logo.png');
+  logo: string = require('../../../assets/images/login/Zowe_Logo.png');
   isLoading:boolean;
   needLogin:boolean;
   locked: boolean;
