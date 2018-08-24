@@ -92,7 +92,7 @@ module.exports = {
   },
   "externals": [
     function(context, request, callback) {
-      if (/(@angular)|(^bootstrap$)|(^jquery$)|(^rxjs\/Rx$)/.test(request)){
+      if (/(@angular)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs\/Rx$)/.test(request)){
         return callback(null, {
           commonjs: request,
           commonjs2: request,
