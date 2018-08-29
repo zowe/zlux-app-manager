@@ -22,6 +22,9 @@ import { Observable } from 'rxjs/Rx';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
 
+import { BrowserPreferencesService } from '../../../shared/browser-preferences.service';
+
+
 interface MvdNativeAngularPlugin {
   pluginModule: any;
   pluginComponent: any;
@@ -90,8 +93,8 @@ export class Angular2PluginFactory extends PluginFactory {
     return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
   }
 
-  private getTranslationFileURL(pluginDefinition: MVDHosting.DesktopPluginDefinition, locale: string): string {
-    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${locale}.xlf`);
+  private getTranslationFileURL(pluginDefinition: MVDHosting.DesktopPluginDefinition, language: string): string {
+    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${language}.xlf`);
   }
 
   constructor(
@@ -99,7 +102,8 @@ export class Angular2PluginFactory extends PluginFactory {
     private compilerFactory: CompilerFactory,
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
-    private injector: Injector
+    private injector: Injector,
+    private browserPreferencesService: BrowserPreferencesService
   ) {
     super();
   }
@@ -154,27 +158,27 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
   getTranslationProviders(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<StaticProvider[]> {
-    // Get the locale id from the global
+    // Get the language id from the global
     // According to Mozilla.org this will work well enough for the
     // browsers we support (Chrome, Firefox, Edge, Safari)
     // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/language
     // TO DO: handle both language and local (e.g., both "en" and "en-US")
     // MVD-1671: support lang-LOCALE and ability to fall back to lang if lang-LOCALE is not found
     // MERGE QUESTION: should be put this in polyfills? abstract it somewhere? etc.?
-    const locale:string = navigator.language.split("-")[0];
-    // return no providers if fail to get translation file for locale
+    const language: string = this.browserPreferencesService.getLanguage();
+    // return no providers if fail to get translation file for language
     const noProviders: StaticProvider[] = [];
-    // No locale or U.S. English: no translation providers
-    if (!locale || locale === 'en') {
+    // No language or U.S. English: no translation providers
+    if (!language || language === 'en') {
       return Promise.resolve(noProviders);
     }
-    // Ex: 'locale/messages.es.xlf`
-    const translationFile = this.getTranslationFileURL(pluginDefinition, locale);
+    // Ex: 'assets/i18n/messages.es.xlf`
+    const translationFile = this.getTranslationFileURL(pluginDefinition, language);
     return this.getTranslationsWithSystemJs(translationFile)
       .then( (translations: string ) => [
         { provide: TRANSLATIONS, useValue: translations },
         { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
-        { provide: LOCALE_ID, useValue: locale },
+        { provide: LOCALE_ID, useValue: language },
       ])
       .catch(() => noProviders); // ignore if file not found
   }
