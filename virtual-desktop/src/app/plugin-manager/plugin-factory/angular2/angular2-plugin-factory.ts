@@ -22,6 +22,9 @@ import { Observable } from 'rxjs/Rx';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
 
+import { BrowserPreferencesService } from '../../../shared/browser-preferences.service';
+
+
 interface MvdNativeAngularPlugin {
   pluginModule: any;
   pluginComponent: any;
@@ -99,7 +102,8 @@ export class Angular2PluginFactory extends PluginFactory {
     private compilerFactory: CompilerFactory,
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
-    private injector: Injector
+    private injector: Injector,
+    private browserPreferencesService: BrowserPreferencesService
   ) {
     super();
   }
@@ -154,6 +158,7 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
   getTranslationProviders(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<StaticProvider[]> {
+<<<<<<< HEAD
     const noProviders: StaticProvider[] = [];
     const navigatorLanguage = navigator.language;
     if (!navigatorLanguage || navigatorLanguage === 'en-US') {
@@ -171,6 +176,29 @@ export class Angular2PluginFactory extends PluginFactory {
         { provide: TRANSLATIONS, useValue: translations },
         { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
         { provide: LOCALE_ID, useValue: navigatorLanguage }
+=======
+    // Get the language id from the global
+    // According to Mozilla.org this will work well enough for the
+    // browsers we support (Chrome, Firefox, Edge, Safari)
+    // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/language
+    // TO DO: handle both language and local (e.g., both "en" and "en-US")
+    // MVD-1671: support lang-LOCALE and ability to fall back to lang if lang-LOCALE is not found
+    // MERGE QUESTION: should be put this in polyfills? abstract it somewhere? etc.?
+    const language: string = this.browserPreferencesService.getLanguage();
+    // return no providers if fail to get translation file for language
+    const noProviders: StaticProvider[] = [];
+    // No language or U.S. English: no translation providers
+    if (!language || language === 'en') {
+      return Promise.resolve(noProviders);
+    }
+    // Ex: 'assets/i18n/messages.es.xlf`
+    const translationFile = this.getTranslationFileURL(pluginDefinition, language);
+    return this.getTranslationsWithSystemJs(translationFile)
+      .then( (translations: string ) => [
+        { provide: TRANSLATIONS, useValue: translations },
+        { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
+        { provide: LOCALE_ID, useValue: language },
+>>>>>>> provide services to choose language and locale
       ])
       .catch(() => noProviders);
   }

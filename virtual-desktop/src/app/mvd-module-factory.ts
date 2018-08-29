@@ -22,6 +22,8 @@ import { PluginManagerModule } from './plugin-manager/plugin-manager.module';
 import { ApplicationManagerModule } from './application-manager/application-manager.module';
 import { AuthenticationModule } from './authentication-manager/authentication-manager.module';
 import { SharedModule } from './shared/shared.module';
+import {BrowserPreferencesService} from './shared/browser-preferences.service';
+
 
 
 export class MvdModuleFactory {
@@ -39,7 +41,10 @@ export class MvdModuleFactory {
         AuthenticationModule
       ],
       declarations: [mainComponent],
-      providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }],
+      providers: [
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
+        BrowserPreferencesService
+      ],
       bootstrap: [mainComponent]
     })(class MvdModule {});
   }

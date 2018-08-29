@@ -1,0 +1,15 @@
+{
+  "compileOnSave": true,
+  "include": [
+    "src/*.ts"
+  ],
+  "compilerOptions": {
+    "outDir": "../lib",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "types": [
+      "node",
+      "express"
+    ]
+  }
+}
