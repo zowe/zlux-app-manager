@@ -12,6 +12,7 @@
 
 import { Injectable, CompilerFactory, /*CompilerOptions, COMPILER_OPTIONS, CompilerFactory*/ } from '@angular/core';
 import { TRANSLATIONS, TRANSLATIONS_FORMAT, LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
 
 import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
@@ -24,6 +25,7 @@ import { ComponentFactory } from 'zlux-base/registry/registry';
 
 import { BrowserPreferencesService } from '../../../shared/browser-preferences.service';
 
+declare var System: any ; //= (window as any).System;
 
 interface MvdNativeAngularPlugin {
   pluginModule: any;
@@ -174,7 +176,7 @@ export class Angular2PluginFactory extends PluginFactory {
     }
     // Ex: 'assets/i18n/messages.es.xlf`
     const translationFile = this.getTranslationFileURL(pluginDefinition, language);
-    return this.getTranslationsWithSystemJs(translationFile)
+    return this.getTranslationsWithSystemJs(translationFile, language)
       .then( (translations: string ) => [
         { provide: TRANSLATIONS, useValue: translations },
         { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
@@ -194,8 +196,13 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
 
-  getTranslationsWithSystemJs(file: string): Promise<string> {
-    return this.http.get(file).map(res => res.text()).toPromise();
+  getTranslationsWithSystemJs(file: string, localeId: string): Promise<string> {
+    return new Promise((resolve, reject) => {System.import(/* webpackMode: "lazy" */
+      `@angular/common/locales/${localeId}.js`).then((localeModule: any) => {
+      registerLocaleData(localeModule.default);
+      resolve();
+      })
+     }).then(_ => this.http.get(file).map(res => res.text()).toPromise());
   }
 }
 

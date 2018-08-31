@@ -14,6 +14,7 @@ const path = require('path');
 
 module.exports = {
   "devtool": "source-map",
+  "mode": "development",
   "resolve": {
     "extensions": [
       ".ts",
@@ -41,6 +42,12 @@ module.exports = {
   "output": {
     "path": path.resolve(__dirname, "web"),
     "filename": "desktop.js",
+    // "filename": (data) => {
+    //   if (data.chunk.name.indexOf('locale') > 0) {
+    //     return "[name].js";
+    //   } else {
+    //     return "desktop.js";
+    //   }
     "libraryTarget": "umd"
   },
   "module": {
@@ -87,7 +94,13 @@ module.exports = {
           'ts-loader',
           'angular2-template-loader'
         ]
-      }
+      },
+      {
+        "test": /@angular\/common\/locales\/.*\.js/,
+        "use": [
+          "exports-loader"
+        ]
+      },
     ]
   },
   "externals": [
