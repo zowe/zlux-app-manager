@@ -22,10 +22,13 @@ import {
   } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
+import { BrowserPreferencesService } from '../../../../shared/browser-preferences.service';
+
 @Component({
   selector: 'rs-com-launchbar-widget',
   templateUrl: 'launchbar-widget.component.html',
-  styleUrls: [ 'launchbar-widget.component.css' ]
+  styleUrls: [ 'launchbar-widget.component.css' ],
+  providers: [BrowserPreferencesService]
 })
 export class LaunchbarWidgetComponent implements OnInit {
   date: Date;
@@ -33,9 +36,13 @@ export class LaunchbarWidgetComponent implements OnInit {
   @Output() popupStateChanged = new EventEmitter<boolean>();
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
+  @ViewChild('languagebutton') languageButton: ElementRef;
+  @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;
+  @ViewChild('localebutton') localeButton: ElementRef;
 
   constructor(
-    @Inject(MVDHosting.Tokens.AuthenticationManagerToken) public authenticationManager: MVDHosting.AuthenticationManagerInterface
+    @Inject(MVDHosting.Tokens.AuthenticationManagerToken) public authenticationManager: MVDHosting.AuthenticationManagerInterface,
+    private browserPreferencesService: BrowserPreferencesService
   ) {
     this.date = new Date();
     this.popupVisible = false;
@@ -65,12 +72,23 @@ export class LaunchbarWidgetComponent implements OnInit {
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
     if (this.popupVisible && event
-       && !this.userIcon.nativeElement.contains(event.target)
-       && this.logoutButton.nativeElement !== event.target) {
+        && !this.userIcon.nativeElement.contains(event.target)
+        && this.logoutButton.nativeElement !== event.target
+        && this.languageButton.nativeElement !== event.target
+        && this.clearLanguageButton.nativeElement !== event.target
+        && this.localeButton.nativeElement !== event.target) {
       this.popupVisible = false;
       this.popupStateChanged.emit(this.popupVisible);
     }
   }
+
+  setPreference(field: string, value: string): void {
+    this.browserPreferencesService.setPreference(field, value).subscribe(arg => console.log(`arg=${arg}`))
+  }
+
+  // setLocale(): void {
+  //   this.browserPreferencesService.setLanguage('US').subscribe(arg => console.log(`arg=${arg}`))
+  // }
 }
 
 
