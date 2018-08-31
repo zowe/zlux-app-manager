@@ -21,9 +21,11 @@
 </div>
 
 <div class="launchbar-user-popup" [class.hidden]="!popupVisible">
-  <h5>{{getUsername()}}</h5>
-  <br>
-  <button #logoutbutton class="btn btn-primary" (click)="logout()">Sign Out</button>
+  <h5 class="launchbar-username">{{getUsername()}}</h5>
+  <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()">Sign Out</button>
+  <button #languagebutton class="btn btn-primary launchbar-button" (click)="setPreference('language', 'fr')">Language</button>
+  <button #clearlanguagebutton class="btn btn-primary launchbar-button" (click)="setPreference('language', null)">Clear Language</button>
+  <button #localebutton class="btn btn-primary launchbar-button" (click)="setPreference('locale', 'US')">Locale</button>
 </div>
 
 <!-- 
