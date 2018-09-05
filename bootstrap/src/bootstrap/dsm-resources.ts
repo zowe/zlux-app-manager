@@ -10,9 +10,10 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager' 
+import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
+import { NotificationManager } from 'zlux-base/notification-manager/notification-manager' 
 import { DsmUri } from '../uri/dsm-uri'
-import { Dispatcher } from 'zlux-base/dispatcher/dispatcher' 
+import { Dispatcher } from 'zlux-base/dispatcher/dispatcher'
 import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry' 
 // import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
@@ -26,6 +27,7 @@ export class DSMResources {
   static uriBroker:ZLUX.UriBroker = new DsmUri();
   static dispatcher:Dispatcher = new Dispatcher(logger);
   static logger:Logger = logger;
+  static NotificationManager = new NotificationManager();
   static registry:ZLUX.Registry = new Registry()
 }
 

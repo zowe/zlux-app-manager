@@ -19,6 +19,7 @@ import { LaunchbarComponent } from './launchbar/launchbar.component';
 import { LaunchbarIconComponent } from './launchbar-icon/launchbar-icon.component';
 import { LaunchbarMenuComponent } from './launchbar-menu/launchbar-menu.component';
 import { LaunchbarWidgetComponent } from './launchbar-widget/launchbar-widget.component';
+import { LaunchbarNotificationsComponent } from './launchbar-notifications/launchbar-notifications.component';
 
 @NgModule({
   imports: [
@@ -29,7 +30,8 @@ import { LaunchbarWidgetComponent } from './launchbar-widget/launchbar-widget.co
     LaunchbarComponent,
     LaunchbarIconComponent,
     LaunchbarMenuComponent,
-    LaunchbarWidgetComponent
+    LaunchbarWidgetComponent,
+    LaunchbarNotificationsComponent
   ],
   exports: [
     LaunchbarComponent
