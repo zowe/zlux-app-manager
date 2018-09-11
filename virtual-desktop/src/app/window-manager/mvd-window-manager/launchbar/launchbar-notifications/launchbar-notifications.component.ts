@@ -20,12 +20,12 @@ import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
   styleUrls: [ 'launchbar-notifications.component.css' ]
 })
 export class LaunchbarNotificationsComponent implements MVDHosting.NotificationWatcher, OnInit {
-  private nCount: number;
+  public messageCount: number;
   private ws: WebSocket;
   
   constructor(@Inject(Angular2InjectionTokens.LOGGER) private log: ZLUX.ComponentLogger) {
-    this.nCount = 0;
-    window.RocketMVD.NotificationManager.addMessageHandler(this);
+    this.messageCount = 0;
+    RocketMVD.NotificationManager.addMessageHandler(this);
 
     /* If the server needs to send a message, we use the websocket,
     else, an application will just call handleMessageAdded handleMessageAdded
@@ -49,7 +49,7 @@ export class LaunchbarNotificationsComponent implements MVDHosting.NotificationW
   }
 
   handleMessageAdded(): void {
-    this.nCount = window.RocketMVD.NotificationManager.getCount();
+    this.messageCount = RocketMVD.NotificationManager.getCount();
   }
 }
 

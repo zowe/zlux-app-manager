@@ -11,13 +11,11 @@
 */
 
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
-import { NotificationManager } from 'zlux-base/notification-manager/notification-manager' 
 import { MvdUri } from '../uri/mvd-uri'
 import { Dispatcher } from 'zlux-base/dispatcher/dispatcher'
 import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry'
-import { NotificationManager } from 'zlux-base/notification-manager/notification-manager'
-// import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
+import { NotificationManager } from 'zlux-base/notification-manager/notification-manager' 
 
 declare var window: { RocketMVD: typeof RocketMVDResources,
                       COM_RS_COMMON_LOGGER: Logger};
@@ -27,11 +25,10 @@ logger.addDestination(logger.makeDefaultDestination(true,true,true));
 window.COM_RS_COMMON_LOGGER = logger;
 
 export class RocketMVDResources {
-  static PluginManager = PluginManager
+  static PluginManager = PluginManager;
   static uriBroker:ZLUX.UriBroker = new MvdUri();
   static dispatcher:Dispatcher = new Dispatcher(logger);
   static logger:Logger = logger;
-  static NotificationManager = new NotificationManager();
   static registry:ZLUX.Registry = new Registry();
   static NotificationManager:NotificationManager = new NotificationManager();
 }
