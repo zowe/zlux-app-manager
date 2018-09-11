@@ -43,7 +43,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     this.applicationInstances = new Map();
     this.nextInstanceId = 0;
 
-    (window as any).RocketMVD.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
+    (window as any).ZoweZLUX.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
       return this.pluginManager.findPluginDefinition(zluxPlugin.getIdentifier()).then(plugin => {
         if (plugin == null) {
           throw new Error('Unknown plugin in launch handler '+zluxPlugin);
@@ -51,7 +51,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         return this.spawnApplication(plugin as DesktopPluginDefinitionImpl, metadata);
       });
     });
-    (window as any).RocketMVD.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
+    (window as any).ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
        let applicationInstance:ApplicationInstance|undefined = this.applicationInstances.get(instanceId);
        if (applicationInstance){
          console.log("i am an instance "+applicationInstance+" with iframeID="+applicationInstance.iframeId);
@@ -144,11 +144,11 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         //Beneath all the abstraction is the instance of the App object, framework-independent
         let notATurtle = this.getJavascriptObjectForApplication(applicationInstance, viewportId);
         // JOE HAX - register to dispatcher
-        RocketMVD.dispatcher.registerPluginInstance(plugin.getBasePlugin(),                  // this is Plugin class instance
+        ZoweZLUX.dispatcher.registerPluginInstance(plugin.getBasePlugin(),                  // this is Plugin class instance
                                                     applicationInstance.instanceId,
                                                     applicationInstance.isIFrame );   // instanceId is proxy handle to isntance
         if (notATurtle && (typeof notATurtle.provideZLUXDispatcherCallbacks == 'function')) {
-          RocketMVD.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
+          ZoweZLUX.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
         } else {
           console.log('Did not register App callbacks. Either could not find instance object for App or the object did not provide callbacks. Instance Obj='+notATurtle); 
         }
@@ -297,7 +297,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
 
   killApplication(plugin:ZLUX.Plugin, appId:MVDHosting.InstanceId):void {
-    RocketMVD.dispatcher.deregisterPluginInstance(plugin,
+    ZoweZLUX.dispatcher.deregisterPluginInstance(plugin,
                                                 appId);   // instanceId is proxy handle to isntance 
 
   }

@@ -30,7 +30,7 @@ export class PluginManager implements MVDHosting.PluginManagerInterface {
       return Promise.resolve(Array.from(this._pluginDefinitions.values()));
     }
 
-    return RocketMVD.PluginManager.loadPlugins('application')
+    return ZoweZLUX.pluginManager.loadPlugins('application')
       .then((plugins: ZLUX.Plugin[]) => plugins.map(plugin => new DesktopPluginDefinitionImpl(plugin)));
   }
 

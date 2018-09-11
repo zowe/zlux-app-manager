@@ -27,7 +27,7 @@ export class AuthenticationManager {
     public http: Http
   ) {
     //TODO: Find a way to get the logger in a more formal manner if possible
-    this.log = RocketMVD.logger.makeComponentLogger("com.rs.mvd.ng2desktop.authentication");
+    this.log = ZoweZLUX.logger.makeComponentLogger("com.rs.mvd.ng2desktop.authentication");
     this.username = null;
     this.postLoginActions = new Array<MVDHosting.LoginActionInterface>();
     this.preLogoutActions = new Array<MVDHosting.LogoutActionInterface>();
@@ -52,7 +52,7 @@ export class AuthenticationManager {
 
   checkSessionValidity(): Observable<any> {
     if (this.defaultUsername() != null) {
-      return this.http.get(RocketMVD.uriBroker.serverRootUri('auth'))
+      return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth'))
         .map(result => {
           let jsonMessage = result.json();
           if (jsonMessage && jsonMessage.categories) {
@@ -102,7 +102,7 @@ export class AuthenticationManager {
 
   private performPostLoginActions(): Observable<any> {
     return new Observable((observer)=> {      
-      RocketMVD.PluginManager.loadPlugins(ZLUX.PluginType.Application).then((plugins:ZLUX.Plugin[])=> {
+      ZoweZLUX.pluginManager.loadPlugins(ZLUX.PluginType.Application).then((plugins:ZLUX.Plugin[])=> {
         if (this.username != null) {
           for (let i = 0; i < this.postLoginActions.length; i++) {
             let success = this.postLoginActions[i].onLogin(this.username, plugins);
@@ -125,7 +125,7 @@ export class AuthenticationManager {
   }  
 
   performLogin(username: string, password: string): Observable<Response> {
-    return this.http.post(RocketMVD.uriBroker.serverRootUri('auth'), { username: username, password: password })
+    return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth'), { username: username, password: password })
     .map(result => {
         let jsonMessage = result.json();
         if (jsonMessage && jsonMessage.success === true) {
@@ -145,7 +145,7 @@ export class AuthenticationManager {
 
   private performLogout(): Observable<Response> {
     this.performPreLogoutActions();    
-    return this.http.post(RocketMVD.uriBroker.serverRootUri('auth-logout'), {})
+    return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-logout'), {})
       .map(response => {
         this.username = null;
         return response;

@@ -30,8 +30,8 @@ import 'script-loader!../node_modules/popper.js/dist/umd/popper.js';import 'scri
 
 /* Load second stage with requirejs */
 const script = document.createElement('script');
-script.setAttribute('data-main', RocketMVD.uriBroker.pluginResourceUri(RocketMVD.PluginManager.getDesktopPlugin(), 'externals.js'));
-script.setAttribute('src', RocketMVD.uriBroker.pluginResourceUri(RocketMVD.PluginManager.getDesktopPlugin(), 'require.js'));
+script.setAttribute('data-main', ZoweZLUX.uriBroker.pluginResourceUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'externals.js'));
+script.setAttribute('src', ZoweZLUX.uriBroker.pluginResourceUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'require.js'));
 document.head.appendChild(script);
 
 

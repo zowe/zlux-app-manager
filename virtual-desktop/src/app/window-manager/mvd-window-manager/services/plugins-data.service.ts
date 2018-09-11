@@ -51,7 +51,7 @@ export class PluginsDataService {
     }
 
     public getResource(scope: string, resourcePath: string, fileName: string): Observable<any>{
-        let uri = RocketMVD.uriBroker.pluginConfigForScopeUri(RocketMVD.PluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
+        let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
         let headers = new Headers({ 'Content-Type': 'application/json' });
         let options = new RequestOptions({ headers: headers });
         return this.http.get(uri, options);
@@ -59,7 +59,7 @@ export class PluginsDataService {
       }
 
     public saveResource(plugins: string[], scope: string, resourcePath: string, fileName: string): Observable<any>{
-        let uri = RocketMVD.uriBroker.pluginConfigForScopeUri(RocketMVD.PluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
+        let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
         let params = {"plugins": plugins};
         return this.http.put(uri, params);
       }

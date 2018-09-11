@@ -18,17 +18,17 @@ import { Registry } from 'zlux-base/registry/registry'
 import { NotificationManager } from 'zlux-base/notification-manager/notification-manager'
 // import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
 
-declare var window: { RocketMVD: typeof DSMResources };
+declare var window: { ZoweZLUX: typeof DSMResources };
 window; /* Suppress TS error */
 let logger = new Logger();
 logger.addDestination(logger.makeDefaultDestination(true,true,true));
 export class DSMResources {
-  static PluginManager = PluginManager
+  static pluginManager = PluginManager
   static uriBroker:ZLUX.UriBroker = new DsmUri();
   static dispatcher:Dispatcher = new Dispatcher(logger);
   static logger:Logger = logger;
   static registry:ZLUX.Registry = new Registry();
-  static NotificationManager:NotificationManager = new NotificationManager();
+  static notificationManager:NotificationManager = new NotificationManager();
 }
 
 /*
