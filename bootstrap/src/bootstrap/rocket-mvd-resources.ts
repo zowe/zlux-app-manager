@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -16,6 +16,7 @@ import { MvdUri } from '../uri/mvd-uri'
 import { Dispatcher } from 'zlux-base/dispatcher/dispatcher'
 import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry'
+import { NotificationManager } from 'zlux-base/notification-manager/notification-manager'
 // import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
 
 declare var window: { RocketMVD: typeof RocketMVDResources,
@@ -32,6 +33,7 @@ export class RocketMVDResources {
   static logger:Logger = logger;
   static NotificationManager = new NotificationManager();
   static registry:ZLUX.Registry = new Registry();
+  static NotificationManager:NotificationManager = new NotificationManager();
 }
 
 
@@ -39,9 +41,8 @@ export class RocketMVDResources {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
-
