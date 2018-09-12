@@ -106,12 +106,9 @@ export class LaunchbarComponent {
   }
 
   launchbarItemClicked(item: LaunchbarItem): void {
-
     if (this.applicationManager.isApplicationRunning(item.plugin)) {
       let windowId = this.windowManager.getWindow(item.plugin);
-
       if (windowId != null) {
-        //this.windowManager.minimizeToggle(windowId);
         if (this.windowManager.windowHasFocus(windowId)){
           this.windowManager.minimizeToggle(windowId);
         } else {
