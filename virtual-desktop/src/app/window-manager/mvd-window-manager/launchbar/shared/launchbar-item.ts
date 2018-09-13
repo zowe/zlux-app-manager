@@ -17,6 +17,7 @@ export abstract class LaunchbarItem {
   abstract readonly image: string | null;
   abstract readonly plugin: DesktopPluginDefinitionImpl;
   abstract readonly launchMetadata: any;
+  abstract readonly instanceCount: number;
 }
 
 

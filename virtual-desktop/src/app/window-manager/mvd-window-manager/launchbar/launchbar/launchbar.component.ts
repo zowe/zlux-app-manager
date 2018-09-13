@@ -75,7 +75,7 @@ export class LaunchbarComponent {
     }
     if (this.loggedIn) {
       if(this.helperLoggedIn != true){
-        this.pluginsDataService.refreshPinnedPlugins();
+        this.pluginsDataService.refreshPinnedPlugins(this.allItems);
         this.helperLoggedIn = true; 
       }
     }
@@ -107,12 +107,16 @@ export class LaunchbarComponent {
 
   launchbarItemClicked(item: LaunchbarItem): void {
     if (this.applicationManager.isApplicationRunning(item.plugin)) {
+      console.log('You should show a window pop-up here: launchbarItemClicked');
       let windowId = this.windowManager.getWindow(item.plugin);
       if (windowId != null) {
         this.windowManager.minimizeToggle(windowId);
       }
     } else {
-      this.applicationManager.showApplicationWindow(item.plugin);
+      this.applicationManager.showApplicationWindow(item.plugin).then((instanceId:MVDHosting.InstanceId)=> {
+        console.log('launchbarItemClicked I now have instanceId = '+instanceId);
+        //item.addInstanceId(instanceId);
+      });
     }
   }
 
@@ -226,7 +230,7 @@ export class LaunchbarComponent {
           this.pluginsDataService.arrayMove(pluginArray, index, index+offset);
         }
       } else if(event.button == 0 && Math.abs(mouseDifference) > 5) {
-        this.pluginsDataService.refreshPinnedPlugins();
+        this.pluginsDataService.refreshPinnedPlugins(this.allItems);
       }
       (<HTMLImageElement>event.target).style.zIndex = '7';
       this.currentEvent = null;
