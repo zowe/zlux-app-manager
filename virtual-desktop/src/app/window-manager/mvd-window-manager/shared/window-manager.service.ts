@@ -283,7 +283,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       return;
     }
     let appId = this.viewportManager.getApplicationInstanceId(desktopWindow.viewportId);
-    if (appId) {
+    if (appId !== null) {
       this.applicationManager.killApplication(desktopWindow.plugin, appId);
     }
     if (desktopWindow.closeHandler != null) {

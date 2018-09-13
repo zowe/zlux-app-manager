@@ -13,7 +13,6 @@ import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import { LaunchbarItem } from '../launchbar/shared/launchbar-item';
-import { PluginLaunchbarItem } from '../launchbar/shared/launchbar-items/plugin-launchbar-item';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 
@@ -29,27 +28,32 @@ export class PluginsDataService {
         @Inject(MVDHosting.Tokens.PluginManagerToken) public pluginManager: MVDHosting.PluginManagerInterface,
         private http: Http,
     ) { 
-        this.refreshPinnedPlugins;
-        this.counter = 0;
+      this.pinnedPlugins = [];
+      this.counter = 0;
     }
 
-    public refreshPinnedPlugins(): void {
+    public refreshPinnedPlugins(accessiblePlugins: LaunchbarItem[]): void {
       this.pinnedPlugins = [];
       this.getResource("user", "ui/launchbar/plugins" , "pinnedPlugins.json")
       .subscribe(res =>{
         res.json().contents.plugins.forEach((p: string) => {
           this.pluginManager.findPluginDefinition(p)
-          .then(res => {
-            if (res == null) {
-              console.log("Bad Plugin Definition")
-            } else { 
-              this.pinnedPlugins.push(new PluginLaunchbarItem(res as DesktopPluginDefinitionImpl));
-            }
-          })
+            .then(res => {
+              if (res == null) {
+                console.log("Bad Plugin Definition")
+              } else {
+                for (let i = 0; i < accessiblePlugins.length; i++) {
+                  if (accessiblePlugins[i].plugin.getKey() == (res as DesktopPluginDefinitionImpl).getKey()) {
+                    this.pinnedPlugins.push(accessiblePlugins[i]);
+                    break;
+                  }
+                }
+              }
+            })
         })
       })
     }
-
+  
     public getResource(scope: string, resourcePath: string, fileName: string): Observable<any>{
         let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
         let headers = new Headers({ 'Content-Type': 'application/json' });
@@ -86,10 +90,7 @@ export class PluginsDataService {
             plugins = res.json().contents.plugins;
           }
           plugins.push(item.plugin.getBasePlugin().getIdentifier());
-          this.saveResource(plugins, this.scope, this.resourcePath, this.fileName)
-            .subscribe(resp=> {
-              this.refreshPinnedPlugins();
-            })
+          this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
         })
     }
   
@@ -100,10 +101,7 @@ export class PluginsDataService {
         let plugins = res.json().contents.plugins;
         if (index != -1) {
           plugins.splice(index, 1);
-          this.saveResource(plugins, this.scope, this.resourcePath, this.fileName)
-          .subscribe(res=>{
-            this.refreshPinnedPlugins();
-          })
+          this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
         }
       })
     }
@@ -124,10 +122,7 @@ export class PluginsDataService {
     var element = arr[fromIndex];
     arr.splice(fromIndex, 1);
     arr.splice(toIndex, 0, element);
-    this.saveResource(arr, this.scope, this.resourcePath, this.fileName)
-    .subscribe(res => {
-      this.refreshPinnedPlugins();
-    })
+    this.saveResource(arr, this.scope, this.resourcePath, this.fileName);
   }
 }
 

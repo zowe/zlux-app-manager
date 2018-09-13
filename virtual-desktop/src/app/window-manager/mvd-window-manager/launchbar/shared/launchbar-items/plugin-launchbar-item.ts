@@ -13,11 +13,16 @@
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { LaunchbarItem } from '../launchbar-item';
 
-export class PluginLaunchbarItem extends LaunchbarItem {
+export class PluginLaunchbarItem extends LaunchbarItem implements ZLUX.PluginWatcher {
+  public instanceIds: Array<MVDHosting.InstanceId>;
+  public instanceCount: number;
   constructor(
     public readonly plugin: DesktopPluginDefinitionImpl
   ) {
     super();
+    this.instanceIds = [];
+    this.instanceCount = 0;
+    ZoweZLUX.dispatcher.registerPluginWatcher(plugin.getBasePlugin(), this);
   }
 
 
@@ -31,6 +36,26 @@ export class PluginLaunchbarItem extends LaunchbarItem {
 
   get launchMetadata(): any {
     return null;
+  }
+
+  get instanceIdArray(): Array<MVDHosting.InstanceId> {
+    return this.instanceIds;
+  }
+
+  instanceAdded(instanceId: MVDHosting.InstanceId, isEmbedded: boolean|undefined) {
+    if (!isEmbedded) {
+      this.instanceIds.push(instanceId);
+      this.instanceCount++;
+    }
+  }
+  instanceRemoved(instanceId: MVDHosting.InstanceId) {
+    for (let i = 0 ; i < this.instanceIds.length; i++) {
+      if (this.instanceIds[i] === instanceId) {
+        this.instanceIds.splice(i,1);
+        this.instanceCount--;
+        return;
+      }
+    }
   }
 }
 

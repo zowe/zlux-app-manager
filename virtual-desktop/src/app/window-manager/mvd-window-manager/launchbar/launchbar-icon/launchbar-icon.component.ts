@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Input, Output, EventEmitter, Inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { LaunchbarItem } from '../shared/launchbar-item';
 
@@ -23,17 +23,21 @@ export class LaunchbarIconComponent {
   @Input() launchbarItem: LaunchbarItem;
 
   @Output() iconClicked: EventEmitter<void>;
+  titleVisible: boolean;
 
-  constructor(@Inject(MVDHosting.Tokens.ApplicationManagerToken) private applicationManager: MVDHosting.ApplicationManagerInterface) {
+  constructor(/*@Inject(MVDHosting.Tokens.ApplicationManagerToken) private applicationManager: MVDHosting.ApplicationManagerInterface*/) {
     this.iconClicked = new EventEmitter();
   }
 
   clicked(): void {
     this.iconClicked.emit();
   }
-
-  isRunning(): boolean {
-    return this.applicationManager.isApplicationRunning(this.launchbarItem.plugin);
+  
+  onMouseEnter(event: MouseEvent, item: LaunchbarItem) {
+    this.titleVisible = true;
+  }
+  onMouseLeave(event: MouseEvent, item: LaunchbarItem) {
+    this.titleVisible = false;
   }
 }
 
