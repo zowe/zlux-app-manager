@@ -42,8 +42,7 @@ class BrowserPreferencesDataservice {
 
       if (requestBody) {
         for (const key of Object.keys(requestBody)) {
-          const value = requestBody[key];
-          const realKey = `com.rs.mvd.ng2desktop.${key}`;
+          let value = requestBody[key];
           const expirationDate: Date = new Date();
 
           // If the key is there and has a value: set the cookie for 100 years (effectively permanent)
@@ -52,12 +51,13 @@ class BrowserPreferencesDataservice {
             expirationDate.setFullYear(expirationDate.getFullYear() + 100);
           } else {
             expirationDate.setFullYear(expirationDate.getFullYear() - 100);
+            value = 'expire';
           }
 
           const maxAge = expirationDate.getTime();
 
-          res.cookie(realKey, value, {maxAge: maxAge});
-          savedPreferences[realKey] = {
+          res.cookie(key, value, {maxAge: maxAge});
+          savedPreferences[key] = {
             'value': value,
             'maxAge': maxAge
           }

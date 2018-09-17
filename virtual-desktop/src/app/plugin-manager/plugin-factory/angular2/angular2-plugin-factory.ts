@@ -12,7 +12,6 @@
 
 import { Injectable, CompilerFactory, /*CompilerOptions, COMPILER_OPTIONS, CompilerFactory*/ } from '@angular/core';
 import { TRANSLATIONS, TRANSLATIONS_FORMAT, LOCALE_ID } from '@angular/core';
-import { registerLocaleData } from '@angular/common';
 
 import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
@@ -24,8 +23,6 @@ import { Observable } from 'rxjs/Rx';
 import { ComponentFactory } from 'zlux-base/registry/registry';
 
 import { BrowserPreferencesService } from '../../../shared/browser-preferences.service';
-
-declare var System: any ; //= (window as any).System;
 
 interface MvdNativeAngularPlugin {
   pluginModule: any;
@@ -165,6 +162,7 @@ export class Angular2PluginFactory extends PluginFactory {
     if (!navigatorLanguage || navigatorLanguage === 'en-US') {
       return Promise.resolve(noProviders);
     }
+<<<<<<< HEAD
     const [language, locale] = navigatorLanguage.split('-');
     // ex.: messages.es-ES.xlf
     const translationFileURL = this.getTranslationFileURL(pluginDefinition, navigatorLanguage);
@@ -174,6 +172,12 @@ export class Angular2PluginFactory extends PluginFactory {
       .catch(err => (fallbackTranslationFileURL != null) ? this.loadTranslations(fallbackTranslationFileURL) : Observable.throw(err))
       .toPromise()
       .then((translations: string) => [
+=======
+    // Ex: 'assets/i18n/messages.es.xlf`
+    const translationFile = this.getTranslationFileURL(pluginDefinition, language);
+    return this.getTranslationsWithSystemJs(translationFile /*, language */) // see comments in getTranslationsWithSystemJs
+      .then( (translations: string ) => [
+>>>>>>> Refinements to language and local preferences
         { provide: TRANSLATIONS, useValue: translations },
         { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
         { provide: LOCALE_ID, useValue: navigatorLanguage }
@@ -192,6 +196,7 @@ export class Angular2PluginFactory extends PluginFactory {
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   loadTranslations(fileURL: string): Observable<string> {
     return this.http.get(fileURL).map(res => res.text());
 =======
@@ -203,6 +208,31 @@ export class Angular2PluginFactory extends PluginFactory {
       })
      }).then(_ => this.http.get(file).map(res => res.text()).toPromise());
 >>>>>>> Experimental commit for dynamic locale loading
+=======
+  getTranslationsWithSystemJs(file: string /* , localeId: string */): Promise<string> {
+    // It would be nice to load the appropriate locale file also, as the commented-out code below
+    // attempts to do. Problems:
+    // 1. This code results in the generation of an xx.desktop.js and xx.desktop.js.map file
+    //    for each local (> 2,000 files)
+    // 2. Ignores that the infrastructure in language-locale.services.ts can:
+    //    a. load locale data in a "safer" way (no extra webpack output)
+    //    b. actually treats locale as possibly independent of language.
+    //
+    // More importantly, the call to registerLocaleData doesn't affect the locale that's
+    // used for pipes etc. The call to registerLocaleData in pluginManager.module
+    // appears to work when the desktop is loaded.
+    // So, current behavior is that changing the language will choose a new translation
+    // file when opening/reopening angular-based plugins, but the pipes will continue
+    // to use the old language/locale until you reload the desktop.
+  //   return new Promise((resolve, reject) => {System.import(/* webpackMode: "lazy" */
+  //     `@angular/common/locales/${localeId}.js`).then((localeModule: any) => {
+  //     registerLocaleData(localeModule.default);
+  //     resolve();
+  //     })
+  //    }).then(_ => this.http.get(file).map(res => res.text()).toPromise());
+  // }
+    return this.http.get(file).map(res => res.text()).toPromise();
+>>>>>>> Refinements to language and local preferences
   }
 }
 

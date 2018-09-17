@@ -23,6 +23,7 @@ import {
 import { Observable } from 'rxjs/Rx';
 
 import { BrowserPreferencesService } from '../../../../shared/browser-preferences.service';
+import { LanguageLocaleService } from '../../../../shared/language-locale.service';
 
 @Component({
   selector: 'rs-com-launchbar-widget',
@@ -42,7 +43,8 @@ export class LaunchbarWidgetComponent implements OnInit {
 
   constructor(
     @Inject(MVDHosting.Tokens.AuthenticationManagerToken) public authenticationManager: MVDHosting.AuthenticationManagerInterface,
-    private browserPreferencesService: BrowserPreferencesService
+//    private browserPreferencesService: BrowserPreferencesService
+    private languageLocaleService: LanguageLocaleService
   ) {
     this.date = new Date();
     this.popupVisible = false;
@@ -82,13 +84,19 @@ export class LaunchbarWidgetComponent implements OnInit {
     }
   }
 
-  setPreference(field: string, value: string): void {
-    this.browserPreferencesService.setPreference(field, value).subscribe(arg => console.log(`arg=${arg}`))
+  setLanguage(value: string): void {
+    this.languageLocaleService.setLanguage(value).subscribe(
+      arg => console.log(`arg=${arg}`),
+      err => {
+        console.log("got error");
+        console.log(err);
+      }
+    )
   }
 
-  // setLocale(): void {
-  //   this.browserPreferencesService.setLanguage('US').subscribe(arg => console.log(`arg=${arg}`))
-  // }
+  setLocale(value: string): void {
+    this.languageLocaleService.setLocale('US').subscribe(arg => console.log(`arg=${arg}`))
+  }
 }
 
 
