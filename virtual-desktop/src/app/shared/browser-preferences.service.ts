@@ -13,12 +13,7 @@ import { Http } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 
-//import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
-
-interface I18nInfo {
-  language?: string;
-  locale?: string;
-}
+// import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 
 @Injectable()
 export class BrowserPreferencesService {
@@ -29,11 +24,13 @@ export class BrowserPreferencesService {
   private readonly logger = RocketMVD.logger.makeComponentLogger(this.plugin.getIdentifier());
 
   private readonly resourcePath = 'browser-preferences';
+  // Maybe this could be a constructor arg in the future
+  private readonly preferencePrefix = this.plugin.getIdentifier();
 
   constructor(
     // I couldn't figure out how to get the injections to work.
-//    @Inject(Angular2InjectionTokens.LOGGER) private logger: ZLUX.ComponentLogger,
-//    @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefinition: ZLUX.ContainerPluginDefinition,
+    // @Inject(Angular2InjectionTokens.LOGGER) private logger: ZLUX.ComponentLogger,
+    // @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefinition: ZLUX.ContainerPluginDefinition,
     private http: Http,
   ) {
   }
@@ -42,51 +39,54 @@ export class BrowserPreferencesService {
     const uri = RocketMVD.uriBroker.pluginRESTUri(this.plugin, this.resourcePath, '');
     this.logger.info(`set preference ${preference} to ${value} at uri ${uri}`);
     const body: any = {};
-    body[preference] = value;
+    body[`${this.preferencePrefix}.${preference}`] = value;
 
     return this.http.post(uri, body);
   }
 
-  getCookies(): any {
+  getPreferences(): any {
+    // this is the only part of the client code that knows the preferences
+    // are cookies
     const cookieStrings: string[] = document.cookie.split(';');
-    const cookies: any = {};
+    const preferences: any = {};
 
     for (const cookieString of cookieStrings) {
       const pair: string[] = cookieString.split('=');
-      const left: string = pair[0];
-      const right: string = pair[1];
+      // apparently the cookieString is not reliable with regard to where the spaces are
+      const left: string = pair[0].trim();
 
-      cookies[left.trim()] = right && right.trim();
+      if (left.startsWith(this.preferencePrefix)) {
+        const key = left.substring(this.preferencePrefix.length + 1).trim();
+        const right: string = pair[1];
+        preferences[key] = right && right.trim();
+      }
     }
 
-    return cookies;
+    return preferences;
   }
 
-  getCookie(key: string): string {
-    const cookies = this.getCookies();
+  getPreference(key: string): string {
+    const preferences = this.getPreferences();
 
-    return cookies[key];
-  }
-
-  getI18nInfo(): I18nInfo {
-    const cookies: any = this.getCookies();
-    const prefix: string = 'com.rs.mvd.ng2desktop';
-
-    return {
-      language: cookies[`${prefix}.language`],
-      locale: cookies[`${prefix}.locale`]
-    } as I18nInfo
+    return preferences[key];
   }
 
   getLanguage(): string {
-    const i18nInfo: I18nInfo = this.getI18nInfo();
-    const configuredLanguage = i18nInfo.language;
+    const configuredLanguage = this.getPreference('language')
 
     if (configuredLanguage) {
       return configuredLanguage;
     } else {
       return navigator.language.split('-')[0];
     }
+  }
+
+  setLanguage(language: string): Observable<any> {
+    return this.setPreference('language', language);
+  }
+
+  setLocale(locale: string): Observable<any> {
+    return this.setPreference('locale', locale);
   }
 
 }
