@@ -46,7 +46,7 @@ export class IFramePluginFactory extends PluginFactory {
     if (startingPage.startsWith('http://') || startingPage.startsWith('https://')) {
       startingPageUri = startingPage;
     } else {
-      startingPageUri = (window as any).RocketMVD.uriBroker.pluginResourceUri(basePlugin, startingPage);
+      startingPageUri = (window as any).ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
     }
     console.log('startingPageUri', startingPageUri);
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
