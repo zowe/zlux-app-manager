@@ -85,15 +85,15 @@ class SimpleAngularComponentFactory extends ComponentFactory {
 @Injectable()
 export class Angular2PluginFactory extends PluginFactory {
   private static getAngularModuleURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
-    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'main.js');
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'main.js');
   }
 
   private static getAngularComponentsURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
-    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
   }
 
   private getTranslationFileURL(pluginDefinition: MVDHosting.DesktopPluginDefinition, language: string): string {
-    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${language}.xlf`);
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${language}.xlf`);
   }
 
   constructor(
@@ -124,7 +124,7 @@ export class Angular2PluginFactory extends PluginFactory {
             console.log(`Registering component factory for plugin ${pluginDefinition.getIdentifier()}:`);
             console.log(componentFactory);
 
-            RocketMVD.registry.registerComponentFactory(componentFactory);
+            ZoweZLUX.registry.registerComponentFactory(componentFactory);
 
             resolve();
           });

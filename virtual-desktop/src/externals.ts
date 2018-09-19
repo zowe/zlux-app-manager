@@ -40,7 +40,7 @@ for (const library in libs) {
 
 /* Perform bootstrap using requirejs */
 (window as any).requirejs([
-  RocketMVD.uriBroker.pluginResourceUri(RocketMVD.PluginManager.getDesktopPlugin(), 'desktop.js')
+  ZoweZLUX.uriBroker.pluginResourceUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'desktop.js')
 ], (desktop: any) => {
   /* Prepare the DOM for boostrapping */
   const element = document.createElement('rs-com-root');

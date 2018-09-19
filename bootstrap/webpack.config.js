@@ -66,7 +66,7 @@ module.exports = {
     // new NoEmitOnErrorsPlugin(),
     new ProgressPlugin(),
     new HtmlWebpackPlugin({
-      "title": "Mainframe Virtual Desktop"
+      "title": "Zowe Desktop"
     })
   ],
   "node": {
