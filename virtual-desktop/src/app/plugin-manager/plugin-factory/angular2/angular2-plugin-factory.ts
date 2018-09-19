@@ -22,7 +22,7 @@ import { Observable } from 'rxjs/Rx';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
 
-import { BrowserPreferencesService } from '../../../shared/browser-preferences.service';
+import { LanguageLocaleService } from '../../../shared/language-locale.service';
 
 interface MvdNativeAngularPlugin {
   pluginModule: any;
@@ -102,7 +102,7 @@ export class Angular2PluginFactory extends PluginFactory {
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
     private injector: Injector,
-    private browserPreferencesService: BrowserPreferencesService
+    private languageLocaleService: LanguageLocaleService
   ) {
     super();
   }
@@ -164,7 +164,7 @@ export class Angular2PluginFactory extends PluginFactory {
     // TO DO: handle both language and local (e.g., both "en" and "en-US")
     // MVD-1671: support lang-LOCALE and ability to fall back to lang if lang-LOCALE is not found
     // MERGE QUESTION: should be put this in polyfills? abstract it somewhere? etc.?
-    const language: string = this.browserPreferencesService.getLanguage();
+    const language: string = this.languageLocaleService.getLanguage();
     // return no providers if fail to get translation file for language
     const noProviders: StaticProvider[] = [];
     // No language or U.S. English: no translation providers

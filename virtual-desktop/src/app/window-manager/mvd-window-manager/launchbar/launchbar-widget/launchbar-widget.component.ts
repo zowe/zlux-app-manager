@@ -22,14 +22,13 @@ import {
   } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
-import { BrowserPreferencesService } from '../../../../shared/browser-preferences.service';
 import { LanguageLocaleService } from '../../../../shared/language-locale.service';
 
 @Component({
   selector: 'rs-com-launchbar-widget',
   templateUrl: 'launchbar-widget.component.html',
   styleUrls: [ 'launchbar-widget.component.css' ],
-  providers: [BrowserPreferencesService]
+  providers: [LanguageLocaleService]
 })
 export class LaunchbarWidgetComponent implements OnInit {
   date: Date;
@@ -43,7 +42,6 @@ export class LaunchbarWidgetComponent implements OnInit {
 
   constructor(
     @Inject(MVDHosting.Tokens.AuthenticationManagerToken) public authenticationManager: MVDHosting.AuthenticationManagerInterface,
-//    private browserPreferencesService: BrowserPreferencesService
     private languageLocaleService: LanguageLocaleService
   ) {
     this.date = new Date();
