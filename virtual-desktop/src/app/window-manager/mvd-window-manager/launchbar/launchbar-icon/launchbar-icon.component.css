@@ -57,6 +57,7 @@
   bottom: 55px;
   left: 0;
   line-height: 120%;
+  z-index: 7;
 }
 
 .launchbar-icon-marker {

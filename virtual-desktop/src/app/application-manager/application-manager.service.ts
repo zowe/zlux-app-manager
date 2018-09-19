@@ -138,9 +138,6 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         console.log(compiled.initialComponent);
         applicationInstance.setMainComponent(compiled.initialComponent); 
         this.generateMainComponentRefFor(applicationInstance, viewportId);   // new component is added to DOM here
-        if (applicationInstance.isIFrame) {
-          // applicationInstance.ifrramwWindow = 
-        }
         //Beneath all the abstraction is the instance of the App object, framework-independent
         let notATurtle = this.getJavascriptObjectForApplication(applicationInstance, viewportId);
         // JOE HAX - register to dispatcher
@@ -221,7 +218,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     if (windowId != null) {
       windowManager.showWindow(windowId);
       return new Promise((resolve,reject)=> {
-        resolve(windowId);
+        resolve(windowId); //possibly a bug: windowid and instanceid could be different?
       });
     } else {
       return this.spawnApplication(plugin, null);

@@ -244,6 +244,15 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
   }
 
+  getWindowIDs(plugin: MVDHosting.DesktopPluginDefinition): Array<MVDWindowManagement.WindowId> | null {
+    const desktopWindows = this.pluginMap.get(plugin.getIdentifier());
+    if (desktopWindows !== undefined) {
+      return desktopWindows.map((desktopWindow)=> {return desktopWindow.windowId;});
+    } else {
+      return null;
+    }
+  }
+
   showWindow(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow !== undefined) {
@@ -301,6 +310,15 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
 
     desktopWindow.closeHandler = handler;
+  }
+
+  getWindowTitle(windowId: MVDWindowManagement.WindowId): string | null {
+    const desktopWindow = this.windowMap.get(windowId);
+    if (desktopWindow == null) {
+      console.warn('Attempted to set window title for null window');
+      return null;
+    }
+    return desktopWindow.windowTitle;
   }
 
   setWindowTitle(windowId: MVDWindowManagement.WindowId, title: string): void {
