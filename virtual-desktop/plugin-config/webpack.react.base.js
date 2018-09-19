@@ -42,11 +42,6 @@ var config = {
         ]
       },
       {
-        /* JSON inline loader */
-        'test': /\.json$/,
-        'loader': 'json-loader'
-      },
-      {
         /* HTML URL resolution loader */
         'test': /\.html$/,
         'loader': 'html-loader'
@@ -68,21 +63,13 @@ var config = {
       {
         /* CSS URL loader, TODO: reconsider */
         'test': /\.css$/,
-        'use': [
-          'exports-loader?module.exports.toString()',
-          {
-            'loader': 'css-loader',
-            'options': {
-              'sourceMap': false
-            }
-          }
-        ]
+        'use': [ 'style-loader', 'css-loader' ]
       },
       {
-        /* TS and angular loader */
+        /* TS loader */
         'test': /\.(ts|tsx)$/,
         'loaders': [
-          'ts-loader',
+          'ts-loader'
         ]
       }
     ]
@@ -90,7 +77,7 @@ var config = {
   "externals": [
     function(context, request, callback) {
       /* TODO: should we share react? */
-      if (/(@angular)|(^bootstrap$)|(^jquery$)|(^rxjs\/Rx$)/.test(request)){
+      if (/(@angular)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs\/Rx$)/.test(request)){
         return callback(null, {
           commonjs: request,
           commonjs2: request,
