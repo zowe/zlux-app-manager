@@ -22,8 +22,6 @@ import { PluginManagerModule } from './plugin-manager/plugin-manager.module';
 import { ApplicationManagerModule } from './application-manager/application-manager.module';
 import { AuthenticationModule } from './authentication-manager/authentication-manager.module';
 import { SharedModule } from './shared/shared.module';
-import { BrowserPreferencesService } from './shared/browser-preferences.service';
-import { LanguageLocaleService } from './shared/language-locale.service';
 
 export class MvdModuleFactory {
   static generateModule(windowManagerModule: Type<any>, mainComponent: Type<any>): Type<any> {
@@ -41,9 +39,7 @@ export class MvdModuleFactory {
       ],
       declarations: [mainComponent],
       providers: [
-        { provide: LocationStrategy, useClass: HashLocationStrategy },
-        BrowserPreferencesService,
-        LanguageLocaleService
+        { provide: LocationStrategy, useClass: HashLocationStrategy }
       ],
       bootstrap: [mainComponent]
     })(class MvdModule {});

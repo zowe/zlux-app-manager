@@ -157,32 +157,29 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
   getTranslationProviders(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<StaticProvider[]> {
+    // Get the locale id from the global
+    // According to Mozilla.org this will work well enough for the
+    // browsers we support (Chrome, Firefox, Edge, Safari)
+    // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/language
+    // TO DO: handle both language and local (e.g., both "en" and "en-US")
+    // MVD-1671: support lang-LOCALE and ability to fall back to lang if lang-LOCALE is not found
+    // MERGE QUESTION: should be put this in polyfills? abstract it somewhere? etc.?
+    const locale:string = navigator.language.split("-")[0];
+    // return no providers if fail to get translation file for locale
     const noProviders: StaticProvider[] = [];
-    const navigatorLanguage = navigator.language;
-    if (!navigatorLanguage || navigatorLanguage === 'en-US') {
+    // No locale or U.S. English: no translation providers
+    if (!locale || locale === 'en') {
       return Promise.resolve(noProviders);
     }
-<<<<<<< HEAD
-    const [language, locale] = navigatorLanguage.split('-');
-    // ex.: messages.es-ES.xlf
-    const translationFileURL = this.getTranslationFileURL(pluginDefinition, navigatorLanguage);
-    // ex.: messages.es.xlf
-    const fallbackTranslationFileURL = (locale != null) ? this.getTranslationFileURL(pluginDefinition, language) : null;
-    return this.loadTranslations(translationFileURL)
-      .catch(err => (fallbackTranslationFileURL != null) ? this.loadTranslations(fallbackTranslationFileURL) : Observable.throw(err))
-      .toPromise()
-      .then((translations: string) => [
-=======
-    // Ex: 'assets/i18n/messages.es.xlf`
-    const translationFile = this.getTranslationFileURL(pluginDefinition, language);
-    return this.getTranslationsWithSystemJs(translationFile /*, language */) // see comments in getTranslationsWithSystemJs
+    // Ex: 'locale/messages.es.xlf`
+    const translationFile = this.getTranslationFileURL(pluginDefinition, locale);
+    return this.getTranslationsWithSystemJs(translationFile)
       .then( (translations: string ) => [
->>>>>>> Refinements to language and local preferences
         { provide: TRANSLATIONS, useValue: translations },
         { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
-        { provide: LOCALE_ID, useValue: navigatorLanguage }
+        { provide: LOCALE_ID, useValue: locale },
       ])
-      .catch(() => noProviders);
+      .catch(() => noProviders); // ignore if file not found
   }
 
   getCompiler(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<Compiler> {
@@ -194,45 +191,8 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-  loadTranslations(fileURL: string): Observable<string> {
-    return this.http.get(fileURL).map(res => res.text());
-=======
-  getTranslationsWithSystemJs(file: string, localeId: string): Promise<string> {
-    return new Promise((resolve, reject) => {System.import(/* webpackMode: "lazy" */
-      `@angular/common/locales/${localeId}.js`).then((localeModule: any) => {
-      registerLocaleData(localeModule.default);
-      resolve();
-      })
-     }).then(_ => this.http.get(file).map(res => res.text()).toPromise());
->>>>>>> Experimental commit for dynamic locale loading
-=======
-  getTranslationsWithSystemJs(file: string /* , localeId: string */): Promise<string> {
-    // It would be nice to load the appropriate locale file also, as the commented-out code below
-    // attempts to do. Problems:
-    // 1. This code results in the generation of an xx.desktop.js and xx.desktop.js.map file
-    //    for each local (> 2,000 files)
-    // 2. Ignores that the infrastructure in language-locale.services.ts can:
-    //    a. load locale data in a "safer" way (no extra webpack output)
-    //    b. actually treats locale as possibly independent of language.
-    //
-    // More importantly, the call to registerLocaleData doesn't affect the locale that's
-    // used for pipes etc. The call to registerLocaleData in pluginManager.module
-    // appears to work when the desktop is loaded.
-    // So, current behavior is that changing the language will choose a new translation
-    // file when opening/reopening angular-based plugins, but the pipes will continue
-    // to use the old language/locale until you reload the desktop.
-  //   return new Promise((resolve, reject) => {System.import(/* webpackMode: "lazy" */
-  //     `@angular/common/locales/${localeId}.js`).then((localeModule: any) => {
-  //     registerLocaleData(localeModule.default);
-  //     resolve();
-  //     })
-  //    }).then(_ => this.http.get(file).map(res => res.text()).toPromise());
-  // }
+  getTranslationsWithSystemJs(file: string): Promise<string> {
     return this.http.get(file).map(res => res.text()).toPromise();
->>>>>>> Refinements to language and local preferences
   }
 }
 

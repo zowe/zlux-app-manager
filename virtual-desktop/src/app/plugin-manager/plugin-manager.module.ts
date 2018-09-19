@@ -18,65 +18,17 @@ import { PluginLoader } from './shared/plugin-loader';
 import { Angular2PluginFactory } from './plugin-factory/angular2/angular2-plugin-factory';
 import { IFramePluginFactory } from './plugin-factory/iframe/iframe-plugin-factory';
 import { ReactPluginFactory } from './plugin-factory/react/react-plugin-factory';
+// import { Globalization } from '../../../../bootstrap/src/i18n/globalization';
+import { LanguageLocaleService } from '../shared/language-locale.service';
 
-interface I18nInfo {
-  language?: string;
-  locale?: string;
-}
-
-export class LocaleService {
-
-  getCookies(): any {
-    const cookieStrings: string[] = document.cookie.split(';');
-    const cookies: any = {};
-
-    for (const cookieString of cookieStrings) {
-      const pair: string[] = cookieString.split('=');
-      const left: string = pair[0];
-      const right: string = pair[1];
-
-      cookies[left.trim()] = right && right.trim();
-    }
-
-    return cookies;
-  }
-
-  getCookie(key: string): string {
-    const cookies = this.getCookies();
-
-    return cookies[key];
-  }
-
-  getI18nInfo(): I18nInfo {
-    const cookies: any = this.getCookies();
-    const prefix: string = 'com.rs.mvd.ng2desktop';
-
-    return {
-      language: cookies[`${prefix}.language`],
-      locale: cookies[`${prefix}.locale`]
-    } as I18nInfo
-  }
-
-  getLocale(): string {
-      const i18nInfo: I18nInfo = this.getI18nInfo();
-      const configuredLanguage = i18nInfo.language;
-
-      if (configuredLanguage) {
-        return configuredLanguage;
-      } else {
-        return navigator.language.split('-')[0];
-      }
-    }
-}
-
-export function localeIdFactory(localeService: LocaleService) {
-  return localeService.getLocale();
+export function localeIdFactory(localeService: LanguageLocaleService) {
+  return localeService.getLanguage();
 }
 
 export function localeInitializer(localeId: string) {
   return (): Promise<any> => {
     return new Promise((resolve, reject) => {
-      const baseURI: string = (window as any).RocketMVD.uriBroker.desktopRootUri();
+      const baseURI: string = (window as any).ZoweZLUX.uriBroker.desktopRootUri();
       const paths: any = {};
 
       // NOTE: static loading using "import" bloated the desktop.js from
@@ -117,8 +69,8 @@ export function localeInitializer(localeId: string) {
     PluginLoader,
     /* Expose plugin manager to external window managers */
     { provide: MVDHosting.Tokens.PluginManagerToken, useExisting: PluginManager },
-    LocaleService,
-    { provide: LOCALE_ID, useFactory: localeIdFactory, deps: [LocaleService] },
+    LanguageLocaleService,
+    { provide: LOCALE_ID, useFactory: localeIdFactory, deps: [LanguageLocaleService] },
     {
       provide: APP_INITIALIZER,
       multi: true,
