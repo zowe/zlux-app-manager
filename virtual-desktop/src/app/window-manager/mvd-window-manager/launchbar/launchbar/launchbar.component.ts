@@ -106,13 +106,16 @@ export class LaunchbarComponent {
   }
 
   launchbarItemClicked(item: LaunchbarItem): void {
-    if (this.applicationManager.isApplicationRunning(item.plugin)) {
-      console.log('You should show a window pop-up here: launchbarItemClicked');
+    if (item.instanceCount > 1) {
+      item.showIconLabel = item.showInstanceView;
+      item.showInstanceView = !item.showInstanceView;
+    } else if (item.instanceCount == 1) {
       let windowId = this.windowManager.getWindow(item.plugin);
       if (windowId != null) {
         this.windowManager.minimizeToggle(windowId);
       }
     } else {
+      item.showInstanceView = false;
       this.applicationManager.showApplicationWindow(item.plugin).then((instanceId:MVDHosting.InstanceId)=> {
         console.log('launchbarItemClicked I now have instanceId = '+instanceId);
         //item.addInstanceId(instanceId);
@@ -120,18 +123,48 @@ export class LaunchbarComponent {
     }
   }
 
+  openWindow(item: LaunchbarItem): void {
+    item.showInstanceView = false;
+    this.applicationManager.spawnApplication(item.plugin, null).then((instanceId:MVDHosting.InstanceId)=> {
+      console.log('launchbarItemClicked I now have instanceId = '+instanceId);
+    });
+  }
+
   onStateChanged(isActive: boolean): void {
     this.isActive = isActive;
-    }
+  }
 
-  closeApplication(item: LaunchbarItem): void {
-    let windowId = this.windowManager.getWindow(item.plugin);
-    if (windowId != null) {
-      this.windowManager.closeWindow(windowId);
+  closeAllWindows(item: LaunchbarItem): void {
+    let windowIds = this.windowManager.getWindowIDs(item.plugin);
+    if (windowIds != null) {
+      windowIds.forEach(windowId => {
+        this.windowManager.closeWindow(windowId);
+      });
     }
   }
 
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
+    let menuItems: ContextMenuItem[];
+    if (item.instanceCount == 1) {
+      menuItems = [
+        this.pluginsDataService.pinContext(item),
+        { "text": "Open New", "action": ()=> this.openWindow(item)},
+        { "text": "Close All", "action": ()=> this.closeAllWindows(item)},
+        { "text": "Bring to Front", "action": () => this.bringItemFront(item) }        
+      ];
+    } else if (item.instanceCount != 0) {
+      menuItems = [
+        this.pluginsDataService.pinContext(item),
+        { "text": "Open New", "action": ()=> this.openWindow(item)},
+        { "text": "Close All", "action": ()=> this.closeAllWindows(item)}
+      ];
+    } else {
+      menuItems = [
+        this.pluginsDataService.pinContext(item),
+        { "text": "Open New", "action": () => this.openWindow(item) }
+      ];
+    }
+    /*
     if (this.applicationManager.isApplicationRunning(item.plugin)) {
       var menuItems: ContextMenuItem[] =
         [
@@ -146,6 +179,7 @@ export class LaunchbarComponent {
           this.pluginsDataService.pinContext(item)
         ]
     }
+    */
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY - 60, items: menuItems});
     return false;
   }

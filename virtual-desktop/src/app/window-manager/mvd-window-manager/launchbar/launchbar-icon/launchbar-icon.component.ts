@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { LaunchbarItem } from '../shared/launchbar-item';
 
@@ -22,22 +22,34 @@ import { LaunchbarItem } from '../shared/launchbar-item';
 export class LaunchbarIconComponent {
   @Input() launchbarItem: LaunchbarItem;
 
-  @Output() iconClicked: EventEmitter<void>;
   titleVisible: boolean;
 
   constructor(/*@Inject(MVDHosting.Tokens.ApplicationManagerToken) private applicationManager: MVDHosting.ApplicationManagerInterface*/) {
-    this.iconClicked = new EventEmitter();
-  }
 
-  clicked(): void {
-    this.iconClicked.emit();
   }
-  
+/*
+  clicked(): void {
+    if (this.launchbarItem.instanceCount > 1) {
+      this.instanceViewVisible = true;
+    }
+  }
+*/  
   onMouseEnter(event: MouseEvent, item: LaunchbarItem) {
-    this.titleVisible = true;
+    if (!this.launchbarItem.showInstanceView) {
+      this.launchbarItem.showIconLabel = true;
+    }
   }
   onMouseLeave(event: MouseEvent, item: LaunchbarItem) {
-    this.titleVisible = false;
+    this.launchbarItem.showIconLabel = false;
+  }
+
+  onMouseEnterInstanceView(event: MouseEvent, item: LaunchbarItem) {
+    this.launchbarItem.showIconLabel = false;
+    this.launchbarItem.showInstanceView = true;
+  }
+
+  onMouseLeaveInstanceView(event: MouseEvent, item: LaunchbarItem) {
+    this.launchbarItem.showInstanceView = false;
   }
 }
 

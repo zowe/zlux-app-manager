@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Inject, Input } from '@angular/core';
+import { Component, Inject, ElementRef, ViewChild, Input } from '@angular/core';
 import { DesktopWindow } from '../shared/desktop-window';
 import { DesktopWindowStateType } from '../shared/desktop-window-state';
 import { WindowManagerService } from '../shared/window-manager.service';
@@ -25,11 +25,15 @@ const WINDOW_HEADER_HEIGHT = WindowManagerService.WINDOW_HEADER_HEIGHT;
   styleUrls: ['window.component.css']
 })
 export class WindowComponent {
+  @ViewChild('windowBody')
+  public windowBodyRef: ElementRef;
+
   MIN_WIDTH = 180;
   MIN_HEIGHT = 100;
 
   @Input() desktopWindow: DesktopWindow;
 
+  
   constructor(
     public windowManager: WindowManagerService,
     @Inject(MVDHosting.Tokens.ApplicationManagerToken) public applicationManager: MVDHosting.ApplicationManagerInterface

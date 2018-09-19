@@ -12,20 +12,30 @@
 
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { LaunchbarItem } from '../launchbar-item';
+//import { Observable, Observer } from '../../../../../../../node_modules/rxjs';
 
 export class PluginLaunchbarItem extends LaunchbarItem implements ZLUX.PluginWatcher {
   public instanceIds: Array<MVDHosting.InstanceId>;
   public instanceCount: number;
+//  private clickObserver: Observer<boolean>;
   constructor(
     public readonly plugin: DesktopPluginDefinitionImpl
   ) {
     super();
+    /*
+    this.observableClick = Observable.create((observer: Observer<boolean>)=> {
+      this.clickObserver = observer;
+    });
+*/
     this.instanceIds = [];
     this.instanceCount = 0;
     ZoweZLUX.dispatcher.registerPluginWatcher(plugin.getBasePlugin(), this);
   }
-
-
+/*
+  clicked():void {
+    this.clickObserver.next(true);
+  }
+*/
   get label(): string {
     return this.plugin.label;
   }
