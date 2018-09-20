@@ -22,10 +22,13 @@ import {
   } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
+import { LanguageLocaleService } from '../../../../shared/language-locale.service';
+
 @Component({
   selector: 'rs-com-launchbar-widget',
   templateUrl: 'launchbar-widget.component.html',
-  styleUrls: [ 'launchbar-widget.component.css' ]
+  styleUrls: [ 'launchbar-widget.component.css' ],
+  providers: [LanguageLocaleService]
 })
 export class LaunchbarWidgetComponent implements OnInit {
   date: Date;
@@ -34,8 +37,14 @@ export class LaunchbarWidgetComponent implements OnInit {
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
 
+  // Convenience widgets for testing the i18n work
+  // @ViewChild('languagebutton') languageButton: ElementRef;
+  // @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;
+  // @ViewChild('localebutton') localeButton: ElementRef;
+
   constructor(
-    @Inject(MVDHosting.Tokens.AuthenticationManagerToken) public authenticationManager: MVDHosting.AuthenticationManagerInterface
+    @Inject(MVDHosting.Tokens.AuthenticationManagerToken) public authenticationManager: MVDHosting.AuthenticationManagerInterface,
+    private languageLocaleService: LanguageLocaleService
   ) {
     this.date = new Date();
     this.popupVisible = false;
@@ -65,11 +74,30 @@ export class LaunchbarWidgetComponent implements OnInit {
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
     if (this.popupVisible && event
-       && !this.userIcon.nativeElement.contains(event.target)
-       && this.logoutButton.nativeElement !== event.target) {
+        && !this.userIcon.nativeElement.contains(event.target)
+        && this.logoutButton.nativeElement !== event.target
+        // Convenience widgets for testing the i18n work
+        // && this.languageButton.nativeElement !== event.target
+        // && this.clearLanguageButton.nativeElement !== event.target
+        // && this.localeButton.nativeElement !== event.target
+      ) {
       this.popupVisible = false;
       this.popupStateChanged.emit(this.popupVisible);
     }
+  }
+
+  setLanguage(value: string): void {
+    this.languageLocaleService.setLanguage(value).subscribe(
+      arg => console.log(`arg=${arg}`),
+      err => {
+        console.log("got error");
+        console.log(err);
+      }
+    )
+  }
+
+  setLocale(value: string): void {
+    this.languageLocaleService.setLocale('US').subscribe(arg => console.log(`arg=${arg}`))
   }
 }
 

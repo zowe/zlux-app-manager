@@ -31,5 +31,14 @@
       }
     }
   },
-  "dataServices": []
+  "dataServices": [
+    {
+      "type": "router",
+      "name": "browser-preferences",
+      "filename": "browserPreferences.js",
+      "routerFactory": "browserPreferencesRouter",
+      "dependenciesIncluded": true,
+      "initializerLookupMethod": "external"
+    }    
+  ]
 }

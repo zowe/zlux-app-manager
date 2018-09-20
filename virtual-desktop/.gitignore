@@ -13,9 +13,11 @@
 /dll/dist
 /out-tsc
 *CVS/
+/lib
 
 # dependencies
 /node_modules
+**/node_modules
 
 # IDEs and editors
 /.idea

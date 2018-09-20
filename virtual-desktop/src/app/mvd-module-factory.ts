@@ -23,7 +23,6 @@ import { ApplicationManagerModule } from './application-manager/application-mana
 import { AuthenticationModule } from './authentication-manager/authentication-manager.module';
 import { SharedModule } from './shared/shared.module';
 
-
 export class MvdModuleFactory {
   static generateModule(windowManagerModule: Type<any>, mainComponent: Type<any>): Type<any> {
     return NgModule({
@@ -39,12 +38,18 @@ export class MvdModuleFactory {
         AuthenticationModule
       ],
       declarations: [mainComponent],
-      providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }],
+      providers: [
+        { provide: LocationStrategy, useClass: HashLocationStrategy }
+      ],
       bootstrap: [mainComponent]
     })(class MvdModule {});
   }
 }
 
+
+             /* webpackMode: "lazy"
+                webpackExclude: /\.ts$/
+                webpackChunkName: "testing" */
 
 /*
   This program and the accompanying materials are

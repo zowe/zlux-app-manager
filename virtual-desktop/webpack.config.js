@@ -87,7 +87,13 @@ module.exports = {
           'ts-loader',
           'angular2-template-loader'
         ]
-      }
+      },
+      {
+        "test": /@angular\/common\/locales\/.*\.js/,
+        "use": [
+          "exports-loader"
+        ]
+      },
     ]
   },
   "externals": [
