@@ -12,13 +12,14 @@ export class Globalization implements ZLUX.Globalization {
 
 
   private readonly plugin: ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
-  private readonly logger = ZoweZLUX.logger.makeComponentLogger(this.plugin.getIdentifier());
+  private readonly logger: ZLUX.ComponentLogger = ZoweZLUX.logger.makeComponentLogger(this.plugin.getIdentifier());
 
   private readonly resourcePath = 'browser-preferences';
   // Maybe this could be a constructor arg in the future
   private readonly preferencePrefix = 'org.zowe.zlux.zlux-app-manager.preferences'; // this.plugin.getIdentifier();
 
-
+  constructor() {
+  }
 
   setPreference(preference: string, value: string): Promise<any> {
     const uri = ZoweZLUX.uriBroker.pluginRESTUri(this.plugin, this.resourcePath, '');

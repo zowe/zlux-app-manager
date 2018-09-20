@@ -16,6 +16,7 @@ import { Dispatcher } from 'zlux-base/dispatcher/dispatcher'
 import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry'
 import { NotificationManager } from 'zlux-base/notification-manager/notification-manager'
+import { SimpleGlobalization } from '../i18n/simple-globalization'
 // import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
 
 declare var window: { ZoweZLUX: typeof DSMResources };
@@ -29,6 +30,8 @@ export class DSMResources {
   static logger:Logger = logger;
   static registry:ZLUX.Registry = new Registry();
   static notificationManager:NotificationManager = new NotificationManager();
+  // currently replaced in plugin-manager.module
+  static globalization: ZLUX.Globalization = new SimpleGlobalization();
 }
 
 /*
