@@ -42,12 +42,6 @@ module.exports = {
   "output": {
     "path": path.resolve(__dirname, "web"),
     "filename": "desktop.js",
-    // "filename": (data) => {
-    //   if (data.chunk.name.indexOf('locale') > 0) {
-    //     return "[name].js";
-    //   } else {
-    //     return "desktop.js";
-    //   }
     "libraryTarget": "umd"
   },
   "module": {

@@ -36,9 +36,11 @@ export class LaunchbarWidgetComponent implements OnInit {
   @Output() popupStateChanged = new EventEmitter<boolean>();
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
-  @ViewChild('languagebutton') languageButton: ElementRef;
-  @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;
-  @ViewChild('localebutton') localeButton: ElementRef;
+
+  // Convenience widgets for testing the i18n work
+  // @ViewChild('languagebutton') languageButton: ElementRef;
+  // @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;
+  // @ViewChild('localebutton') localeButton: ElementRef;
 
   constructor(
     @Inject(MVDHosting.Tokens.AuthenticationManagerToken) public authenticationManager: MVDHosting.AuthenticationManagerInterface,
@@ -74,9 +76,11 @@ export class LaunchbarWidgetComponent implements OnInit {
     if (this.popupVisible && event
         && !this.userIcon.nativeElement.contains(event.target)
         && this.logoutButton.nativeElement !== event.target
-        && this.languageButton.nativeElement !== event.target
-        && this.clearLanguageButton.nativeElement !== event.target
-        && this.localeButton.nativeElement !== event.target) {
+        // Convenience widgets for testing the i18n work
+        // && this.languageButton.nativeElement !== event.target
+        // && this.clearLanguageButton.nativeElement !== event.target
+        // && this.localeButton.nativeElement !== event.target
+      ) {
       this.popupVisible = false;
       this.popupStateChanged.emit(this.popupVisible);
     }
