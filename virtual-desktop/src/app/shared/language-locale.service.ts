@@ -14,7 +14,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import { fromPromise } from 'rxjs/observable/fromPromise';
 
-import { Globalization } from '../../../../bootstrap/src/i18n/globalization';
+import { Globalization } from './globalization';
 
 @Injectable()
 export class LanguageLocaleService {
@@ -22,7 +22,7 @@ export class LanguageLocaleService {
   private readonly plugin: ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
   private readonly logger = ZoweZLUX.logger.makeComponentLogger(this.plugin.getIdentifier());
 
-  private readonly globalization: Globalization = new Globalization();
+  readonly globalization: Globalization = new Globalization();
 
   constructor(
     private http: Http

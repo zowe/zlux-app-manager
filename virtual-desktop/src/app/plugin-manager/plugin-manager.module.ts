@@ -18,10 +18,21 @@ import { PluginLoader } from './shared/plugin-loader';
 import { Angular2PluginFactory } from './plugin-factory/angular2/angular2-plugin-factory';
 import { IFramePluginFactory } from './plugin-factory/iframe/iframe-plugin-factory';
 import { ReactPluginFactory } from './plugin-factory/react/react-plugin-factory';
-// import { Globalization } from '../../../../bootstrap/src/i18n/globalization';
+import { Globalization } from '../shared/globalization';
 import { LanguageLocaleService } from '../shared/language-locale.service';
 
+const logger: ZLUX.ComponentLogger = ZoweZLUX.logger.makeComponentLogger('org.zowe.zlux.virtual-desktop.plugin-manager');
+
 export function localeIdFactory(localeService: LanguageLocaleService) {
+  const zoweGlobal = (window as any).ZoweZLUX;
+
+  // chicken and egg bootstrapping problem. virtual-desktop wants a particular implementation
+  // of globalization that can use cookies set by the browser-preferences service of this plugin
+  // We may move that service into zlux-proxy-server, then Globalization can maybe move to bootstrap.
+  if (!(zoweGlobal.globalization instanceof Globalization)) {
+    logger.info('Setting ZoweZLUX.globalization to an implementation specific to com.rs.mvd.ng2desktop')
+    zoweGlobal.globalization = localeService.globalization;
+  }
   return localeService.getLanguage();
 }
 
