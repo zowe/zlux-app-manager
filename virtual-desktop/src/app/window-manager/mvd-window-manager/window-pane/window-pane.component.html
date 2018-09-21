@@ -11,10 +11,6 @@
 -->
 
 <div class="window-pane">
-  <ng-container *ngIf="contextMenuDef != null">
-    <com-rs-mvd-context-menu [xPos]="contextMenuDef.xPos" [yPos]="contextMenuDef.yPos" [menuItems]="contextMenuDef.items" (complete)="closeContextMenu()"></com-rs-mvd-context-menu>
-  </ng-container>
-
   <div *ngFor="let window of windows">
     <rs-com-mvd-window [desktopWindow]="window"></rs-com-mvd-window>
   </div>

@@ -15,7 +15,6 @@ import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-p
 export abstract class LaunchbarItem {
   abstract readonly label: string;
   abstract readonly image: string | null;
-  abstract readonly pinned: boolean;
   abstract readonly plugin: DesktopPluginDefinitionImpl;
   abstract readonly launchMetadata: any;
 }

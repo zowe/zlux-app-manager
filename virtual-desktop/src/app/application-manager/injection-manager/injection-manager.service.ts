@@ -38,7 +38,7 @@ export class InjectionManager {
     
     let logger:ZLUX.ComponentLogger|undefined = ComponentLoggerContainer.get(identifier);
     if (!logger) {
-      logger = RocketMVD.logger.makeComponentLogger(identifier);
+      logger = ZoweZLUX.logger.makeComponentLogger(identifier);
       ComponentLoggerContainer.set(identifier,logger);
     }
     return Injector.create([

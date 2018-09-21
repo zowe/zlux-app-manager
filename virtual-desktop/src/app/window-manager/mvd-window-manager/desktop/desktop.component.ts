@@ -12,18 +12,32 @@
 
 import { Component, Inject } from '@angular/core';
 import { Http, Response } from '@angular/http';
+import { ContextMenuItem } from 'pluginlib/inject-resources';
+import { WindowManagerService } from '../shared/window-manager.service';
 
 @Component({
   selector: 'rs-com-mvd-desktop',
   templateUrl: 'desktop.component.html'
 })
 export class DesktopComponent {
-  constructor(
+contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
+
+constructor(
+    public windowManager: WindowManagerService,
     private http: Http,
     @Inject(MVDHosting.Tokens.AuthenticationManagerToken) private authenticationManager: MVDHosting.AuthenticationManagerInterface
   ) {
-    
+    this.contextMenuDef = null;
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
+  }
+  ngOnInit(): void {
+    this.windowManager.contextMenuRequested.subscribe(menuDef => {
+      this.contextMenuDef = menuDef;
+    });
+  }
+
+  closeContextMenu(): void {
+    this.contextMenuDef = null;
   }
 }
 
@@ -31,13 +45,13 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
   private log:ZLUX.ComponentLogger;
   constructor(private http: Http) {
     //A small hack due to not being able to use the injection logger this early
-    this.log = RocketMVD.logger.makeComponentLogger('com.rs.mvd.ng2desktop');
+    this.log = ZoweZLUX.logger.makeComponentLogger('com.rs.mvd.ng2desktop');
   }
   
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
-    let desktop:ZLUX.Plugin = RocketMVD.PluginManager.getDesktopPlugin();
-    let recognizersUri = RocketMVD.uriBroker.pluginConfigUri(desktop,'recognizers');
-    let actionsUri = RocketMVD.uriBroker.pluginConfigUri(desktop,'actions');
+    let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
+    let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'recognizers');
+    let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
     this.log.debug(`Getting recognizers from "${recognizersUri}", actions from "${actionsUri}"`);
     this.http.get(recognizersUri).map((res:Response)=>res.json()).subscribe((config: any)=> {
       let appContents = config.contents;
@@ -50,7 +64,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
       });
       appsWithRecognizers.forEach(appWithRecognizer=> {
         appContents[appWithRecognizer].recognizers.forEach((recognizerObject:ZLUX.RecognizerObject)=> {
-          RocketMVD.dispatcher.addRecognizerFromObject(recognizerObject.clause,recognizerObject.id); 
+          ZoweZLUX.dispatcher.addRecognizerFromObject(recognizerObject.clause,recognizerObject.id); 
         });
         this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);
       });
@@ -66,10 +80,10 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
       });
       appsWithActions.forEach(appWithAction=> {
         appContents[appWithAction].actions.forEach((actionObject:any)=> {
-          let mode: any = RocketMVD.dispatcher.constants.ActionTargetMode[actionObject.targetMode];
-          let type: any = RocketMVD.dispatcher.constants.ActionType[actionObject.type];
+          let mode: any = ZoweZLUX.dispatcher.constants.ActionTargetMode[actionObject.targetMode];
+          let type: any = ZoweZLUX.dispatcher.constants.ActionType[actionObject.type];
           if (actionObject.id && actionObject.defaultName && actionObject.targetId && actionObject.arg && mode !== undefined && type !== undefined) {
-            RocketMVD.dispatcher.registerAction(RocketMVD.dispatcher.makeAction(actionObject.id, actionObject.defaultName, (mode as ZLUX.ActionTargetMode), (type as ZLUX.ActionType), actionObject.targetId, actionObject.arg));
+            ZoweZLUX.dispatcher.registerAction(ZoweZLUX.dispatcher.makeAction(actionObject.id, actionObject.defaultName, (mode as ZLUX.ActionTargetMode), (type as ZLUX.ActionType), actionObject.targetId, actionObject.arg));
           }
         });
         this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);

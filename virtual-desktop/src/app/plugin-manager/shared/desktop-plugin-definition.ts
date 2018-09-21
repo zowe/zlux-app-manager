@@ -64,7 +64,7 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
 
   get image(): string | null {
     // TODO: clean this up with .d.ts
-    const uriBroker = (window as any).RocketMVD.uriBroker;
+    const uriBroker = (window as any).ZoweZLUX.uriBroker;
     if (!this.hasWebContent){
         return null;
     }

@@ -12,11 +12,11 @@
 
 import { Plugin } from 'zlux-base/plugin-manager/plugin'
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
-import { RocketMVDResources } from './rocket-mvd-resources'
+import { ZoweZLUXResources } from './rocket-mvd-resources'
 import { DSMResources } from './dsm-resources'
 
 
-declare var window: { RocketMVD: typeof RocketMVDResources };
+declare var window: { ZoweZLUX: typeof ZoweZLUXResources };
 
 export class BootstrapManager {
   private static bootstrapPerformed = false;
@@ -26,9 +26,9 @@ export class BootstrapManager {
     console.log("bootstrapGlobalResources simpleContainerRequested flag value: ", simpleContainerRequested);
     console.log("bootstrapGlobalResources GIZA_ENVIRONMENT value: ", uriBroker);
     if (simpleContainerRequested && uriBroker.toUpperCase() === 'DSM') {
-      window.RocketMVD = DSMResources;
+      window.ZoweZLUX = DSMResources;
     } else {
-      window.RocketMVD = RocketMVDResources;
+      window.ZoweZLUX = ZoweZLUXResources;
     }
   }
 
@@ -51,7 +51,7 @@ export class BootstrapManager {
 
   static bootstrapDesktopAndInject() {
     BootstrapManager.bootstrapDesktop((plugin) => {
-      return PluginManager.includeScript(window.RocketMVD.uriBroker.pluginResourceUri(plugin, "main.js"));
+      return PluginManager.includeScript(window.ZoweZLUX.uriBroker.pluginResourceUri(plugin, "main.js"));
     });
   }
 

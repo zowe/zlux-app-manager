@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "pluginlib/*": [
+        "./src/pluginlib/*"
+      ],
+      "@angular/core": [
+        "node_modules/@angular/core"
+      ]
+    }
+  }
+}

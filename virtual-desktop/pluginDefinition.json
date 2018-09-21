@@ -15,8 +15,30 @@
       "actions": {
         "locationType": "relative",
         "aggregationPolicy": "none"
+      },
+      "ui": {
+        "subResources":{
+          "launchbar": {
+            "subResources": {
+              "plugins": {
+                "aggregationPolicy": "override",
+                "variable": false,
+                "locationType": "relative"
+              }
+            }
+          }
+        }
       }
     }
   },
-  "dataServices": []
+  "dataServices": [
+    {
+      "type": "router",
+      "name": "browser-preferences",
+      "filename": "browserPreferences.js",
+      "routerFactory": "browserPreferencesRouter",
+      "dependenciesIncluded": true,
+      "initializerLookupMethod": "external"
+    }    
+  ]
 }

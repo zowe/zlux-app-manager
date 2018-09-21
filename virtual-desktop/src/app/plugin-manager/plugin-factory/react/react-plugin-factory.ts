@@ -26,11 +26,11 @@ interface MvdNativeReactPluginComponentDefinition {
 export class ReactPluginFactory extends PluginFactory {
   private static getReactModuleURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
     // TODO: clean this up with .d.ts file
-    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'main.js');
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'main.js');
   }
 
   private static getReactComponentsURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
-    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
   }
 
   constructor(

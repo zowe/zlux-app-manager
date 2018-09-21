@@ -22,6 +22,8 @@ import { Observable } from 'rxjs/Rx';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
 
+import { LanguageLocaleService } from '../../../shared/language-locale.service';
+
 interface MvdNativeAngularPlugin {
   pluginModule: any;
   pluginComponent: any;
@@ -83,15 +85,15 @@ class SimpleAngularComponentFactory extends ComponentFactory {
 @Injectable()
 export class Angular2PluginFactory extends PluginFactory {
   private static getAngularModuleURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
-    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'main.js');
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'main.js');
   }
 
   private static getAngularComponentsURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
-    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
   }
 
-  private getTranslationFileURL(pluginDefinition: MVDHosting.DesktopPluginDefinition, locale: string): string {
-    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${locale}.xlf`);
+  private getTranslationFileURL(pluginDefinition: MVDHosting.DesktopPluginDefinition, language: string): string {
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${language}.xlf`);
   }
 
   constructor(
@@ -99,7 +101,8 @@ export class Angular2PluginFactory extends PluginFactory {
     private compilerFactory: CompilerFactory,
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
-    private injector: Injector
+    private injector: Injector,
+    private languageLocaleService: LanguageLocaleService
   ) {
     super();
   }
@@ -121,7 +124,7 @@ export class Angular2PluginFactory extends PluginFactory {
             console.log(`Registering component factory for plugin ${pluginDefinition.getIdentifier()}:`);
             console.log(componentFactory);
 
-            RocketMVD.registry.registerComponentFactory(componentFactory);
+            ZoweZLUX.registry.registerComponentFactory(componentFactory);
 
             resolve();
           });
@@ -154,14 +157,23 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
   getTranslationProviders(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<StaticProvider[]> {
+    // Get the language id from the global
+    // According to Mozilla.org this will work well enough for the
+    // browsers we support (Chrome, Firefox, Edge, Safari)
+    // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/language
+    // TO DO: handle both language and local (e.g., both "en" and "en-US")
+    // MVD-1671: support lang-LOCALE and ability to fall back to lang if lang-LOCALE is not found
+    // MERGE QUESTION: should be put this in polyfills? abstract it somewhere? etc.?
+    const language: string = this.languageLocaleService.getLanguage();
+    const locale: string = this.languageLocaleService.getLocale();
+    // return no providers if fail to get translation file for language
     const noProviders: StaticProvider[] = [];
-    const navigatorLanguage = navigator.language;
-    if (!navigatorLanguage || navigatorLanguage === 'en-US') {
+    // No language or U.S. English: no translation providers
+    if (!language || (language === 'en' && locale === 'US')) {
       return Promise.resolve(noProviders);
     }
-    const [language, locale] = navigatorLanguage.split('-');
     // ex.: messages.es-ES.xlf
-    const translationFileURL = this.getTranslationFileURL(pluginDefinition, navigatorLanguage);
+    const translationFileURL = this.getTranslationFileURL(pluginDefinition, `${language}-${locale}`);
     // ex.: messages.es.xlf
     const fallbackTranslationFileURL = (locale != null) ? this.getTranslationFileURL(pluginDefinition, language) : null;
     return this.loadTranslations(translationFileURL)
@@ -170,7 +182,7 @@ export class Angular2PluginFactory extends PluginFactory {
       .then((translations: string) => [
         { provide: TRANSLATIONS, useValue: translations },
         { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
-        { provide: LOCALE_ID, useValue: navigatorLanguage }
+        { provide: LOCALE_ID, useValue: language }
       ])
       .catch(() => noProviders);
   }
