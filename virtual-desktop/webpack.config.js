@@ -11,6 +11,7 @@
 */
 
 const path = require('path');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   "devtool": "source-map",
@@ -96,6 +97,14 @@ module.exports = {
       },
     ]
   },
+  'plugins': [
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, './node_modules/@angular/common/locales'),
+        to: path.resolve('./web/locales')
+      }
+    ])
+  ],
   "externals": [
     function(context, request, callback) {
       if (/(@angular)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs\/Rx$)/.test(request)){
