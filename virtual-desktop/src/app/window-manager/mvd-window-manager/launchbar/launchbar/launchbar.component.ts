@@ -112,7 +112,11 @@ export class LaunchbarComponent {
     } else if (item.instanceCount == 1) {
       let windowId = this.windowManager.getWindow(item.plugin);
       if (windowId != null) {
-        this.windowManager.minimizeToggle(windowId);
+        if (this.windowManager.windowHasFocus(windowId)){
+          this.windowManager.minimizeToggle(windowId);
+        } else {
+          this.windowManager.requestWindowFocus(windowId);
+        }
       }
     } else {
       item.showInstanceView = false;
