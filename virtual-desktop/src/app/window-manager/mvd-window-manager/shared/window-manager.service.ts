@@ -231,16 +231,17 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       restore: () => this.restore(windowId),
       setTitle: (title) => this.setWindowTitle(windowId, title),
       setPosition: (pos) => this.setPosition(windowId, pos),
-      spawnContextMenu: (xRel, yRel, items) => this.spawnContextMenu(windowId, xRel, yRel, items),
-      registerCloseHandler: (handler) => this.registerCloseHandler(windowId, handler)
+      spawnContextMenu: (xRel, yRel, items) => this.spawnContextMenu(windowId, xRel, yRel, items)
     };
   }
 
-  private generateViewportEventsProvider(windowId: MVDWindowManagement.WindowId): Angular2PluginViewportEvents {
+  private generateViewportEventsProvider(windowId: MVDWindowManagement.WindowId, viewportId: MVDHosting.ViewportId): Angular2PluginViewportEvents {
     const events = this.getWindowEvents(windowId);
 
     return {
-      resized: events.windowResized
+      resized: events.windowResized,
+      spawnContextMenu: (xRel, yRel, items) => this.spawnContextMenu(windowId, xRel, yRel, items),
+      registerCloseHandler: (handler: MVDHosting.ViewportCloseHandler) => this.viewportManager.registerViewportCloseHandler(viewportId, handler)
     };
   }
 
@@ -257,12 +258,18 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
           const viewportComponent = componentRef.instance;
 
-          const providers: Map<string, any> = new Map();
-          providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId));
-          providers.set(Angular2InjectionTokens.PLUGIN_EMBED_ACTIONS, this.generateEmbedAction(windowId));
 
-          viewportComponent.viewportId = this.viewportManager.createViewport(providers);
+          viewportComponent.viewportId = this.viewportManager.createViewport((viewportId: MVDHosting.ViewportId)=> {
+            const providers: Map<string, any> = new Map();
+            providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId, viewportId));
+            providers.set(Angular2InjectionTokens.PLUGIN_EMBED_ACTIONS, this.generateEmbedAction(windowId));
+            return providers;
+          });
           const viewportId = viewportComponent.viewportId;
+          const desktopWindow = this.windowMap.get(windowId);
+          if (desktopWindow) {
+            desktopWindow.addChildViewport(viewportId);
+          }
           return this.applicationManager.spawnApplicationWithTarget(plugin, launchMetadata, viewportComponent.viewportId)
             .then(instanceId => (<EmbeddedInstance>{instanceId, viewportId}));
         });
@@ -270,12 +277,11 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     };
   }
 
-  private generateWindowProviders(windowId: MVDWindowManagement.WindowId): Map<string, any> {
+  private generateWindowProviders(windowId: MVDWindowManagement.WindowId, viewportId: MVDHosting.ViewportId): Map<string, any> {
     const providers: Map<string, any> = new Map();
-
     providers.set(Angular2InjectionTokens.WINDOW_ACTIONS, this.generateWindowActionsProvider(windowId));
     providers.set(Angular2InjectionTokens.WINDOW_EVENTS, this.generateWindowEventsProvider(windowId));
-    providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId));
+    providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId, viewportId));
     providers.set(Angular2InjectionTokens.PLUGIN_EMBED_ACTIONS, this.generateEmbedAction(windowId));
 
     return providers;
@@ -304,8 +310,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.updateWindowPositions(pluginId, windowId, newWindowPosition);
 
     /* Create viewport */
-    const viewportId = this.viewportManager.createViewport(this.generateWindowProviders(windowId));
-    desktopWindow.viewportId = viewportId;
+    desktopWindow.viewportId = this.viewportManager.createViewport((viewportId: MVDHosting.ViewportId)=> {
+      return this.generateWindowProviders(windowId, viewportId);
+    });
 
     /* Default window actions */
     this.setWindowTitle(windowId, pluginImpl.defaultWindowTitle);
@@ -396,9 +403,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     if (appId!=null) {
       this.applicationManager.killApplication(desktopWindow.plugin, appId);
     }
-    if (desktopWindow.closeHandler != null) {
-      desktopWindow.closeHandler().then(() => this.destroyWindow(windowId));
-    } else {
+    desktopWindow.closeViewports(this.viewportManager).then(()=> {
       this.destroyWindow(windowId);
     }
   }
@@ -408,16 +413,6 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     windows.forEach((window: DesktopWindow)=> {
       this.closeWindow(window.windowId);
     });
-  }
-
-  registerCloseHandler(windowId: MVDWindowManagement.WindowId, handler: () => Promise<void>): void {
-    const desktopWindow = this.windowMap.get(windowId);
-    if (desktopWindow == null) {
-      this.logger.warn('Attempted to register close handler for null window, ID=${windowId}');
-      return;
-    }
-
-    desktopWindow.closeHandler = handler;
   }
 
   getWindowTitle(windowId: MVDWindowManagement.WindowId): string | null {

@@ -46,7 +46,7 @@ export interface Angular2PluginWindowActions {
   readonly setTitle: (title: string) => void;
   readonly setPosition: (pos: {top: number, left: number, width: number, height: number}) => void;
   readonly spawnContextMenu: (xPos: number, yPos: number, items: ContextMenuItem[]) => void;
-  readonly registerCloseHandler: (handler: () => Promise<void>) => void;
+//  readonly registerCloseHandler: (handler: () => Promise<void>) => void;
 }
 
 export interface Angular2PluginWindowEvents {
@@ -60,6 +60,8 @@ export interface Angular2PluginWindowEvents {
 
 export interface Angular2PluginViewportEvents {
   readonly resized: Subject<{width: number, height: number}>;
+  readonly spawnContextMenu: (xPos: number, yPos: number, items: ContextMenuItem[]) => void;
+  readonly registerCloseHandler: (handler: MVDHosting.ViewportCloseHandler) => void;
 }
 
 export interface Angular2PluginEmbedActions {

@@ -19,9 +19,9 @@ export class Viewport {
   readonly providers: Map<string, any>;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
-  constructor(providers: Map<string, any>) {
+  constructor(providersProvider: any) {
     this.viewportId = Viewport.nextViewportId ++;
-    this.providers = providers;
+    this.providers = providersProvider(this.viewportId);
 
     this.checkProviders();
   }

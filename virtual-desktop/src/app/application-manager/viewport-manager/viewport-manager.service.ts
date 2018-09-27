@@ -20,14 +20,15 @@ export class ViewportManager implements MVDHosting.ViewportManagerInterface {
   private viewports: Map<MVDHosting.ViewportId, Viewport>;
   private viewportInstances: Map<MVDHosting.ViewportId, MVDHosting.InstanceId>;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
-
+  private closeHandlers: Map<MVDHosting.ViewportId, Array<MVDHosting.ViewportCloseHandler>>;
   constructor() {
     this.viewports = new Map();
     this.viewportInstances = new Map();
+    this.closeHandlers = new Map();
   }
 
-  createViewport(providers: Map<string, any>): MVDHosting.ViewportId {
-    const viewport = new Viewport(providers);
+  createViewport(providersProvider: any): MVDHosting.ViewportId {
+    const viewport = new Viewport(providersProvider);
     this.viewports.set(viewport.viewportId, viewport);
 
     return viewport.viewportId;
@@ -41,9 +42,39 @@ export class ViewportManager implements MVDHosting.ViewportManagerInterface {
     this.viewportInstances.set(viewportId, instanceId);
   }
 
-  destroyViewport(viewportId: MVDHosting.ViewportId): void {
-    // TODO
+  registerViewportCloseHandler(viewportId: MVDHosting.ViewportId, handler: MVDHosting.ViewportCloseHandler):void {
+    let handlers = this.closeHandlers.get(viewportId);
+    if (!handlers) {
+      handlers = new Array<MVDHosting.ViewportCloseHandler>();
+      this.closeHandlers.set(viewportId, handlers);
+    }
+    handlers.push(handler);
+  }
+
+  private closeWatcherLoop(pos: number, handlers: Array<MVDHosting.ViewportCloseHandler>, finishedCallback: any): void {
+    if (pos >= handlers.length) {
+      finishedCallback();
+    } else {
+      handlers[pos].onViewportClosed().then(()=> {
+        this.closeWatcherLoop(++pos, handlers, finishedCallback);
+      });
+    }
+  }
+
+  destroyViewport(viewportId: MVDHosting.ViewportId): Promise<any> {
+    // TODO there may be other actions desired for destroyviewport
     this.logger.info(`Closing viewport ID=${viewportId}`);
+    console.log(`Removing viewport id=${viewportId}`);
+    return new Promise((resolve,reject)=> {
+      let handlers = this.closeHandlers.get(viewportId);
+      if (handlers) {
+        this.closeWatcherLoop(0,handlers,()=> {
+          resolve();
+        });
+      } else {
+        resolve();
+      }
+    });
   }
 
   getApplicationInstanceId(viewportId: MVDHosting.ViewportId): MVDHosting.InstanceId | null {
