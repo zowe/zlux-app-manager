@@ -11,10 +11,12 @@
 console.log('sw startup');
 
 self.addEventListener('install', function(event) {
+  self.skipWaiting();
   console.log('sw installed');
 });
 
 self.addEventListener('activate', function(event) {
+  self.clients.claim();
   console.log('sw activated');
 });
 
