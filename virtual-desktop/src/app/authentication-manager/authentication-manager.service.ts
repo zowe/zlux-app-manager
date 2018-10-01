@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -22,7 +22,7 @@ export class AuthenticationManager {
   private preLogoutActions: Array<MVDHosting.LogoutActionInterface>;
   readonly loginScreenVisibilityChanged: EventEmitter<boolean>;
   private log: ZLUX.ComponentLogger;
-  
+
   constructor(
     public http: Http
   ) {
@@ -32,7 +32,21 @@ export class AuthenticationManager {
     this.postLoginActions = new Array<MVDHosting.LoginActionInterface>();
     this.preLogoutActions = new Array<MVDHosting.LogoutActionInterface>();
     this.loginScreenVisibilityChanged = new EventEmitter();
+    this.listenForServiceWorkerMessages();
   }
+
+  listenForServiceWorkerMessages(): void {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event: any) => {
+          console.log('Client Received Message: ' + JSON.stringify(event.data));
+          if (event.data && event.data.action === 'requestLogout') {
+            console.log('SW requested logout');
+            this.requestLogout();
+          }
+      });
+    }
+  }
+
 
   registerPostLoginAction(action:MVDHosting.LoginActionInterface):void {
     this.postLoginActions.push(action);
@@ -101,7 +115,7 @@ export class AuthenticationManager {
   }
 
   private performPostLoginActions(): Observable<any> {
-    return new Observable((observer)=> {      
+    return new Observable((observer)=> {
       ZoweZLUX.pluginManager.loadPlugins(ZLUX.PluginType.Application).then((plugins:ZLUX.Plugin[])=> {
         if (this.username != null) {
           for (let i = 0; i < this.postLoginActions.length; i++) {
@@ -122,7 +136,7 @@ export class AuthenticationManager {
       let success = this.preLogoutActions[i].onLogout(this.username);
       this.log.debug(`LogoutAction ${i}=${success}`);
     }
-  }  
+  }
 
   performLogin(username: string, password: string): Observable<Response> {
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth'), { username: username, password: password })
@@ -134,7 +148,7 @@ export class AuthenticationManager {
           this.performPostLoginActions().subscribe(
             ()=> {
               this.log.debug('Done performing post-login actions');
-              this.loginScreenVisibilityChanged.emit(false);              
+              this.loginScreenVisibilityChanged.emit(false);
             });
           return result;
         } else {
@@ -144,7 +158,7 @@ export class AuthenticationManager {
   }
 
   private performLogout(): Observable<Response> {
-    this.performPreLogoutActions();    
+    this.performPreLogoutActions();
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-logout'), {})
       .map(response => {
         this.username = null;
@@ -159,9 +173,9 @@ export class AuthenticationManager {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

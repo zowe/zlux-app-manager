@@ -14,6 +14,7 @@ const path = require('path');
 const ProgressPlugin = require('webpack/lib/ProgressPlugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { NoEmitOnErrorsPlugin } = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   "devtool": "source-map",
@@ -67,7 +68,13 @@ module.exports = {
     new ProgressPlugin(),
     new HtmlWebpackPlugin({
       "title": "Zowe Desktop"
-    })
+    }),
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve('./src/service-worker/service-worker.js'),
+        to: path.resolve('./web')
+      }
+    ])
   ],
   "node": {
     "fs": "empty"

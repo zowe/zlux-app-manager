@@ -53,6 +53,7 @@ export class BootstrapManager {
     BootstrapManager.bootstrapDesktop((plugin) => {
       return PluginManager.includeScript(window.ZoweZLUX.uriBroker.pluginResourceUri(plugin, "main.js"));
     });
+    BootstrapManager.registerServiceWorker();
   }
 
   static bootstrapDesktop(injectionCallback: (plugin: ZLUX.Plugin) => Promise<void>) {
@@ -70,6 +71,16 @@ export class BootstrapManager {
         BootstrapManager.bootstrapDesktopPlugin(desktops[0], injectionCallback);
       }
     });
+  }
+
+  static registerServiceWorker(): void {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js').then(function (reg: any) {
+        console.log('sw registration succeeded. Scope is ' + reg.scope);
+      }).catch(function (err) {
+        console.error('sw registration failed with error ' + err);
+      });
+    }
   }
 }
 
