@@ -18,6 +18,7 @@ import { PluginLoader } from './shared/plugin-loader';
 import { Angular2PluginFactory } from './plugin-factory/angular2/angular2-plugin-factory';
 import { IFramePluginFactory } from './plugin-factory/iframe/iframe-plugin-factory';
 import { ReactPluginFactory } from './plugin-factory/react/react-plugin-factory';
+import { ReactPluginComponent } from './plugin-factory/react/react-plugin.component';
 import { Globalization } from '../shared/globalization';
 import { LanguageLocaleService } from '../shared/language-locale.service';
 import { Observable } from 'rxjs/Rx';
@@ -81,6 +82,9 @@ function loadLocale(localeId: string, url: string): Observable<any> {
 
 
 @NgModule({
+  declarations: [
+    ReactPluginComponent
+  ],
   providers: [
     Angular2PluginFactory,
     IFramePluginFactory,

@@ -4,13 +4,13 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, ViewContainerRef, ComponentRef, ComponentFactoryResolver, Inject } from '@angular/core';
+import { Injectable, ViewContainerRef, ComponentRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
@@ -51,14 +51,18 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
   readonly windowDeregisterEmitter: Subject<MVDWindowManagement.WindowId>;
+  private applicationManager: MVDHosting.ApplicationManagerInterface;
+  private viewportManager: MVDHosting.ViewportManagerInterface;
+  private pluginManager: MVDHosting.PluginManagerInterface;
 
   constructor(
-    @Inject(MVDHosting.Tokens.ApplicationManagerToken) private applicationManager: MVDHosting.ApplicationManagerInterface,
-    @Inject(MVDHosting.Tokens.ViewportManagerToken) private viewportManager: MVDHosting.ViewportManagerInterface,
-    @Inject(MVDHosting.Tokens.PluginManagerToken) private pluginManager: MVDHosting.PluginManagerInterface,
+    private injector: Injector,
     private windowMonitor: WindowMonitor,
     private componentFactoryResolver: ComponentFactoryResolver
   ) {
+    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.viewportManager = this.injector.get(MVDHosting.Tokens.ViewportManagerToken);
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.nextId = 0;
     this.windowMap = new Map();
 
@@ -435,9 +439,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
