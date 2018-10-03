@@ -4,13 +4,13 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Inject } from '@angular/core';
+import { Component, Injector } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
@@ -21,12 +21,13 @@ import { WindowManagerService } from '../shared/window-manager.service';
 })
 export class DesktopComponent {
 contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
-
+private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 constructor(
     public windowManager: WindowManagerService,
     private http: Http,
-    @Inject(MVDHosting.Tokens.AuthenticationManagerToken) private authenticationManager: MVDHosting.AuthenticationManagerInterface
+    private injector: Injector
   ) {
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.contextMenuDef = null;
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
   }
@@ -47,7 +48,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
     //A small hack due to not being able to use the injection logger this early
     this.log = ZoweZLUX.logger.makeComponentLogger('com.rs.mvd.ng2desktop');
   }
-  
+
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
     let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
     let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'recognizers');
@@ -64,7 +65,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
       });
       appsWithRecognizers.forEach(appWithRecognizer=> {
         appContents[appWithRecognizer].recognizers.forEach((recognizerObject:ZLUX.RecognizerObject)=> {
-          ZoweZLUX.dispatcher.addRecognizerFromObject(recognizerObject.clause,recognizerObject.id); 
+          ZoweZLUX.dispatcher.addRecognizerFromObject(recognizerObject.clause,recognizerObject.id);
         });
         this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);
       });
@@ -87,7 +88,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
           }
         });
         this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);
-      });      
+      });
     });
     return true;
   }
@@ -104,9 +105,9 @@ window.onbeforeunload = function(e: Event) {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

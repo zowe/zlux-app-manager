@@ -2,13 +2,13 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
@@ -23,12 +23,14 @@ export class PluginsDataService {
     public pinnedPlugins: LaunchbarItem[];
     private scope: string = "user";
     private resourcePath: string = "ui/launchbar/plugins";
-    private fileName: string = "pinnedPlugins.json" 
+    private fileName: string = "pinnedPlugins.json"
+    private pluginManager: MVDHosting.PluginManagerInterface;
 
     constructor(
-        @Inject(MVDHosting.Tokens.PluginManagerToken) public pluginManager: MVDHosting.PluginManagerInterface,
+        private injector: Injector,
         private http: Http,
-    ) { 
+    ) {
+        this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
         this.refreshPinnedPlugins;
         this.counter = 0;
     }
@@ -42,7 +44,7 @@ export class PluginsDataService {
           .then(res => {
             if (res == null) {
               console.log("Bad Plugin Definition")
-            } else { 
+            } else {
               this.pinnedPlugins.push(new PluginLaunchbarItem(res as DesktopPluginDefinitionImpl));
             }
           })
@@ -55,7 +57,7 @@ export class PluginsDataService {
         let headers = new Headers({ 'Content-Type': 'application/json' });
         let options = new RequestOptions({ headers: headers });
         return this.http.get(uri, options);
-    
+
       }
 
     public saveResource(plugins: string[], scope: string, resourcePath: string, fileName: string): Observable<any>{
@@ -92,7 +94,7 @@ export class PluginsDataService {
             })
         })
     }
-  
+
     public removeFromConfigServer(item: LaunchbarItem): void {
       this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res=>{
@@ -135,8 +137,8 @@ export class PluginsDataService {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
