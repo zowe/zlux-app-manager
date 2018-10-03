@@ -2,13 +2,13 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
@@ -18,37 +18,46 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
 
 @Injectable()
 export class PluginsDataService {
-  public counter: number;
-  public pinnedPlugins: LaunchbarItem[];
-  private accessiblePlugins: LaunchbarItem[];
-  private static scope: string = "user";
-  private static resourcePath: string = "ui/launchbar/plugins";
-  private static fileName: string = "pinnedPlugins.json" 
+    public counter: number;
+    public pinnedPlugins: LaunchbarItem[];
+    private accessiblePlugins: LaunchbarItem[];
+    private scope: string = "user";
+    private resourcePath: string = "ui/launchbar/plugins";
+    private fileName: string = "pinnedPlugins.json"
+    private pluginManager: MVDHosting.PluginManagerInterface;
 
-  constructor(
-    @Inject(MVDHosting.Tokens.PluginManagerToken) public pluginManager: MVDHosting.PluginManagerInterface,
-    private http: Http,
-  ) { 
-    this.pinnedPlugins = [];
-    this.counter = 0;
-  }
+    constructor(
+        private injector: Injector,
+        private http: Http,
+    ) {
+        this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+        this.refreshPinnedPlugins;
+        this.counter = 0;
+    }
 
   public refreshPinnedPlugins(accessiblePlugins: LaunchbarItem[]): void {
     this.accessiblePlugins = accessiblePlugins;
     this.pinnedPlugins = [];
-    this.getResource(PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName)
+    this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res =>{
-        let plugins = res.json().contents.plugins;
-        this.pinnedPlugins = this.getMatchingPlugins(accessiblePlugins, plugins);
+        res.json().contents.plugins.forEach((p: string) => {
+          this.pluginManager.findPluginDefinition(p)
+          .then(res => {
+            if (res == null) {
+              console.log("Bad Plugin Definition")
+            } else {
+              this.pinnedPlugins.push(new PluginLaunchbarItem(res as DesktopPluginDefinitionImpl));
+            }
+          })
+        })
       })
-  }
-  
+    }
+
   public getResource(scope: string, resourcePath: string, fileName: string): Observable<any>{
     let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
     return this.http.get(uri, options);
-    
   }
 
   public saveResource(plugins: string[], scope: string, resourcePath: string, fileName: string): void{
@@ -94,7 +103,7 @@ export class PluginsDataService {
   }
 
   public saveToConfigServer(item: LaunchbarItem): void {
-    this.getResource(PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName)
+    this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res=>{
         let plugins:string[];
         if (res.status === 204) {
@@ -103,18 +112,18 @@ export class PluginsDataService {
           plugins = res.json().contents.plugins;
         }
         plugins.push(item.plugin.getBasePlugin().getIdentifier());
-        this.saveResource(plugins, PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName);
+        this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
       })
   }
-  
+
   public removeFromConfigServer(item: LaunchbarItem): void {
-    this.getResource(PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName)
+    this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res=>{
         let index = res.json().contents.plugins.indexOf(item.plugin.getBasePlugin().getIdentifier());
         let plugins = res.json().contents.plugins;
         if (index != -1) {
           plugins.splice(index, 1);
-          this.saveResource(plugins, PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName);
+          this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
         }
       })
   }
@@ -135,7 +144,7 @@ export class PluginsDataService {
     var element = arr[fromIndex];
     arr.splice(fromIndex, 1);
     arr.splice(toIndex, 0, element);
-    this.saveResource(arr, PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName);
+    this.saveResource(arr, this.scope, this.resourcePath, this.fileName);
   }
 }
 
@@ -143,8 +152,8 @@ export class PluginsDataService {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */

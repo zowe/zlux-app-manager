@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -18,6 +18,7 @@ import { PluginLoader } from './shared/plugin-loader';
 import { Angular2PluginFactory } from './plugin-factory/angular2/angular2-plugin-factory';
 import { IFramePluginFactory } from './plugin-factory/iframe/iframe-plugin-factory';
 import { ReactPluginFactory } from './plugin-factory/react/react-plugin-factory';
+import { ReactPluginComponent } from './plugin-factory/react/react-plugin.component';
 import { Globalization } from '../shared/globalization';
 import { LanguageLocaleService } from '../shared/language-locale.service';
 
@@ -72,6 +73,9 @@ export function localeInitializer(localeId: string) {
 
 
 @NgModule({
+  declarations: [
+    ReactPluginComponent
+  ],
   providers: [
     Angular2PluginFactory,
     IFramePluginFactory,
@@ -99,9 +103,9 @@ export class PluginManagerModule {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

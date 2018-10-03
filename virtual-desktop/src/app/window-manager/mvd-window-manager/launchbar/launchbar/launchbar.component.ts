@@ -4,13 +4,13 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Inject } from '@angular/core';
+import { Component, Injector } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { PluginLaunchbarItem } from '../shared/launchbar-items/plugin-launchbar-item';
@@ -29,24 +29,29 @@ import { PluginsDataService } from '../../services/plugins-data.service';
 export class LaunchbarComponent {
   allItems: LaunchbarItem[];
   runItems: LaunchbarItem[];
-  private isActive: boolean;
+  isActive: boolean;
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
   originalX: number;
   mouseOriginalX: number;
-  currentEvent: EventTarget | null; 
+  currentEvent: EventTarget | null;
   currentItem: LaunchbarItem | null;
   moving: boolean;
   newPosition: number;
   loggedIn: boolean;
   helperLoggedIn: boolean;
+  pluginManager: MVDHosting.PluginManagerInterface;
+  applicationManager: MVDHosting.ApplicationManagerInterface;
+  authenticationManager: MVDHosting.AuthenticationManagerInterface;
+
 
   constructor(
     private pluginsDataService: PluginsDataService,
-    @Inject(MVDHosting.Tokens.PluginManagerToken) public pluginManager: MVDHosting.PluginManagerInterface,
-    @Inject(MVDHosting.Tokens.ApplicationManagerToken) public applicationManager: MVDHosting.ApplicationManagerInterface,
-    @Inject(MVDHosting.Tokens.AuthenticationManagerToken) public authenticationManager: MVDHosting.AuthenticationManagerInterface,
+    private injector: Injector,
     public windowManager: WindowManagerService,
   ) {
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.allItems = [];
     this.runItems = [];
     this.isActive = false;
@@ -76,7 +81,7 @@ export class LaunchbarComponent {
     if (this.loggedIn) {
       if(this.helperLoggedIn != true){
         this.pluginsDataService.refreshPinnedPlugins(this.allItems);
-        this.helperLoggedIn = true; 
+        this.helperLoggedIn = true;
       }
     }
   }
@@ -90,7 +95,7 @@ export class LaunchbarComponent {
   }
 
   get runningItems(): LaunchbarItem[] {
-    let openPlugins = this.allItems.filter(item => 
+    let openPlugins = this.allItems.filter(item =>
                                 this.applicationManager.isApplicationRunning(item.plugin));
     let openItems: LaunchbarItem[];
     openItems = [];
@@ -299,9 +304,9 @@ export class LaunchbarComponent {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
