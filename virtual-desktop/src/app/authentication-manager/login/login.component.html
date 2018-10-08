@@ -19,9 +19,9 @@
   <div>
     <img [src]="logo" alt="zLUX - z/OS Lightweight User Experience" />
     <form class="login-form" [hidden]="!needLogin">
-      <label for="userid">Username</label>
+      <label for="userid" i18n="label|Label for username@@username-label">Username</label>
       <input class="userid" id="usernameInput" aria-labelledby="user id" tabindex="1" type="text" name="userid" [(ngModel)]="username" maxlength="8" autofocus [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
-      <label for="password">Password</label>
+      <label for="password" i18n="label|Label for password@@password-label">Password</label>
       <input class="password" id="passwordInput" aria-labelledby="password" tabindex="1" type="password" name="password"[(ngModel)]="password" maxlength="8" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
     </form>
     <p class="login-error">{{errorMessage || "&nbsp;"}}</p>
@@ -34,7 +34,7 @@
             [disabled]="locked">
       <span class="login-button-icon"></span>
       <br>
-      <span class="login-label">Login</span>
+      <span class="login-label" i18n="button title|Title of Login button@@login-button-title">Login</span>
     </button>
   </div>
   </div>
