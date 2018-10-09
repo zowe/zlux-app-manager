@@ -178,10 +178,10 @@ export class Angular2PluginFactory extends PluginFactory {
     // return no providers if fail to get translation file for language
     const noProviders: StaticProvider[] = [];
     // No language or U.S. English: no translation providers
-    if (!language || language === 'en-US' || language === 'en') {
+    if (this.languageLocaleService.isConfiguredForDefaultLanguage()) {
       return Promise.resolve(noProviders);
     }
-    const baseLanguage: string = language.split('-')[0];
+    const baseLanguage = this.languageLocaleService.getBaseLanguage();
     // ex.: messages.es-ES.xlf
     const translationFileURL = this.getTranslationFileURL(pluginDefinition, language);
     // ex.: messages.es.xlf
