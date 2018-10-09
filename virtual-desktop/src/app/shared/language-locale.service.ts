@@ -33,6 +33,16 @@ export class LanguageLocaleService {
     return this.globalization.getLanguage();
   }
 
+  getBaseLanguage(): string {
+    const language = this.getLanguage();
+    return language.split('-')[0];
+  }
+
+  isConfiguredForDefaultLanguage(): boolean {
+    const language = this.getLanguage();
+    return  !language || language === 'en-US' || language === 'en';
+  }
+
   getLocale(): string {
     return this.globalization.getLocale();
   }
