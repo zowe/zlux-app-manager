@@ -37,7 +37,7 @@ export function localeIdFactory(localeService: LanguageLocaleService) {
   return localeService.getLanguage();
 }
 
-function localeInitializer(localeService: LanguageLocaleService, localeId: string) {
+export function localeInitializer(localeService: LanguageLocaleService, localeId: string) {
   return (): Promise<any> => {
     const baseURI: string = (window as any).ZoweZLUX.uriBroker.desktopRootUri();
     if (localeService.isConfiguredForDefaultLanguage()) {
