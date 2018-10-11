@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -67,7 +67,7 @@ class SimpleAngularComponentFactory extends ComponentFactory {
             const portal = new ComponentPortal(fullPlugin.componentNgComponent, null); /* TODO */
             const componentRef = outlet.attachComponentPortal(portal);
 
-            resolve(componentRef.instance as ZLUX.IComponent); 
+            resolve(componentRef.instance as ZLUX.IComponent);
           }).catch((failure: any) => {
             console.log(failure);
             reject();
@@ -115,7 +115,7 @@ export class Angular2PluginFactory extends PluginFactory {
     const scriptUrl = Angular2PluginFactory.getAngularComponentsURL(pluginDefinition);
 
     return new Promise((resolve, reject) => {
-      (window as any).require([scriptUrl], 
+      (window as any).require([scriptUrl],
         (components: MvdNativeAngularPluginComponentDefinition) => {
           const factoryDefs = components.getComponentFactoryDefinitions(pluginDefinition);
           factoryDefs.forEach((factory: AngularComponentFactoryDefinition) => {
@@ -161,30 +161,43 @@ export class Angular2PluginFactory extends PluginFactory {
     // According to Mozilla.org this will work well enough for the
     // browsers we support (Chrome, Firefox, Edge, Safari)
     // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/language
-    // TO DO: handle both language and local (e.g., both "en" and "en-US")
-    // MVD-1671: support lang-LOCALE and ability to fall back to lang if lang-LOCALE is not found
+    // NOTES:
+    // 1. The desktop can override the browser language and locale preferences (see https://github.com/zowe/zlux-app-manager/issues/10),
+    //    so we don't just use the navigator language, but go through a "globalization" interface here.
+    // 2. Per the design of the above implementation (https://github.com/zowe/zlux-app-manager/pull/21), "true locale" can be separate
+    //    from language.
+    //    That pull request takes into account the subtleties about "locale" as discussed here:
+    //    https://www.w3.org/International/questions/qa-accept-lang-locales
+    //
+    // SUMMARY: The one part ('en') or two part ('en-US') language is treated *here* as *just language*, Maybe a specific sub language
+    //          e.g., en-GB has different spellings, so the "language" aspect of the second part can be important in choosing a template,
+    //          separate from implications for currency and decimal separator.
     // MERGE QUESTION: should be put this in polyfills? abstract it somewhere? etc.?
     const language: string = this.languageLocaleService.getLanguage();
     // return no providers if fail to get translation file for language
     const noProviders: StaticProvider[] = [];
     // No language or U.S. English: no translation providers
-    if (!language || language === 'en') {
+    if (this.languageLocaleService.isConfiguredForDefaultLanguage()) {
       return Promise.resolve(noProviders);
     }
-    // Ex: 'assets/i18n/messages.es.xlf`
-    const translationFile = this.getTranslationFileURL(pluginDefinition, language);
-    return this.getTranslationsWithSystemJs(translationFile /*, language */) // see comments in getTranslationsWithSystemJs
-      .then( (translations: string ) => [
+    const baseLanguage = this.languageLocaleService.getBaseLanguage();
+    // ex.: messages.es-ES.xlf
+    const translationFileURL = this.getTranslationFileURL(pluginDefinition, language);
+    // ex.: messages.es.xlf
+    const fallbackTranslationFileURL = baseLanguage !== language ? this.getTranslationFileURL(pluginDefinition, baseLanguage) : null;
+    return this.loadTranslations(translationFileURL)
+      .catch(err => (fallbackTranslationFileURL != null) ? this.loadTranslations(fallbackTranslationFileURL) : Observable.throw(err))
+      .toPromise()
+      .then((translations: string) => [
         { provide: TRANSLATIONS, useValue: translations },
         { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
-        { provide: LOCALE_ID, useValue: language },
+        { provide: LOCALE_ID, useValue: language }
       ])
-      .catch(() => noProviders); // ignore if file not found
+      .catch(() => noProviders);
   }
 
   getCompiler(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<Compiler> {
     return this.getTranslationProviders(pluginDefinition).then(providers => {
-      console.log(`providers ${JSON.stringify(providers)}`);
       const options: CompilerOptions = {
         providers: providers
       };
@@ -193,29 +206,8 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
 
-  getTranslationsWithSystemJs(file: string /* , localeId: string */): Promise<string> {
-    // It would be nice to load the appropriate locale file also, as the commented-out code below
-    // attempts to do. Problems:
-    // 1. This code results in the generation of an xx.desktop.js and xx.desktop.js.map file
-    //    for each local (> 2,000 files)
-    // 2. Ignores that the infrastructure in language-locale.services.ts can:
-    //    a. load locale data in a "safer" way (no extra webpack output)
-    //    b. actually treats locale as possibly independent of language.
-    //
-    // More importantly, the call to registerLocaleData doesn't affect the locale that's
-    // used for pipes etc. The call to registerLocaleData in pluginManager.module
-    // appears to work when the desktop is loaded.
-    // So, current behavior is that changing the language will choose a new translation
-    // file when opening/reopening angular-based plugins, but the pipes will continue
-    // to use the old language/locale until you reload the desktop.
-  //   return new Promise((resolve, reject) => {System.import(/* webpackMode: "lazy" */
-  //     `@angular/common/locales/${localeId}.js`).then((localeModule: any) => {
-  //     registerLocaleData(localeModule.default);
-  //     resolve();
-  //     })
-  //    }).then(_ => this.http.get(file).map(res => res.text()).toPromise());
-  // }
-    return this.http.get(file).map(res => res.text()).toPromise();
+  loadTranslations(fileURL: string): Observable<string> {
+    return this.http.get(fileURL).map(res => res.text());
   }
 }
 
@@ -224,9 +216,9 @@ export class Angular2PluginFactory extends PluginFactory {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
