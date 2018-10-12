@@ -39,7 +39,7 @@ export class BootstrapManager {
     if (desktop.getType() != ZLUX.PluginType.Desktop) {
       throw new Error("Cannot bootstrap a non-desktop plugin as a desktop");
     }
-    console.log('set desktop plugin');
+
     PluginManager.setDesktopPlugin(desktop as Plugin);
 
     injectionCallback(desktop).then(() => {
@@ -51,7 +51,6 @@ export class BootstrapManager {
 
   static bootstrapDesktopAndInject() {
     BootstrapManager.bootstrapDesktop((plugin) => {
-      console.log('about to inject desktop main.js');
       return PluginManager.includeScript(window.ZoweZLUX.uriBroker.pluginResourceUri(plugin, "main.js"));
     });
   }
