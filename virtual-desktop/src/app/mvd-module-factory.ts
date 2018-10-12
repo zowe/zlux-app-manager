@@ -24,6 +24,7 @@ import { AuthenticationModule } from './authentication-manager/authentication-ma
 import { SharedModule } from './shared/shared.module';
 import { LanguageLocaleService } from './shared/language-locale.service';
 import { TranslationLoaderService } from './shared/translation-loader.service';
+import { I18nModule } from './i18n/i18n.module';
 
 export class MvdModuleFactory {
   private static localeService: LanguageLocaleService;
@@ -38,6 +39,7 @@ export class MvdModuleFactory {
         // Our stuff,
         SharedModule,
         PluginManagerModule,
+        I18nModule,
         windowManagerModule,
         ApplicationManagerModule,
         AuthenticationModule
