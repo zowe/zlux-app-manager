@@ -19,7 +19,7 @@ import { DomPortalOutlet, ComponentPortal } from '@angular/cdk/portal';
 import { Observable } from 'rxjs/Rx';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
-import { TranslationLoaderService } from '../../../shared/translation-loader.service';
+import { TranslationLoaderService } from '../../../i18n/translation-loader.service';
 
 interface MvdNativeAngularPlugin {
   pluginModule: any;

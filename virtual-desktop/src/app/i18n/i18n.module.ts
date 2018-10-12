@@ -9,7 +9,7 @@
 */
 
 import { NgModule, APP_INITIALIZER, LOCALE_ID } from '@angular/core';
-import { LanguageLocaleService } from '../shared/language-locale.service';
+import { LanguageLocaleService } from './language-locale.service';
 import { localeInitializer, localeIdFactory } from './locale-initializer.provider';
 
 
