@@ -9,8 +9,8 @@
 */
 
 import { registerLocaleData } from '@angular/common';
-import { Globalization } from '../shared/globalization';
-import { LanguageLocaleService } from '../shared/language-locale.service';
+import { Globalization } from './globalization';
+import { LanguageLocaleService } from './language-locale.service';
 import { Observable } from 'rxjs/Rx';
 
 const logger: ZLUX.ComponentLogger = ZoweZLUX.logger.makeComponentLogger('org.zowe.zlux.virtual-desktop.i18n');
