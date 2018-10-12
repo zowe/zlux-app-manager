@@ -10,13 +10,11 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, CompilerFactory, /*CompilerOptions, COMPILER_OPTIONS, CompilerFactory*/ } from '@angular/core';
-import { TRANSLATIONS, TRANSLATIONS_FORMAT, LOCALE_ID } from '@angular/core';
+import { Injectable, CompilerFactory } from '@angular/core';
 
 import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
-import { Http } from '@angular/http';
-import { Compiler, CompilerOptions, StaticProvider, ApplicationRef, Injector } from '@angular/core';
+import { Compiler, CompilerOptions, ApplicationRef, Injector } from '@angular/core';
 import { DomPortalOutlet, ComponentPortal } from '@angular/cdk/portal';
 import { Observable } from 'rxjs/Rx';
 
@@ -92,17 +90,23 @@ export class Angular2PluginFactory extends PluginFactory {
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
   }
 
+<<<<<<< HEAD
   private getTranslationFileURL(pluginDefinition: MVDHosting.DesktopPluginDefinition, locale: string): string {
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${locale}.xlf`);
   }
 
+=======
+>>>>>>> Add TranslationLoaderService
   constructor(
-    private http: Http,
     private compilerFactory: CompilerFactory,
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
     private injector: Injector,
+<<<<<<< HEAD
     private browserPreferencesService: BrowserPreferencesService
+=======
+    private translationLoaderService: TranslationLoaderService
+>>>>>>> Add TranslationLoaderService
   ) {
     super();
   }
@@ -156,6 +160,7 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
+<<<<<<< HEAD
   getTranslationProviders(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<StaticProvider[]> {
     // Get the locale id from the global
     // According to Mozilla.org this will work well enough for the
@@ -197,8 +202,10 @@ export class Angular2PluginFactory extends PluginFactory {
       .catch(() => noProviders); // ignore if file not found
   }
 
+=======
+>>>>>>> Add TranslationLoaderService
   getCompiler(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<Compiler> {
-    return this.getTranslationProviders(pluginDefinition).then(providers => {
+    return this.translationLoaderService.getTranslationProviders(pluginDefinition.getBasePlugin()).then(providers => {
       const options: CompilerOptions = {
         providers: providers
       };
@@ -206,9 +213,12 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
+<<<<<<< HEAD
   getTranslationsWithSystemJs(file: string): Promise<string> {
     return this.http.get(file).map(res => res.text()).toPromise();
   }
+=======
+>>>>>>> Add TranslationLoaderService
 }
 
 
