@@ -22,7 +22,7 @@ import {
   } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
-import { LanguageLocaleService } from '../../../../shared/language-locale.service';
+import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
 
 @Component({
   selector: 'rs-com-launchbar-widget',

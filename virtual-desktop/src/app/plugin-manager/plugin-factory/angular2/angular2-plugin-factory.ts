@@ -17,10 +17,12 @@ import { CompiledPlugin } from '../../shared/compiled-plugin';
 import { Compiler, CompilerOptions, ApplicationRef, Injector } from '@angular/core';
 import { DomPortalOutlet, ComponentPortal } from '@angular/cdk/portal';
 import { Observable } from 'rxjs/Rx';
+import { Http } from '@angular/http';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
 
 import { BrowserPreferencesService } from '../../../shared/browser-preferences.service';
+import { TranslationLoaderService } from '../../../i18n/translation-loader.service';
 
 interface MvdNativeAngularPlugin {
   pluginModule: any;
@@ -90,23 +92,19 @@ export class Angular2PluginFactory extends PluginFactory {
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
   }
 
-<<<<<<< HEAD
   private getTranslationFileURL(pluginDefinition: MVDHosting.DesktopPluginDefinition, locale: string): string {
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${locale}.xlf`);
   }
 
-=======
->>>>>>> Add TranslationLoaderService
+
   constructor(
+    private http: Http,
     private compilerFactory: CompilerFactory,
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
     private injector: Injector,
-<<<<<<< HEAD
     private browserPreferencesService: BrowserPreferencesService
-=======
     private translationLoaderService: TranslationLoaderService
->>>>>>> Add TranslationLoaderService
   ) {
     super();
   }
@@ -213,12 +211,10 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
-<<<<<<< HEAD
   getTranslationsWithSystemJs(file: string): Promise<string> {
     return this.http.get(file).map(res => res.text()).toPromise();
   }
-=======
->>>>>>> Add TranslationLoaderService
+
 }
 
 

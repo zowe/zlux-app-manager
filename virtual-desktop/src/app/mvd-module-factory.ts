@@ -22,8 +22,8 @@ import { PluginManagerModule } from './plugin-manager/plugin-manager.module';
 import { ApplicationManagerModule } from './application-manager/application-manager.module';
 import { AuthenticationModule } from './authentication-manager/authentication-manager.module';
 import { SharedModule } from './shared/shared.module';
-import { LanguageLocaleService } from './shared/language-locale.service';
-import { TranslationLoaderService } from './shared/translation-loader.service';
+import { LanguageLocaleService } from './i18n/language-locale.service';
+import { TranslationLoaderService } from './i18n/translation-loader.service';
 import { I18nModule } from './i18n/i18n.module';
 
 export class MvdModuleFactory {
