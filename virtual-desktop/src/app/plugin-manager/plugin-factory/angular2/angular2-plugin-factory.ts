@@ -10,19 +10,16 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, CompilerFactory, /*CompilerOptions, COMPILER_OPTIONS, CompilerFactory*/ } from '@angular/core';
-import { TRANSLATIONS, TRANSLATIONS_FORMAT, LOCALE_ID } from '@angular/core';
+import { Injectable, CompilerFactory } from '@angular/core';
 
 import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
-import { Http } from '@angular/http';
-import { Compiler, CompilerOptions, StaticProvider, ApplicationRef, Injector } from '@angular/core';
+import { Compiler, CompilerOptions, ApplicationRef, Injector } from '@angular/core';
 import { DomPortalOutlet, ComponentPortal } from '@angular/cdk/portal';
 import { Observable } from 'rxjs/Rx';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
-
-import { LanguageLocaleService } from '../../../shared/language-locale.service';
+import { TranslationLoaderService } from '../../../shared/translation-loader.service';
 
 interface MvdNativeAngularPlugin {
   pluginModule: any;
@@ -92,17 +89,12 @@ export class Angular2PluginFactory extends PluginFactory {
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
   }
 
-  private getTranslationFileURL(pluginDefinition: MVDHosting.DesktopPluginDefinition, language: string): string {
-    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${language}.xlf`);
-  }
-
   constructor(
-    private http: Http,
     private compilerFactory: CompilerFactory,
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
     private injector: Injector,
-    private languageLocaleService: LanguageLocaleService
+    private translationLoaderService: TranslationLoaderService
   ) {
     super();
   }
@@ -156,48 +148,8 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
-  getTranslationProviders(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<StaticProvider[]> {
-    // Get the language id from the global
-    // According to Mozilla.org this will work well enough for the
-    // browsers we support (Chrome, Firefox, Edge, Safari)
-    // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/language
-    // NOTES:
-    // 1. The desktop can override the browser language and locale preferences (see https://github.com/zowe/zlux-app-manager/issues/10),
-    //    so we don't just use the navigator language, but go through a "globalization" interface here.
-    // 2. Per the design of the above implementation (https://github.com/zowe/zlux-app-manager/pull/21), "true locale" can be separate
-    //    from language.
-    //    That pull request takes into account the subtleties about "locale" as discussed here:
-    //    https://www.w3.org/International/questions/qa-accept-lang-locales
-    //
-    // SUMMARY: The one part ('en') or two part ('en-US') language is treated *here* as *just language*, Maybe a specific sub language
-    //          e.g., en-GB has different spellings, so the "language" aspect of the second part can be important in choosing a template,
-    //          separate from implications for currency and decimal separator.
-    // MERGE QUESTION: should be put this in polyfills? abstract it somewhere? etc.?
-    const language: string = this.languageLocaleService.getLanguage();
-    // return no providers if fail to get translation file for language
-    const noProviders: StaticProvider[] = [];
-    // No language or U.S. English: no translation providers
-    if (this.languageLocaleService.isConfiguredForDefaultLanguage()) {
-      return Promise.resolve(noProviders);
-    }
-    const baseLanguage = this.languageLocaleService.getBaseLanguage();
-    // ex.: messages.es-ES.xlf
-    const translationFileURL = this.getTranslationFileURL(pluginDefinition, language);
-    // ex.: messages.es.xlf
-    const fallbackTranslationFileURL = baseLanguage !== language ? this.getTranslationFileURL(pluginDefinition, baseLanguage) : null;
-    return this.loadTranslations(translationFileURL)
-      .catch(err => (fallbackTranslationFileURL != null) ? this.loadTranslations(fallbackTranslationFileURL) : Observable.throw(err))
-      .toPromise()
-      .then((translations: string) => [
-        { provide: TRANSLATIONS, useValue: translations },
-        { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
-        { provide: LOCALE_ID, useValue: language }
-      ])
-      .catch(() => noProviders);
-  }
-
   getCompiler(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<Compiler> {
-    return this.getTranslationProviders(pluginDefinition).then(providers => {
+    return this.translationLoaderService.getTranslationProviders(pluginDefinition.getBasePlugin()).then(providers => {
       const options: CompilerOptions = {
         providers: providers
       };
@@ -205,10 +157,6 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
-
-  loadTranslations(fileURL: string): Observable<string> {
-    return this.http.get(fileURL).map(res => res.text());
-  }
 }
 
 

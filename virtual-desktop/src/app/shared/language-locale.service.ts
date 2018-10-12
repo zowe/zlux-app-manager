@@ -9,7 +9,6 @@
 */
 
 import { Injectable /*, Inject */ } from '@angular/core';
-import { Http } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import { fromPromise } from 'rxjs/observable/fromPromise';
@@ -25,7 +24,6 @@ export class LanguageLocaleService {
   readonly globalization: Globalization = new Globalization();
 
   constructor(
-    private http: Http
   ) {
   }
 
@@ -54,7 +52,12 @@ export class LanguageLocaleService {
 
   checkForLocaleFile(localeId: string): Observable<any> {
     const uri = `${this.makeLocaleURI(localeId)}.js`;
-    return this.http.get(uri);
+    return fromPromise(window.fetch(uri).then(res => {
+      if (res.ok) {
+        return res.text();
+      }
+      throw new Error(`${res.status} ${res.statusText}`);
+    }));
   }
 
   /**
