@@ -7,7 +7,7 @@
     "i18nFormat": "xlf",
     "encoding": "UTF-8",
     "defaultLanguage": "en",
-    "languages": ["ru", "jp", "fr"],
+    "languages": ["ru", "ja", "fr"],
     "useSourceAsTarget": true
   }
 }
