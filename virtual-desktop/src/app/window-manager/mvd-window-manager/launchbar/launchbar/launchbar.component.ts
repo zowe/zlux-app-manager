@@ -18,6 +18,7 @@ import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-p
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
+import { TranslationService } from 'angular-l10n';
 
 
 @Component({
@@ -48,6 +49,7 @@ export class LaunchbarComponent {
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     public windowManager: WindowManagerService,
+    private translation: TranslationService
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -141,17 +143,17 @@ export class LaunchbarComponent {
       var menuItems: ContextMenuItem[] =
         [
           this.pluginsDataService.pinContext(item),
-          { "text": "Properties", "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) },
-          { "text": "Bring to Front", "action": () => this.bringItemFront(item) },
-          { "text": "Close", "action": () => this.closeApplication(item) },
-        ];
+          { "text": this.translation.translate("Properties"), "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) },
+          { "text": this.translation.translate("Bring to Front"), "action": () => this.bringItemFront(item) },
+          { "text": this.translation.translate("Close"), "action": () => this.closeApplication(item) },         
+         ];
     } else {
       var menuItems: ContextMenuItem[] =
         [
-          { "text": "Open", "action": () => this.launchbarItemClicked(item) },
-          this.pluginsDataService.pinContext(item),
-          { "text": "Properties", "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) }
+          { "text": this.translation.translate("Open"), "action": () => this.launchbarItemClicked(item) },
+          { "text": this.translation.translate("Properties"), "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) }
 
+          this.pluginsDataService.pinContext(item)
         ]
     }
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY - 60, items: menuItems});

@@ -16,6 +16,7 @@ import { LaunchbarItem } from '../launchbar/shared/launchbar-item';
 import { PluginLaunchbarItem } from '../launchbar/shared/launchbar-items/plugin-launchbar-item';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
+import { TranslationService } from 'angular-l10n';
 
 @Injectable()
 export class PluginsDataService {
@@ -29,6 +30,7 @@ export class PluginsDataService {
     constructor(
         private injector: Injector,
         private http: Http,
+        private translation: TranslationService
     ) {
         this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
         this.refreshPinnedPlugins;
@@ -112,7 +114,7 @@ export class PluginsDataService {
 
   public pinContext(item: LaunchbarItem): ContextMenuItem {
     return {
-      "text": this.isPinnedPlugin(item) ? 'Unpin from taskbar' : 'Pin to taskbar',
+      "text": this.isPinnedPlugin(item) ? this.translation.translate('Unpin from taskbar') : this.translation.translate('Pin to taskbar'),
       "action": () => this.isPinnedPlugin(item) ? this.removeFromConfigServer(item) : this.saveToConfigServer(item)
     };
   }
