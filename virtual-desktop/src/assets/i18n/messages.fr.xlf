@@ -2,7 +2,15 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" datatype="plaintext" original="ng2.template" target-language="fr">
     <body>
-      <trans-unit id="username-label" datatype="html">
+      <trans-unit id="plugin-loading-failed-message" datatype="html">
+        <source>The plugin failed to load</source><target state="new">Le plugin n'a pas pu être chargé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/application-manager/load-failure/load-failure.component.ts</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+        <note priority="1" from="description">Message when plugin failed to load</note>
+        <note priority="1" from="meaning">message</note>
+      </trans-unit><trans-unit id="username-label" datatype="html">
         <source>Username</source><target state="new">Nom d'utilisateur</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
