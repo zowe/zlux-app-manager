@@ -12,6 +12,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationManager } from '../authentication-manager.service';
+import { TranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'rs-com-login',
@@ -29,7 +30,8 @@ export class LoginComponent implements OnInit {
   loginMessage: string;
 
   constructor(
-    private authenticationService: AuthenticationManager
+    private authenticationService: AuthenticationManager,
+    private translation: TranslationService
   ) {
     this.isLoading = true;
     this.needLogin = false;
@@ -66,7 +68,8 @@ export class LoginComponent implements OnInit {
                   failedTypes.push(keys[i]);
                 }
               }
-              this.errorMessage = `Authentication failed for ${failedTypes.length} types. Types: ${JSON.stringify(failedTypes)}`;
+              this.errorMessage = this.translation.translate('Authentication failed for {{numTypes}} types. Types: {{types}}',
+                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
             }
           } catch (e) {
             this.errorMessage = error;
@@ -106,7 +109,9 @@ export class LoginComponent implements OnInit {
                 failedTypes.push(keys[i]);
               }
             }
-            this.errorMessage = `Authentication failed for ${failedTypes.length} types. Types: ${JSON.stringify(failedTypes)}`;
+            this.errorMessage = this.translation.translate('Authentication failed for {{numTypes}} types. Types: {{types}}',
+              { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+
           }
         } else {
           this.errorMessage = error.text();

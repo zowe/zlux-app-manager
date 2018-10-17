@@ -3,5 +3,6 @@
   "Pin to taskbar": "Закрепить",
   "Bring to Front": "На передний план",
   "Close": "Закрыть",
-  "Open": "Открыть"
+  "Open": "Открыть",
+  "Authentication failed for {{numTypes}} types. Types: {{types}}": "Ошибка аутентификации для {{types}}"
 }
