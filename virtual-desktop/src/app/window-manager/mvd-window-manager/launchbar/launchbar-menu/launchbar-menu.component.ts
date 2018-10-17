@@ -75,7 +75,8 @@ export class LaunchbarMenuComponent {
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     var menuItems: ContextMenuItem[] =
       [
-        this.pluginsDataService.pinContext(item)
+        this.pluginsDataService.pinContext(item),
+        { "text": "Properties", "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin)}
       ];
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     return false;

@@ -1,0 +1,21 @@
+{
+  "identifier": "com.rs.mvd.ng2desktop.viewer",
+  "apiVersion": "1.0.0",
+  "pluginVersion": "1.0.0",
+  "pluginType": "application",
+  "copyright" : "Eclipse Public License - v 2.0",
+  "webContent": {
+    "framework": "angular2",
+    "launchDefinition": {
+      "pluginShortNameKey": "Zowe Viewer",
+      "pluginShortNameDefault": "Zowe Viewer",
+      "imageSrc": "assets/icon.png"
+    },
+    "descriptionKey": "Zowe Viewer",
+    "descriptionDefault": "Zowe Viewer",
+    "defaultWindowStyle": {
+      "width": 600,
+      "height": 400
+    }
+  }
+}

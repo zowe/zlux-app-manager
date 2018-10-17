@@ -136,6 +136,7 @@ export class LaunchbarComponent {
       var menuItems: ContextMenuItem[] =
         [
           this.pluginsDataService.pinContext(item),
+          { "text": "Properties", "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) },
           { "text": "Bring to Front", "action": () => this.bringItemFront(item) },
           { "text": "Close", "action": () => this.closeApplication(item) },
         ];
@@ -143,7 +144,9 @@ export class LaunchbarComponent {
       var menuItems: ContextMenuItem[] =
         [
           { "text": "Open", "action": () => this.launchbarItemClicked(item) },
-          this.pluginsDataService.pinContext(item)
+          this.pluginsDataService.pinContext(item),
+          { "text": "Properties", "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) }
+
         ]
     }
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY - 60, items: menuItems});
