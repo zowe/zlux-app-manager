@@ -45,7 +45,8 @@ export class LaunchbarComponent {
   authenticationManager: MVDHosting.AuthenticationManagerInterface;
 
 
-  constructor(
+   
+   constructor(
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     public windowManager: WindowManagerService,
@@ -66,8 +67,9 @@ export class LaunchbarComponent {
     this.allItems = [];
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
-        if (p.getBasePlugin().getWebContent() != null) {
-          this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
+        if (p.getBasePlugin().getWebContent() != null && p.getBasePlugin().getIdentifier() !="com.rs.mvd.ng2desktop.viewer") {
+            this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
+          }
         }
       })
     });
