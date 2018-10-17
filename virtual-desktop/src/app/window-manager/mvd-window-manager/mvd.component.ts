@@ -11,7 +11,6 @@
 */
 
 import { Component } from '@angular/core';
-import { L10nLoader } from 'angular-l10n';
 
 @Component({
   selector: 'rs-com-root',
@@ -19,8 +18,7 @@ import { L10nLoader } from 'angular-l10n';
 })
 export class MvdComponent {
 
-  constructor(public l10nLoader: L10nLoader) {
-    this.l10nLoader.load();
+  constructor() {
   }
 }
 
