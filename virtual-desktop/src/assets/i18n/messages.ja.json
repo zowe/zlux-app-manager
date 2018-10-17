@@ -4,5 +4,5 @@
   "Bring to Front": "最前面に移動",
   "Close": "閉じる",
   "Open": "開く",
-  "Authentication failed for {{numTypes}} types. Types: {{types}}": "Authentication failed for {{numTypes}} types. Types: {{types}}"
+  "Authentication failed for {{numTypes}} types. Types: {{types}}": "{{numTypes}}個の認証プロバイダー({{types}})に対して認証が失敗しました"
 }
