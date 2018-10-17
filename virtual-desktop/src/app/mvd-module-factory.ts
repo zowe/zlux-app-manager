@@ -14,7 +14,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, Type, StaticProvider } from '@angular/core';
 import { HttpModule} from '@angular/http';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 
 // Modules
 import { PluginManagerModule } from './plugin-manager/plugin-manager.module';
@@ -24,14 +23,10 @@ import { SharedModule } from './shared/shared.module';
 import { LanguageLocaleService } from './i18n/language-locale.service';
 import { TranslationLoaderService } from './i18n/translation-loader.service';
 import { I18nModule } from './i18n/i18n.module';
-import { L10nConfig, TranslationModule } from 'angular-l10n';
-import { L10nConfigService } from './i18n/l10n-config.service';
-import { L10nStorageService } from './i18n/l10n-storage.service';
 
 export class MvdModuleFactory {
   private static localeService: LanguageLocaleService;
   private static translationLoaderService: TranslationLoaderService;
-  private static l10ConfigService: L10nConfigService;
 
   static generateModule(windowManagerModule: Type<any>, mainComponent: Type<any>): Type<any> {
     return NgModule({
@@ -39,11 +34,6 @@ export class MvdModuleFactory {
         BrowserModule,
         BrowserAnimationsModule,
         HttpModule,
-        HttpClientModule,
-        TranslationModule.forRoot(
-          MvdModuleFactory.getL10nConfig(),
-          { localeStorage: L10nStorageService }
-        ),
         // Our stuff,
         SharedModule,
         PluginManagerModule,
@@ -55,8 +45,7 @@ export class MvdModuleFactory {
       providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         { provide: LanguageLocaleService, useFactory: MvdModuleFactory.getLocaleService},
-        { provide: TranslationLoaderService, useFactory: MvdModuleFactory.getTranslationLoaderService},
-        { provide: L10nConfigService, useFactory: MvdModuleFactory.getL10nConfigService}
+        { provide: TranslationLoaderService, useFactory: MvdModuleFactory.getTranslationLoaderService}
       ],
       bootstrap: [mainComponent]
     })(class MvdModule {});
@@ -80,19 +69,6 @@ export class MvdModuleFactory {
       MvdModuleFactory.translationLoaderService = new TranslationLoaderService(languageLocaleService);
     }
     return MvdModuleFactory.translationLoaderService;
-  }
-
-  private static getL10nConfigService(): L10nConfigService {
-    if (!MvdModuleFactory.l10ConfigService) {
-      const languageLocaleService = MvdModuleFactory.getLocaleService();
-      MvdModuleFactory.l10ConfigService = new L10nConfigService(languageLocaleService);
-    }
-    return MvdModuleFactory.l10ConfigService;
-  }
-
-  private static getL10nConfig(): L10nConfig {
-    const l10ConfigService = MvdModuleFactory.getL10nConfigService();
-    return l10ConfigService.getConfig();
   }
 
 }
