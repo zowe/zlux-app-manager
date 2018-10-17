@@ -3,5 +3,6 @@
   "Pin to taskbar": "Épingler",
   "Bring to Front": "Mettre au premier plan",
   "Close": "Fermer",
-  "Open": "Ouvrir"
+  "Open": "Ouvrir",
+  "Authentication failed for {{numTypes}} types. Types: {{types}}": "L'authentification a échoué pour {{numTypes}} types. Les types: {{types}}"
 }
