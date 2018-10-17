@@ -12,9 +12,9 @@ import { Injectable } from '@angular/core';
 import { LanguageLocaleService } from './language-locale.service';
 import {
   ISOCode,
-  L10nConfig,
   ProviderType
 } from 'angular-l10n';
+import { DefaultLocaleCodes } from 'angular-l10n/src/models/types';
 
 @Injectable()
 export class L10nConfigService {
@@ -23,29 +23,23 @@ export class L10nConfigService {
   ) {
   }
 
-  getConfig(): L10nConfig {
-    const desktopPlugin = ZoweZLUX.pluginManager.getDesktopPlugin();
-    const prefix = ZoweZLUX.uriBroker.pluginResourceUri(desktopPlugin, `assets/i18n/messages.`);
-    const config: L10nConfig = {
-      locale: {
-        defaultLocale: {
-          languageCode: this.languageLocaleService.getBaseLanguage(),
-          countryCode: this.languageLocaleService.getLocale()
-        }
-      },
-      translation: {
-          providers: [
-            { type: ProviderType.Static, prefix: prefix },
-            { type: ProviderType.Fallback, prefix: prefix, fallbackLanguage: [ISOCode.Language] },
-          ],
-          composedLanguage: [ISOCode.Language, ISOCode.Country],
-          caching: true
-      }
+  getDefaultLocale(): DefaultLocaleCodes {
+    return {
+      languageCode: this.languageLocaleService.getBaseLanguage(),
+      countryCode: this.languageLocaleService.getLocale()
     };
-    return config;
   }
 
-}
+  getTranslationProviders(): any[] {
+    const desktopPlugin = ZoweZLUX.pluginManager.getDesktopPlugin();
+    const prefix = ZoweZLUX.uriBroker.pluginResourceUri(desktopPlugin, `assets/i18n/messages.`);
+    return [
+      { type: ProviderType.Static, prefix: prefix },
+      { type: ProviderType.Fallback, prefix: prefix, fallbackLanguage: [ISOCode.Language] },
+    ]
+  }
+
+ }
 
 /*
   This program and the accompanying materials are
