@@ -3,5 +3,6 @@
   "Pin to taskbar": "アプリケーションをピン留めする",
   "Bring to Front": "最前面に移動",
   "Close": "閉じる",
-  "Open": "開く"
+  "Open": "開く",
+  "Authentication failed for {{numTypes}} types. Types: {{types}}": "Authentication failed for {{numTypes}} types. Types: {{types}}"
 }
