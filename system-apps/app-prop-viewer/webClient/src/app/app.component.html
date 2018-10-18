@@ -16,29 +16,23 @@
   
   <!-- Window body -->
   
-  <div class="content">
-    <div class="icon" [style.background-image]="iconImage == null ? undefined : iconImage| cssUrl">
+  <div id="row" class="content">
+    <div id="column1" class="icon" [style.background-image]="iconImage == null ? undefined : iconImage| cssUrl">
     </div>
-
-    <p class="app-value">
-      <span class="app-name">Application Name</span>: {{appName}}
-    </p>
-    <p class="app-value">
-      <span class="app-name">Application Version</span>: {{appVersion}}
-    </p> 
-    <p class="app-value">
-      <span class="app-name">Application Type</span>: {{appType}}
-    </p>
-    
- 
+      <div id="column2" >
+      <p class="app-name">
+       {{appName}}
+      </p>
+      <p class="app-value">
+        <span class="constant">App Version</span>: {{appVersion}}
+      </p> 
+      <p class="app-value">
+        <span class="constant">App Type</span>: {{appType}}
+      </p>
+       </div> 
   </div>
       <hr>
 
-  
-  <div class="app-value">
-       More info
-  </div>
-      <hr>
 </div>
 <!-- 
   This program and the accompanying materials are

@@ -14,8 +14,8 @@
     "descriptionKey": "Zowe Viewer",
     "descriptionDefault": "Zowe Viewer",
     "defaultWindowStyle": {
-      "width": 400,
-      "height": 600
+      "width": 350,
+      "height": 450
     }
   }
 }
