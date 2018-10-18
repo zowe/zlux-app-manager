@@ -1,9 +1,9 @@
 {
-  "identifier": "com.rs.mvd.ng2desktop.viewer",
+  "identifier": "org.zowe.zlux.appmanager.app.propview",
   "apiVersion": "1.0.0",
   "pluginVersion": "1.0.0",
   "pluginType": "application",
-  "copyright" : "Eclipse Public License - v 2.0",
+  "isSystemPlugin":true,
   "webContent": {
     "framework": "angular2",
     "launchDefinition": {
@@ -14,8 +14,8 @@
     "descriptionKey": "Zowe Viewer",
     "descriptionDefault": "Zowe Viewer",
     "defaultWindowStyle": {
-      "width": 600,
-      "height": 400
+      "width": 400,
+      "height": 600
     }
   }
 }

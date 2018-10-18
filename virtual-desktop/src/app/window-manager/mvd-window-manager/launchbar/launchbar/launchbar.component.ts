@@ -67,10 +67,10 @@ export class LaunchbarComponent {
     this.allItems = [];
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
-        if (p.getBasePlugin().getWebContent() != null && p.getBasePlugin().getIdentifier() !="com.rs.mvd.ng2desktop.viewer") {
+        if (p.getBasePlugin().getWebContent() != null && p.getIdentifier()!='org.zowe.zlux.appmanager.app.propview') {
             this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
           }
-        }
+        
       })
     });
   }

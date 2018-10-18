@@ -36,7 +36,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
   private runningPluginAppMap: Map<string, number[]>;
   private pluginPropertyShowingMap: Map<string,number>;
-  private viewerMap:Map<number,string>;
+  private appPropViewerMap:Map<number,string>;
 
   constructor(
     private injector: Injector,
@@ -52,7 +52,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     this.nextInstanceId = 0;
     this.pluginPropertyShowingMap = new Map();
     this.runningPluginAppMap = new Map();
-    this.viewerMap = new Map();
+    this.appPropViewerMap = new Map();
     
     (window as any).ZoweZLUX.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
       return this.pluginManager.findPluginDefinition(zluxPlugin.getIdentifier()).then(plugin => {
@@ -261,7 +261,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     const pluginID = plugin.getIdentifier();
     let windowId = this.pluginPropertyShowingMap.get(pluginID);
     if (windowId==undefined){
-      this.pluginManager.findPluginDefinition("com.rs.mvd.ng2desktop.viewer").then(viewerPlugin => {
+      this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.app.propview").then(viewerPlugin => {
       if (viewerPlugin){
         const viewerPluginImpl:DesktopPluginDefinitionImpl = viewerPlugin as DesktopPluginDefinitionImpl;
         let appProperties = this.getAppPropertyInformation(plugin);
@@ -272,7 +272,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         const windowId = windowManager.createWindow(viewerPlugin);
         
         this.pluginPropertyShowingMap.set(pluginID,windowId);
-        this.viewerMap.set(windowId,pluginID);
+        this.appPropViewerMap.set(windowId,pluginID);
  
         const viewportId = windowManager.getViewportId(windowId);
         this.viewportManager.registerViewport(viewportId, applicationInstance.instanceId);
@@ -377,7 +377,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   
   clearPluginWindowMap(windowId: number, pluginID:string):void {
     const desktopWindows = this.runningPluginAppMap.get(pluginID);
-    const pluginName = this.viewerMap.get(windowId);
+    const pluginName = this.appPropViewerMap.get(windowId);
 
     if (desktopWindows !== undefined && desktopWindows[0] ===windowId) {
       this.runningPluginAppMap.delete(pluginID);

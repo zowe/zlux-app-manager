@@ -1,5 +1,5 @@
 {
-  "extends": "../../zlux-app-manager/virtual-desktop/plugin-config/tsconfig.i18n.json",
+  "extends": "../../../virtual-desktop/plugin-config/tsconfig.i18n.json",
     
   "include": [
     "./src"

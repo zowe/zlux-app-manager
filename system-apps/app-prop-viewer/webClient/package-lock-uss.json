@@ -1,5 +1,5 @@
 {
-  "name": "com.rs.mvd.ng2desktop.admin.webclient",
+  "name": "org.zowe.zlux.appmanager.app.propview.webclient",
   "version": "1.0.0",
   "lockfileVersion": 1,
   "requires": true,

@@ -1,5 +1,5 @@
 {
-  "name": "org.zowe.zlux.sample.angular.webclient",
+  "name": "org.zowe.zlux.appmanager.app.propview.webclient",
   "version": "1.0.0",
   "scripts": {
     "start": "webpack --progress --colors --watch",

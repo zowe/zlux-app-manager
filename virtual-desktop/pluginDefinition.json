@@ -1,5 +1,5 @@
 {
-  "identifier": "com.rs.mvd.ng2desktop",
+  "identifier": "org.zowe.zlux.appmanager.virtualdesktop",
   "apiVersion": "1.0.0",
   "pluginVersion": "0.0.0-zlux.version.replacement",
   "pluginType": "desktop",
