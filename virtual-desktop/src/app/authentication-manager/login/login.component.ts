@@ -68,7 +68,7 @@ export class LoginComponent implements OnInit {
                   failedTypes.push(keys[i]);
                 }
               }
-              this.errorMessage = this.translation.translate('Authentication failed for {{numTypes}} types. Types: {{types}}',
+              this.errorMessage = this.translation.translate('AuthenticationFailed',
                 { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
             }
           } catch (e) {
@@ -109,7 +109,7 @@ export class LoginComponent implements OnInit {
                 failedTypes.push(keys[i]);
               }
             }
-            this.errorMessage = this.translation.translate('Authentication failed for {{numTypes}} types. Types: {{types}}',
+            this.errorMessage = this.translation.translate('AuthenticationFailed',
               { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
 
           }

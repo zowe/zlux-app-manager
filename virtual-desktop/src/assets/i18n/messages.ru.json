@@ -1,8 +1,8 @@
 {
-  "Unpin from taskbar": "Открепить",
-  "Pin to taskbar": "Закрепить",
-  "Bring to Front": "На передний план",
+  "UnpinFromTaskbar": "Открепить",
+  "PinToTaskbar": "Закрепить",
+  "BringToFront": "На передний план",
   "Close": "Закрыть",
   "Open": "Открыть",
-  "Authentication failed for {{numTypes}} types. Types: {{types}}": "Ошибка аутентификации для {{types}}"
+  "AuthenticationFailed": "Ошибка аутентификации для {{types}}"
 }

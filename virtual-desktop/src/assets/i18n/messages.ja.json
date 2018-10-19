@@ -1,8 +1,8 @@
 {
-  "Unpin from taskbar": "アプリケーションのピン留めをはずす",
-  "Pin to taskbar": "アプリケーションをピン留めする",
-  "Bring to Front": "最前面に移動",
+  "UnpinFromTaskbar": "アプリケーションのピン留めをはずす",
+  "PinToTaskbar": "アプリケーションをピン留めする",
+  "BringToFront": "最前面に移動",
   "Close": "閉じる",
   "Open": "開く",
-  "Authentication failed for {{numTypes}} types. Types: {{types}}": "{{numTypes}}個の認証プロバイダー({{types}})に対して認証が失敗しました"
+  "AuthenticationFailed": "{{numTypes}}個の認証プロバイダー({{types}})に対して認証が失敗しました"
 }

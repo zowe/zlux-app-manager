@@ -143,7 +143,7 @@ export class LaunchbarComponent {
       var menuItems: ContextMenuItem[] =
         [
           this.pluginsDataService.pinContext(item),
-          { "text": this.translation.translate('Bring to Front'), "action": () => this.bringItemFront(item) },
+          { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
           { "text": this.translation.translate('Close'), "action": () => this.closeApplication(item) },
         ];
     } else {

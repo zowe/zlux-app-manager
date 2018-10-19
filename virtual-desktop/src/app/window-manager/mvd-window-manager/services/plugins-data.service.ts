@@ -114,7 +114,7 @@ export class PluginsDataService {
 
   public pinContext(item: LaunchbarItem): ContextMenuItem {
     return {
-      "text": this.isPinnedPlugin(item) ? this.translation.translate('Unpin from taskbar') : this.translation.translate('Pin to taskbar'),
+      "text": this.isPinnedPlugin(item) ? this.translation.translate('UnpinFromTaskbar') : this.translation.translate('PinToTaskbar'),
       "action": () => this.isPinnedPlugin(item) ? this.removeFromConfigServer(item) : this.saveToConfigServer(item)
     };
   }
