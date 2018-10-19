@@ -34,9 +34,13 @@ export class L10nConfigService {
     const desktopPlugin = ZoweZLUX.pluginManager.getDesktopPlugin();
     const prefix = ZoweZLUX.uriBroker.pluginResourceUri(desktopPlugin, `assets/i18n/messages.`);
     return [
-      { type: ProviderType.Static, prefix: prefix },
+      // messages.en.json - a fallback file in case there is no translation file for a given language found
+      { type: ProviderType.Fallback, prefix: `${prefix}en`, fallbackLanguage: [] },
+      // e.g. messages.es.json
       { type: ProviderType.Fallback, prefix: prefix, fallbackLanguage: [ISOCode.Language] },
-    ]
+      // e.g. messages.es-ES.json
+      { type: ProviderType.Static, prefix: prefix }
+    ];
   }
 
  }
