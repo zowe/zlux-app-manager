@@ -1,8 +1,8 @@
 {
-  "Unpin from taskbar": "Désépingler",
-  "Pin to taskbar": "Épingler",
-  "Bring to Front": "Mettre au premier plan",
+  "UnpinFromTaskbar": "Désépingler",
+  "PinToTaskbar": "Épingler",
+  "BringToFront": "Mettre au premier plan",
   "Close": "Fermer",
   "Open": "Ouvrir",
-  "Authentication failed for {{numTypes}} types. Types: {{types}}": "L'authentification a échoué pour {{numTypes}} types. Les types: {{types}}"
+  "AuthenticationFailed": "L'authentification a échoué pour {{numTypes}} types. Les types: {{types}}"
 }
