@@ -53,6 +53,8 @@ export class LanguageLocaleService {
 
   checkForLocaleFile(localeId: string): Observable<any> {
     const uri = `${this.makeLocaleURI(localeId)}.js`;
+    // From lchudinov: This code is called before Angular's Http API is initialized,
+    // hence the call to window.fetch.
     return fromPromise(window.fetch(uri).then(res => {
       if (res.ok) {
         return res.text();

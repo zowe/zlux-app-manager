@@ -36,6 +36,7 @@ export class LaunchbarMenuComponent {
     private pluginsDataService: PluginsDataService,
     private injector: Injector
   ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.itemClicked = new EventEmitter();
     this.menuStateChanged = new EventEmitter<boolean>();

@@ -32,6 +32,7 @@ export class PluginsDataService {
         private http: Http,
         private translation: TranslationService
     ) {
+        // Workaround for AoT problem with namespaces (see angular/angular#15613)
         this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
         this.refreshPinnedPlugins;
         this.counter = 0;
