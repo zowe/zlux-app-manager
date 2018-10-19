@@ -37,6 +37,10 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
     return this.basePlugin.getWebContent() != null;
   }
 
+  getCopyright():string {
+    return this.basePlugin.getCopyright();
+  }
+  
   getFramework(): string {
     if (this.hasWebContent) {
       return this.basePlugin.getWebContent().framework;

@@ -252,6 +252,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     "appName":pluginImpl.defaultWindowTitle,
     "appVersion":basePlugin.getVersion(),
     "appType":basePlugin.getType(),
+    "copyright":pluginImpl.getCopyright(),
     "image":plugin.image
     };    
   }

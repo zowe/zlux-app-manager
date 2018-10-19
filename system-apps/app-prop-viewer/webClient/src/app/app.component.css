@@ -117,14 +117,14 @@ justify-content: space-around;
 #column1{
     display:flex;
     flex-direction:column;
-    width:40%
+    width:30%
 }
 
 
 #column2{
     display:flex;
     flex-direction:column;
-     width:60%
+     width:70%
 }
 
 
@@ -132,6 +132,8 @@ justify-content: space-around;
   font-weight: bold;
   font-size:1.5em;
   margin-top: 1.5em;
+    margin-left: 0.2em;
+
  }
 
  
@@ -139,14 +141,24 @@ justify-content: space-around;
   font-weight: normal;
 
   margin-top: 1.2em;
+      margin-left: 0.2em;
+
  }
  
 .app-value {
   margin-top: 1.2em;
   font-weight: bold;
+      margin-left: 0.2em;
+
 
  }
  
+ .copyright {
+  margin-top: 1.2em;
+  font-weight: light;
+  font-size:0.8em;
+  margin-left: 1.5em;
+ }
  
 .window .border-box-sizing {
   box-sizing: border-box;

@@ -23,6 +23,7 @@ export class AppComponent {
   appName:string;
   appVersion:string;
   appType:string;
+  copyright:string;
   installedApps:string[];
   iconImage:string;
   isPropertyWindow : boolean;
@@ -41,6 +42,7 @@ export class AppComponent {
       this.iconImage = this.launchMetadata.image;
       this.isPropertyWindow = true;
       this.isViewerWindow = false;
+      this.copyright=this.launchMetadata.copyright;
     } else if (this.launchMetadata != null && this.launchMetadata.isViewerWindow){
       this.isViewerWindow=true;
     }
