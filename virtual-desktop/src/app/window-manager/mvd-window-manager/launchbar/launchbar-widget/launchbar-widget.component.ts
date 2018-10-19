@@ -47,6 +47,7 @@ export class LaunchbarWidgetComponent implements OnInit {
     private injector: Injector,
     private languageLocaleService: LanguageLocaleService
   ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.date = new Date();
     this.popupVisible = false;

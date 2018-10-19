@@ -51,6 +51,7 @@ export class LaunchbarComponent {
     public windowManager: WindowManagerService,
     private translation: TranslationService
   ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);

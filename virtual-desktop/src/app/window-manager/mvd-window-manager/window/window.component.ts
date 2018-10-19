@@ -39,6 +39,7 @@ export class WindowComponent {
     public windowManager: WindowManagerService,
     private injector: Injector
   ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
   }
 

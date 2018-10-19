@@ -27,6 +27,7 @@ constructor(
     private http: Http,
     private injector: Injector
   ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.contextMenuDef = null;
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));

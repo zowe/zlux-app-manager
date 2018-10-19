@@ -26,6 +26,7 @@ export class LaunchbarIconComponent {
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   titleVisible: boolean;
   constructor(private injector: Injector) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.iconClicked = new EventEmitter();
   }

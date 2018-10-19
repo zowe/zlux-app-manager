@@ -61,6 +61,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     private windowMonitor: WindowMonitor,
     private componentFactoryResolver: ComponentFactoryResolver
   ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.viewportManager = this.injector.get(MVDHosting.Tokens.ViewportManagerToken);
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
