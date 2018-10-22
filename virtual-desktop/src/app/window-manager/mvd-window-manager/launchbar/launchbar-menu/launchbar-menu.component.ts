@@ -4,13 +4,13 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, ElementRef, HostListener, Input, Output, EventEmitter, Inject } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, Output, EventEmitter, Injector } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { LaunchbarItem } from '../shared/launchbar-item';
@@ -26,15 +26,18 @@ export class LaunchbarMenuComponent {
   @Input() menuItems: LaunchbarItem[];
   @Output() itemClicked: EventEmitter<LaunchbarItem>;
   @Output() menuStateChanged: EventEmitter<boolean>;
-  private isActive: boolean = false;
+  isActive: boolean = false;
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
+  public applicationManager: MVDHosting.ApplicationManagerInterface;
 
   constructor(
     private elementRef: ElementRef,
     public windowManager: WindowManagerService,
     private pluginsDataService: PluginsDataService,
-    @Inject(MVDHosting.Tokens.ApplicationManagerToken) public applicationManager: MVDHosting.ApplicationManagerInterface,
+    private injector: Injector
   ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
+    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.itemClicked = new EventEmitter();
     this.menuStateChanged = new EventEmitter<boolean>();
   }
@@ -87,9 +90,9 @@ export class LaunchbarMenuComponent {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

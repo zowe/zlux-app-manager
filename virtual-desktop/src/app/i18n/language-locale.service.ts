@@ -9,9 +9,9 @@
 */
 
 import { Injectable /*, Inject */ } from '@angular/core';
-import { Http } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/mergeMap';
 import { fromPromise } from 'rxjs/observable/fromPromise';
 
 import { Globalization } from './globalization';
@@ -25,7 +25,6 @@ export class LanguageLocaleService {
   readonly globalization: Globalization = new Globalization();
 
   constructor(
-    private http: Http
   ) {
   }
 
@@ -54,7 +53,14 @@ export class LanguageLocaleService {
 
   checkForLocaleFile(localeId: string): Observable<any> {
     const uri = `${this.makeLocaleURI(localeId)}.js`;
-    return this.http.get(uri);
+    // From lchudinov: This code is called before Angular's Http API is initialized,
+    // hence the call to window.fetch.
+    return fromPromise(window.fetch(uri).then(res => {
+      if (res.ok) {
+        return res.text();
+      }
+      throw new Error(`${res.status} ${res.statusText}`);
+    }));
   }
 
   /**

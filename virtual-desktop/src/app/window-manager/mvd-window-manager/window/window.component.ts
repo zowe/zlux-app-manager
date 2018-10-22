@@ -4,13 +4,13 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Inject, Input } from '@angular/core';
+import { Component, Injector, Input } from '@angular/core';
 import { DesktopWindow } from '../shared/desktop-window';
 import { DesktopWindowStateType } from '../shared/desktop-window-state';
 import { WindowManagerService } from '../shared/window-manager.service';
@@ -29,12 +29,14 @@ export class WindowComponent {
   MIN_HEIGHT = 100;
 
   @Input() desktopWindow: DesktopWindow;
+  applicationManager: MVDHosting.ApplicationManagerInterface;
 
   constructor(
     public windowManager: WindowManagerService,
-    @Inject(MVDHosting.Tokens.ApplicationManagerToken) public applicationManager: MVDHosting.ApplicationManagerInterface
+    private injector: Injector
   ) {
-
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
+    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
   }
 
   isMinimized(): boolean {
@@ -113,9 +115,9 @@ export class WindowComponent {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

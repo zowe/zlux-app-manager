@@ -4,14 +4,15 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationManager } from '../authentication-manager.service';
+import { TranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'rs-com-login',
@@ -26,9 +27,11 @@ export class LoginComponent implements OnInit {
   username: string;
   password: string;
   errorMessage: string | null;
+  loginMessage: string;
 
   constructor(
-    private authenticationService: AuthenticationManager
+    private authenticationService: AuthenticationManager,
+    private translation: TranslationService
   ) {
     this.isLoading = true;
     this.needLogin = false;
@@ -65,7 +68,8 @@ export class LoginComponent implements OnInit {
                   failedTypes.push(keys[i]);
                 }
               }
-              this.errorMessage = `Authentication failed for ${failedTypes.length} types. Types: ${JSON.stringify(failedTypes)}`;
+              this.errorMessage = this.translation.translate('AuthenticationFailed',
+                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
             }
           } catch (e) {
             this.errorMessage = error;
@@ -105,14 +109,16 @@ export class LoginComponent implements OnInit {
                 failedTypes.push(keys[i]);
               }
             }
-            this.errorMessage = `Authentication failed for ${failedTypes.length} types. Types: ${JSON.stringify(failedTypes)}`;
+            this.errorMessage = this.translation.translate('AuthenticationFailed',
+              { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+
           }
         } else {
           this.errorMessage = error.text();
         }
         this.password = '';
         this.locked = false;
-        this.isLoading = false;  
+        this.isLoading = false;
       }
     );
   }
@@ -123,9 +129,9 @@ export class LoginComponent implements OnInit {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
