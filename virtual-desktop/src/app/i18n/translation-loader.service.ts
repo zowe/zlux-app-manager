@@ -22,6 +22,9 @@ import * as Rx from 'rxjs/Rx';
 
 @Injectable()
 export class TranslationLoaderService {
+  private readonly plugin: ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
+  private readonly logger = ZoweZLUX.logger.makeComponentLogger(this.plugin.getIdentifier());
+
   constructor(
     private languageLocaleService: LanguageLocaleService
   ) {
@@ -56,15 +59,26 @@ export class TranslationLoaderService {
     const translationFileURL = this.getTranslationFileURL(plugin, language);
     // ex.: messages.es.xlf
     const fallbackTranslationFileURL = baseLanguage !== language ? this.getTranslationFileURL(plugin, baseLanguage) : null;
-    return this.loadTranslations(translationFileURL)
-      .catch(err => (fallbackTranslationFileURL != null) ? this.loadTranslations(fallbackTranslationFileURL) : Observable.throw(err))
+    let currentTranslationFileURL = translationFileURL;
+    return this.loadTranslations(currentTranslationFileURL)
+      .catch(err => {
+        if (fallbackTranslationFileURL != null) {
+          this.logger.warn(`Failed to load language file ${translationFileURL}, using ${fallbackTranslationFileURL}.`);
+          currentTranslationFileURL = fallbackTranslationFileURL;
+          return this.loadTranslations(currentTranslationFileURL);
+        }
+        return Observable.throw(err);
+      })
       .toPromise()
       .then((translations: string) => [
         { provide: TRANSLATIONS, useValue: translations },
         { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
         { provide: LOCALE_ID, useValue: language }
       ])
-      .catch(() => noProviders);
+      .catch(() => {
+          this.logger.warn(`Failed to load language file ${currentTranslationFileURL}, using no translation files.`);
+          return noProviders;
+      });
   }
 
   private loadTranslations(fileURL: string): Observable<string> {
