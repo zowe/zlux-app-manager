@@ -6,7 +6,7 @@
     "build:externals": "webpack --progress --config webpack.externals.js",
     "start": "webpack --watch --progress",
     "build": "webpack --progress",
-    "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf",
+    "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json",
     "lint": "tslint -c tslint.json \"src/**/*.ts\""
   },
   "private": true,
@@ -35,6 +35,7 @@
     "font-awesome": "~4.7.0",
     "jquery": "~3.3.0",
     "json-loader": "~0.5.7",
+    "ngx-i18nsupport": "^0.17.1",
     "popper.js": "~1.14.3",
     "primeng": "~6.0.1",
     "raw-loader": "~0.5.1",
