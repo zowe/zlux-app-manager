@@ -149,6 +149,7 @@ export class LaunchbarComponent {
           { "text": this.translation.translate('Properties'), "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) },
           { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
           { "text": this.translation.translate('Close'), "action": () => this.closeApplication(item) },         
+
         ];
     } else {
       var menuItems: ContextMenuItem[] =
