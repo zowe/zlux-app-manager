@@ -35,7 +35,7 @@
     "font-awesome": "~4.7.0",
     "jquery": "~3.3.0",
     "json-loader": "~0.5.7",
-    "ngx-i18nsupport": "^0.17.1",
+    "ngx-i18nsupport": "~0.17.1",
     "popper.js": "~1.14.3",
     "primeng": "~6.0.1",
     "raw-loader": "~0.5.1",
