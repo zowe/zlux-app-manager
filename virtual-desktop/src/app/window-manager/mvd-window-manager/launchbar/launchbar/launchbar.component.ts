@@ -153,9 +153,9 @@ export class LaunchbarComponent {
     } else {
       var menuItems: ContextMenuItem[] =
         [
-          { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },
-          { "text": this.translation.translate('Properties'), "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) },
-          this.pluginsDataService.pinContext(item)
+          { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },       
+          this.pluginsDataService.pinContext(item),
+          { "text": this.translation.translate('Properties'), "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) }
         ]
     }
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY - 60, items: menuItems});
