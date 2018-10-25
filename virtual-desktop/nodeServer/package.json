@@ -1,5 +1,5 @@
 {
-  "name": "com.rs.mvd.ng2desktop.server",
+  "name": "org.zowe.zlux.appmanager.virtualdesktop.server",
   "version": "0.9.0",
   "description": "Manage Client-Side preferences",
   "scripts": {
