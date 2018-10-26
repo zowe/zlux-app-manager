@@ -15,6 +15,7 @@ import { Subject } from 'rxjs/Subject';
 
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { ViewportComponent } from 'app/application-manager/viewport-manager/viewport/viewport.component';
+//import { AppPropertiesWindowComponent } from '../propertieswindow/app-properties-window.component';
 
 import { DesktopWindow, LocalWindowEvents } from './desktop-window';
 import { WindowPosition } from './window-position';
@@ -23,8 +24,6 @@ import { WindowMonitor } from 'app/shared/window-monitor.service';
 import { ContextMenuItem, Angular2PluginWindowActions,
   Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, InstanceId, EmbeddedInstance
 } from 'pluginlib/inject-resources';
-
-type PluginIdentifier = string;
 
 @Injectable()
 export class WindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
@@ -38,7 +37,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   private nextId: MVDWindowManagement.WindowId;
   private windowMap: Map<MVDWindowManagement.WindowId, DesktopWindow>;
-  private pluginMap: Map<PluginIdentifier, DesktopWindow[]>;
+ 
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
   /*
@@ -67,7 +66,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.nextId = 0;
     this.windowMap = new Map();
-    this.pluginMap = new Map();
+
     this.focusedWindow = null;
     this.topZIndex = 0;
     this.lastWindowPosition = {left: 0, top: 0, width: 400, height: 400 / 1.6};
@@ -86,6 +85,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     return Array.from(this.windowMap.values());
   }
 
+ 
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {
     desktopWindow.windowState.position = { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
   }
@@ -209,7 +209,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     return providers;
   }
-
+  
   createWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId {
     /* Create window instance */
     let pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
@@ -221,13 +221,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     /* Register window */
     this.windowMap.set(windowId, desktopWindow);
-    const pluginId = plugin.getIdentifier();
-    const desktopWindows = this.pluginMap.get(pluginId);
-    if (desktopWindows !== undefined) {
-      desktopWindows.push(desktopWindow);
-    } else {
-      this.pluginMap.set(pluginId, [desktopWindow]);
-    }
+  
 
     /* Create viewport */
     const viewportId = this.viewportManager.createViewport(this.generateWindowProviders(windowId));
@@ -239,11 +233,12 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     return windowId;
   }
-
+   
+ 
   getWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId | null {
-    const desktopWindows = this.pluginMap.get(plugin.getIdentifier());
-    if (desktopWindows !== undefined) {
-      return desktopWindows[0].windowId;
+    const applicationWindowID = this.applicationManager.getAppWindowID(plugin.getIdentifier());
+    if (applicationWindowID !== undefined) {
+      return applicationWindowID;
     } else {
       return null;
     }
@@ -286,7 +281,6 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow !== undefined) {
       this.windowMap.delete(windowId);
-      this.pluginMap.delete(desktopWindow.plugin.getIdentifier());
     }
   }
 
@@ -297,8 +291,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       return;
     }
     let appId = this.viewportManager.getApplicationInstanceId(desktopWindow.viewportId);
-    if (appId !== null) {
-      this.applicationManager.killApplication(desktopWindow.plugin, appId);
+    if (appId!=null) {
+      this.applicationManager.killApplication(desktopWindow.plugin, appId,windowId);
     }
     if (desktopWindow.closeHandler != null) {
       desktopWindow.closeHandler().then(() => this.destroyWindow(windowId));

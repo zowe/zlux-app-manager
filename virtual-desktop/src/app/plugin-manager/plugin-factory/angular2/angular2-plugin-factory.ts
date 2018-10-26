@@ -14,7 +14,7 @@ import { Injectable, CompilerFactory } from '@angular/core';
 
 import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
-import { Compiler, CompilerOptions, ApplicationRef, Injector } from '@angular/core';
+import { Compiler, CompilerOptions, ApplicationRef, Injector, StaticProvider } from '@angular/core';
 import { DomPortalOutlet, ComponentPortal } from '@angular/cdk/portal';
 import { Observable } from 'rxjs/Rx';
 import { Http } from '@angular/http';
@@ -158,41 +158,25 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
-<<<<<<< HEAD
   getTranslationProviders(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<StaticProvider[]> {
     // Get the locale id from the global
     // According to Mozilla.org this will work well enough for the
     // browsers we support (Chrome, Firefox, Edge, Safari)
     // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/language
-    // NOTES:
-    // 1. The desktop can override the browser language and locale preferences (see https://github.com/zowe/zlux-app-manager/issues/10),
-    //    so we don't just use the navigator language, but go through a "globalization" interface here.
-    // 2. Per the design of the above implementation (https://github.com/zowe/zlux-app-manager/pull/21), "true locale" can be separate
-    //    from language.
-    //    That pull request takes into account the subtleties about "locale" as discussed here:
-    //    https://www.w3.org/International/questions/qa-accept-lang-locales
-    //
-    // SUMMARY: The one part ('en') or two part ('en-US') language is treated *here* as *just language*, Maybe a specific sub language
-    //          e.g., en-GB has different spellings, so the "language" aspect of the second part can be important in choosing a template,
-    //          separate from implications for currency and decimal separator.
+    // TO DO: handle both language and local (e.g., both "en" and "en-US")
+    // MVD-1671: support lang-LOCALE and ability to fall back to lang if lang-LOCALE is not found
     // MERGE QUESTION: should be put this in polyfills? abstract it somewhere? etc.?
-
-    const language: string = this.languageLocaleService.getLanguage();
-    // return no providers if fail to get translation file for language
+    const locale:string = navigator.language.split("-")[0];
+    // return no providers if fail to get translation file for locale
     const noProviders: StaticProvider[] = [];
-    // No language or U.S. English: no translation providers
-    if (this.languageLocaleService.isConfiguredForDefaultLanguage()) {
+    // No locale or U.S. English: no translation providers
+    if (!locale || locale === 'en') {
       return Promise.resolve(noProviders);
     }
-    const baseLanguage = this.languageLocaleService.getBaseLanguage();
-    // ex.: messages.es-ES.xlf
-    const translationFileURL = this.getTranslationFileURL(pluginDefinition, language);
-    // ex.: messages.es.xlf
-    const fallbackTranslationFileURL = baseLanguage !== language ? this.getTranslationFileURL(pluginDefinition, baseLanguage) : null;
-    return this.loadTranslations(translationFileURL)
-      .catch(err => (fallbackTranslationFileURL != null) ? this.loadTranslations(fallbackTranslationFileURL) : Observable.throw(err))
-      .toPromise()
-      .then((translations: string) => [
+    // Ex: 'locale/messages.es.xlf`
+    const translationFile = this.getTranslationFileURL(pluginDefinition, locale);
+    return this.getTranslationsWithSystemJs(translationFile)
+      .then( (translations: string ) => [
         { provide: TRANSLATIONS, useValue: translations },
         { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
         { provide: LOCALE_ID, useValue: locale },
@@ -200,8 +184,6 @@ export class Angular2PluginFactory extends PluginFactory {
       .catch(() => noProviders); // ignore if file not found
   }
 
-=======
->>>>>>> Add TranslationLoaderService
   getCompiler(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<Compiler> {
     return this.translationLoaderService.getTranslationProviders(pluginDefinition.getBasePlugin()).then(providers => {
       const options: CompilerOptions = {
