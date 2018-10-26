@@ -1,0 +1,12 @@
+{
+  "extends": "../../../virtual-desktop/plugin-config/tsconfig.i18n.json",
+    
+  "include": [
+    "./src"
+  ],
+
+  "compilerOptions": {
+    "outDir": "./src/assets/i18n",
+    "skipLibCheck": true
+  }
+}

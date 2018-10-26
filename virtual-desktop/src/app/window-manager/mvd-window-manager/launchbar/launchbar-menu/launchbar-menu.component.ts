@@ -16,6 +16,7 @@ import { PluginsDataService } from '../../services/plugins-data.service';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service'
+import { TranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'rs-com-launchbar-menu',
@@ -34,7 +35,9 @@ export class LaunchbarMenuComponent {
     private elementRef: ElementRef,
     public windowManager: WindowManagerService,
     private pluginsDataService: PluginsDataService,
-    private injector: Injector
+    private injector: Injector,
+    private translation: TranslationService
+
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -78,7 +81,8 @@ export class LaunchbarMenuComponent {
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     var menuItems: ContextMenuItem[] =
       [
-        this.pluginsDataService.pinContext(item)
+        this.pluginsDataService.pinContext(item),
+        { "text": this.translation.translate('Properties'), "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin)}
       ];
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     return false;

@@ -1,0 +1,3 @@
+{
+  "extends": "../../../virtual-desktop/plugin-config/tsconfig.strict.json"
+}

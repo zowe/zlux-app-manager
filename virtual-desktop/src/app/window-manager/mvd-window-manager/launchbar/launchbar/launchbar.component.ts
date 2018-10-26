@@ -44,8 +44,7 @@ export class LaunchbarComponent {
   applicationManager: MVDHosting.ApplicationManagerInterface;
   authenticationManager: MVDHosting.AuthenticationManagerInterface;
 
-
-  constructor(
+   constructor(
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     public windowManager: WindowManagerService,
@@ -67,9 +66,10 @@ export class LaunchbarComponent {
     this.allItems = [];
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
-        if (p.getBasePlugin().getWebContent() != null) {
-          this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
-        }
+        if (p.getBasePlugin().getWebContent() != null && p.getIdentifier()!='org.zowe.zlux.appmanager.app.propview') {
+            this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
+          }
+        
       })
     });
   }
@@ -144,14 +144,18 @@ export class LaunchbarComponent {
       var menuItems: ContextMenuItem[] =
         [
           this.pluginsDataService.pinContext(item),
+          { "text": this.translation.translate('Properties'), "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) },
           { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
-          { "text": this.translation.translate('Close'), "action": () => this.closeApplication(item) },
+          { "text": this.translation.translate('Close'), "action": () => this.closeApplication(item) },         
+
         ];
     } else {
       var menuItems: ContextMenuItem[] =
         [
-          { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },
-          this.pluginsDataService.pinContext(item)
+          { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },       
+          this.pluginsDataService.pinContext(item),
+          { "text": this.translation.translate('Properties'), "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) }
+
         ]
     }
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY - 60, items: menuItems});
