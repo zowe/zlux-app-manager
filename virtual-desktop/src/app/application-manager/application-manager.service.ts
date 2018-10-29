@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -18,11 +16,9 @@ import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-p
 import { PluginManager } from "app/plugin-manager/shared/plugin-manager";
 
 import { LoadFailureComponent } from './load-failure/load-failure.component';
-
 import { InjectionManager } from './injection-manager/injection-manager.service';
 import { ApplicationInstance } from './application-instance';
 import { FailureModule } from './load-failure/failure.module';
-
 // import { ViewportId } from './viewport-manager/viewport';
 import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
@@ -30,10 +26,8 @@ import { EmbeddedInstance } from 'pluginlib/inject-resources';
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
   private failureModuleFactory: NgModuleFactory<FailureModule>;
-
   private applicationInstances: Map<MVDHosting.InstanceId, ApplicationInstance>;
   private nextInstanceId: MVDHosting.InstanceId;
- 
 
   constructor(
     private injector: Injector,
@@ -44,11 +38,9 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     private compiler: Compiler
   ) {
     this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);
-
     this.applicationInstances = new Map();
     this.nextInstanceId = 0;
- 
-    
+
     (window as any).ZoweZLUX.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
       return this.pluginManager.findPluginDefinition(zluxPlugin.getIdentifier()).then(plugin => {
         if (plugin == null) {
@@ -191,15 +183,6 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     // Generate initial instance window
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     const windowId = windowManager.createWindow(plugin);
-   /* const pluginId = plugin.getIdentifier();
-    const desktopWindows = this.runningPluginAppMap.get(pluginId);
-    if (desktopWindows !== undefined) {
-      desktopWindows.push(windowId);
-    } else {
-      this.runningPluginAppMap.set(pluginId, [windowId]);
-     }
-    */
-    
     const viewportId = windowManager.getViewportId(windowId);
     this.viewportManager.registerViewport(viewportId, applicationInstance.instanceId);
 
@@ -239,7 +222,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
       this.spawnApplication(plugin, null);
     }
   }
-  
+
   isApplicationRunning(plugin: DesktopPluginDefinitionImpl): boolean {
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     return windowManager.getWindow(plugin) != null;
@@ -314,11 +297,9 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   killApplication(plugin:ZLUX.Plugin, appId:MVDHosting.InstanceId):void {
     ZoweZLUX.dispatcher.deregisterPluginInstance(plugin,
                                                 appId);   // instanceId is proxy handle to isntance 
-                                                
 
   }
 
- 
 }
 
 
