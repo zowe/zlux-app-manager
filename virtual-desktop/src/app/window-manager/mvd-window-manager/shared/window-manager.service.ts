@@ -25,6 +25,8 @@ import { ContextMenuItem, Angular2PluginWindowActions,
   Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, InstanceId, EmbeddedInstance
 } from 'pluginlib/inject-resources';
 
+type PluginIdentifier = string;
+
 @Injectable()
 export class WindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
 
@@ -37,7 +39,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   private nextId: MVDWindowManagement.WindowId;
   private windowMap: Map<MVDWindowManagement.WindowId, DesktopWindow>;
- 
+  private runningPluginMap: Map<PluginIdentifier, MVDWindowManagement.WindowId[]>;
+
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
   /*
@@ -67,6 +70,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.nextId = 0;
     this.windowMap = new Map();
 
+    this.runningPluginMap = new Map();
+
+    
     this.focusedWindow = null;
     this.topZIndex = 0;
     this.lastWindowPosition = {left: 0, top: 0, width: 400, height: 400 / 1.6};
@@ -138,6 +144,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     return newWindowPosition;
   }
+
 
   private generateWindowEventsProvider(windowId: MVDWindowManagement.WindowId): Angular2PluginWindowEvents {
     const events = this.getWindowEvents(windowId);
@@ -222,6 +229,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     /* Register window */
     this.windowMap.set(windowId, desktopWindow);
   
+    const pluginId = plugin.getIdentifier();
+    const desktopWindowIds = this.runningPluginMap.get(pluginId);
+    if (desktopWindowIds !== undefined) {
+      desktopWindowIds.push(windowId);
+    } else {
+      this.runningPluginMap.set(pluginId, [windowId]);
+    }
 
     /* Create viewport */
     const viewportId = this.viewportManager.createViewport(this.generateWindowProviders(windowId));
@@ -236,9 +250,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
    
  
   getWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId | null {
-    const applicationWindowID = this.applicationManager.getAppWindowID(plugin.getIdentifier());
-    if (applicationWindowID !== undefined) {
-      return applicationWindowID;
+    const desktopWindows = this.runningPluginMap.get(plugin.getIdentifier());
+    if (desktopWindows !== undefined) {
+      return desktopWindows[0];
     } else {
       return null;
     }
@@ -273,6 +287,14 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow !== undefined) {
       this.windowMap.delete(windowId);
+      let windowIDs = this.runningPluginMap.get(desktopWindow.plugin.getIdentifier());
+      if (windowIDs){
+        var index = windowIDs.indexOf(windowId);
+        if(index!=-1){
+          windowIDs.splice(index, 1);
+        }
+        this.runningPluginMap.set(desktopWindow.plugin.getIdentifier(),windowIDs);
+      }
     }
   }
 
@@ -284,7 +306,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
     let appId = this.viewportManager.getApplicationInstanceId(desktopWindow.viewportId);
     if (appId!=null) {
-      this.applicationManager.killApplication(desktopWindow.plugin, appId,windowId);
+      this.applicationManager.killApplication(desktopWindow.plugin, appId);
     }
     if (desktopWindow.closeHandler != null) {
       desktopWindow.closeHandler().then(() => this.destroyWindow(windowId));
