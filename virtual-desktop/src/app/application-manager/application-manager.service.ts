@@ -33,10 +33,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
   private applicationInstances: Map<MVDHosting.InstanceId, ApplicationInstance>;
   private nextInstanceId: MVDHosting.InstanceId;
-
-  private runningPluginAppMap: Map<string, number[]>;
-  private pluginPropertyShowingMap: Map<string,number>;
-  private appPropViewerMap:Map<number,string>;
+ 
 
   constructor(
     private injector: Injector,
@@ -50,9 +47,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
     this.applicationInstances = new Map();
     this.nextInstanceId = 0;
-    this.pluginPropertyShowingMap = new Map();
-    this.runningPluginAppMap = new Map();
-    this.appPropViewerMap = new Map();
+ 
     
     (window as any).ZoweZLUX.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
       return this.pluginManager.findPluginDefinition(zluxPlugin.getIdentifier()).then(plugin => {
@@ -193,14 +188,14 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     // Generate initial instance window
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     const windowId = windowManager.createWindow(plugin);
-    const pluginId = plugin.getIdentifier();
+   /* const pluginId = plugin.getIdentifier();
     const desktopWindows = this.runningPluginAppMap.get(pluginId);
     if (desktopWindows !== undefined) {
       desktopWindows.push(windowId);
     } else {
       this.runningPluginAppMap.set(pluginId, [windowId]);
      }
-    
+    */
     
     const viewportId = windowManager.getViewportId(windowId);
     this.viewportManager.registerViewport(viewportId, applicationInstance.instanceId);
@@ -234,76 +229,24 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
   showApplicationWindow(plugin: DesktopPluginDefinitionImpl): Promise<MVDHosting.InstanceId> {
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
-    const windowId = this.runningPluginAppMap.get(plugin.getIdentifier());
+    const windowId = windowManager.getWindow(plugin);
     if (windowId != null) {
-<<<<<<< HEAD
       windowManager.showWindow(windowId);
       return new Promise((resolve,reject)=> {
         resolve(windowId); //possibly a bug: windowid and instanceid could be different?
       });
-=======
-      windowManager.showWindow(windowId[0]);
->>>>>>> add a property window that can popup when right click on the icon;
     } else {
       return this.spawnApplication(plugin, null);
     }
   }
-<<<<<<< HEAD
 
   showApplicationInstanceWindow(plugin: DesktopPluginDefinitionImpl, viewportId: MVDHosting.ViewportId): void {
     console.log('writeme, showapplicationinstancewindow');
   }
 
   isApplicationRunning(plugin: DesktopPluginDefinitionImpl): boolean {
-=======
- 
-  getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
-    const pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
-    const basePlugin = pluginImpl.getBasePlugin();
-    return {"isPropertyWindow":true,
-    "appName":pluginImpl.defaultWindowTitle,
-    "appVersion":basePlugin.getVersion(),
-    "appType":basePlugin.getType(),
-    "copyright":pluginImpl.getCopyright(),
-    "image":plugin.image
-    };    
-  }
-  
-  showApplicationPropertiesWindow(plugin: DesktopPluginDefinitionImpl): void {
->>>>>>> add a property window that can popup when right click on the icon;
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
-    const pluginID = plugin.getIdentifier();
-    let windowId = this.pluginPropertyShowingMap.get(pluginID);
-    if (windowId==undefined){
-      this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.app.propview").then(viewerPlugin => {
-      if (viewerPlugin){
-        const viewerPluginImpl:DesktopPluginDefinitionImpl = viewerPlugin as DesktopPluginDefinitionImpl;
-        let appProperties = this.getAppPropertyInformation(plugin);
-  
-        const applicationInstance = this.createApplicationInstance(viewerPlugin);
-
-        // Generate initial instance window
-        const windowId = windowManager.createWindow(viewerPlugin);
-        
-        this.pluginPropertyShowingMap.set(pluginID,windowId);
-        this.appPropViewerMap.set(windowId,pluginID);
- 
-        const viewportId = windowManager.getViewportId(windowId);
-        this.viewportManager.registerViewport(viewportId, applicationInstance.instanceId);
-        this.spawnApplicationIntoViewport(viewerPluginImpl, appProperties, applicationInstance, viewportId);   
-        return;
-        }
-      });
-    }
-    if (windowId){    
-      windowManager.showWindow(windowId);
-    }
-    return ;
-   
-  }
- 
-  isApplicationRunning(plugin: DesktopPluginDefinitionImpl): boolean {
-    return this.runningPluginAppMap.get(plugin.getIdentifier()) != null;
+    return windowManager.getWindow(plugin) != null;
   }
 
   getViewportComponentRef(viewportId: MVDHosting.ViewportId): ComponentRef<any> | null {
@@ -372,33 +315,14 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     return undefined;
   }
 
-  killApplication(plugin:ZLUX.Plugin, appId:MVDHosting.InstanceId,windowId: number):void {
-    this.clearPluginWindowMap(windowId,plugin.getIdentifier());
+  killApplication(plugin:ZLUX.Plugin, appId:MVDHosting.InstanceId):void {
     ZoweZLUX.dispatcher.deregisterPluginInstance(plugin,
                                                 appId);   // instanceId is proxy handle to isntance 
                                                 
 
   }
 
-  getAppWindowID( pluginID:string): number | null{
-    const appWindows = this.runningPluginAppMap.get(pluginID);
-    if (appWindows !== undefined){
-      return appWindows[0];
-    } else {
-      return null;
-    }
-  }
-  
-  clearPluginWindowMap(windowId: number, pluginID:string):void {
-    const desktopWindows = this.runningPluginAppMap.get(pluginID);
-    const pluginName = this.appPropViewerMap.get(windowId);
-
-    if (desktopWindows !== undefined && desktopWindows[0] ===windowId) {
-      this.runningPluginAppMap.delete(pluginID);
-    } else if (pluginName!== undefined){
-      this.pluginPropertyShowingMap.delete(pluginName);
-    }
-  }
+ 
 }
 
 

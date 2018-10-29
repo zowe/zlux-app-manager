@@ -17,6 +17,7 @@ import { LaunchbarItem } from '../shared/launchbar-item';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service'
 import { TranslationService } from 'angular-l10n';
+import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
 
 @Component({
   selector: 'rs-com-launchbar-menu',
@@ -29,7 +30,9 @@ export class LaunchbarMenuComponent {
   @Output() menuStateChanged: EventEmitter<boolean>;
   isActive: boolean = false;
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
+  pluginManager: MVDHosting.PluginManagerInterface;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
+  propertyWindowPluginDef : DesktopPluginDefinitionImpl;
 
   constructor(
     private elementRef: ElementRef,
@@ -41,10 +44,39 @@ export class LaunchbarMenuComponent {
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.itemClicked = new EventEmitter();
     this.menuStateChanged = new EventEmitter<boolean>();
   }
 
+  ngOnInit(): void {
+    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.app.propview").then(viewerPlugin => {
+      const pluginImpl:DesktopPluginDefinitionImpl = viewerPlugin as DesktopPluginDefinitionImpl;
+      this.propertyWindowPluginDef=pluginImpl;
+    })
+  }
+  
+   getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
+    const pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
+    const basePlugin = pluginImpl.getBasePlugin();
+    return {"isPropertyWindow":true,
+    "appName":pluginImpl.defaultWindowTitle,
+    "appVersion":basePlugin.getVersion(),
+    "appType":basePlugin.getType(),
+    "copyright":pluginImpl.getCopyright(),
+    "image":plugin.image
+    };    
+  }
+  
+  launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl){
+    let propertyWindowID = this.windowManager.getWindow(this.propertyWindowPluginDef);
+    if (propertyWindowID){
+      this.windowManager.showWindow(propertyWindowID);
+    } else {
+      this.applicationManager.spawnApplication(this.propertyWindowPluginDef,this.getAppPropertyInformation(plugin));
+    }
+  }
+  
   activeToggle(): void {
     this.isActive = !this.isActive;
     this.emitState();
@@ -82,7 +114,7 @@ export class LaunchbarMenuComponent {
     var menuItems: ContextMenuItem[] =
       [
         this.pluginsDataService.pinContext(item),
-        { "text": this.translation.translate('Properties'), "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin)}
+        { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin)},
       ];
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     return false;

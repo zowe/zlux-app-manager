@@ -43,7 +43,8 @@ export class LaunchbarComponent {
   pluginManager: MVDHosting.PluginManagerInterface;
   applicationManager: MVDHosting.ApplicationManagerInterface;
   authenticationManager: MVDHosting.AuthenticationManagerInterface;
-
+  propertyWindowPluginDef : DesktopPluginDefinitionImpl;
+  
    constructor(
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
@@ -66,9 +67,14 @@ export class LaunchbarComponent {
     this.allItems = [];
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
-        if (p.getBasePlugin().getWebContent() != null && p.getIdentifier()!='org.zowe.zlux.appmanager.app.propview') {
+        if (p.getBasePlugin().getWebContent() != null) {
+          if (p.getIdentifier()==='org.zowe.zlux.appmanager.app.propview'){
+            const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;
+            this.propertyWindowPluginDef = pluginImpl;
+          } else {
             this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
           }
+        }
         
       })
     });
@@ -155,6 +161,30 @@ export class LaunchbarComponent {
     }
   }
 
+  getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
+    const pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
+    const basePlugin = pluginImpl.getBasePlugin();
+    return {"isPropertyWindow":true,
+    "appName":pluginImpl.defaultWindowTitle,
+    "appVersion":basePlugin.getVersion(),
+    "appType":basePlugin.getType(),
+    "copyright":pluginImpl.getCopyright(),
+    "image":plugin.image
+    };    
+  }
+  
+  launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl){
+  
+    let propertyWindowID = this.windowManager.getWindow(this.propertyWindowPluginDef);
+    if (propertyWindowID){
+      this.windowManager.showWindow(propertyWindowID);
+    } else {
+      this.applicationManager.spawnApplication(this.propertyWindowPluginDef,this.getAppPropertyInformation(plugin));
+    }  
+  }
+    
+  
+  
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     let menuItems: ContextMenuItem[];
     if (item.instanceCount == 1) {
@@ -181,7 +211,7 @@ export class LaunchbarComponent {
       var menuItems: ContextMenuItem[] =
         [
           this.pluginsDataService.pinContext(item),
-          { "text": this.translation.translate('Properties'), "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) },
+          { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
           { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
           { "text": this.translation.translate('Close'), "action": () => this.closeApplication(item) },         
 
@@ -191,8 +221,7 @@ export class LaunchbarComponent {
         [
           { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },       
           this.pluginsDataService.pinContext(item),
-          { "text": this.translation.translate('Properties'), "action": () => this.applicationManager.showApplicationPropertiesWindow(item.plugin) }
-
+          { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
         ]
     }
     */
