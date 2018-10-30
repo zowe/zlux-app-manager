@@ -52,7 +52,7 @@
   right: 0;
   border-top-left-radius: 10px;
   background: #dde8f1;
-  padding: 15px 30px;
+  padding: 10px 15px;
   z-index: 7;
 }
 
@@ -60,10 +60,24 @@
   display: none;
 }
 
+.launchbar-plugin-version {
+  font-size: smaller;
+  margin-top: 5px;
+  color: #3333337d;
+}
+
+.btn.btn-primary.launchbar-button{
+  width: 100%
+}
+
 .launch-user-caret {
   position: absolute;
   bottom: 70px;
   right: 10px;
+}
+
+.launchbar-username {
+  text-align: center;
 }
 
 .launchbar-seperator {

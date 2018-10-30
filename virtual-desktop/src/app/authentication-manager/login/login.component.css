@@ -129,6 +129,12 @@
   color: #474747;
 }
 
+.login-plugin-version {
+  font-family: 'Roboto';
+  font-size: 16px;
+  color: #47474785;
+}
+
 .login-click-blocker {
   position: fixed;
   height: 100%;
