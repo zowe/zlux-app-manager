@@ -160,7 +160,7 @@ export class LaunchbarComponent {
   launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl){
   
     let propertyWindowID = this.windowManager.getWindow(this.propertyWindowPluginDef);
-    if (propertyWindowID){
+    if (propertyWindowID!=null){
       this.windowManager.showWindow(propertyWindowID);
     } else {
       this.applicationManager.spawnApplication(this.propertyWindowPluginDef,this.getAppPropertyInformation(plugin));
