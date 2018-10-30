@@ -20,16 +20,15 @@ self.addEventListener('activate', function(event) {
   console.log('sw activated');
 });
 
-self.addEventListener('fetch', function(event) {
+self.addEventListener('fetch', function (event) {
   console.log('sw fetch:', event.request.url);
   event.respondWith(
-    fetch(event.request).then(function(response) {
+    fetch(event.request).then(function (response) {
       if (response.status === 401) {
         sendMessageToAllClients({ action: 'requestLogout' });
       }
       return response;
-    }
-  );
+    }));
 });
 
 function sendMessageToAllClients(message) {
