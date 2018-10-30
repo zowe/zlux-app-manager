@@ -21,14 +21,17 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function (event) {
-  console.log('sw fetch:', event.request.url);
-  event.respondWith(
-    fetch(event.request).then(function (response) {
-      if (response.status === 401) {
-        sendMessageToAllClients({ action: 'requestLogout' });
-      }
-      return response;
-    }));
+  const url = event.request.url;
+  const origin = self.location.origin;
+  if (url.startsWith(origin)) {
+    event.respondWith(
+      fetch(event.request).then(function (response) {
+        if (response.status === 401) {
+          sendMessageToAllClients({ action: 'requestLogout' });
+        }
+        return response;
+      }));
+  }
 });
 
 function sendMessageToAllClients(message) {
