@@ -22,10 +22,10 @@
 
 <div class="launchbar-user-popup" [class.hidden]="!popupVisible">
   <h5 class="launchbar-username">{{getUsername()}}</h5>
-  <h6 class="launchbar-plugin-version">{{getPluginVersion()}}</h6>
   <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()"
     i18n="signout button|Title of Sign out button@@signout-button-title"
   >Log out</button>
+  <h6 class="launchbar-plugin-version">{{getPluginVersion()}}</h6>
   <!-- Convenience widgets for testing the i18n work in https://github.com/zowe/zlux-app-manager/issues/10
     Once there is a better UI, we can delete this commented-out code:
   <button #languagebutton class="btn btn-primary launchbar-button" (click)="setLanguage('fr')">French</button>

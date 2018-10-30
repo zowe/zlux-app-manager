@@ -67,7 +67,7 @@
 }
 
 .btn.btn-primary.launchbar-button{
-  margin-left: 15px;
+  width: 100%
 }
 
 .launch-user-caret {
@@ -77,7 +77,7 @@
 }
 
 .launchbar-username {
-  margin-left: 20px;
+  text-align: center;
 }
 
 .launchbar-seperator {
