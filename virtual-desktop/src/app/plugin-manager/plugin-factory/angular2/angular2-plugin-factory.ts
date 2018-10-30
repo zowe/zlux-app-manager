@@ -4,25 +4,22 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, CompilerFactory, /*CompilerOptions, COMPILER_OPTIONS, CompilerFactory*/ } from '@angular/core';
-import { TRANSLATIONS, TRANSLATIONS_FORMAT, LOCALE_ID } from '@angular/core';
+import { Injectable, CompilerFactory } from '@angular/core';
 
 import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
-import { Http } from '@angular/http';
-import { Compiler, CompilerOptions, StaticProvider, ApplicationRef, Injector } from '@angular/core';
+import { Compiler, CompilerOptions, ApplicationRef, Injector } from '@angular/core';
 import { DomPortalOutlet, ComponentPortal } from '@angular/cdk/portal';
 import { Observable } from 'rxjs/Rx';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
-
-import { LanguageLocaleService } from '../../../shared/language-locale.service';
+import { TranslationLoaderService } from '../../../i18n/translation-loader.service';
 
 interface MvdNativeAngularPlugin {
   pluginModule: any;
@@ -67,7 +64,7 @@ class SimpleAngularComponentFactory extends ComponentFactory {
             const portal = new ComponentPortal(fullPlugin.componentNgComponent, null); /* TODO */
             const componentRef = outlet.attachComponentPortal(portal);
 
-            resolve(componentRef.instance as ZLUX.IComponent); 
+            resolve(componentRef.instance as ZLUX.IComponent);
           }).catch((failure: any) => {
             console.log(failure);
             reject();
@@ -92,17 +89,12 @@ export class Angular2PluginFactory extends PluginFactory {
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
   }
 
-  private getTranslationFileURL(pluginDefinition: MVDHosting.DesktopPluginDefinition, language: string): string {
-    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${language}.xlf`);
-  }
-
   constructor(
-    private http: Http,
     private compilerFactory: CompilerFactory,
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
     private injector: Injector,
-    private languageLocaleService: LanguageLocaleService
+    private translationLoaderService: TranslationLoaderService
   ) {
     super();
   }
@@ -115,7 +107,7 @@ export class Angular2PluginFactory extends PluginFactory {
     const scriptUrl = Angular2PluginFactory.getAngularComponentsURL(pluginDefinition);
 
     return new Promise((resolve, reject) => {
-      (window as any).require([scriptUrl], 
+      (window as any).require([scriptUrl],
         (components: MvdNativeAngularPluginComponentDefinition) => {
           const factoryDefs = components.getComponentFactoryDefinitions(pluginDefinition);
           factoryDefs.forEach((factory: AngularComponentFactoryDefinition) => {
@@ -156,35 +148,8 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
-  getTranslationProviders(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<StaticProvider[]> {
-    // Get the language id from the global
-    // According to Mozilla.org this will work well enough for the
-    // browsers we support (Chrome, Firefox, Edge, Safari)
-    // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/language
-    // TO DO: handle both language and local (e.g., both "en" and "en-US")
-    // MVD-1671: support lang-LOCALE and ability to fall back to lang if lang-LOCALE is not found
-    // MERGE QUESTION: should be put this in polyfills? abstract it somewhere? etc.?
-    const language: string = this.languageLocaleService.getLanguage();
-    // return no providers if fail to get translation file for language
-    const noProviders: StaticProvider[] = [];
-    // No language or U.S. English: no translation providers
-    if (!language || language === 'en') {
-      return Promise.resolve(noProviders);
-    }
-    // Ex: 'assets/i18n/messages.es.xlf`
-    const translationFile = this.getTranslationFileURL(pluginDefinition, language);
-    return this.getTranslationsWithSystemJs(translationFile /*, language */) // see comments in getTranslationsWithSystemJs
-      .then( (translations: string ) => [
-        { provide: TRANSLATIONS, useValue: translations },
-        { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
-        { provide: LOCALE_ID, useValue: language },
-      ])
-      .catch(() => noProviders); // ignore if file not found
-  }
-
   getCompiler(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<Compiler> {
-    return this.getTranslationProviders(pluginDefinition).then(providers => {
-      console.log(`providers ${JSON.stringify(providers)}`);
+    return this.translationLoaderService.getTranslationProviders(pluginDefinition.getBasePlugin()).then(providers => {
       const options: CompilerOptions = {
         providers: providers
       };
@@ -192,31 +157,6 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
-
-  getTranslationsWithSystemJs(file: string /* , localeId: string */): Promise<string> {
-    // It would be nice to load the appropriate locale file also, as the commented-out code below
-    // attempts to do. Problems:
-    // 1. This code results in the generation of an xx.desktop.js and xx.desktop.js.map file
-    //    for each local (> 2,000 files)
-    // 2. Ignores that the infrastructure in language-locale.services.ts can:
-    //    a. load locale data in a "safer" way (no extra webpack output)
-    //    b. actually treats locale as possibly independent of language.
-    //
-    // More importantly, the call to registerLocaleData doesn't affect the locale that's
-    // used for pipes etc. The call to registerLocaleData in pluginManager.module
-    // appears to work when the desktop is loaded.
-    // So, current behavior is that changing the language will choose a new translation
-    // file when opening/reopening angular-based plugins, but the pipes will continue
-    // to use the old language/locale until you reload the desktop.
-  //   return new Promise((resolve, reject) => {System.import(/* webpackMode: "lazy" */
-  //     `@angular/common/locales/${localeId}.js`).then((localeModule: any) => {
-  //     registerLocaleData(localeModule.default);
-  //     resolve();
-  //     })
-  //    }).then(_ => this.http.get(file).map(res => res.text()).toPromise());
-  // }
-    return this.http.get(file).map(res => res.text()).toPromise();
-  }
 }
 
 
@@ -224,9 +164,9 @@ export class Angular2PluginFactory extends PluginFactory {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

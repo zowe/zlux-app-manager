@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -15,14 +15,14 @@ import {
   ElementRef,
   EventEmitter,
   HostListener,
-  Inject,
+  Injector,
   OnInit,
   Output,
   ViewChild
   } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
-import { LanguageLocaleService } from '../../../../shared/language-locale.service';
+import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
 
 @Component({
   selector: 'rs-com-launchbar-widget',
@@ -36,6 +36,7 @@ export class LaunchbarWidgetComponent implements OnInit {
   @Output() popupStateChanged = new EventEmitter<boolean>();
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
+  authenticationManager: MVDHosting.AuthenticationManagerInterface;
 
   // Convenience widgets for testing the i18n work
   // @ViewChild('languagebutton') languageButton: ElementRef;
@@ -43,9 +44,11 @@ export class LaunchbarWidgetComponent implements OnInit {
   // @ViewChild('localebutton') localeButton: ElementRef;
 
   constructor(
-    @Inject(MVDHosting.Tokens.AuthenticationManagerToken) public authenticationManager: MVDHosting.AuthenticationManagerInterface,
+    private injector: Injector,
     private languageLocaleService: LanguageLocaleService
   ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.date = new Date();
     this.popupVisible = false;
   }
@@ -106,9 +109,9 @@ export class LaunchbarWidgetComponent implements OnInit {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

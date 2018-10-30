@@ -1,0 +1,8 @@
+{
+  "UnpinFromTaskbar": "Открепить",
+  "PinToTaskbar": "Закрепить",
+  "BringToFront": "На передний план",
+  "Close": "Закрыть",
+  "Open": "Открыть",
+  "AuthenticationFailed": "Ошибка аутентификации для {{types}}"
+}

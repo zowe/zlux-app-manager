@@ -78,16 +78,27 @@ export class Globalization implements ZLUX.Globalization {
     return preferences[key];
   }
 
+  /**
+   * @returns The one or two-part language (the ISO-639 language abbreviation and optional ISO-3166 country code
+   * e.g., 'en' or 'en-US'). 
+   * This defaults to the navigator.language, but can be overriden by setLanguage
+   */
   getLanguage(): string {
     const configuredLanguage = this.getPreference('language')
 
     if (configuredLanguage) {
       return configuredLanguage;
     } else {
-      return navigator.language.split('-')[0];
+      return navigator.language;
     }
   }
 
+  /**
+   * @returns the ISO-3166 country code. This defaults to the subtag of the navigator.language(if present), but
+   * can be overriden by setLocale. If no subtag is provided, this will return US
+   * NOTE: this locale can differ from the ISO-3166 country code of the navigator.language. This option is provided
+   * in light of the recommendations from W3C: https://www.w3.org/International/questions/qa-accept-lang-locales
+   */
   getLocale(): string {
     const configuredLanguage = this.getPreference('locale')
 

@@ -4,13 +4,13 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Injector, OnInit } from '@angular/core';
 import { ApplicationManager } from "app/application-manager/application-manager.service";
 import { PluginManager } from "app/plugin-manager/shared/plugin-manager";
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
@@ -22,13 +22,15 @@ import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-p
 })
 export class SimpleComponent implements OnInit {
   viewportId: MVDHosting.ViewportId;
+  private windowManager: MVDWindowManagement.WindowManagerServiceInterface;
 
   constructor(
     private applicationManager: ApplicationManager,
     private pluginManager: PluginManager,
-    @Inject(MVDWindowManagement.Tokens.WindowManagerToken) private windowManager: MVDWindowManagement.WindowManagerServiceInterface
+    private injector: Injector,
   ) {
-
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
+    this.windowManager = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
   }
 
   ngOnInit(): void {
@@ -78,9 +80,9 @@ export class SimpleComponent implements OnInit {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
