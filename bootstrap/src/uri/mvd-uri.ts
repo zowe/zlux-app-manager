@@ -31,7 +31,7 @@ export class MvdUri implements ZLUX.UriBroker {
     let paramArray = [sourceEncodingParam, targetEncodingParam, newNameParam, forceOverwriteParam];
     let params = this.createParamURL(paramArray);
     
-    return `${this.serverRootUri(`unixfile/${absPathParam}/${routeParam}${params}`)}`;
+    return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`;
   }
   datasetContentsUri(dsn: string): string {
     return `${this.serverRootUri(`datasetContents/${dsn}`)}`;
