@@ -4,5 +4,6 @@
   "BringToFront": "На передний план",
   "Close": "Закрыть",
   "Open": "Открыть",
+  "Properties": "Свойства",
   "AuthenticationFailed": "Ошибка аутентификации для {{types}}"
 }
