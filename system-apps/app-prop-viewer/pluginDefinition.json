@@ -1,0 +1,21 @@
+{
+  "identifier": "org.zowe.zlux.appmanager.app.propview",
+  "apiVersion": "1.0.0",
+  "pluginVersion": "1.0.0",
+  "pluginType": "application",
+  "isSystemPlugin":true,
+  "webContent": {
+    "framework": "angular2",
+    "launchDefinition": {
+      "pluginShortNameKey": "Zowe Viewer",
+      "pluginShortNameDefault": "Zowe Viewer",
+      "imageSrc": "assets/icon.png"
+    },
+    "descriptionKey": "Zowe Viewer",
+    "descriptionDefault": "Zowe Viewer",
+    "defaultWindowStyle": {
+      "width": 350,
+      "height": 450
+    }
+  }
+}
