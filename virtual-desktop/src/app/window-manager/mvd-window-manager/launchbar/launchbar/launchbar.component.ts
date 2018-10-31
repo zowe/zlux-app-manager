@@ -19,7 +19,6 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 
-
 @Component({
   selector: 'rs-com-launchbar',
   templateUrl: './launchbar.component.html',
@@ -60,7 +59,7 @@ export class LaunchbarComponent {
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
         if (p.getBasePlugin().getWebContent() != null) {
-          this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
+          this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl, this.windowManager));
         }
       })
     });
@@ -118,7 +117,6 @@ export class LaunchbarComponent {
       item.showInstanceView = false;
       this.applicationManager.showApplicationWindow(item.plugin).then((instanceId:MVDHosting.InstanceId)=> {
         console.log('launchbarItemClicked I now have instanceId = '+instanceId);
-        //item.addInstanceId(instanceId);
       });
     }
   }
@@ -164,22 +162,6 @@ export class LaunchbarComponent {
         { "text": "Open New", "action": () => this.openWindow(item) }
       ];
     }
-    /*
-    if (this.applicationManager.isApplicationRunning(item.plugin)) {
-      var menuItems: ContextMenuItem[] =
-        [
-          this.pluginsDataService.pinContext(item),
-          { "text": "Bring to Front", "action": () => this.bringItemFront(item) },
-          { "text": "Close", "action": () => this.closeApplication(item) },
-        ];
-    } else {
-      var menuItems: ContextMenuItem[] =
-        [
-          { "text": "Open", "action": () => this.launchbarItemClicked(item) },
-          this.pluginsDataService.pinContext(item)
-        ]
-    }
-    */
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY - 60, items: menuItems});
     return false;
   }
