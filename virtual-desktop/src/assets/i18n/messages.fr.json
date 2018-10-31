@@ -4,5 +4,6 @@
   "BringToFront": "Mettre au premier plan",
   "Close": "Fermer",
   "Open": "Ouvrir",
+  "Properties":"Propriétés",
   "AuthenticationFailed": "L'authentification a échoué pour {{numTypes}} types. Les types: {{types}}"
 }
