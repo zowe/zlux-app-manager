@@ -21,11 +21,8 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 export class LaunchbarInstanceViewComponent {
   @Input() launchbarItem: LaunchbarItem;
 
-
-
   constructor(/*@Inject(MVDHosting.Tokens.ApplicationManagerToken) private applicationManager: MVDHosting.ApplicationManagerInterface*/
   protected windowManager: WindowManagerService) {
-
   }
 
   ngOnInit(){
@@ -34,7 +31,6 @@ export class LaunchbarInstanceViewComponent {
     (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 
       -(180 + (105  * (this.launchbarItem.windowPreviewsIds.length - 2))) + 'px';
   }
-
 
   getTitleForWindow(windowId: MVDWindowManagement.WindowId): string {
     let title = this.windowManager.getWindowTitle(windowId);

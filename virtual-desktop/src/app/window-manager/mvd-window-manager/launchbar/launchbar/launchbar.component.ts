@@ -19,6 +19,7 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 
+
 @Component({
   selector: 'rs-com-launchbar',
   templateUrl: './launchbar.component.html',
