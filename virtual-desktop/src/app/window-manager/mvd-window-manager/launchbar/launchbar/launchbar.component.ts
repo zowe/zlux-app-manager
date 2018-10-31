@@ -20,7 +20,6 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { TranslationService } from 'angular-l10n';
 
-
 @Component({
   selector: 'rs-com-launchbar',
   templateUrl: './launchbar.component.html',
@@ -68,12 +67,16 @@ export class LaunchbarComponent {
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
         if (p.getBasePlugin().getWebContent() != null) {
+<<<<<<< HEAD
           if (p.getIdentifier()==='org.zowe.zlux.appmanager.app.propview'){
             const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;
             this.propertyWindowPluginDef = pluginImpl;
           } else {
             this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
           }
+=======
+          this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl, this.windowManager));
+>>>>>>> Initial commit for the multiple apps and instance viewer
         }
         
       })
@@ -136,7 +139,6 @@ export class LaunchbarComponent {
       item.showInstanceView = false;
       this.applicationManager.showApplicationWindow(item.plugin).then((instanceId:MVDHosting.InstanceId)=> {
         console.log('launchbarItemClicked I now have instanceId = '+instanceId);
-        //item.addInstanceId(instanceId);
       });
     }
   }
@@ -206,6 +208,7 @@ export class LaunchbarComponent {
         { "text": "Open New", "action": () => this.openWindow(item) }
       ];
     }
+<<<<<<< HEAD
     /*
     if (this.applicationManager.isApplicationRunning(item.plugin)) {
       var menuItems: ContextMenuItem[] =
@@ -225,6 +228,8 @@ export class LaunchbarComponent {
         ]
     }
     */
+=======
+>>>>>>> Initial commit for the multiple apps and instance viewer
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY - 60, items: menuItems});
     return false;
   }

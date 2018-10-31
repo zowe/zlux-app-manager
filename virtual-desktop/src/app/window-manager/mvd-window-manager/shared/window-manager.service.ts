@@ -43,6 +43,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
+  public screenshot: boolean;
   /*
    * NOTES:
    * 1. We ignore the width and height here (I am reluctant to make a new data type just for this,
@@ -78,6 +79,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.lastWindowPosition = {left: 0, top: 0, width: 400, height: 400 / 1.6};
     this.contextMenuRequested = new Subject();
     this.windowDeregisterEmitter = new Subject();
+    this.screenshot = true;
 
     this.windowMonitor.windowResized.subscribe(() => {
       Array.from(this.windowMap.values())
@@ -290,10 +292,33 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     return desktopWindow.viewportId;
   }
 
+  getHTML(windowId: MVDWindowManagement.WindowId) {
+    let windowHTML = this.applicationManager.getViewportComponentRef(this.getViewportId(windowId)).location.nativeElement;
+    //This logic is to determine which html element to return for the html2canvas function since
+    //different applications have to pass different elements to get it working depending on the type
+    //and how they were made. A better solution for this logic to determine this should be implemented
+    //later
+    if(windowHTML.children.length > 1) {
+      return windowHTML;
+    } else if(windowHTML.children[0].offsetHeight == 0){
+      return windowHTML.children[0].children[1];
+    } else if(windowHTML.children[0].localName == "iframe"){
+      return -1;
+    } else {
+      return windowHTML.children[0];
+    }
+  }
+
+  getPlugin(windowId: MVDWindowManagement.WindowId) {
+    const desktopWindow = this.windowMap.get(windowId);
+    var plugin = this.pluginMap.get(desktopWindow!.plugin.getIdentifier());
+    return plugin;
+  }
+
   private destroyWindow(windowId: MVDWindowManagement.WindowId): void {
     this.windowDeregisterEmitter.next(windowId);
     const desktopWindow = this.windowMap.get(windowId);
-    if (desktopWindow !== undefined) {
+    if (desktopWindow != undefined) {
       this.windowMap.delete(windowId);
       let windowIDs = this.runningPluginMap.get(desktopWindow.plugin.getIdentifier());
       if (windowIDs){
@@ -353,6 +378,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   requestWindowFocus(destination: MVDWindowManagement.WindowId): boolean {
+    if (!this.windowHasFocus(destination) && this.screenshot == true){
+      this.screenshot = false;
+    }
+
     const desktopWindow = this.windowMap.get(destination);
     if (desktopWindow == null) {
       console.warn('Attempted to request focus for null window');

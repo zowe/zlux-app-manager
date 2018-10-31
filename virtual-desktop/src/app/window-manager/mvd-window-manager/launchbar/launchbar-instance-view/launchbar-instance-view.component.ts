@@ -21,9 +21,20 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 export class LaunchbarInstanceViewComponent {
   @Input() launchbarItem: LaunchbarItem;
 
+
+
   constructor(/*@Inject(MVDHosting.Tokens.ApplicationManagerToken) private applicationManager: MVDHosting.ApplicationManagerInterface*/
   protected windowManager: WindowManagerService) {
+
   }
+
+  ngOnInit(){
+    console.log("Plz print");
+    console.log(this.launchbarItem.windowPreviewsIds.length);
+    (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 
+      -(180 + (105  * (this.launchbarItem.windowPreviewsIds.length - 2))) + 'px';
+  }
+
 
   getTitleForWindow(windowId: MVDWindowManagement.WindowId): string {
     let title = this.windowManager.getWindowTitle(windowId);
@@ -33,9 +44,17 @@ export class LaunchbarInstanceViewComponent {
     return title;
   }
 
-  clicked(windowId: MVDWindowManagement.WindowId): void {
-//    this.windowManager.showWindow(windowId);
+  clicked(windowId: MVDWindowManagement.WindowId, item: LaunchbarItem): void {
     this.windowManager.requestWindowFocus(windowId);
   }
-  
+
+  getPreview(index: number, item: LaunchbarItem) {
+    try {
+      return item.windowPreviews[index].src;
+    }
+    catch(err) {
+      console.log("Unsupported screenshot loaded/iFrame applications currently not supported")
+      return null;
+    }
+  }
 }

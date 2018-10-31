@@ -9,9 +9,11 @@
   -->
 <div class="instance-viewer">
   <div class="all-instances-box">
-    <div class="instance-item" (click)="clicked(windowId)" *ngFor="let windowId of windowManager.getWindowIDs(launchbarItem.plugin); let i = index">
+    <div class="instance-item" (mousedown)="clicked(windowId, launchbarItem)" *ngFor="let windowId of windowManager.getWindowIDs(launchbarItem.plugin); let i = index">
       <p class="caption truncate">#{{i}} {{getTitleForWindow(windowId)}}</p>
-      <div class="instance-snapshot" (click)="clicked(windowId)" [style.background-color]="black"></div> <!-- [style.background-image]="wherever this comes from" -->
+      <div class="instance-snapshot" (click)="clicked(windowId)" [style.background-color]="black">
+        <img class="instance-preview" src={{getPreview(i,launchbarItem)}}/>
+      </div> <!-- [style.background-image]="wherever this comes from" -->
     </div>
   </div>
   <p class="caption label-caption truncate">{{launchbarItem.label}}</p>
