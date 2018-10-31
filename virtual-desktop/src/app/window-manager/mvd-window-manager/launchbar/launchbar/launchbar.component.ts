@@ -20,6 +20,7 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { TranslationService } from 'angular-l10n';
 
+
 @Component({
   selector: 'rs-com-launchbar',
   templateUrl: './launchbar.component.html',
