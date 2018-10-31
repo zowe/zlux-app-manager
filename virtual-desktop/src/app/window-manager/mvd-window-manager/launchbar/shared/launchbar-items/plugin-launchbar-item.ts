@@ -87,7 +87,7 @@ export class PluginLaunchbarItem extends LaunchbarItem implements ZLUX.PluginWat
     }
   }
 
-  testGeneration(instanceId: MVDHosting.InstanceId){
+  refreshScreenshot(instanceId: MVDHosting.InstanceId){
     var self = this;
     let index = this.instanceIds.indexOf(instanceId);
     if (index != -1) {
@@ -95,7 +95,7 @@ export class PluginLaunchbarItem extends LaunchbarItem implements ZLUX.PluginWat
         this.generateSnapshot(instanceId);
         this.windowManager.screenshot = true;
       }
-      setTimeout(function() { self.testGeneration(instanceId); }, 1000);
+      setTimeout(function() { self.refreshScreenshot(instanceId); }, 1000);
     }
   }
 
@@ -114,7 +114,7 @@ export class PluginLaunchbarItem extends LaunchbarItem implements ZLUX.PluginWat
       this.instanceIds.push(instanceId);
       this.instanceCount++;
     }
-    setTimeout(function() { self.testGeneration(instanceId); }, 1000);
+    setTimeout(function() { self.refreshScreenshot(instanceId); }, 1000);
   }
   instanceRemoved(instanceId: MVDHosting.InstanceId) {
     this.destroySnapshot(instanceId);
