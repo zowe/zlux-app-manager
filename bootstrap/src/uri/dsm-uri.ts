@@ -21,15 +21,11 @@ export class DsmUri implements ZLUX.UriBroker {
     return proxy_mode ? `/${proxy_path}${url}` : url;
   }
 
-  unixFileMetadataUri(relativePath: string): string {
-    relativePath;//suppress warning for now
-    return "";
-  }
   rasUri(relativePath: string): string {
     relativePath;//suppress warning for now
     return "";
   }
-  unixFileContentsUri(relativePath: string): string {
+  unixFileUri(relativePath: string): string {
     relativePath;//suppress warning for now
     return "";
   }
