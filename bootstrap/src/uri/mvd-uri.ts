@@ -16,14 +16,22 @@ const proxy_path = 'zowe-zlux';
 const proxy_mode = (window.location.pathname.split('/')[1] == proxy_path) ? true : false;
 
 export class MvdUri implements ZLUX.UriBroker {
-  unixFileMetadataUri(path: string): string {
-    return `${this.serverRootUri(`unixFileMetadata/${path}`)}`;
-  }
   rasUri(uri: string): string {
     return `${this.serverRootUri(`ras/${uri}`)}`;
   }
-  unixFileContentsUri(path: string): string {
-    return `${this.serverRootUri(`unixFileContents/${path}`)}`;
+  unixFileUri(route: string, absPath: string, sourceEncoding?: string | undefined, targetEncoding?: string | undefined, newName?: string | undefined, forceOverwrite?: boolean | undefined): string {
+    let routeParam = route;
+    let absPathParam = absPath;
+    
+    let sourceEncodingParam = sourceEncoding ? 'sourceEncoding=' + sourceEncoding : '';
+    let targetEncodingParam = targetEncoding ? 'targetEncoding=' + targetEncoding : '';
+    let newNameParam = newName ? 'newName=' + newName : '';
+    let forceOverwriteParam = forceOverwrite ? 'forceOverwrite=' + forceOverwrite : ''; 
+    
+    let paramArray = [sourceEncodingParam, targetEncodingParam, newNameParam, forceOverwriteParam];
+    let params = this.createParamURL(paramArray);
+    
+    return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`;
   }
   datasetContentsUri(dsn: string): string {
     return `${this.serverRootUri(`datasetContents/${dsn}`)}`;
