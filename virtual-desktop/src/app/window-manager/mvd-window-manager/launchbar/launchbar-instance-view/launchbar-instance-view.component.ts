@@ -26,8 +26,6 @@ export class LaunchbarInstanceViewComponent {
   }
 
   ngOnInit(){
-    console.log("Plz print");
-    console.log(this.launchbarItem.windowPreviewsIds.length);
     (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 
       -(180 + (105  * (this.launchbarItem.windowPreviewsIds.length - 2))) + 'px';
   }
