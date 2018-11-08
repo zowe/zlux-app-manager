@@ -104,7 +104,8 @@ export class MvdUri implements ZLUX.UriBroker {
     }
     const protocol = window.location.protocol;
     const wsProtocol = (protocol === 'https:') ? 'wss:' : 'ws:';
-    return `${wsProtocol}//${window.location.host}${this.pluginRootUri(plugin)}services/${serviceName}/${relativePath}`;
+    return `${wsProtocol}//${window.location.host}${this.pluginRootUri(plugin)}`
+        + `services/${serviceName}/_current/${relativePath}`;
   }
 
   /**
@@ -118,19 +119,22 @@ export class MvdUri implements ZLUX.UriBroker {
    */
   pluginConfigForScopeUri(pluginDefinition: ZLUX.Plugin, scope: string, resourcePath: string, resourceName?: string): string {
     let name = resourceName ? '?name=' + resourceName : '';
-    return `${this.serverRootUri(`ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`)}`;
+    return `${this.serverRootUri(`ZLUX/plugins/com.rs.configjs/services/data/_current`
+       + `/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`)}`;
     // return `/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`;
   }
 
   pluginConfigForUserUri(pluginDefinition: ZLUX.Plugin, user: string, resourcePath: string, resourceName?: string) {
     let name = resourceName ? '?name=' + resourceName : '';
-    return `${this.serverRootUri(`ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`)}`;
+    return `${this.serverRootUri(`ZLUX/plugins/com.rs.configjs/services/data/_current`
+       + `/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`)}`;
     // return `/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`;    
   }
 
   pluginConfigForGroupUri(pluginDefinition: ZLUX.Plugin, group: string, resourcePath: string, resourceName?: string) {
     let name = resourceName ? '?name=' + resourceName : '';
-    return `${this.serverRootUri(`ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`)}`;
+    return `${this.serverRootUri(`ZLUX/plugins/com.rs.configjs/services/data/_current`
+       + `/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`)}`;
     //return `/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`;    
   }
 
@@ -142,7 +146,8 @@ export class MvdUri implements ZLUX.UriBroker {
     if (relativePath == null) {
       relativePath = "";
     }
-    return `${this.pluginRootUri(plugin)}services/${serviceName}/${relativePath}`;
+    return `${this.pluginRootUri(plugin)}services/${serviceName}/_current`
+       + `/${relativePath}`;
   }
 
   createParamURL(parameters: String[]): string {

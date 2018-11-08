@@ -113,7 +113,9 @@ export class DsmUri implements ZLUX.UriBroker {
    */
   pluginConfigForScopeUri(pluginDefinition: ZLUX.Plugin, scope: string, resourcePath:string, resourceName?:string): string {
     let name = resourceName ? '?name='+resourceName : '';    
-    return this.pluginServletUri()+`?pluginRESTUri=/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`;
+    return this.pluginServletUri()+`?pluginRESTUri=/ZLUX/plugins/com.rs.configjs`
+        + `/services/data/_current/${pluginDefinition.getIdentifier()}/${scope}/`
+        + `${resourcePath}${name}`;
   }
 
   /**
@@ -121,7 +123,8 @@ export class DsmUri implements ZLUX.UriBroker {
    */
   pluginConfigForUserUri(pluginDefinition: ZLUX.Plugin, user:string, resourcePath:string, resourceName?:string) {
     let name = resourceName ? '?name='+resourceName : '';    
-    return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`);    
+    return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/_current`
+        + `${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`);    
   }
 
   /**
@@ -129,7 +132,8 @@ export class DsmUri implements ZLUX.UriBroker {
    */  
   pluginConfigForGroupUri(pluginDefinition: ZLUX.Plugin, group:string, resourcePath:string, resourceName?:string) {
     let name = resourceName ? '?name='+resourceName : '';    
-    return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`);    
+    return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/_current`
+        + `${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`);    
   }  
   
   pluginConfigUri(pluginDefinition: ZLUX.Plugin, resourcePath:string, resourceName?:string) {
@@ -140,7 +144,8 @@ export class DsmUri implements ZLUX.UriBroker {
     if (relativePath == null) {
       relativePath = "";
     }    
-    return this.pluginServletUri()+`?pluginRESTUri=/ZLUX/plugins/${plugin.getIdentifier()}/services/${serviceName}/${relativePath}`;
+    return this.pluginServletUri()+`?pluginRESTUri=/ZLUX/plugins/`
+        + `${plugin.getIdentifier()}/services/${serviceName}/_current/${relativePath}`;
   }
 
   private pluginServletUri(){
