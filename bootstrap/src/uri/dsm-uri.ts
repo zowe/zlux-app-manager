@@ -124,7 +124,7 @@ export class DsmUri implements ZLUX.UriBroker {
   pluginConfigForUserUri(pluginDefinition: ZLUX.Plugin, user:string, resourcePath:string, resourceName?:string) {
     let name = resourceName ? '?name='+resourceName : '';    
     return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/_current`
-        + `${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`);    
+        + `/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`);    
   }
 
   /**
@@ -133,7 +133,7 @@ export class DsmUri implements ZLUX.UriBroker {
   pluginConfigForGroupUri(pluginDefinition: ZLUX.Plugin, group:string, resourcePath:string, resourceName?:string) {
     let name = resourceName ? '?name='+resourceName : '';    
     return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/_current`
-        + `${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`);    
+        + `/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`);    
   }  
   
   pluginConfigUri(pluginDefinition: ZLUX.Plugin, resourcePath:string, resourceName?:string) {
