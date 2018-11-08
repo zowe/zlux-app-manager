@@ -91,14 +91,16 @@ export class DsmUri implements ZLUX.UriBroker {
     return this.pluginServletUri()+`?pluginType=${pluginType}`
   }
 
-  pluginWSUri(pluginDefinition: ZLUX.Plugin, serviceName:string, relativePath:string){
+  pluginWSUri(pluginDefinition: ZLUX.Plugin, serviceName:string, 
+        relativePath: string, version = "_current"){
     if (relativePath == null) {
       relativePath = "";
     }        
     //const protocol = window.location.protocol;
     //const wsProtocol = (protocol === 'https:') ? 'wss:' : 'ws:';        
     // return protocol+'://'+host+`/ZLUX/plugins/${pluginDefinition.getIdentifier()}/services/data`+relativePath;
-    console.warn("pluginWSUri not implemented yet!", pluginDefinition, serviceName, relativePath);
+    console.warn("pluginWSUri not implemented yet!", pluginDefinition, 
+        serviceName, relativePath, version);
     return "";
   }
 
@@ -140,12 +142,13 @@ export class DsmUri implements ZLUX.UriBroker {
     return this.pluginConfigForScopeUri(pluginDefinition, "user", resourcePath, resourceName);
   }
   
-  pluginRESTUri(plugin:ZLUX.Plugin, serviceName: string, relativePath:string){
+  pluginRESTUri(plugin:ZLUX.Plugin, serviceName: string, relativePath:string, 
+        version = "_current"){
     if (relativePath == null) {
       relativePath = "";
     }    
     return this.pluginServletUri()+`?pluginRESTUri=/ZLUX/plugins/`
-        + `${plugin.getIdentifier()}/services/${serviceName}/_current/${relativePath}`;
+        + `${plugin.getIdentifier()}/services/${serviceName}/${version}/${relativePath}`;
   }
 
   private pluginServletUri(){

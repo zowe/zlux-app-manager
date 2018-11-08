@@ -98,14 +98,15 @@ export class MvdUri implements ZLUX.UriBroker {
     return `${this.serverRootUri(`plugins?type=${pluginType}`)}`;
   }
 
-  pluginWSUri(plugin: ZLUX.Plugin, serviceName: string, relativePath: string) {
+  pluginWSUri(plugin: ZLUX.Plugin, serviceName: string, relativePath: string,
+        version = "_current") {
     if (relativePath == null) {
       relativePath = "";
     }
     const protocol = window.location.protocol;
     const wsProtocol = (protocol === 'https:') ? 'wss:' : 'ws:';
     return `${wsProtocol}//${window.location.host}${this.pluginRootUri(plugin)}`
-        + `services/${serviceName}/_current/${relativePath}`;
+        + `services/${serviceName}/${version}/${relativePath}`;
   }
 
   /**
@@ -142,11 +143,12 @@ export class MvdUri implements ZLUX.UriBroker {
     return this.pluginConfigForScopeUri(pluginDefinition, "user", resourcePath, resourceName);
   }
 
-  pluginRESTUri(plugin: ZLUX.Plugin, serviceName: string, relativePath: string) {
+  pluginRESTUri(plugin: ZLUX.Plugin, serviceName: string, relativePath: string,
+        version = "_current") {
     if (relativePath == null) {
       relativePath = "";
     }
-    return `${this.pluginRootUri(plugin)}services/${serviceName}/_current`
+    return `${this.pluginRootUri(plugin)}services/${serviceName}/${version}`
        + `/${relativePath}`;
   }
 
