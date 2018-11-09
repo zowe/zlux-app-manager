@@ -30,7 +30,7 @@
         <note priority="1" from="meaning">label</note>
       </trans-unit>
       <trans-unit id="login-button-title" datatype="html">
-        <source>Login</source><target state="new">登陆</target>
+        <source>Login</source><target state="new">登录</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
           <context context-type="linenumber">37</context>
