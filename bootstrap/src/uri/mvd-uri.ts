@@ -122,6 +122,7 @@ export class MvdUri implements ZLUX.UriBroker {
     // return `/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`;
   }
 
+  /* Disabled for now, to be re-introduced with role-based access control use  
   pluginConfigForUserUri(pluginDefinition: ZLUX.Plugin, user: string, resourcePath: string, resourceName?: string) {
     let name = resourceName ? '?name=' + resourceName : '';
     return `${this.serverRootUri(`ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`)}`;
@@ -133,7 +134,8 @@ export class MvdUri implements ZLUX.UriBroker {
     return `${this.serverRootUri(`ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`)}`;
     //return `/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`;    
   }
-
+  */
+  
   pluginConfigUri(pluginDefinition: ZLUX.Plugin, resourcePath: string, resourceName?: string) {
     return this.pluginConfigForScopeUri(pluginDefinition, "user", resourcePath, resourceName);
   }
