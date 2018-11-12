@@ -1,7 +1,7 @@
 {
   "name": "mainframe-virtual-desktop",
   "version": "0.0.0-zlux.version.replacement",
-  "license": "private",
+  "license": "EPL-2.0",
   "scripts": {
     "build:externals": "webpack --progress --config webpack.externals.js",
     "start": "webpack --watch --progress",
@@ -9,7 +9,6 @@
     "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json",
     "lint": "tslint -c tslint.json \"src/**/*.ts\""
   },
-  "private": true,
   "dependencies": {},
   "devDependencies": {
     "@angular/animations": "~6.0.9",
