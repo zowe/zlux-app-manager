@@ -11,8 +11,11 @@
 */
 
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { AuthenticationManager } from '../authentication-manager.service';
+import { AuthenticationManager, LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
+import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
+
+const ACTIVITY_IDLE_TIMEOUT_MS = 60000; //1 minute
 
 @Component({
   selector: 'rs-com-login',
@@ -29,11 +32,14 @@ export class LoginComponent implements OnInit {
   password: string;
   errorMessage: string | null;
   loginMessage: string;
+  private isIdle: boolean = false;
+  private idleTimeout: any;
 
   constructor(
     private authenticationService: AuthenticationManager,
     private translation: TranslationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private popupManager: ZluxPopupManagerService    
   ) {
     this.isLoading = true;
     this.needLogin = false;
@@ -46,6 +52,24 @@ export class LoginComponent implements OnInit {
       this.needLogin = needLogin;
       this.isLoading = false;
     });
+    this.authenticationService.loginExpirationIdleCheck.subscribe((e: LoginExpirationIdleCheckEvent)=> {
+      //it's not just about if its idle, but how long we've been idle for or when we were last active
+      if (!this.isIdle) {
+        this.authenticationService.performSessionRefresh();
+      } else {
+        this.popupManager.reportError(
+          ZluxErrorSeverity.WARNING,
+          'Invalid Plugin Identifier',
+          `Session will expire from inactivity soon. Click here to continue your session.`, {blocking: false});
+      }
+    });
+  }
+
+  refreshSession(): void {
+    console.log('refreshing session.');
+    this.isIdle = false;
+    this.authenticationService.performSessionRefresh().subscribe();//i dont really care about the result, but angular refuses to do network stuff for me unless i subscribe
+    
   }
 
   ngOnInit(): void {
@@ -79,13 +103,26 @@ export class LoginComponent implements OnInit {
         }
         this.isLoading = false;
         this.needLogin = true;
-    });
+      });
+        this.popupManager.reportError(
+          ZluxErrorSeverity.WARNING,
+          'Invalid Plugin Identifier',
+          `Session will expire from inactivity soon. Click here to continue your session.`, {blocking: false});    
   }
 
   considerSubmit(event: KeyboardEvent): void {
     if (event.keyCode === 13) {
       this.attemptLogin();
     }
+  }
+
+  protected detectActivity(): void {
+    console.log('activity detected!');
+    clearTimeout(this.idleTimeout);
+    this.isIdle = false;
+    this.idleTimeout = setTimeout(()=> {
+      this.isIdle = true;
+    },ACTIVITY_IDLE_TIMEOUT_MS);
   }
 
   attemptLogin(): void {
