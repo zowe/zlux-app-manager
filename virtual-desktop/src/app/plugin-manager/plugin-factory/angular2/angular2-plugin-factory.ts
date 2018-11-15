@@ -129,7 +129,7 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
   loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<CompiledPlugin> {
-    this.loadComponentFactories(pluginDefinition);
+    // this.loadComponentFactories(pluginDefinition);
     const scriptUrl = Angular2PluginFactory.getAngularModuleURL(pluginDefinition);
 
     console.trace("Angular2PluginFactory.loadPlugin scriptURL="+scriptUrl);

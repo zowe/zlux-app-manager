@@ -13,14 +13,14 @@
 import { Injectable } from '@angular/core';
 
 import { DesktopPluginDefinitionImpl } from './desktop-plugin-definition';
-import { PluginLoader } from './plugin-loader';
+// import { PluginLoader } from './plugin-loader';
 
 @Injectable()
 export class PluginManager implements MVDHosting.PluginManagerInterface {
   private _pluginDefinitions: Map<string, MVDHosting.DesktopPluginDefinition>;
 
   constructor(
-    private pluginLoader: PluginLoader
+    // private pluginLoader: PluginLoader
   ) {
     this.loadApplicationPluginDefinitionsMap();
   }
@@ -43,7 +43,7 @@ export class PluginManager implements MVDHosting.PluginManagerInterface {
       .then((plugins: MVDHosting.DesktopPluginDefinition[]) => {
         const map = new Map();
         plugins.forEach((plugin) => map.set(plugin.getIdentifier(), plugin));
-        plugins.forEach((plugin) => this.pluginLoader.loadPluginComponentFactories(plugin));
+        // plugins.forEach((plugin) => this.pluginLoader.loadPluginComponentFactories(plugin));
         this._pluginDefinitions = map;
       })
       .then(() => this._pluginDefinitions);
