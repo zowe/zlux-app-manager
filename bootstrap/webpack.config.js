@@ -66,7 +66,8 @@ module.exports = {
     // new NoEmitOnErrorsPlugin(),
     new ProgressPlugin(),
     new HtmlWebpackPlugin({
-      "title": "Zowe Desktop"
+      "title": "Rocket BlueZone Web",
+      "favicon": "./src/assets/favicon.ico"
     })
   ],
   "node": {
