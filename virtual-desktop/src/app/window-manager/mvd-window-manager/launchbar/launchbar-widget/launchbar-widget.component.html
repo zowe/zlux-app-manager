@@ -1,28 +1,31 @@
 
 
-<!-- 
+<!--
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 -->
 
 <div class="launchbar-clock">
   <div class="launchbar-seperator left"></div>
   <span>
-    <span>{{date | date:'h:mm a'}}</span>
+    <span>{{date | date:'shortTime'}}</span>
     <br>
-    <span>{{date | date:'MM.dd.yyyy'}}</span>
+    <span>{{date | date:'shortDate'}}</span>
   </span>
   <div #usericon class="launchbar-user" (click)="togglePopup()"></div>
 </div>
 
 <div class="launchbar-user-popup" [class.hidden]="!popupVisible">
   <h5 class="launchbar-username">{{getUsername()}}</h5>
-  <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()">Sign Out</button>
+  <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()"
+    i18n="signout button|Title of Sign out button@@signout-button-title"
+  >Log out</button>
+  <h6 class="launchbar-plugin-version">{{getPluginVersion()}}</h6>
   <!-- Convenience widgets for testing the i18n work in https://github.com/zowe/zlux-app-manager/issues/10
     Once there is a better UI, we can delete this commented-out code:
   <button #languagebutton class="btn btn-primary launchbar-button" (click)="setLanguage('fr')">French</button>
@@ -31,13 +34,13 @@
   -->
 </div>
 
-<!-- 
+<!--
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 -->
 
