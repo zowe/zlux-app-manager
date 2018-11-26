@@ -118,19 +118,22 @@ export class DsmUri implements ZLUX.UriBroker {
 
   /**
      Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/com.rs.configjs/services/data instead
-   */
+  */
+  /* Disabled for now, to be re-introduced with role-based access control use
   pluginConfigForUserUri(pluginDefinition: ZLUX.Plugin, user:string, resourcePath:string, resourceName?:string) {
     let name = resourceName ? '?name='+resourceName : '';    
     return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`);    
   }
-
+  */
   /**
      Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/com.rs.configjs/services/data instead
-   */  
+  */
+  /* Disabled for now, to be re-introduced with role-based access control use  
   pluginConfigForGroupUri(pluginDefinition: ZLUX.Plugin, group:string, resourcePath:string, resourceName?:string) {
     let name = resourceName ? '?name='+resourceName : '';    
     return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`);    
-  }  
+  } 
+  */
   
   pluginConfigUri(pluginDefinition: ZLUX.Plugin, resourcePath:string, resourceName?:string) {
     return this.pluginConfigForScopeUri(pluginDefinition, "user", resourcePath, resourceName);
