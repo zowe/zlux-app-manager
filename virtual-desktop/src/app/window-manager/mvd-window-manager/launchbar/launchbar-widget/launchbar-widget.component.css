@@ -46,9 +46,8 @@
 
 .launchbar-user-popup {
   width: 145px;
-  height: 120px;
   position: absolute;
-  bottom: 55px;
+  bottom: 60px;
   right: 0;
   border-top-left-radius: 10px;
   background: #dde8f1;
@@ -67,7 +66,8 @@
 }
 
 .btn.btn-primary.launchbar-button{
-  width: 100%
+  width: 100%;
+  margin: 5px 0px 5px 0px;
 }
 
 .launch-user-caret {

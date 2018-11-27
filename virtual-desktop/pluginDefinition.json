@@ -28,6 +28,16 @@
             }
           }
         }
+      },
+      "session": {
+        //this could be used to configure activity idle timeout, time to warn before expiration, and more
+        //as well as max and min username and password lengths, or if another means is being used
+        "subResources": {
+          "security": {
+            "aggregationPolicy": "none",
+            "locationType":"relative"
+          }
+        }
       }
     }
   },
