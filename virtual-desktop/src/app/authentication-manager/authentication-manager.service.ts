@@ -22,33 +22,26 @@ class ClearDispatcher implements MVDHosting.LogoutActionInterface {
   }
 }
 
-const WARNING_BEFORE_SESSION_EXPIRATION_MS = 300000; //5 minutes
-//const ACTIVITY_IDLE_TIMEOUT_MS = 60000; //1 minute
+const WARNING_BEFORE_SESSION_EXPIRATION_MS = 300000; //or less if session is short. 5 minutes
 
 export type LoginExpirationIdleCheckEvent = {
   shortestSessionDuration: number;
   timeUntilExpiration: number;
 };
 
-/*
-type AuthResponseCategory = {
-  authenticated: boolean;
-  plugins: object;
-}
-
-type AuthHandlerResponse = {
-  authenticated: boolean;
-  username?: string;
-  expms?: number;
-}
-*/
+export enum LoginScreenChangeReason {
+  UserLocked,
+  UserLogout,
+  UserLogin,
+  SessionExpired
+};
 
 @Injectable()
 export class AuthenticationManager {
   username: string | null;
   private postLoginActions: Array<MVDHosting.LoginActionInterface>;
   private preLogoutActions: Array<MVDHosting.LogoutActionInterface>;
-  readonly loginScreenVisibilityChanged: EventEmitter<boolean>;
+  readonly loginScreenVisibilityChanged: EventEmitter<LoginScreenChangeReason>;
   readonly loginExpirationIdleCheck: EventEmitter<LoginExpirationIdleCheckEvent>;
   private log: ZLUX.ComponentLogger;
   private nearestExpiration: number;
@@ -105,7 +98,7 @@ export class AuthenticationManager {
             this.performPostLoginActions().subscribe(
               ()=> {
                 this.log.debug('Done performing post-login actions');
-                this.loginScreenVisibilityChanged.emit(false);
+                this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogin);
               }
             );
             return result;
@@ -118,8 +111,12 @@ export class AuthenticationManager {
     }
   }
 
+  private lockScreenInner(onlyIfIdle: boolean) {
+    this.loginScreenVisibilityChanged.emit(onlyIfIdle ? LoginScreenChangeReason.SessionExpired : LoginScreenChangeReason.UserLocked);
+  }  
+
   requestLogin(): void {
-    this.loginScreenVisibilityChanged.emit(true);
+    this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogout);
   }
 
   requestLogout(): void {
@@ -159,16 +156,7 @@ export class AuthenticationManager {
       let success = this.preLogoutActions[i].onLogout(this.username);
       this.log.debug(`LogoutAction ${i}=${success}`);
     }
-  }
-
-  private lockScreenInner() {
-    this.loginScreenVisibilityChanged.emit(true);
-  }
-
-  public lockScreen() {
-    this.lockScreenInner();
-  }
-  
+  }  
 
   private setSessionTimeoutWatcher(categories: any|undefined) {
     if (!categories) {
@@ -203,10 +191,10 @@ export class AuthenticationManager {
         let now = Date.now();
         this.log.info(`Session will expire soon! Now=${now}, Expiration at ${now+lockAfterWarnTimer}`);
         this.log.info(`Session expirations=${this.expirations.toString()}`);
+        this.loginExpirationIdleCheck.emit({shortestSessionDuration: this.nearestExpiration, timeUntilExpiration: lockAfterWarnTimer});
         this.expirationWarning = setTimeout(()=> {
           this.log.warn(`Session timeout reached, locking session to prompt for re-authentication`);
-          
-          this.lockScreenInner();
+          this.lockScreenInner(true);
         },lockAfterWarnTimer);
       },warnTimer);
       this.log.info(`Set session timeout watcher to notify when approaching ${warnTimer}ms before expiration`);      
@@ -216,7 +204,15 @@ export class AuthenticationManager {
   performSessionRefresh(): Observable<Response> {
     console.log('service calling auth-refresh');
     return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh')).map(result=> {
-      return result;
+      let jsonMessage = result.json();
+      if (jsonMessage && jsonMessage.success === true) {
+        console.log('Resetting the timer as a result of a successful refresh');
+        this.setSessionTimeoutWatcher(jsonMessage.categories);
+        return result;
+      } else {
+        this.lockScreenInner(false);
+        throw Observable.throw(result);
+      }
     });
   }
 
@@ -231,7 +227,7 @@ export class AuthenticationManager {
         this.performPostLoginActions().subscribe(
           ()=> {
             this.log.debug('Done performing post-login actions');
-            this.loginScreenVisibilityChanged.emit(false);              
+            this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogin);              
           });
         return result;
       } else {

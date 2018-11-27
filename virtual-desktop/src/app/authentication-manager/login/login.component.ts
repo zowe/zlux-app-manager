@@ -11,11 +11,12 @@
 */
 
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { AuthenticationManager, LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
+import { AuthenticationManager, LoginScreenChangeReason, LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
+import { Observable } from 'rxjs/Observable';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 
-const ACTIVITY_IDLE_TIMEOUT_MS = 60000; //1 minute
+const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 
 @Component({
   selector: 'rs-com-login',
@@ -32,8 +33,7 @@ export class LoginComponent implements OnInit {
   password: string;
   errorMessage: string | null;
   loginMessage: string;
-  private isIdle: boolean = false;
-  private idleTimeout: any;
+  private lastActive: number = 0;
 
   constructor(
     private authenticationService: AuthenticationManager,
@@ -48,28 +48,59 @@ export class LoginComponent implements OnInit {
     this.password = '';
     this.errorMessage = null;
 
-    this.authenticationService.loginScreenVisibilityChanged.subscribe((needLogin: boolean) => {
-      this.needLogin = needLogin;
+    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
+      switch (eventReason) {
+      case LoginScreenChangeReason.UserLocked:
+        this.errorMessage = 'Session Locked';
+      case LoginScreenChangeReason.UserLogout:
+        this.needLogin = true;
+        break;
+      case LoginScreenChangeReason.UserLogin:
+        this.errorMessage = '';
+        this.needLogin = false;
+        break;
+      case LoginScreenChangeReason.SessionExpired:
+        if (this.isIdle()){
+          //I want to kill my little popup, but have no idea how to do it here.
+          this.errorMessage = 'Session Expired';
+          this.needLogin = true;
+        } else {
+          console.log('Ignoring passive log screen request due to user activity.');
+        }
+        break;
+      default:
+        console.log('Ignoring unknown login screen change reason='+eventReason);
+      }
       this.isLoading = false;
     });
     this.authenticationService.loginExpirationIdleCheck.subscribe((e: LoginExpirationIdleCheckEvent)=> {
       //it's not just about if its idle, but how long we've been idle for or when we were last active
-      if (!this.isIdle) {
-        this.authenticationService.performSessionRefresh();
+      if (!this.isIdle()) {
+        console.log('Near session expiration, but refreshing session due to activity');
+        this.refreshSession();
       } else {
-        this.popupManager.reportError(
+        console.log('Near session expiration. No activity detected, prompting to renew session');
+        let subject: Observable<any> = this.popupManager.reportError(
           ZluxErrorSeverity.WARNING,
-          'Invalid Plugin Identifier',
-          `Session will expire from inactivity soon. Click here to continue your session.`, {blocking: false});
+          'Session Expiring Soon',
+          `Session will expire from inactivity soon. Click here to continue your session.`, {
+            blocking: false,
+            buttons: ["Continue"]
+          });
+        console.log('Subject='+subject);
       }
     });
   }
 
+  private isIdle(): boolean {
+    let idle = (Date.now() - this.lastActive) > ACTIVITY_IDLE_TIMEOUT_MS;
+    console.log('User idle='+idle);
+    return idle;
+  }
+
   refreshSession(): void {
-    console.log('refreshing session.');
-    this.isIdle = false;
+    console.log('User activity caused session refresh to activate.');
     this.authenticationService.performSessionRefresh().subscribe();//i dont really care about the result, but angular refuses to do network stuff for me unless i subscribe
-    
   }
 
   ngOnInit(): void {
@@ -104,10 +135,6 @@ export class LoginComponent implements OnInit {
         this.isLoading = false;
         this.needLogin = true;
       });
-        this.popupManager.reportError(
-          ZluxErrorSeverity.WARNING,
-          'Invalid Plugin Identifier',
-          `Session will expire from inactivity soon. Click here to continue your session.`, {blocking: false});    
   }
 
   considerSubmit(event: KeyboardEvent): void {
@@ -118,11 +145,7 @@ export class LoginComponent implements OnInit {
 
   protected detectActivity(): void {
     console.log('activity detected!');
-    clearTimeout(this.idleTimeout);
-    this.isIdle = false;
-    this.idleTimeout = setTimeout(()=> {
-      this.isIdle = true;
-    },ACTIVITY_IDLE_TIMEOUT_MS);
+    this.lastActive = Date.now();
   }
 
   attemptLogin(): void {
