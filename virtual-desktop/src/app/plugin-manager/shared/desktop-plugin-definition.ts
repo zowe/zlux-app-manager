@@ -60,6 +60,10 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
     return this.basePlugin;
   }
 
+  getCopyright():string {
+    return this.basePlugin.getCopyright();
+  }
+  
   get label(): string {
     if (this.hasWebContent && this.basePlugin.getWebContent().launchDefinition != null) {
       return this.basePlugin.getWebContent().launchDefinition.pluginShortNameDefault;

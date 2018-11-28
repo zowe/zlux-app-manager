@@ -4,13 +4,13 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Inject } from '@angular/core';
+import { Component, Injector } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { PluginLaunchbarItem } from '../shared/launchbar-items/plugin-launchbar-item';
@@ -18,6 +18,7 @@ import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-p
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
+import { TranslationService } from 'angular-l10n';
 
 
 @Component({
@@ -29,24 +30,31 @@ import { PluginsDataService } from '../../services/plugins-data.service';
 export class LaunchbarComponent {
   allItems: LaunchbarItem[];
   runItems: LaunchbarItem[];
-  private isActive: boolean;
+  isActive: boolean;
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
   originalX: number;
   mouseOriginalX: number;
-  currentEvent: EventTarget | null; 
+  currentEvent: EventTarget | null;
   currentItem: LaunchbarItem | null;
   moving: boolean;
   newPosition: number;
   loggedIn: boolean;
   helperLoggedIn: boolean;
-
-  constructor(
+  pluginManager: MVDHosting.PluginManagerInterface;
+  applicationManager: MVDHosting.ApplicationManagerInterface;
+  authenticationManager: MVDHosting.AuthenticationManagerInterface;
+  propertyWindowPluginDef : DesktopPluginDefinitionImpl;
+  
+   constructor(
     private pluginsDataService: PluginsDataService,
-    @Inject(MVDHosting.Tokens.PluginManagerToken) public pluginManager: MVDHosting.PluginManagerInterface,
-    @Inject(MVDHosting.Tokens.ApplicationManagerToken) public applicationManager: MVDHosting.ApplicationManagerInterface,
-    @Inject(MVDHosting.Tokens.AuthenticationManagerToken) public authenticationManager: MVDHosting.AuthenticationManagerInterface,
+    private injector: Injector,
     public windowManager: WindowManagerService,
+    private translation: TranslationService
   ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.allItems = [];
     this.runItems = [];
     this.isActive = false;
@@ -60,8 +68,14 @@ export class LaunchbarComponent {
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
         if (p.getBasePlugin().getWebContent() != null) {
-          this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl, this.windowManager));
+          if (p.getIdentifier()==='org.zowe.zlux.appmanager.app.propview'){
+            const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;
+            this.propertyWindowPluginDef = pluginImpl;
+          } else {
+            this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl, this.windowManager));
+          }
         }
+        
       })
     });
   }
@@ -75,8 +89,8 @@ export class LaunchbarComponent {
     }
     if (this.loggedIn) {
       if(this.helperLoggedIn != true){
-        this.pluginsDataService.refreshPinnedPlugins(this.allItems);
-        this.helperLoggedIn = true; 
+        this.pluginsDataService.refreshPinnedPlugins();
+        this.helperLoggedIn = true;
       }
     }
   }
@@ -90,7 +104,7 @@ export class LaunchbarComponent {
   }
 
   get runningItems(): LaunchbarItem[] {
-    let openPlugins = this.allItems.filter(item => 
+    let openPlugins = this.allItems.filter(item =>
                                 this.applicationManager.isApplicationRunning(item.plugin));
     let openItems: LaunchbarItem[];
     openItems = [];
@@ -112,7 +126,11 @@ export class LaunchbarComponent {
     } else if (item.instanceCount == 1) {
       let windowId = this.windowManager.getWindow(item.plugin);
       if (windowId != null) {
-        this.windowManager.minimizeToggle(windowId);
+        if (this.windowManager.windowHasFocus(windowId)){
+          this.windowManager.minimizeToggle(windowId);
+        } else {
+          this.windowManager.requestWindowFocus(windowId);
+        }
       }
     } else {
       item.showInstanceView = false;
@@ -142,26 +160,55 @@ export class LaunchbarComponent {
     }
   }
 
+  getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
+    const pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
+    const basePlugin = pluginImpl.getBasePlugin();
+    return {"isPropertyWindow":true,
+    "appName":pluginImpl.defaultWindowTitle,
+    "appVersion":basePlugin.getVersion(),
+    "appType":basePlugin.getType(),
+    "copyright":pluginImpl.getCopyright(),
+    "image":plugin.image
+    };    
+  }
+  
+  launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl){
+  
+    let propertyWindowID = this.windowManager.getWindow(this.propertyWindowPluginDef);
+    if (propertyWindowID!=null){
+      this.windowManager.showWindow(propertyWindowID);
+    } else {
+      this.applicationManager.spawnApplication(this.propertyWindowPluginDef,this.getAppPropertyInformation(plugin));
+    }  
+  }
+    
+  
+  
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     let menuItems: ContextMenuItem[];
     if (item.instanceCount == 1) {
-      menuItems = [
-        this.pluginsDataService.pinContext(item),
-        { "text": "Open New", "action": ()=> this.openWindow(item)},
-        { "text": "Close All", "action": ()=> this.closeAllWindows(item)},
-        { "text": "Bring to Front", "action": () => this.bringItemFront(item) }        
-      ];
+        [
+          this.pluginsDataService.pinContext(item),
+          { "text": "Open New", "action": ()=> this.openWindow(item)},
+          { "text": "Close All", "action": ()=> this.closeAllWindows(item)},
+          { "text": "Open New", "action": ()=> this.openWindow(item)},
+          { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
+          { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
+          { "text": this.translation.translate('Close'), "action": () => this.closeApplication(item) },         
+
+        ];
     } else if (item.instanceCount != 0) {
       menuItems = [
         this.pluginsDataService.pinContext(item),
-        { "text": "Open New", "action": ()=> this.openWindow(item)},
         { "text": "Close All", "action": ()=> this.closeAllWindows(item)}
       ];
     } else {
-      menuItems = [
-        this.pluginsDataService.pinContext(item),
-        { "text": "Open New", "action": () => this.openWindow(item) }
-      ];
+      var menuItems: ContextMenuItem[] =
+        [
+          { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },       
+          this.pluginsDataService.pinContext(item),
+          { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
+        ]
     }
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY - 60, items: menuItems});
     return false;
@@ -278,9 +325,9 @@ export class LaunchbarComponent {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

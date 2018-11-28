@@ -4,17 +4,18 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, ViewContainerRef, ComponentRef, ComponentFactoryResolver, Inject } from '@angular/core';
+import { Injectable, ViewContainerRef, ComponentRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { ViewportComponent } from 'app/application-manager/viewport-manager/viewport/viewport.component';
+//import { AppPropertiesWindowComponent } from '../propertieswindow/app-properties-window.component';
 
 import { DesktopWindow, LocalWindowEvents } from './desktop-window';
 import { WindowPosition } from './window-position';
@@ -38,7 +39,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   private nextId: MVDWindowManagement.WindowId;
   private windowMap: Map<MVDWindowManagement.WindowId, DesktopWindow>;
-  private pluginMap: Map<PluginIdentifier, DesktopWindow[]>;
+  private runningPluginMap: Map<PluginIdentifier, MVDWindowManagement.WindowId[]>;
+
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
   public screenshot: boolean;
@@ -53,17 +55,25 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
   readonly windowDeregisterEmitter: Subject<MVDWindowManagement.WindowId>;
+  private applicationManager: MVDHosting.ApplicationManagerInterface;
+  private viewportManager: MVDHosting.ViewportManagerInterface;
+  private pluginManager: MVDHosting.PluginManagerInterface;
 
   constructor(
-    @Inject(MVDHosting.Tokens.ApplicationManagerToken) private applicationManager: MVDHosting.ApplicationManagerInterface,
-    @Inject(MVDHosting.Tokens.ViewportManagerToken) private viewportManager: MVDHosting.ViewportManagerInterface,
-    @Inject(MVDHosting.Tokens.PluginManagerToken) private pluginManager: MVDHosting.PluginManagerInterface,
+    private injector: Injector,
     private windowMonitor: WindowMonitor,
     private componentFactoryResolver: ComponentFactoryResolver
   ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
+    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.viewportManager = this.injector.get(MVDHosting.Tokens.ViewportManagerToken);
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.nextId = 0;
     this.windowMap = new Map();
-    this.pluginMap = new Map();
+
+    this.runningPluginMap = new Map();
+
+    
     this.focusedWindow = null;
     this.topZIndex = 0;
     this.lastWindowPosition = {left: 0, top: 0, width: 400, height: 400 / 1.6};
@@ -83,6 +93,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     return Array.from(this.windowMap.values());
   }
 
+ 
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {
     desktopWindow.windowState.position = { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
   }
@@ -135,6 +146,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     return newWindowPosition;
   }
+
 
   private generateWindowEventsProvider(windowId: MVDWindowManagement.WindowId): Angular2PluginWindowEvents {
     const events = this.getWindowEvents(windowId);
@@ -206,7 +218,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     return providers;
   }
-
+  
   createWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId {
     /* Create window instance */
     let pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
@@ -218,12 +230,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     /* Register window */
     this.windowMap.set(windowId, desktopWindow);
+  
     const pluginId = plugin.getIdentifier();
-    const desktopWindows = this.pluginMap.get(pluginId);
-    if (desktopWindows !== undefined) {
-      desktopWindows.push(desktopWindow);
+    const desktopWindowIds = this.runningPluginMap.get(pluginId);
+    if (desktopWindowIds !== undefined) {
+      desktopWindowIds.push(windowId);
     } else {
-      this.pluginMap.set(pluginId, [desktopWindow]);
+      this.runningPluginMap.set(pluginId, [windowId]);
     }
 
     /* Create viewport */
@@ -236,18 +249,19 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     return windowId;
   }
-
+   
+ 
   getWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId | null {
-    const desktopWindows = this.pluginMap.get(plugin.getIdentifier());
+    const desktopWindows = this.runningPluginMap.get(plugin.getIdentifier());
     if (desktopWindows !== undefined) {
-      return desktopWindows[0].windowId;
+      return desktopWindows[0];
     } else {
       return null;
     }
   }
 
   getWindowIDs(plugin: MVDHosting.DesktopPluginDefinition): Array<MVDWindowManagement.WindowId> | null {
-    const desktopWindows = this.pluginMap.get(plugin.getIdentifier());
+    const desktopWindows = this.runningPluginMap.get(plugin.getIdentifier());
     if (desktopWindows !== undefined) {
       return desktopWindows.map((desktopWindow)=> {return desktopWindow.windowId;});
     } else {
@@ -297,7 +311,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   getPlugin(windowId: MVDWindowManagement.WindowId) {
     const desktopWindow = this.windowMap.get(windowId);
-    var plugin = this.pluginMap.get(desktopWindow!.plugin.getIdentifier());
+    var plugin = this.runningPluginMap.get(desktopWindow!.plugin.getIdentifier());
     return plugin;
   }
 
@@ -306,14 +320,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow != undefined) {
       this.windowMap.delete(windowId);
-      let mapLength = this.pluginMap.get(desktopWindow.plugin.getIdentifier());
-      if (mapLength!.length == 1) {
-        this.pluginMap.delete(desktopWindow.plugin.getIdentifier());
-      } else if (mapLength!.length > 1) {
-        var removed = this.pluginMap.get(desktopWindow.plugin.getIdentifier())!.filter(function(item){
-          return item.windowId != windowId
-        })
-        this.pluginMap.set(desktopWindow.plugin.getIdentifier(), removed);
+      let windowIDs = this.runningPluginMap.get(desktopWindow.plugin.getIdentifier());
+      if (windowIDs){
+        var index = windowIDs.indexOf(windowId);
+        if(index!=-1){
+          windowIDs.splice(index, 1);
+        }
+        this.runningPluginMap.set(desktopWindow.plugin.getIdentifier(),windowIDs);
       }
     }
   }
@@ -325,7 +338,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       return;
     }
     let appId = this.viewportManager.getApplicationInstanceId(desktopWindow.viewportId);
-    if (appId !== null) {
+    if (appId!=null) {
       this.applicationManager.killApplication(desktopWindow.plugin, appId);
     }
     if (desktopWindow.closeHandler != null) {
@@ -495,9 +508,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

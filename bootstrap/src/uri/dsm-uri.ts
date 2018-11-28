@@ -21,15 +21,11 @@ export class DsmUri implements ZLUX.UriBroker {
     return proxy_mode ? `/${proxy_path}${url}` : url;
   }
 
-  unixFileMetadataUri(relativePath: string): string {
-    relativePath;//suppress warning for now
-    return "";
-  }
   rasUri(relativePath: string): string {
     relativePath;//suppress warning for now
     return "";
   }
-  unixFileContentsUri(relativePath: string): string {
+  unixFileUri(relativePath: string): string {
     relativePath;//suppress warning for now
     return "";
   }
@@ -117,24 +113,27 @@ export class DsmUri implements ZLUX.UriBroker {
    */
   pluginConfigForScopeUri(pluginDefinition: ZLUX.Plugin, scope: string, resourcePath:string, resourceName?:string): string {
     let name = resourceName ? '?name='+resourceName : '';    
-    return this.pluginServletUri()+`?pluginRESTUri=/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`;
+    return this.pluginServletUri()+`?pluginRESTUri=/ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`;
   }
 
   /**
-     Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/com.rs.configjs/services/data instead
-   */
+     Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/org.zowe.configjs/services/data instead
+  */
+  /* Disabled for now, to be re-introduced with role-based access control use
   pluginConfigForUserUri(pluginDefinition: ZLUX.Plugin, user:string, resourcePath:string, resourceName?:string) {
     let name = resourceName ? '?name='+resourceName : '';    
-    return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`);    
+    return this.proxyURL(`/ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`);    
   }
-
+  */
   /**
-     Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/com.rs.configjs/services/data instead
-   */  
+     Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/org.zowe.configjs/services/data instead
+  */
+  /* Disabled for now, to be re-introduced with role-based access control use  
   pluginConfigForGroupUri(pluginDefinition: ZLUX.Plugin, group:string, resourcePath:string, resourceName?:string) {
     let name = resourceName ? '?name='+resourceName : '';    
-    return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`);    
-  }  
+    return this.proxyURL(`/ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`);    
+  } 
+  */
   
   pluginConfigUri(pluginDefinition: ZLUX.Plugin, resourcePath:string, resourceName?:string) {
     return this.pluginConfigForScopeUri(pluginDefinition, "user", resourcePath, resourceName);

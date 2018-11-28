@@ -4,13 +4,14 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Input } from '@angular/core';
+
+import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
 
 import { LaunchbarItem } from '../shared/launchbar-item';
 
@@ -22,9 +23,15 @@ import { LaunchbarItem } from '../shared/launchbar-item';
 export class LaunchbarIconComponent {
   @Input() launchbarItem: LaunchbarItem;
 
-  titleVisible: boolean;
 
-  constructor(/*@Inject(MVDHosting.Tokens.ApplicationManagerToken) private applicationManager: MVDHosting.ApplicationManagerInterface*/) {
+  @Output() iconClicked: EventEmitter<void>;
+  private applicationManager: MVDHosting.ApplicationManagerInterface;
+  constructor(private injector: Injector) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
+    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.iconClicked = new EventEmitter();  
+    titleVisible: boolean;
+  }
 
   }
 /*
@@ -58,9 +65,9 @@ export class LaunchbarIconComponent {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

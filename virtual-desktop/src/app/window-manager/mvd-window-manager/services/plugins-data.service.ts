@@ -2,54 +2,67 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import { LaunchbarItem } from '../launchbar/shared/launchbar-item';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
+import { TranslationService } from 'angular-l10n';
 
 @Injectable()
 export class PluginsDataService {
-  public counter: number;
-  public pinnedPlugins: LaunchbarItem[];
-  private accessiblePlugins: LaunchbarItem[];
-  private static scope: string = "user";
-  private static resourcePath: string = "ui/launchbar/plugins";
-  private static fileName: string = "pinnedPlugins.json" 
+    public counter: number;
+    public pinnedPlugins: LaunchbarItem[];
+    private accessiblePlugins: LaunchbarItem[];
+    private static scope: string = "user";
+    private static resourcePath: string = "ui/launchbar/plugins";
+    private static fileName: string = "pinnedPlugins.json"
+    private pluginManager: MVDHosting.PluginManagerInterface;
 
-  constructor(
-    @Inject(MVDHosting.Tokens.PluginManagerToken) public pluginManager: MVDHosting.PluginManagerInterface,
-    private http: Http,
-  ) { 
-    this.pinnedPlugins = [];
-    this.counter = 0;
-  }
+    constructor(
+        private injector: Injector,
+        private http: Http,
+        private translation: TranslationService
+    ) {
+        // Workaround for AoT problem with namespaces (see angular/angular#15613)
+        this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+        this.refreshPinnedPlugins;
+        this.counter = 0;
+    }
 
   public refreshPinnedPlugins(accessiblePlugins: LaunchbarItem[]): void {
     this.accessiblePlugins = accessiblePlugins;
     this.pinnedPlugins = [];
     this.getResource(PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName)
       .subscribe(res =>{
-        let plugins = res.json().contents.plugins;
-        this.pinnedPlugins = this.getMatchingPlugins(accessiblePlugins, plugins);
+        res.json().contents.plugins.forEach((p: string) => {
+          this.pluginManager.findPluginDefinition(p)
+          .then(res => {
+            if (res == null) {
+              console.log("Bad Plugin Definition")
+            } else {
+              this.pinnedPlugins.push(new PluginLaunchbarItem(res as DesktopPluginDefinitionImpl));
+            }
+          })
+        })
       })
-  }
-  
-  public getResource(scope: string, resourcePath: string, fileName: string): Observable<any>{
-    let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
-    return this.http.get(uri, options);
-    
-  }
+    }
+
+    public getResource(scope: string, resourcePath: string, fileName: string): Observable<any>{
+        let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let options = new RequestOptions({ headers: headers });
+        return this.http.get(uri, options);
+
+      }
 
   public saveResource(plugins: string[], scope: string, resourcePath: string, fileName: string): void{
     let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
@@ -91,8 +104,6 @@ export class PluginsDataService {
     } else {
       return false;
     }
-  }
-
   public saveToConfigServer(item: LaunchbarItem): void {
     this.getResource(PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName)
       .subscribe(res=>{
@@ -106,9 +117,9 @@ export class PluginsDataService {
         this.saveResource(plugins, PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName);
       })
   }
-  
-  public removeFromConfigServer(item: LaunchbarItem): void {
-    this.getResource(PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName)
+
+    public removeFromConfigServer(item: LaunchbarItem): void {
+      this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res=>{
         let index = res.json().contents.plugins.indexOf(item.plugin.getBasePlugin().getIdentifier());
         let plugins = res.json().contents.plugins;
@@ -121,7 +132,7 @@ export class PluginsDataService {
 
   public pinContext(item: LaunchbarItem): ContextMenuItem {
     return {
-      "text": this.isPinnedPlugin(item) ? 'Unpin from taskbar' : 'Pin to taskbar',
+      "text": this.isPinnedPlugin(item) ? this.translation.translate('UnpinFromTaskbar') : this.translation.translate('PinToTaskbar'),
       "action": () => this.isPinnedPlugin(item) ? this.removeFromConfigServer(item) : this.saveToConfigServer(item)
     };
   }
@@ -143,8 +154,8 @@ export class PluginsDataService {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
