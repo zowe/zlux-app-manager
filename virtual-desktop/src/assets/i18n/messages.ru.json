@@ -5,5 +5,6 @@
   "Close": "Закрыть",
   "Open": "Открыть",
   "Properties": "Свойства",
-  "AuthenticationFailed": "Ошибка аутентификации для {{types}}"
+  "AuthenticationFailed": "Ошибка аутентификации для {{types}}",
+  "UsernameRequired": "Username required"
 }

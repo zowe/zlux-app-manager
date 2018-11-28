@@ -5,5 +5,6 @@
   "Close": "Close",
   "Open": "Open",
   "Properties":"Properties",
-  "AuthenticationFailed": "Authentication failed for {{numTypes}} types. Types: {{types}}"
+  "AuthenticationFailed": "Authentication failed for {{numTypes}} types. Types: {{types}}",
+  "UsernameRequired": "Username required"
 }
