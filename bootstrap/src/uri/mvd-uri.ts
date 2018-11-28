@@ -16,14 +16,22 @@ const proxy_path = 'zowe-zlux';
 const proxy_mode = (window.location.pathname.split('/')[1] == proxy_path) ? true : false;
 
 export class MvdUri implements ZLUX.UriBroker {
-  unixFileMetadataUri(path: string): string {
-    return `${this.serverRootUri(`unixFileMetadata/${path}`)}`;
-  }
   rasUri(uri: string): string {
     return `${this.serverRootUri(`ras/${uri}`)}`;
   }
-  unixFileContentsUri(path: string): string {
-    return `${this.serverRootUri(`unixFileContents/${path}`)}`;
+  unixFileUri(route: string, absPath: string, sourceEncoding?: string | undefined, targetEncoding?: string | undefined, newName?: string | undefined, forceOverwrite?: boolean | undefined): string {
+    let routeParam = route;
+    let absPathParam = absPath;
+    
+    let sourceEncodingParam = sourceEncoding ? 'sourceEncoding=' + sourceEncoding : '';
+    let targetEncodingParam = targetEncoding ? 'targetEncoding=' + targetEncoding : '';
+    let newNameParam = newName ? 'newName=' + newName : '';
+    let forceOverwriteParam = forceOverwrite ? 'forceOverwrite=' + forceOverwrite : ''; 
+    
+    let paramArray = [sourceEncodingParam, targetEncodingParam, newNameParam, forceOverwriteParam];
+    let params = this.createParamURL(paramArray);
+    
+    return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`;
   }
   datasetContentsUri(dsn: string): string {
     return `${this.serverRootUri(`datasetContents/${dsn}`)}`;
@@ -110,22 +118,24 @@ export class MvdUri implements ZLUX.UriBroker {
    */
   pluginConfigForScopeUri(pluginDefinition: ZLUX.Plugin, scope: string, resourcePath: string, resourceName?: string): string {
     let name = resourceName ? '?name=' + resourceName : '';
-    return `${this.serverRootUri(`ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`)}`;
-    // return `/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`;
+    return `${this.serverRootUri(`ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`)}`;
+    // return `/ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`;
   }
 
+  /* Disabled for now, to be re-introduced with role-based access control use  
   pluginConfigForUserUri(pluginDefinition: ZLUX.Plugin, user: string, resourcePath: string, resourceName?: string) {
     let name = resourceName ? '?name=' + resourceName : '';
-    return `${this.serverRootUri(`ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`)}`;
-    // return `/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`;    
+    return `${this.serverRootUri(`ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`)}`;
+    // return `/ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`;    
   }
 
   pluginConfigForGroupUri(pluginDefinition: ZLUX.Plugin, group: string, resourcePath: string, resourceName?: string) {
     let name = resourceName ? '?name=' + resourceName : '';
-    return `${this.serverRootUri(`ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`)}`;
-    //return `/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`;    
+    return `${this.serverRootUri(`ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`)}`;
+    //return `/ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`;    
   }
-
+  */
+  
   pluginConfigUri(pluginDefinition: ZLUX.Plugin, resourcePath: string, resourceName?: string) {
     return this.pluginConfigForScopeUri(pluginDefinition, "user", resourcePath, resourceName);
   }

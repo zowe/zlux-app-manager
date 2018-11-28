@@ -4,6 +4,7 @@
   "BringToFront": "最前面に移動",
   "Close": "閉じる",
   "Open": "開く",
+  "Properties":"プロパティー",
   "AuthenticationFailed": "{{numTypes}}個の認証プロバイダー({{types}})に対して認証が失敗しました",
   "UsernameRequired": "ユーザー名が必要です"
 }

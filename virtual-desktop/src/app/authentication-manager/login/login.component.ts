@@ -20,6 +20,7 @@ import { TranslationService } from 'angular-l10n';
   styleUrls: [ 'login.component.css' ]
 })
 export class LoginComponent implements OnInit {
+  private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   logo: string = require('../../../assets/images/login/Zowe_Logo.png');
   isLoading:boolean;
   needLogin:boolean;
@@ -129,6 +130,10 @@ export class LoginComponent implements OnInit {
         this.isLoading = false;
       }
     );
+  }
+
+  getPluginVersion(): string | null {
+    return "v. " + this.plugin.version;
   }
 }
 

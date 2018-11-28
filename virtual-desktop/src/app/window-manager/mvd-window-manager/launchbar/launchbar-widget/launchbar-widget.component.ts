@@ -31,6 +31,7 @@ import { LanguageLocaleService } from '../../../../i18n/language-locale.service'
   providers: [LanguageLocaleService]
 })
 export class LaunchbarWidgetComponent implements OnInit {
+  private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   date: Date;
   popupVisible: boolean;
   @Output() popupStateChanged = new EventEmitter<boolean>();
@@ -61,6 +62,10 @@ export class LaunchbarWidgetComponent implements OnInit {
 
   getUsername(): string | null {
     return this.authenticationManager.getUsername();
+  }
+
+  getPluginVersion(): string | null {
+    return "v. " + this.plugin.version;
   }
 
   logout(): void {
