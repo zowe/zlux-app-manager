@@ -4,5 +4,6 @@
   "BringToFront": "Bring to Front",
   "Close": "Close",
   "Open": "Open",
-  "AuthenticationFailed": "Authentication failed for {{numTypes}} types. Types: {{types}}"
+  "AuthenticationFailed": "Authentication failed for {{numTypes}} types. Types: {{types}}",
+  "UsernameRequired": "Username required"
 }

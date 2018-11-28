@@ -90,8 +90,16 @@ export class LoginComponent implements OnInit {
     this.errorMessage = null;
     this.needLogin = false;
     this.locked = true;
-    this.isLoading = true;
+    this.isLoading = true;   
 
+    if (this.username==null || this.username==''){
+      this.errorMessage= this.translation.translate('UsernameRequired');
+      this.password = '';
+      this.locked = false;
+      this.needLogin = true;
+      this.isLoading = false;
+      return;
+    }
     this.authenticationService.performLogin(this.username!, this.password!).subscribe(
       result => {
         this.password = '';

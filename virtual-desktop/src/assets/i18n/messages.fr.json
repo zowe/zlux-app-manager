@@ -4,5 +4,6 @@
   "BringToFront": "Mettre au premier plan",
   "Close": "Fermer",
   "Open": "Ouvrir",
-  "AuthenticationFailed": "L'authentification a échoué pour {{numTypes}} types. Les types: {{types}}"
+  "AuthenticationFailed": "L'authentification a échoué pour {{numTypes}} types. Les types: {{types}}",
+  "UsernameRequired": "Nom d'utilisateur requis"
 }
