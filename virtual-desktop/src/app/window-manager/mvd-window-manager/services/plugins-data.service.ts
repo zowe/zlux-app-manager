@@ -16,32 +16,38 @@ import { LaunchbarItem } from '../launchbar/shared/launchbar-item';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { TranslationService } from 'angular-l10n';
+import { PluginLaunchbarItem } from '../launchbar/shared/launchbar-items/plugin-launchbar-item';
+import { WindowManagerService } from '../shared/window-manager.service';
 
 @Injectable()
 export class PluginsDataService {
     public counter: number;
     public pinnedPlugins: LaunchbarItem[];
     private accessiblePlugins: LaunchbarItem[];
-    private static scope: string = "user";
-    private static resourcePath: string = "ui/launchbar/plugins";
-    private static fileName: string = "pinnedPlugins.json"
+    public scope: string;
+    public resourcePath: string;
+    public fileName: string;
     private pluginManager: MVDHosting.PluginManagerInterface;
 
     constructor(
         private injector: Injector,
         private http: Http,
-        private translation: TranslationService
+        private translation: TranslationService,
+        private windowManager: WindowManagerService
     ) {
         // Workaround for AoT problem with namespaces (see angular/angular#15613)
         this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
         this.refreshPinnedPlugins;
         this.counter = 0;
+        this.scope = "user";
+        this.resourcePath = "ui/launchbar/plugins";
+        this.fileName = "pinnedPlugins.json";
     }
 
   public refreshPinnedPlugins(accessiblePlugins: LaunchbarItem[]): void {
     this.accessiblePlugins = accessiblePlugins;
     this.pinnedPlugins = [];
-    this.getResource(PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName)
+    this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res =>{
         res.json().contents.plugins.forEach((p: string) => {
           this.pluginManager.findPluginDefinition(p)
@@ -49,7 +55,7 @@ export class PluginsDataService {
             if (res == null) {
               console.log("Bad Plugin Definition")
             } else {
-              this.pinnedPlugins.push(new PluginLaunchbarItem(res as DesktopPluginDefinitionImpl));
+              this.pinnedPlugins.push(new PluginLaunchbarItem((res as DesktopPluginDefinitionImpl), this.windowManager));
             }
           })
         })
@@ -104,8 +110,10 @@ export class PluginsDataService {
     } else {
       return false;
     }
+  }
+
   public saveToConfigServer(item: LaunchbarItem): void {
-    this.getResource(PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName)
+    this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res=>{
         let plugins:string[];
         if (res.status === 204) {
@@ -114,7 +122,7 @@ export class PluginsDataService {
           plugins = res.json().contents.plugins;
         }
         plugins.push(item.plugin.getBasePlugin().getIdentifier());
-        this.saveResource(plugins, PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName);
+        this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
       })
   }
 
@@ -125,7 +133,7 @@ export class PluginsDataService {
         let plugins = res.json().contents.plugins;
         if (index != -1) {
           plugins.splice(index, 1);
-          this.saveResource(plugins, PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName);
+          this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
         }
       })
   }
@@ -146,7 +154,7 @@ export class PluginsDataService {
     var element = arr[fromIndex];
     arr.splice(fromIndex, 1);
     arr.splice(toIndex, 0, element);
-    this.saveResource(arr, PluginsDataService.scope, PluginsDataService.resourcePath, PluginsDataService.fileName);
+    this.saveResource(arr, this.scope, this.resourcePath, this.fileName);
   }
 }
 

@@ -89,7 +89,7 @@ export class LaunchbarComponent {
     }
     if (this.loggedIn) {
       if(this.helperLoggedIn != true){
-        this.pluginsDataService.refreshPinnedPlugins();
+        this.pluginsDataService.refreshPinnedPlugins(this.allItems);
         this.helperLoggedIn = true;
       }
     }
@@ -134,9 +134,10 @@ export class LaunchbarComponent {
       }
     } else {
       item.showInstanceView = false;
-      this.applicationManager.showApplicationWindow(item.plugin).then((instanceId:MVDHosting.InstanceId)=> {
-        console.log('launchbarItemClicked I now have instanceId = '+instanceId);
-      });
+      this.applicationManager.showApplicationWindow(item.plugin)
+      //.subscribe((instanceId:MVDHosting.InstanceId)=> {
+      //  console.log('launchbarItemClicked I now have instanceId = '+instanceId);
+      //});
     }
   }
 
@@ -185,17 +186,16 @@ export class LaunchbarComponent {
   
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
-    let menuItems: ContextMenuItem[];
+    var menuItems: ContextMenuItem[];
+
     if (item.instanceCount == 1) {
-        [
+        menuItems = [
           this.pluginsDataService.pinContext(item),
           { "text": "Open New", "action": ()=> this.openWindow(item)},
           { "text": "Close All", "action": ()=> this.closeAllWindows(item)},
           { "text": "Open New", "action": ()=> this.openWindow(item)},
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
-          { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
-          { "text": this.translation.translate('Close'), "action": () => this.closeApplication(item) },         
-
+          { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) }
         ];
     } else if (item.instanceCount != 0) {
       menuItems = [
@@ -203,7 +203,7 @@ export class LaunchbarComponent {
         { "text": "Close All", "action": ()=> this.closeAllWindows(item)}
       ];
     } else {
-      var menuItems: ContextMenuItem[] =
+      menuItems =
         [
           { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },       
           this.pluginsDataService.pinContext(item),

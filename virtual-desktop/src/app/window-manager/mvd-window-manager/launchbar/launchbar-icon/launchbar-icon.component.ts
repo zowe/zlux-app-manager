@@ -30,10 +30,9 @@ export class LaunchbarIconComponent {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.iconClicked = new EventEmitter();  
-    titleVisible: boolean;
+    //titleVisible: boolean;
   }
 
-  }
 /*
   clicked(): void {
     if (this.launchbarItem.instanceCount > 1) {
@@ -57,6 +56,10 @@ export class LaunchbarIconComponent {
 
   onMouseLeaveInstanceView(event: MouseEvent, item: LaunchbarItem) {
     this.launchbarItem.showInstanceView = false;
+  }
+  
+  isRunning(): boolean {
+    return this.applicationManager.isApplicationRunning(this.launchbarItem.plugin);
   }
 }
 
