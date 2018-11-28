@@ -100,6 +100,7 @@ export class LaunchbarComponent {
   }
 
   get pinnedItems(): LaunchbarItem[] {
+    //console.log(this.pluginsDataService.pinnedPlugins)
     return this.pluginsDataService.pinnedPlugins;
   }
 
