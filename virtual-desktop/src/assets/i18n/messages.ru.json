@@ -6,5 +6,5 @@
   "Open": "Открыть",
   "Properties": "Свойства",
   "AuthenticationFailed": "Ошибка аутентификации для {{types}}"
-  "UsernameRequired": "Username required"
+  "UsernameRequired": "Надо вести имя пользователя"
 }
