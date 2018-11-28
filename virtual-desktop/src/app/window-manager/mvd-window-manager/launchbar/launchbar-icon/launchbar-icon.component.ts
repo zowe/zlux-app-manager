@@ -55,6 +55,10 @@ export class LaunchbarIconComponent {
   onMouseLeaveInstanceView(event: MouseEvent, item: LaunchbarItem) {
     this.launchbarItem.showInstanceView = false;
   }
+  
+  isRunning(): boolean {
+    return this.applicationManager.isApplicationRunning(this.launchbarItem.plugin);
+  }
 }
 
 

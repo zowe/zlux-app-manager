@@ -263,7 +263,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   getWindowIDs(plugin: MVDHosting.DesktopPluginDefinition): Array<MVDWindowManagement.WindowId> | null {
     const desktopWindows = this.pluginMap.get(plugin.getIdentifier());
     if (desktopWindows !== undefined) {
-      return desktopWindows.map((desktopWindow)=> {return desktopWindow.windowId;});
+      return desktopWindows.map((desktopWindow)=> {return desktopWindow/*.windowId*/;});
     } else {
       return null;
     }

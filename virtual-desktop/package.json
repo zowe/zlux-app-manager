@@ -9,7 +9,9 @@
     "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json",
     "lint": "tslint -c tslint.json \"src/**/*.ts\""
   },
-  "dependencies": {},
+  "dependencies": {
+    "html2canvas": "^1.0.0-alpha.12"
+  },
   "devDependencies": {
     "@angular/animations": "~6.0.9",
     "@angular/cdk": "~6.3.3",
@@ -23,6 +25,7 @@
     "@angular/platform-browser": "~6.0.9",
     "@angular/platform-browser-dynamic": "~6.0.9",
     "@angular/router": "~6.0.9",
+    "@types/html2canvas": "0.0.35",
     "angular-l10n": "^5.2.0",
     "angular2-template-loader": "~0.6.2",
     "bootstrap": "~4.1.2",

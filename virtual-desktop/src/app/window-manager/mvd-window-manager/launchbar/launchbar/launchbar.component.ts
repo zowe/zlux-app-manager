@@ -68,22 +68,17 @@ export class LaunchbarComponent {
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
         if (p.getBasePlugin().getWebContent() != null) {
-<<<<<<< HEAD
           if (p.getIdentifier()==='org.zowe.zlux.appmanager.app.propview'){
             const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;
             this.propertyWindowPluginDef = pluginImpl;
           } else {
-            this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
+            this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl, this.windowManager));
           }
-=======
-          this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl, this.windowManager));
->>>>>>> Initial commit for the multiple apps and instance viewer
         }
         
       })
     });
   }
-
   ngDoCheck(): void {
     if (this.authenticationManager.getUsername() != null) {
       this.loggedIn = true;
@@ -138,9 +133,10 @@ export class LaunchbarComponent {
       }
     } else {
       item.showInstanceView = false;
-      this.applicationManager.showApplicationWindow(item.plugin).then((instanceId:MVDHosting.InstanceId)=> {
-        console.log('launchbarItemClicked I now have instanceId = '+instanceId);
-      });
+      this.applicationManager.showApplicationWindow(item.plugin)
+      //.subscribe((instanceId:MVDHosting.InstanceId)=> {
+      //  console.log('launchbarItemClicked I now have instanceId = '+instanceId);
+      //});
     }
   }
 
@@ -189,8 +185,10 @@ export class LaunchbarComponent {
   
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
-    let menuItems: ContextMenuItem[];
+    var menuItems: ContextMenuItem[];
+
     if (item.instanceCount == 1) {
+<<<<<<< HEAD
       menuItems = [
         this.pluginsDataService.pinContext(item),
         { "text": "Open New", "action": ()=> this.openWindow(item)},
@@ -214,14 +212,15 @@ export class LaunchbarComponent {
     if (this.applicationManager.isApplicationRunning(item.plugin)) {
       var menuItems: ContextMenuItem[] =
         [
+=======
+        menuItems = [
+>>>>>>> WIP trying to fix merge conflicts from master, still not working not loading main.js for some reason
           this.pluginsDataService.pinContext(item),
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
-          { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
-          { "text": this.translation.translate('Close'), "action": () => this.closeApplication(item) },         
-
+          { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) }
         ];
     } else {
-      var menuItems: ContextMenuItem[] =
+      menuItems =
         [
           { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },       
           this.pluginsDataService.pinContext(item),

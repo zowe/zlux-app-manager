@@ -14,8 +14,9 @@ import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-p
 import { LaunchbarItem } from '../launchbar-item';
 import { WindowManagerService } from '../../../shared/window-manager.service';
 //import { Observable, Observer } from '../../../../../../../node_modules/rxjs';
+import * as html2canvas from 'html2canvas';
 
-export class PluginLaunchbarItem extends LaunchbarItem implements ZLUX.PluginWatcher {
+export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.PluginWatcher {
   public instanceIds: Array<MVDHosting.InstanceId>;
   public instanceCount: number;
   public windowPreviews: Array<HTMLImageElement>;
@@ -36,7 +37,7 @@ export class PluginLaunchbarItem extends LaunchbarItem implements ZLUX.PluginWat
     this.windowPreviews = [];
     this.windowPreviewsIds = [];
     this.instanceCount = 0;
-    ZoweZLUX.dispatcher.registerPluginWatcher(plugin.getBasePlugin(), this);
+    //ZoweZLUX.dispatcher.registerPluginWatcher(plugin.getBasePlugin(), this);
   }
 /*
   clicked():void {

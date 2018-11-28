@@ -16,6 +16,8 @@ import { LaunchbarItem } from '../launchbar/shared/launchbar-item';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { TranslationService } from 'angular-l10n';
+import { PluginLaunchbarItem } from '../launchbar/shared/launchbar-items/plugin-launchbar-item';
+import { WindowManagerService } from '../shared/window-manager.service';
 
 @Injectable()
 export class PluginsDataService {
@@ -30,12 +32,16 @@ export class PluginsDataService {
     constructor(
         private injector: Injector,
         private http: Http,
-        private translation: TranslationService
+        private translation: TranslationService,
+        private windowManager: WindowManagerService
     ) {
         // Workaround for AoT problem with namespaces (see angular/angular#15613)
         this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
         this.refreshPinnedPlugins;
         this.counter = 0;
+        this.scope = "user";
+        this.resourcePath = "ui/launchbar/plugins";
+        this.fileName = "pinnedPlugins.json";
     }
 
   public refreshPinnedPlugins(accessiblePlugins: LaunchbarItem[]): void {
@@ -49,7 +55,7 @@ export class PluginsDataService {
             if (res == null) {
               console.log("Bad Plugin Definition")
             } else {
-              this.pinnedPlugins.push(new PluginLaunchbarItem(res as DesktopPluginDefinitionImpl));
+              this.pinnedPlugins.push(new PluginLaunchbarItem((res as DesktopPluginDefinitionImpl), this.windowManager));
             }
           })
         })
