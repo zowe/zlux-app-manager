@@ -96,6 +96,14 @@ export class LoginComponent implements OnInit {
     // See https://github.com/angular/angular/issues/22426
     this.cdr.detectChanges();
 
+    if (this.username==null || this.username==''){
+      this.errorMessage= this.translation.translate('UsernameRequired');
+      this.password = '';
+      this.locked = false;
+      this.needLogin = true;
+      this.isLoading = false;
+      return;
+    }
     this.authenticationService.performLogin(this.username!, this.password!).subscribe(
       result => {
         this.password = '';
