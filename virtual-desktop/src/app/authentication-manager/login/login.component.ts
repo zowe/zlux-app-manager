@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { AuthenticationManager } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
 
@@ -32,7 +32,8 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private authenticationService: AuthenticationManager,
-    private translation: TranslationService
+    private translation: TranslationService,
+    private cdr: ChangeDetectorRef
   ) {
     this.isLoading = true;
     this.needLogin = false;
@@ -92,6 +93,8 @@ export class LoginComponent implements OnInit {
     this.needLogin = false;
     this.locked = true;
     this.isLoading = true;
+    // See https://github.com/angular/angular/issues/22426
+    this.cdr.detectChanges();
 
     this.authenticationService.performLogin(this.username!, this.password!).subscribe(
       result => {
