@@ -13,7 +13,6 @@
 /*
   Imperfect solution to an imperfect world. See https://github.com/requirejs/requirejs/issues/787 and https://requirejs.org/docs/api.html#config-waitSeconds
 */
-console.log("I set that config");
 (window as any).requirejs.config({
   waitSeconds: 0
 });
