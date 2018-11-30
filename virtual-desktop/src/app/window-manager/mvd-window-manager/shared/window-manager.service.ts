@@ -348,6 +348,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
   }
 
+  closeAllWindows() :void {
+    let windows: DesktopWindow[] = Array.from(this.windowMap.values());
+    windows.forEach((window: DesktopWindow)=> {
+      this.closeWindow(window.windowId);
+    });
+  }
+
   registerCloseHandler(windowId: MVDWindowManagement.WindowId, handler: () => Promise<void>): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {

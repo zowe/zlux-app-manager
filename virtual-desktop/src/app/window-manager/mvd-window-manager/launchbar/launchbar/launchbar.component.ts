@@ -28,21 +28,21 @@ import { TranslationService } from 'angular-l10n';
   providers: [PluginsDataService]
 })
 export class LaunchbarComponent {
-  allItems: LaunchbarItem[];
+  private allItems: LaunchbarItem[];
   runItems: LaunchbarItem[];
   isActive: boolean;
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
   originalX: number;
   mouseOriginalX: number;
   currentEvent: EventTarget | null;
-  currentItem: LaunchbarItem | null;
+  private currentItem: LaunchbarItem | null;
   moving: boolean;
   newPosition: number;
   loggedIn: boolean;
   helperLoggedIn: boolean;
-  pluginManager: MVDHosting.PluginManagerInterface;
-  applicationManager: MVDHosting.ApplicationManagerInterface;
-  authenticationManager: MVDHosting.AuthenticationManagerInterface;
+  private pluginManager: MVDHosting.PluginManagerInterface;
+  private applicationManager: MVDHosting.ApplicationManagerInterface;
+  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   propertyWindowPluginDef : DesktopPluginDefinitionImpl;
   
    constructor(
@@ -51,18 +51,18 @@ export class LaunchbarComponent {
     public windowManager: WindowManagerService,
     private translation: TranslationService
   ) {
-    // Workaround for AoT problem with namespaces (see angular/angular#15613)
-    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
-    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
-    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
-    this.allItems = [];
-    this.runItems = [];
-    this.isActive = false;
-    this.contextMenuRequested = new Subject();
-    this.loggedIn = false;
-    this.helperLoggedIn = false; //helperLoggedIn is to indicate when the initial login happens
-  }
-
+     // Workaround for AoT problem with namespaces (see angular/angular#15613)
+     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
+     this.allItems = [];
+     this.runItems = [];
+     this.isActive = false;
+     this.contextMenuRequested = new Subject();
+     this.loggedIn = false;
+     this.helperLoggedIn = false; //helperLoggedIn is to indicate when the initial login happens
+   }
+  
   ngOnInit(): void {
     this.allItems = [];
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
@@ -187,50 +187,28 @@ export class LaunchbarComponent {
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     var menuItems: ContextMenuItem[];
-
     if (item.instanceCount == 1) {
-<<<<<<< HEAD
-      menuItems = [
-        this.pluginsDataService.pinContext(item),
-        { "text": "Open New", "action": ()=> this.openWindow(item)},
-        { "text": "Close All", "action": ()=> this.closeAllWindows(item)},
-        { "text": "Bring to Front", "action": () => this.bringItemFront(item) }        
-      ];
-    } else if (item.instanceCount != 0) {
-      menuItems = [
-        this.pluginsDataService.pinContext(item),
-        { "text": "Open New", "action": ()=> this.openWindow(item)},
-        { "text": "Close All", "action": ()=> this.closeAllWindows(item)}
-      ];
-    } else {
-      menuItems = [
-        this.pluginsDataService.pinContext(item),
-        { "text": "Open New", "action": () => this.openWindow(item) }
-      ];
-    }
-<<<<<<< HEAD
-    /*
-    if (this.applicationManager.isApplicationRunning(item.plugin)) {
-      var menuItems: ContextMenuItem[] =
-        [
-=======
         menuItems = [
->>>>>>> WIP trying to fix merge conflicts from master, still not working not loading main.js for some reason
           this.pluginsDataService.pinContext(item),
+          { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
+          { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)},
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
           { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) }
         ];
+    } else if (item.instanceCount != 0) {
+      menuItems = [
+        this.pluginsDataService.pinContext(item),
+        { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
+        { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)}
+      ];
     } else {
       menuItems =
         [
-          { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },       
+          { "text": this.translation.translate('Open'), "action": () => this.openWindow(item) },       
           this.pluginsDataService.pinContext(item),
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
         ]
     }
-    */
-=======
->>>>>>> Initial commit for the multiple apps and instance viewer
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY - 60, items: menuItems});
     return false;
   }

@@ -20,6 +20,7 @@ import { PluginLaunchbarItem } from '../launchbar/shared/launchbar-items/plugin-
 import { WindowManagerService } from '../shared/window-manager.service';
 
 @Injectable()
+<<<<<<< HEAD
 export class PluginsDataService {
     public counter: number;
     public pinnedPlugins: LaunchbarItem[];
@@ -43,6 +44,34 @@ export class PluginsDataService {
         this.resourcePath = "ui/launchbar/plugins";
         this.fileName = "pinnedPlugins.json";
     }
+=======
+export class PluginsDataService implements MVDHosting.LogoutActionInterface {
+  public counter: number;
+  public pinnedPlugins: LaunchbarItem[];
+  private scope: string = "user";
+  private resourcePath: string = "ui/launchbar/plugins";
+  private fileName: string = "pinnedPlugins.json"
+  private pluginManager: MVDHosting.PluginManagerInterface;
+  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+
+  constructor(
+    private injector: Injector,
+    private http: Http,
+    private translation: TranslationService
+  ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
+    this.authenticationManager.registerPreLogoutAction(this);
+    this.refreshPinnedPlugins;
+    this.counter = 0;
+  }
+
+    onLogout(username: string): boolean {
+      this.pinnedPlugins = [];
+      return true;
+  }
+>>>>>>> Remove open windows and items from launchbar on logout
 
   public refreshPinnedPlugins(accessiblePlugins: LaunchbarItem[]): void {
     this.accessiblePlugins = accessiblePlugins;
