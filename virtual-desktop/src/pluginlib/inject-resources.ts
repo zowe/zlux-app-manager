@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -26,6 +26,7 @@ export const Angular2InjectionTokens = {
   LOGGER: 'virtualdesktop-ng2.0-0-0.logger',
   PLUGIN_DEFINITION: 'virtualdesktop-ng2.0-0-0.plugin-definition',
   LAUNCH_METADATA: 'virtualdesktop-ng2.0-0-0.launch-metadata',
+  L10N_CONFIG: 'virtualdesktop-ng2.0-0-0.l10n-config',
 
   /* Component Level Resources */
   PLUGIN_EMBED_ACTIONS: 'virtualdesktop-ng2.0-0-0.plugin-embed-actions',
@@ -71,14 +72,19 @@ export interface ContextMenuItem {
   children?: ContextMenuItem[];
 }
 
+export interface Angular2L10nConfig {
+  readonly defaultLocale: { languageCode: string; countryCode?: string; };
+  readonly providers: any[];
+}
+
 
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

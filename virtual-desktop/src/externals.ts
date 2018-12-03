@@ -34,6 +34,7 @@ const libs: { [index: string]: {library: any} } = {
   '@angular/forms': require('@angular/forms'),
   '@angular/router': require('@angular/router'),
   '@angular/animations': require('@angular/animations'),
+  'angular-l10n': require('angular-l10n'),
   'rxjs/Rx': require('rxjs/Rx')
 };
 
