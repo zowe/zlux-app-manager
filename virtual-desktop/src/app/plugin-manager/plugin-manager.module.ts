@@ -18,10 +18,14 @@ import { Angular2PluginFactory } from './plugin-factory/angular2/angular2-plugin
 import { IFramePluginFactory } from './plugin-factory/iframe/iframe-plugin-factory';
 import { ReactPluginFactory } from './plugin-factory/react/react-plugin-factory';
 import { ReactPluginComponent } from './plugin-factory/react/react-plugin.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
     ReactPluginComponent
+  ],
+  imports: [
+    HttpClientModule
   ],
   providers: [
     Angular2PluginFactory,

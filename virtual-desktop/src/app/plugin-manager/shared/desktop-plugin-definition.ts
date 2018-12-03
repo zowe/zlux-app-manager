@@ -14,8 +14,8 @@ import { PluginWindowStyle } from './plugin-window-style';
 
 export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefinition {
 
-  public widthOverride:number|undefined;
-  public heightOverride:number|undefined;
+  public widthOverride: number|undefined;
+  public heightOverride: number|undefined;
 
   /* A default style simplifies the programming, since consumers of defaultWindowStyle
    * don't have to choke on a plugin that lacks a default style in its pluginDefinition.json.
@@ -30,7 +30,6 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
   constructor(
     public readonly basePlugin: ZLUX.Plugin
   ) {
-
   }
 
   get hasWebContent(): boolean {
@@ -57,7 +56,11 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
   getCopyright():string {
     return this.basePlugin.getCopyright();
   }
-  
+
+  hasComponents(): boolean {
+    return this.basePlugin.hasComponents();
+  }
+
   get label(): string {
     if (this.hasWebContent && this.basePlugin.getWebContent().launchDefinition != null) {
       return this.basePlugin.getWebContent().launchDefinition.pluginShortNameDefault;

@@ -14,6 +14,7 @@ const path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
+  "mode": "development",
   "devtool": "source-map",
   "resolve": {
     "extensions": [
