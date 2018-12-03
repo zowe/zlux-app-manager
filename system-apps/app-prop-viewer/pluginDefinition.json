@@ -15,7 +15,9 @@
     "descriptionDefault": "Zowe Viewer",
     "defaultWindowStyle": {
       "width": 350,
-      "height": 450
+      "height": 450,
+      "x": 0,
+      "y": 0
     }
   }
 }

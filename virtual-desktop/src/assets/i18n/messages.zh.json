@@ -1,0 +1,10 @@
+{
+  "UnpinFromTaskbar": "将此程序从任务栏移除",
+  "PinToTaskbar":"将此程序锁定到任务栏",
+  "BringToFront": "置顶此程序",
+  "Close": "关闭",
+  "Open": "打开",
+  "Properties":"属性",
+  "AuthenticationFailed": "{{numTypes}} 个类型验证失败 类型: {{types}}",
+  "UsernameRequired": "用户名不能为空"
+}
