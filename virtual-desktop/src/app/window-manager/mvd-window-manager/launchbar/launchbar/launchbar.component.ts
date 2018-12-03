@@ -73,8 +73,6 @@ export class LaunchbarComponent {
             this.propertyWindowPluginDef = pluginImpl;
           } else {
             this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl, this.windowManager));
-            this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
-
           }
         }
         

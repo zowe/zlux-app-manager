@@ -11,19 +11,17 @@
 */
 
 import { Injectable, CompilerFactory } from '@angular/core';
-import { TRANSLATIONS, TRANSLATIONS_FORMAT, LOCALE_ID } from '@angular/core';
 
 import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
-import { Compiler, CompilerOptions, ApplicationRef, Injector, StaticProvider } from '@angular/core';
+import { Compiler, CompilerOptions, ApplicationRef, Injector } from '@angular/core';
 import { DomPortalOutlet, ComponentPortal } from '@angular/cdk/portal';
 import { Observable } from 'rxjs/Rx';
-import { Http } from '@angular/http';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
 import { TranslationLoaderService } from '../../../i18n/translation-loader.service';
+import { Http } from '@angular/http';
 
-import { TranslationLoaderService } from '../../../i18n/translation-loader.service';
 
 interface MvdNativeAngularPlugin {
   pluginModule: any;
@@ -92,16 +90,13 @@ export class Angular2PluginFactory extends PluginFactory {
   private static getAngularComponentsURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
   }
-
-  private getTranslationFileURL(pluginDefinition: MVDHosting.DesktopPluginDefinition, locale: string): string {
-    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${locale}.xlf`);
-  }
   
   constructor(
     private compilerFactory: CompilerFactory,
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
     private injector: Injector,
+    private http: Http,
     private translationLoaderService: TranslationLoaderService
   ) {
     super();
