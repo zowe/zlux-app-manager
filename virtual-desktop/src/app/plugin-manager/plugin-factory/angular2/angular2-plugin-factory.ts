@@ -11,6 +11,7 @@
 */
 
 import { Injectable, CompilerFactory } from '@angular/core';
+import { TRANSLATIONS, TRANSLATIONS_FORMAT, LOCALE_ID } from '@angular/core';
 
 import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
@@ -21,7 +22,6 @@ import { Http } from '@angular/http';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
 
-import { BrowserPreferencesService } from '../../../shared/browser-preferences.service';
 import { TranslationLoaderService } from '../../../i18n/translation-loader.service';
 
 interface MvdNativeAngularPlugin {
@@ -103,7 +103,6 @@ export class Angular2PluginFactory extends PluginFactory {
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
     private injector: Injector,
-    private browserPreferencesService: BrowserPreferencesService
     private translationLoaderService: TranslationLoaderService
   ) {
     super();

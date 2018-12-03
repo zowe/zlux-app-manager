@@ -261,7 +261,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   getWindowIDs(plugin: MVDHosting.DesktopPluginDefinition): Array<MVDWindowManagement.WindowId> | null {
-    const desktopWindows = this.pluginMap.get(plugin.getIdentifier());
+    const desktopWindows = this.runningPluginMap.get(plugin.getIdentifier());
     if (desktopWindows !== undefined) {
       return desktopWindows.map((desktopWindow)=> {return desktopWindow/*.windowId*/;});
     } else {
@@ -311,7 +311,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   getPlugin(windowId: MVDWindowManagement.WindowId) {
     const desktopWindow = this.windowMap.get(windowId);
-    var plugin = this.pluginMap.get(desktopWindow!.plugin.getIdentifier());
+    var plugin = this.runningPluginMap.get(desktopWindow!.plugin.getIdentifier());
     return plugin;
   }
 
