@@ -135,10 +135,9 @@ export class LaunchbarComponent {
       }
     } else {
       item.showInstanceView = false;
-      this.applicationManager.showApplicationWindow(item.plugin)
-      //.subscribe((instanceId:MVDHosting.InstanceId)=> {
-      //  console.log('launchbarItemClicked I now have instanceId = '+instanceId);
-      //});
+      this.applicationManager.showApplicationWindow(item.plugin).then((instanceId:MVDHosting.InstanceId)=> {
+        console.log('launchbarItemClicked I now have instanceId = '+instanceId);
+      });
     }
   }
 
@@ -188,25 +187,24 @@ export class LaunchbarComponent {
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     var menuItems: ContextMenuItem[];
-
     if (item.instanceCount == 1) {
         menuItems = [
           this.pluginsDataService.pinContext(item),
-          { "text": "Open New", "action": ()=> this.openWindow(item)},
-          { "text": "Close All", "action": ()=> this.closeAllWindows(item)},
-          { "text": "Open New", "action": ()=> this.openWindow(item)},
+          { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
+          { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)},
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
           { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) }
         ];
     } else if (item.instanceCount != 0) {
       menuItems = [
         this.pluginsDataService.pinContext(item),
-        { "text": "Close All", "action": ()=> this.closeAllWindows(item)}
+        { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
+        { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)}
       ];
     } else {
       menuItems =
         [
-          { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },       
+          { "text": this.translation.translate('Open'), "action": () => this.openWindow(item) },       
           this.pluginsDataService.pinContext(item),
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
         ]
