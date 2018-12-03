@@ -128,7 +128,7 @@ export class Angular2PluginFactory extends PluginFactory {
             resolve();
           });
         } else {
-          console.log('This plugin does not use Zowe components');
+          console.log(`${pluginDefinition.getIdentifier()} does not use Zowe components`);
           resolve();
         }
     });
