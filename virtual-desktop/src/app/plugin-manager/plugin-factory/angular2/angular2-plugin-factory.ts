@@ -21,6 +21,7 @@ import { Observable } from 'rxjs/Rx';
 import { Http } from '@angular/http';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
+import { TranslationLoaderService } from '../../../i18n/translation-loader.service';
 
 import { TranslationLoaderService } from '../../../i18n/translation-loader.service';
 
@@ -95,10 +96,8 @@ export class Angular2PluginFactory extends PluginFactory {
   private getTranslationFileURL(pluginDefinition: MVDHosting.DesktopPluginDefinition, locale: string): string {
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), `assets/i18n/messages.${locale}.xlf`);
   }
-
-
+  
   constructor(
-    private http: Http,
     private compilerFactory: CompilerFactory,
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
@@ -157,32 +156,6 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
-  getTranslationProviders(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<StaticProvider[]> {
-    // Get the locale id from the global
-    // According to Mozilla.org this will work well enough for the
-    // browsers we support (Chrome, Firefox, Edge, Safari)
-    // https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/language
-    // TO DO: handle both language and local (e.g., both "en" and "en-US")
-    // MVD-1671: support lang-LOCALE and ability to fall back to lang if lang-LOCALE is not found
-    // MERGE QUESTION: should be put this in polyfills? abstract it somewhere? etc.?
-    const locale:string = navigator.language.split("-")[0];
-    // return no providers if fail to get translation file for locale
-    const noProviders: StaticProvider[] = [];
-    // No locale or U.S. English: no translation providers
-    if (!locale || locale === 'en') {
-      return Promise.resolve(noProviders);
-    }
-    // Ex: 'locale/messages.es.xlf`
-    const translationFile = this.getTranslationFileURL(pluginDefinition, locale);
-    return this.getTranslationsWithSystemJs(translationFile)
-      .then( (translations: string ) => [
-        { provide: TRANSLATIONS, useValue: translations },
-        { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
-        { provide: LOCALE_ID, useValue: locale },
-      ])
-      .catch(() => noProviders); // ignore if file not found
-  }
-
   getCompiler(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<Compiler> {
     return this.translationLoaderService.getTranslationProviders(pluginDefinition.getBasePlugin()).then(providers => {
       const options: CompilerOptions = {
@@ -195,7 +168,6 @@ export class Angular2PluginFactory extends PluginFactory {
   getTranslationsWithSystemJs(file: string): Promise<string> {
     return this.http.get(file).map(res => res.text()).toPromise();
   }
-
 }
 
 

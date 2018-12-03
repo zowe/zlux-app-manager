@@ -11,6 +11,7 @@
 */
 
 
+
 import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
 import { LaunchbarItem } from '../shared/launchbar-item';
 
@@ -25,6 +26,7 @@ export class LaunchbarIconComponent {
   @Output() iconClicked: EventEmitter<void>;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   titleVisible: boolean;
+
   constructor(private injector: Injector) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);

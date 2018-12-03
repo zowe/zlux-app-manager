@@ -268,7 +268,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       return null;
     }
   }
-
+ 
+  
   showWindow(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow !== undefined) {

@@ -49,6 +49,11 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
       return true;
   }
 
+    onLogout(username: string): boolean {
+      this.pinnedPlugins = [];
+      return true;
+  }
+
   public refreshPinnedPlugins(accessiblePlugins: LaunchbarItem[]): void {
     this.accessiblePlugins = accessiblePlugins;
     this.pinnedPlugins = [];
