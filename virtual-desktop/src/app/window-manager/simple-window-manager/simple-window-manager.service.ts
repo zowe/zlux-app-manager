@@ -90,4 +90,3 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   
   Copyright Contributors to the Zowe Project.
 */
-

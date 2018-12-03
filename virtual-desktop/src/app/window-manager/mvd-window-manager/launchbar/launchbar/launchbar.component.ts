@@ -134,10 +134,9 @@ export class LaunchbarComponent {
       }
     } else {
       item.showInstanceView = false;
-      this.applicationManager.showApplicationWindow(item.plugin)
-      //.subscribe((instanceId:MVDHosting.InstanceId)=> {
-      //  console.log('launchbarItemClicked I now have instanceId = '+instanceId);
-      //});
+      this.applicationManager.showApplicationWindow(item.plugin).then((instanceId:MVDHosting.InstanceId)=> {
+        console.log('launchbarItemClicked I now have instanceId = '+instanceId);
+      });
     }
   }
 

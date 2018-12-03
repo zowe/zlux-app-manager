@@ -37,7 +37,7 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
     this.windowPreviews = [];
     this.windowPreviewsIds = [];
     this.instanceCount = 0;
-    //ZoweZLUX.dispatcher.registerPluginWatcher(plugin.getBasePlugin(), this);
+    ZoweZLUX.dispatcher.registerPluginWatcher(plugin.getBasePlugin(), this);
   }
 /*
   clicked():void {
