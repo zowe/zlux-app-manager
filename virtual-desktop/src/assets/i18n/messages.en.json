@@ -5,7 +5,7 @@
   "Close": "Close",
   "Open": "Open",
   "Properties":"Properties",
-  "AuthenticationFailed": "Authentication failed for {{numTypes}} types. Types: {{types}}",
+  "IncorrectUsernameAndOrPassword": "Incorrect user name and/or password",
   "UsernameRequired": "Username required"
 
 }

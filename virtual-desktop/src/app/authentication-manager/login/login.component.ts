@@ -70,8 +70,7 @@ export class LoginComponent implements OnInit {
                   failedTypes.push(keys[i]);
                 }
               }
-              this.errorMessage = this.translation.translate('AuthenticationFailed',
-                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+              this.errorMessage = this.translation.translate('IncorrectUsernameAndOrPassword');
             }
           } catch (e) {
             this.errorMessage = error;
@@ -121,9 +120,7 @@ export class LoginComponent implements OnInit {
                 failedTypes.push(keys[i]);
               }
             }
-            this.errorMessage = this.translation.translate('AuthenticationFailed',
-              { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
-
+            this.errorMessage = this.translation.translate('IncorrectUsernameAndOrPassword');
           }
         } else {
           this.errorMessage = error.text();

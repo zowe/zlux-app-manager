@@ -5,6 +5,6 @@
   "Close": "Закрыть",
   "Open": "Открыть",
   "Properties": "Свойства",
-  "AuthenticationFailed": "Ошибка аутентификации для {{types}}",
+  "IncorrectUsernameAndOrPassword": "Неверное имя пользователя или пароль",
   "UsernameRequired": "Введите имя пользователя"
 }
