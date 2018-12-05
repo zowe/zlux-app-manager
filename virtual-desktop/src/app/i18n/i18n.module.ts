@@ -63,8 +63,9 @@ export class I18nModule {
     @Inject(TRANSLATION_CONFIG) private translationConfig: TranslationConfig,
     private l10nConfigService: L10nConfigService,
   ) {
+    const desktopPlugin = ZoweZLUX.pluginManager.getDesktopPlugin();
     this.localeConfig.defaultLocale = this.l10nConfigService.getDefaultLocale();
-    this.translationConfig.providers = this.l10nConfigService.getTranslationProviders();
+    this.translationConfig.providers = this.l10nConfigService.getTranslationProviders(desktopPlugin);
     this.l10nLoader.load();
   }
 
