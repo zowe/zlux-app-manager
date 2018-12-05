@@ -20,8 +20,6 @@ import { Observable } from 'rxjs/Rx';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
 import { TranslationLoaderService } from '../../../i18n/translation-loader.service';
-import { Http } from '@angular/http';
-
 
 interface MvdNativeAngularPlugin {
   pluginModule: any;
@@ -90,13 +88,12 @@ export class Angular2PluginFactory extends PluginFactory {
   private static getAngularComponentsURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
   }
-  
+
   constructor(
     private compilerFactory: CompilerFactory,
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
     private injector: Injector,
-    private http: Http,
     private translationLoaderService: TranslationLoaderService
   ) {
     super();
@@ -160,9 +157,6 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
-  getTranslationsWithSystemJs(file: string): Promise<string> {
-    return this.http.get(file).map(res => res.text()).toPromise();
-  }
 }
 
 
@@ -175,4 +169,3 @@ export class Angular2PluginFactory extends PluginFactory {
 
   Copyright Contributors to the Zowe Project.
 */
-
