@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, EventEmitter } from '@angular/core';
+import { Injectable, Injector, EventEmitter } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
@@ -24,7 +24,8 @@ export class AuthenticationManager {
   private log: ZLUX.ComponentLogger;
   
   constructor(
-    public http: Http
+    public http: Http,
+    private injector: Injector
   ) {
     //TODO: Find a way to get the logger in a more formal manner if possible
     this.log = ZoweZLUX.logger.makeComponentLogger("com.rs.mvd.ng2desktop.authentication");
@@ -88,6 +89,8 @@ export class AuthenticationManager {
   }
 
   requestLogout(): void {
+    const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+    windowManager.closeAllWindows();
     this.performLogout().subscribe(
       response => {
         this.requestLogin();

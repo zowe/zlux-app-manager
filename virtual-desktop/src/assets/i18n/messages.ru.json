@@ -1,0 +1,10 @@
+{
+  "UnpinFromTaskbar": "Открепить",
+  "PinToTaskbar": "Закрепить",
+  "BringToFront": "На передний план",
+  "Close": "Закрыть",
+  "Open": "Открыть",
+  "Properties": "Свойства",
+  "AuthenticationFailed": "Ошибка аутентификации для {{types}}",
+  "UsernameRequired": "Введите имя пользователя"
+}

@@ -1,0 +1,11 @@
+{
+  "UnpinFromTaskbar": "Unpin from taskbar",
+  "PinToTaskbar":"Pin to taskbar",
+  "BringToFront": "Bring to Front",
+  "Close": "Close",
+  "Open": "Open",
+  "Properties":"Properties",
+  "AuthenticationFailed": "Authentication failed for {{numTypes}} types. Types: {{types}}",
+  "UsernameRequired": "Username required"
+
+}
