@@ -6,5 +6,6 @@
   "Open": "Открыть",
   "Properties": "Свойства",
   "IncorrectUsernameAndOrPassword": "Неверное имя пользователя или пароль",
+  "FailedToCommunicateWithZssAuthenticationServer": "Не удалось связаться с zss-сервером аутентификации",
   "UsernameRequired": "Введите имя пользователя"
 }

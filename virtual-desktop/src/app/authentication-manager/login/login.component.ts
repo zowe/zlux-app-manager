@@ -61,16 +61,15 @@ export class LoginComponent implements OnInit {
         let error = errorObservable.error;
         if (error !== 'No Session Found') {//generated from auth manager, dont display to user
           try {
-            let jsonMessage = JSON.parse(error);
-            if (jsonMessage.categories) {
-              let failedTypes = [];
-              let keys = Object.keys(jsonMessage.categories);
-              for (let i = 0; i < keys.length; i++) {
-                if (!jsonMessage.categories[keys[i]].success) {
-                  failedTypes.push(keys[i]);
-                }
+            const jsonMessage = error.json();
+            if (this.isAuthResponseMessage(jsonMessage)) {
+              if (this.isZssConnectionErrorMessage(jsonMessage)) {
+                this.errorMessage = this.translation.translate('FailedToCommunicateWithZssAuthenticationServer');
+              } else {
+                this.errorMessage = this.translation.translate('IncorrectUsernameAndOrPassword');
               }
-              this.errorMessage = this.translation.translate('IncorrectUsernameAndOrPassword');
+            } else {
+              this.errorMessage = error.text();
             }
           } catch (e) {
             this.errorMessage = error;
@@ -110,16 +109,11 @@ export class LoginComponent implements OnInit {
       },
       error => {
         this.needLogin = true;
-        let jsonMessage = error.json();
-        if (jsonMessage) {
-          if (jsonMessage.categories) {
-            let failedTypes = [];
-            let keys = Object.keys(jsonMessage.categories);
-            for (let i = 0; i < keys.length; i++) {
-              if (!jsonMessage.categories[keys[i]].success) {
-                failedTypes.push(keys[i]);
-              }
-            }
+        const jsonMessage = error.json();
+        if (this.isAuthResponseMessage(jsonMessage)) {
+          if (this.isZssConnectionErrorMessage(jsonMessage)) {
+            this.errorMessage = this.translation.translate('FailedToCommunicateWithZssAuthenticationServer');
+          } else {
             this.errorMessage = this.translation.translate('IncorrectUsernameAndOrPassword');
           }
         } else {
@@ -132,11 +126,57 @@ export class LoginComponent implements OnInit {
     );
   }
 
+  isAuthResponseMessage(message: any): message is AuthResponseMessage {
+    if (typeof message !== 'object') {
+      return false;
+    }
+    if (typeof message.categories !== 'object') {
+      return false;
+    }
+    if (typeof message.success !== 'boolean') {
+      return false;
+    }
+    return true;
+  }
+
+  isZssConnectionErrorMessage(authResponse: AuthResponseMessage): boolean {
+    if (typeof authResponse.categories['zss'] !== 'object') {
+      return false;
+    }
+    const pluginAuthMessages = authResponse.categories['zss'].plugins;
+    if (typeof pluginAuthMessages !== 'object') {
+      return false;
+    }
+    for (const pluginId of Object.keys(pluginAuthMessages)) {
+      const authMessage = pluginAuthMessages[pluginId];
+      if (authMessage.success === false && authMessage.reason === 'ConnectionError') {
+        return true;
+      }
+    }
+    return false;
+  }
+
   getPluginVersion(): string | null {
     return "v. " + this.plugin.version;
   }
 }
 
+interface AuthResponseMessage {
+  categories: {
+    [categoryId: string]: {
+      success: boolean,
+      plugins: {
+        [pluginId: string]: PluginAuthMessage
+      }
+    }
+  },
+  success: boolean
+}
+
+interface PluginAuthMessage {
+    success: boolean,
+    reason?: 'ConnectionError'
+}
 
 /*
   This program and the accompanying materials are

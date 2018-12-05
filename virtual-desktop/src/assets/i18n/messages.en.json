@@ -6,6 +6,7 @@
   "Open": "Open",
   "Properties":"Properties",
   "IncorrectUsernameAndOrPassword": "Incorrect user name and/or password",
+  "FailedToCommunicateWithZssAuthenticationServer": "Failed to communicate with zss authentication server",
   "UsernameRequired": "Username required"
 
 }
