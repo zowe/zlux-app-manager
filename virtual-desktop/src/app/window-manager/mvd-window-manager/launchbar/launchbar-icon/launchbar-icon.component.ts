@@ -10,8 +10,9 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
 
+
+import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
 import { LaunchbarItem } from '../shared/launchbar-item';
 
 @Component({
@@ -24,16 +25,39 @@ export class LaunchbarIconComponent {
 
   @Output() iconClicked: EventEmitter<void>;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
+  titleVisible: boolean;
+
   constructor(private injector: Injector) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.iconClicked = new EventEmitter();
   }
 
+/*
   clicked(): void {
-    this.iconClicked.emit();
+    if (this.launchbarItem.instanceCount > 1) {
+      this.instanceViewVisible = true;
+    }
+  }
+*/  
+  onMouseEnter(event: MouseEvent, item: LaunchbarItem) {
+    if (!this.launchbarItem.showInstanceView) {
+      this.launchbarItem.showIconLabel = true;
+    }
+  }
+  onMouseLeave(event: MouseEvent, item: LaunchbarItem) {
+    this.launchbarItem.showIconLabel = false;
   }
 
+  onMouseEnterInstanceView(event: MouseEvent, item: LaunchbarItem) {
+    this.launchbarItem.showIconLabel = false;
+    this.launchbarItem.showInstanceView = true;
+  }
+
+  onMouseLeaveInstanceView(event: MouseEvent, item: LaunchbarItem) {
+    this.launchbarItem.showInstanceView = false;
+  }
+  
   isRunning(): boolean {
     return this.applicationManager.isApplicationRunning(this.launchbarItem.plugin);
   }

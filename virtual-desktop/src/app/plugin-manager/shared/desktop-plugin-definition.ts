@@ -27,10 +27,12 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
     height: MVDHosting.DESKTOP_PLUGIN_DEFAULTS.HEIGHT
   };
 
+  private key:string;
+
   constructor(
     public readonly basePlugin: ZLUX.Plugin
   ) {
-
+    this.key = basePlugin.getKey();
   }
 
   get hasWebContent(): boolean {
@@ -48,6 +50,10 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
 
   getIdentifier(): string {
     return this.basePlugin.getIdentifier();
+  }
+
+  getKey(): string {
+    return this.key;
   }
 
   getBasePlugin(): ZLUX.Plugin {

@@ -213,14 +213,21 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     return this.spawnApplicationIntoViewport(plugin, launchMetadata, applicationInstance, viewportId);
   }
 
-  showApplicationWindow(plugin: DesktopPluginDefinitionImpl): void {
+  showApplicationWindow(plugin: DesktopPluginDefinitionImpl): Promise<MVDHosting.InstanceId> {
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     const windowId = windowManager.getWindow(plugin);
     if (windowId != null) {
       windowManager.showWindow(windowId);
+      return new Promise((resolve,reject)=> {
+        resolve(windowId); //possibly a bug: windowid and instanceid could be different?
+      });
     } else {
-      this.spawnApplication(plugin, null);
+      return this.spawnApplication(plugin, null);
     }
+  }
+
+  showApplicationInstanceWindow(plugin: DesktopPluginDefinitionImpl, viewportId: MVDHosting.ViewportId): void {
+    console.log('writeme, showapplicationinstancewindow');
   }
 
   isApplicationRunning(plugin: DesktopPluginDefinitionImpl): boolean {

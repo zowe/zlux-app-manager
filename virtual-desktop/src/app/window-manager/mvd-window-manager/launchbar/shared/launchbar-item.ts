@@ -11,12 +11,26 @@
 */
 
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
+//import { Observable } from '../../../../../../node_modules/rxjs';
 
 export abstract class LaunchbarItem {
   abstract readonly label: string;
   abstract readonly image: string | null;
   abstract readonly plugin: DesktopPluginDefinitionImpl;
   abstract readonly launchMetadata: any;
+  abstract readonly instanceCount: number;
+  abstract readonly windowPreviews: Array<HTMLImageElement>;
+  abstract readonly windowPreviewsIds: Array<number>;
+  showInstanceView: boolean;
+  showIconLabel: boolean;
+  /*
+  observableClick: Observable<any>;
+  abstract clicked(): void;
+
+  getClickedObservable(): Observable<any> {
+    return this.observableClick;
+  }
+  */
 }
 
 

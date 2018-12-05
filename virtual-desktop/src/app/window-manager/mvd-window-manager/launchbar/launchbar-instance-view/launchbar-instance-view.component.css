@@ -1,0 +1,43 @@
+.instance-item {
+    width: 200px;
+    height: 120px;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-top: 5px;
+    background-color: green;
+}
+
+.instance-viewer {
+    position: absolute;
+    top: -155px;
+    height: 170px;
+    padding: 5px 5px 5px 5px;
+    background-color: #334B6B;
+    z-index: 6;
+}
+
+.all-instances-box {
+    display: flex;
+    flex-direction: row;
+    height: 120px;
+}
+
+.caption {
+    color: white;
+    font-size: 8pt;
+    display: inline-block;
+}
+
+.label-caption {
+    margin-top: 10px;
+}
+
+.instance-snapshot {
+
+}
+
+.instance-preview {
+    width: 200px;
+    height: 120px;
+    margin-top: -34px;
+}
