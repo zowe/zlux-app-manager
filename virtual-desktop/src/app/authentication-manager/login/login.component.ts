@@ -63,11 +63,7 @@ export class LoginComponent implements OnInit {
           try {
             const jsonMessage = error.json();
             if (this.isAuthResponseMessage(jsonMessage)) {
-              if (this.isZssConnectionErrorMessage(jsonMessage)) {
-                this.errorMessage = this.translation.translate('FailedToCommunicateWithZssAuthenticationServer');
-              } else {
-                this.errorMessage = this.translation.translate('IncorrectUsernameAndOrPassword');
-              }
+              this.handleAuthResponseMessage(jsonMessage);
             } else {
               this.errorMessage = error.text();
             }
@@ -111,11 +107,7 @@ export class LoginComponent implements OnInit {
         this.needLogin = true;
         const jsonMessage = error.json();
         if (this.isAuthResponseMessage(jsonMessage)) {
-          if (this.isZssConnectionErrorMessage(jsonMessage)) {
-            this.errorMessage = this.translation.translate('FailedToCommunicateWithZssAuthenticationServer');
-          } else {
-            this.errorMessage = this.translation.translate('IncorrectUsernameAndOrPassword');
-          }
+          this.handleAuthResponseMessage(jsonMessage);
         } else {
           this.errorMessage = error.text();
         }
@@ -126,7 +118,15 @@ export class LoginComponent implements OnInit {
     );
   }
 
-  isAuthResponseMessage(message: any): message is AuthResponseMessage {
+  private handleAuthResponseMessage(authMessage: AuthResponseMessage): void {
+    if (this.isZssConnectionErrorMessage(authMessage)) {
+      this.errorMessage = this.translation.translate('FailedToCommunicateWithZssAuthenticationServer');
+    } else {
+      this.errorMessage = this.translation.translate('IncorrectUsernameAndOrPassword');
+    }
+  }
+
+  private isAuthResponseMessage(message: any): message is AuthResponseMessage {
     if (typeof message !== 'object') {
       return false;
     }
@@ -139,7 +139,7 @@ export class LoginComponent implements OnInit {
     return true;
   }
 
-  isZssConnectionErrorMessage(authResponse: AuthResponseMessage): boolean {
+  private isZssConnectionErrorMessage(authResponse: AuthResponseMessage): boolean {
     if (typeof authResponse.categories['zss'] !== 'object') {
       return false;
     }
