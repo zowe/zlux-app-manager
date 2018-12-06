@@ -6,6 +6,7 @@
   "Open": "Ouvrir",
   "Properties":"Propriétés",
   "IncorrectUsernameAndOrPassword": "Nom d'utilisateur ou mot de passe incorrect",
+  "FailedToCommunicateWithZssAuthenticationServer": "La communication avec le serveur d'authentification zss a échoué",
   "UsernameRequired": "Nom d'utilisateur requis"
 
 }

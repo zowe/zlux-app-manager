@@ -6,5 +6,6 @@
   "Open": "開く",
   "Properties":"プロパティー",
   "IncorrectUsernameAndOrPassword": "ユーザー名またはパスワードが正しくありません",
+  "FailedToCommunicateWithZssAuthenticationServer": "zss 認証サーバーへの接続に失敗しました",
   "UsernameRequired": "ユーザー名が必要です"
 }
