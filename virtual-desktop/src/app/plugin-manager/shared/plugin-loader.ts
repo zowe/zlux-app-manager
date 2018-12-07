@@ -46,7 +46,15 @@ export class PluginLoader {
   }
 
   loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<CompiledPlugin> {
+    if (pluginDefinition.getFramework() === 'unsupported') {
+      return new Promise((resolve, reject) => {
+        console.log(`${pluginDefinition.getIdentifier()} does not use supported framework`);
+        resolve();
+      });
+    }
+
     const candidateFactories = this.frameworkMap.get(pluginDefinition.getFramework()) || [];
+
 
     /* Attempt all registered factories for the given framework */
     return candidateFactories.reduce(
@@ -58,6 +66,13 @@ export class PluginLoader {
   }
 
   loadPluginComponentFactories(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<void> {
+    if (pluginDefinition.getFramework() === 'unsupported') {
+      return new Promise((resolve, reject) => {
+        console.log(`${pluginDefinition.getIdentifier()} does not use supported framework`);
+        resolve();
+      });
+    }
+
     const candidateFactories = this.frameworkMap.get(pluginDefinition.getFramework()) || [];
 
     /* Attempt all registered factories for the given framework */

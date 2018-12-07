@@ -135,9 +135,9 @@ export class AuthenticationManager {
           window.localStorage.setItem('username', username);
           this.username = username;
           this.performPostLoginActions().subscribe(
-            ()=> {
+            () => {
               this.log.debug('Done performing post-login actions');
-              this.loginScreenVisibilityChanged.emit(false);              
+              this.loginScreenVisibilityChanged.emit(false);
             });
           return result;
         } else {
