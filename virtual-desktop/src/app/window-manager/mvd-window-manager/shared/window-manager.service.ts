@@ -106,13 +106,16 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     let { width: dtWindowWidth, height: dtWindowHeight } = plugin.defaultWindowStyle;
     const rightMostPosition = innerWidth - dtWindowWidth;
     const bottomMostPosition = innerHeight - dtWindowHeight;
-
+    let desktopHeight = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().bottom;
+    let desktopWidth = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().right;
+    let launchbarHeight = document.getElementsByClassName("launchbar-container")[0].clientHeight;
     const pluginId = plugin.getIdentifier();
     if (this.windowPositionsMap.has(pluginId))//If a plugin has previously saved window position & size data
     { return {
         ...this.windowPositionsMap.get(pluginId),
       } as WindowPosition
     }
+    /*
 
     let valueArray = Array.from(this.runningPluginMap.values());
     let missingIndex = 0;
@@ -124,9 +127,12 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         missingIndex++;
       }
     }
+    */
 
-    let nextLeft = WindowManagerService.NEW_WINDOW_POSITION_INCREMENT * (missingIndex + 1);
-    let nextTop = WindowManagerService.NEW_WINDOW_POSITION_INCREMENT * (missingIndex + 1);
+    let nextLeft = (desktopWidth / 2) - (dtWindowWidth / 2);
+    let nextTop = (desktopHeight / 2) - (dtWindowHeight / 2) - (WindowManagerService.WINDOW_HEADER_HEIGHT / 2) - (launchbarHeight / 2);
+    //let nextLeft = WindowManagerService.NEW_WINDOW_POSITION_INCREMENT * (missingIndex + 1);
+    //let nextTop = WindowManagerService.NEW_WINDOW_POSITION_INCREMENT * (missingIndex + 1);
 
     // Find best next starting position
     if (nextLeft > rightMostPosition) { // Start over both top and left

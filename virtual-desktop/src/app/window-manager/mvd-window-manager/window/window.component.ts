@@ -63,13 +63,13 @@ export class WindowComponent {
     if (position.left + position.width - WINDOW_HEADER_HEIGHT < 0) {
       position.left = -position.width + WINDOW_HEADER_HEIGHT;
     }
-    var positionBottom = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().bottom;
-    var positionRight = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().right;
-    if ((position.top + WINDOW_HEADER_HEIGHT) > positionBottom) {
-      position.top = positionBottom - WINDOW_HEADER_HEIGHT;
+    let desktopHeight = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().bottom;
+    let desktopWidth = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().right;
+    if ((position.top + WINDOW_HEADER_HEIGHT) > desktopHeight) {
+      position.top = desktopHeight - WINDOW_HEADER_HEIGHT;
     }
-    if ((position.left + WINDOW_HEADER_HEIGHT) > positionRight) {
-      position.left = positionRight - WINDOW_HEADER_HEIGHT;
+    if ((position.left + WINDOW_HEADER_HEIGHT) > desktopWidth) {
+      position.left = desktopWidth - WINDOW_HEADER_HEIGHT;
     }
 
     return {
