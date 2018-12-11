@@ -19,16 +19,17 @@ export class MvdUri implements ZLUX.UriBroker {
   rasUri(uri: string): string {
     return `${this.serverRootUri(`ras/${uri}`)}`;
   }
-  unixFileUri(route: string, absPath: string, sourceEncoding?: string | undefined, targetEncoding?: string | undefined, newName?: string | undefined, forceOverwrite?: boolean | undefined): string {
+  unixFileUri(route: string, absPath: string, sourceEncoding?: string | undefined, targetEncoding?: string | undefined, newName?: string | undefined, forceOverwrite?:            boolean | undefined, noBackup?: boolean | undefined, sessionID?: number | undefined): string {
     let routeParam = route;
     let absPathParam = absPath;
     
     let sourceEncodingParam = sourceEncoding ? 'sourceEncoding=' + sourceEncoding : '';
     let targetEncodingParam = targetEncoding ? 'targetEncoding=' + targetEncoding : '';
     let newNameParam = newName ? 'newName=' + newName : '';
-    let forceOverwriteParam = forceOverwrite ? 'forceOverwrite=' + forceOverwrite : ''; 
-    
-    let paramArray = [sourceEncodingParam, targetEncodingParam, newNameParam, forceOverwriteParam];
+    let forceOverwriteParam = forceOverwrite ? 'forceOverwrite=' + forceOverwrite : '';
+    let noBackupParam = noBackup ? 'noBackup=' + noBackup : ''; 
+    let sessionIDParam = sessionID ? 'sessionID=' + sessionID : '';
+    let paramArray = [sourceEncodingParam, targetEncodingParam, newNameParam, forceOverwriteParam, noBackupParam, sessionIDParam];
     let params = this.createParamURL(paramArray);
     
     return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`;
