@@ -2,7 +2,7 @@
   "name": "mvd-bootstrap",
   "version": "0.0.0-zlux.version.replacement",
   "description": "The desktop bootstrapper for zLUX.",
-  "license": "private",
+  "license": "EPL-2.0",
   "scripts": {
     "build": "webpack --progress --colors",
     "start": "webpack --progress --colors --watch"

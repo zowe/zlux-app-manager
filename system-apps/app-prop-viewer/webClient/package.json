@@ -7,7 +7,7 @@
     "i18n": "ng-xi18n -p tsconfig.i18n.json --i18nFormat=xlf  --outFile=messages.xlf",
     "lint": "tslint -c tslint.json \"./**/*.ts\""
   },
-  "private": true,
+  "license": "EPL-2.0",
   "dependencies": {},
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.6.8",

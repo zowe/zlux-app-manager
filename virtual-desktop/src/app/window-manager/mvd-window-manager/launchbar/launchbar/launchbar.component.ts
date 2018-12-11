@@ -28,21 +28,21 @@ import { TranslationService } from 'angular-l10n';
   providers: [PluginsDataService]
 })
 export class LaunchbarComponent {
-  allItems: LaunchbarItem[];
+  private allItems: LaunchbarItem[];
   runItems: LaunchbarItem[];
   isActive: boolean;
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
   originalX: number;
   mouseOriginalX: number;
   currentEvent: EventTarget | null;
-  currentItem: LaunchbarItem | null;
+  private currentItem: LaunchbarItem | null;
   moving: boolean;
   newPosition: number;
   loggedIn: boolean;
   helperLoggedIn: boolean;
-  pluginManager: MVDHosting.PluginManagerInterface;
-  applicationManager: MVDHosting.ApplicationManagerInterface;
-  authenticationManager: MVDHosting.AuthenticationManagerInterface;
+  private pluginManager: MVDHosting.PluginManagerInterface;
+  private applicationManager: MVDHosting.ApplicationManagerInterface;
+  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   propertyWindowPluginDef : DesktopPluginDefinitionImpl;
   
    constructor(
@@ -51,18 +51,18 @@ export class LaunchbarComponent {
     public windowManager: WindowManagerService,
     private translation: TranslationService
   ) {
-    // Workaround for AoT problem with namespaces (see angular/angular#15613)
-    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
-    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
-    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
-    this.allItems = [];
-    this.runItems = [];
-    this.isActive = false;
-    this.contextMenuRequested = new Subject();
-    this.loggedIn = false;
-    this.helperLoggedIn = false; //helperLoggedIn is to indicate when the initial login happens
-  }
-
+     // Workaround for AoT problem with namespaces (see angular/angular#15613)
+     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
+     this.allItems = [];
+     this.runItems = [];
+     this.isActive = false;
+     this.contextMenuRequested = new Subject();
+     this.loggedIn = false;
+     this.helperLoggedIn = false; //helperLoggedIn is to indicate when the initial login happens
+   }
+  
   ngOnInit(): void {
     this.allItems = [];
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {

@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, EventEmitter } from '@angular/core';
+import { Injectable, Injector, EventEmitter } from '@angular/core';
 // import { DesktopPluginDefinition } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { ViewportManager } from 'app/application-manager/viewport-manager/viewport-manager.service';
 import { Angular2InjectionTokens, Angular2PluginViewportEvents } from 'pluginlib/inject-resources';
@@ -19,21 +19,38 @@ import { Angular2InjectionTokens, Angular2PluginViewportEvents } from 'pluginlib
 export class SimpleWindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
   private theViewportId: MVDHosting.ViewportId;
   readonly windowResized: EventEmitter<{ width: number, height: number }>;
+  private applicationManager: MVDHosting.ApplicationManagerInterface;
+  private pluginDef: MVDHosting.DesktopPluginDefinition;
 
   constructor(
-    private viewportManager: ViewportManager
+    private viewportManager: ViewportManager,
+    private injector: Injector
   ) {
+    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.windowResized = new EventEmitter<{ width: number, height: number }>(true);
     window.addEventListener('resize', () => this.onResize(), false);
   }
 
   createWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId {
     this.theViewportId = this.viewportManager.createViewport(this.generateWindowProviders());
+    this.pluginDef = plugin;
     return 1;
   }
 
   getWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId | null {
     return 1;
+  }
+
+  /* This likely does nothing right now and that's ok since the simple window manager is quite trivial*/
+  closeWindow(windowId: MVDWindowManagement.WindowId): void {
+    let appId = this.viewportManager.getApplicationInstanceId(this.theViewportId);
+    if (appId!=null) {
+      this.applicationManager.killApplication(this.pluginDef.getBasePlugin(), appId);
+    }
+  }
+
+  closeAllWindows(): void {
+    this.closeWindow(1);
   }
 
   showWindow(windowId: MVDWindowManagement.WindowId): void {

@@ -30,9 +30,8 @@ export class L10nConfigService {
     };
   }
 
-  getTranslationProviders(): any[] {
-    const desktopPlugin = ZoweZLUX.pluginManager.getDesktopPlugin();
-    const prefix = ZoweZLUX.uriBroker.pluginResourceUri(desktopPlugin, `assets/i18n/messages.`);
+  getTranslationProviders(plugin: ZLUX.Plugin): any[] {
+    const prefix = ZoweZLUX.uriBroker.pluginResourceUri(plugin, `assets/i18n/messages.`);
     return [
       // messages.en.json - a fallback file in case there is no translation file for a given language found
       { type: ProviderType.Fallback, prefix: `${prefix}en`, fallbackLanguage: [] },
