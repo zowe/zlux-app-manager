@@ -53,6 +53,10 @@ export class PluginLoader {
         console.log(`${pluginDefinition.getIdentifier()} does not use supported framework`);
         resolve();
       });
+    } else if (pluginDefinition.getFramework() === 'n/a') {
+      return new Promise((resolve, reject) => {
+        resolve();
+      });
     }
 
     /* Attempt all registered factories for the given framework */
@@ -70,6 +74,10 @@ export class PluginLoader {
     if (pluginDefinition.getFramework() === 'unsupported') {
       return new Promise((resolve, reject) => {
         console.log(`${pluginDefinition.getIdentifier()} does not use supported framework`);
+        resolve();
+      });
+    } else if (pluginDefinition.getFramework() === 'n/a') {
+      return new Promise((resolve, reject) => {
         resolve();
       });
     }

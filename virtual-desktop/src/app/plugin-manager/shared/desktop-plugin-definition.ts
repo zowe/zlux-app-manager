@@ -46,8 +46,7 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
         return 'unsupported';
       }
     } else {
-      console.warn(`Plugin ${this.getIdentifier()} has no framework specified`);
-      return 'unsupported';
+      return 'n/a';
     }
   }
 
