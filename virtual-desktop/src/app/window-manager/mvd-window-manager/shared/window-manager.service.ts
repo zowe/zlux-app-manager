@@ -295,19 +295,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   getHTML(windowId: MVDWindowManagement.WindowId) {
     let windowHTML = this.applicationManager.getViewportComponentRef(this.getViewportId(windowId)).location.nativeElement;
-    //This logic is to determine which html element to return for the html2canvas function since
-    //different applications have to pass different elements to get it working depending on the type
-    //and how they were made. A better solution for this logic to determine this should be implemented
-    //later
-    if(windowHTML.children.length > 1) {
-      return windowHTML;
-    } else if(windowHTML.children[0].offsetHeight == 0){
-      return windowHTML.children[0].children[1];
-    } else if(windowHTML.children[0].localName == "iframe"){
-      return -1;
-    } else {
-      return windowHTML.children[0];
-    }
+
+    return windowHTML.children[0].offsetParent
   }
 
   getPlugin(windowId: MVDWindowManagement.WindowId) {
