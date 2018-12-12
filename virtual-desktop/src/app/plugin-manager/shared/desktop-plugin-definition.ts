@@ -39,7 +39,12 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
 
   getFramework(): string {
     if (this.hasWebContent) {
-      return this.basePlugin.getWebContent().framework;
+      if ('framework' in this.basePlugin.getWebContent()) {
+        return this.basePlugin.getWebContent().framework;
+      } else {
+        console.warn(`Plugin ${this.getIdentifier()} has no framework specified`);
+        return 'unsupported';
+      }
     } else {
       console.warn(`Plugin ${this.getIdentifier()} has no framework specified`);
       return 'unsupported';
@@ -56,6 +61,10 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
 
   getCopyright():string {
     return this.basePlugin.getCopyright();
+  }
+
+  hasComponents(): boolean {
+    return this.basePlugin.hasComponents();
   }
   
   get label(): string {
