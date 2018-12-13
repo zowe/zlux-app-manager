@@ -14,6 +14,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, Type, StaticProvider } from '@angular/core';
 import { HttpModule} from '@angular/http';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import {A11yModule} from '@angular/cdk/a11y';
 
 // Modules
 import { PluginManagerModule } from './plugin-manager/plugin-manager.module';
@@ -23,6 +24,7 @@ import { SharedModule } from './shared/shared.module';
 import { LanguageLocaleService } from './i18n/language-locale.service';
 import { TranslationLoaderService } from './i18n/translation-loader.service';
 import { I18nModule } from './i18n/i18n.module';
+
 
 export class MvdModuleFactory {
   private static localeService: LanguageLocaleService;
@@ -34,6 +36,7 @@ export class MvdModuleFactory {
         BrowserModule,
         BrowserAnimationsModule,
         HttpModule,
+        A11yModule,
         // Our stuff,
         SharedModule,
         PluginManagerModule,

@@ -30,6 +30,7 @@ const libs: { [index: string]: {library: any} } = {
   '@angular/platform-browser/animations': require('@angular/platform-browser/animations'),
   '@angular/platform-browser-dynamic': require('@angular/platform-browser-dynamic'),
   '@angular/cdk/portal': require('@angular/cdk/portal'),
+  '@angular/cdk/a11y': require('@angular/cdk/a11y'),
   '@angular/material': require('@angular/material'),
   '@angular/forms': require('@angular/forms'),
   '@angular/router': require('@angular/router'),
