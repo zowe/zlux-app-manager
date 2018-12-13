@@ -64,7 +64,7 @@ export class MvdUri implements ZLUX.UriBroker {
 
     let paramArray = [detailParam, typesParam, workAreaSizeParam, listMembersParam, includeMigratedParam, includeUnprintableParam, resumeNameParam, resumeCatalogNameParam];
     let params = this.createParamURL(paramArray);
-    return `${this.serverRootUri(`datasetMetadata/${dsn}${params}`)}`;
+    return `${this.serverRootUri(`datasetMetadata/name/${dsn}${params}`)}`;
   }
   pluginRootUri(pluginDefinition: ZLUX.Plugin): string {
     return `${this.serverRootUri(`ZLUX/plugins/${pluginDefinition.getIdentifier()}/`)}`;
