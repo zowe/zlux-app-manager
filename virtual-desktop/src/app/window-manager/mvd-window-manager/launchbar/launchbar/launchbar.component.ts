@@ -10,7 +10,13 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Injector } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Injector,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { PluginLaunchbarItem } from '../shared/launchbar-items/plugin-launchbar-item';
@@ -19,7 +25,8 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { TranslationService } from 'angular-l10n';
-
+import { LaunchbarIconComponent } from '../launchbar-icon/launchbar-icon.component';
+import { FocusKeyManager } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'rs-com-launchbar',
@@ -27,7 +34,7 @@ import { TranslationService } from 'angular-l10n';
   styleUrls: ['./launchbar.component.css'],
   providers: [PluginsDataService]
 })
-export class LaunchbarComponent {
+export class LaunchbarComponent implements AfterViewInit {
   private allItems: LaunchbarItem[];
   runItems: LaunchbarItem[];
   isActive: boolean;
@@ -44,7 +51,9 @@ export class LaunchbarComponent {
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   propertyWindowPluginDef : DesktopPluginDefinitionImpl;
-  
+  @ViewChildren(LaunchbarIconComponent) items: QueryList<LaunchbarIconComponent>;
+  private keyManager: FocusKeyManager<LaunchbarIconComponent>;
+
    constructor(
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
@@ -62,7 +71,7 @@ export class LaunchbarComponent {
      this.loggedIn = false;
      this.helperLoggedIn = false; //helperLoggedIn is to indicate when the initial login happens
    }
-  
+
   ngOnInit(): void {
     this.allItems = [];
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
@@ -75,9 +84,13 @@ export class LaunchbarComponent {
             this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
           }
         }
-        
+
       })
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.keyManager = new FocusKeyManager(this.items).withWrap().withHorizontalOrientation('ltr');
   }
 
   ngDoCheck(): void {
@@ -154,21 +167,21 @@ export class LaunchbarComponent {
     "appType":basePlugin.getType(),
     "copyright":pluginImpl.getCopyright(),
     "image":plugin.image
-    };    
+    };
   }
-  
+
   launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl){
-  
+
     let propertyWindowID = this.windowManager.getWindow(this.propertyWindowPluginDef);
     if (propertyWindowID!=null){
       this.windowManager.showWindow(propertyWindowID);
     } else {
       this.applicationManager.spawnApplication(this.propertyWindowPluginDef,this.getAppPropertyInformation(plugin));
-    }  
+    }
   }
-    
-  
-  
+
+
+
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     if (this.applicationManager.isApplicationRunning(item.plugin)) {
       var menuItems: ContextMenuItem[] =
@@ -176,13 +189,13 @@ export class LaunchbarComponent {
           this.pluginsDataService.pinContext(item),
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
           { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
-          { "text": this.translation.translate('Close'), "action": () => this.closeApplication(item) },         
+          { "text": this.translation.translate('Close'), "action": () => this.closeApplication(item) },
 
         ];
     } else {
       var menuItems: ContextMenuItem[] =
         [
-          { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },       
+          { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },
           this.pluginsDataService.pinContext(item),
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
         ]
@@ -295,7 +308,15 @@ export class LaunchbarComponent {
       }
     }
   }
-}
+
+  onKeyDown(event: KeyboardEvent): void {
+    if (event.keyCode === 13 || event.keyCode === 32) {
+      const launchbarIcon = this.keyManager.activeItem as LaunchbarIconComponent;
+      this.launchbarItemClicked(launchbarIcon.launchbarItem);
+    } else {
+      this.keyManager.onKeydown(event);
+    }
+  }}
 
 
 /*

@@ -10,21 +10,32 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  Output,
+} from '@angular/core';
 
 import { LaunchbarItem } from '../shared/launchbar-item';
+import { FocusableOption } from '@angular/cdk/a11y';
 
 @Component({
+  host: {
+    'tabindex': '-1'
+  },
   selector: 'rs-com-launchbar-icon',
   templateUrl: './launchbar-icon.component.html',
   styleUrls: ['./launchbar-icon.component.css']
 })
-export class LaunchbarIconComponent {
+export class LaunchbarIconComponent implements FocusableOption  {
   @Input() launchbarItem: LaunchbarItem;
 
   @Output() iconClicked: EventEmitter<void>;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
-  constructor(private injector: Injector) {
+  constructor(private injector: Injector, private host: ElementRef) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.iconClicked = new EventEmitter();
@@ -37,6 +48,11 @@ export class LaunchbarIconComponent {
   isRunning(): boolean {
     return this.applicationManager.isApplicationRunning(this.launchbarItem.plugin);
   }
+
+  focus(): void {
+    this.host.nativeElement.focus();
+  }
+
 }
 
 
