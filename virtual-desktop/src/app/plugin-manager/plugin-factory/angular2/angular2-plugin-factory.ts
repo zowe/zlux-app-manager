@@ -107,24 +107,29 @@ export class Angular2PluginFactory extends PluginFactory {
     const scriptUrl = Angular2PluginFactory.getAngularComponentsURL(pluginDefinition);
 
     return new Promise((resolve, reject) => {
-      (window as any).require([scriptUrl],
-        (components: MvdNativeAngularPluginComponentDefinition) => {
-          const factoryDefs = components.getComponentFactoryDefinitions(pluginDefinition);
-          factoryDefs.forEach((factory: AngularComponentFactoryDefinition) => {
-            const componentFactory = new SimpleAngularComponentFactory(this.compiler, this.applicationRef, this.injector, factory.componentScriptUrl, factory.componentClass, factory.capabilities);
+      if (pluginDefinition.hasComponents()) {
+        (window as any).require([scriptUrl],
+          (components: MvdNativeAngularPluginComponentDefinition) => {
+            const factoryDefs = components.getComponentFactoryDefinitions(pluginDefinition);
+            factoryDefs.forEach((factory: AngularComponentFactoryDefinition) => {
+              const componentFactory = new SimpleAngularComponentFactory(this.compiler, this.applicationRef, this.injector,
+              factory.componentScriptUrl, factory.componentClass, factory.capabilities);
 
-            console.log(`Registering component factory for plugin ${pluginDefinition.getIdentifier()}:`);
-            console.log(componentFactory);
+              console.log(`Registering component factory for plugin ${pluginDefinition.getIdentifier()}:`);
+              console.log(componentFactory);
 
-            ZoweZLUX.registry.registerComponentFactory(componentFactory);
+              ZoweZLUX.registry.registerComponentFactory(componentFactory);
 
+              resolve();
+            });
+          },
+          (failure: any) => {
+            console.log(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
             resolve();
           });
-        },
-        (failure: any) => {
-          console.log(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
+        } else {
           resolve();
-        });
+        }
     });
   }
 

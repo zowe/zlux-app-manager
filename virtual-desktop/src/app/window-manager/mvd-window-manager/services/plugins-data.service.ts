@@ -19,24 +19,32 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { TranslationService } from 'angular-l10n';
 
 @Injectable()
-export class PluginsDataService {
-    public counter: number;
-    public pinnedPlugins: LaunchbarItem[];
-    private scope: string = "user";
-    private resourcePath: string = "ui/launchbar/plugins";
-    private fileName: string = "pinnedPlugins.json"
-    private pluginManager: MVDHosting.PluginManagerInterface;
+export class PluginsDataService implements MVDHosting.LogoutActionInterface {
+  public counter: number;
+  public pinnedPlugins: LaunchbarItem[];
+  private scope: string = "user";
+  private resourcePath: string = "ui/launchbar/plugins";
+  private fileName: string = "pinnedPlugins.json"
+  private pluginManager: MVDHosting.PluginManagerInterface;
+  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 
-    constructor(
-        private injector: Injector,
-        private http: Http,
-        private translation: TranslationService
-    ) {
-        // Workaround for AoT problem with namespaces (see angular/angular#15613)
-        this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
-        this.refreshPinnedPlugins;
-        this.counter = 0;
-    }
+  constructor(
+    private injector: Injector,
+    private http: Http,
+    private translation: TranslationService
+  ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
+    this.authenticationManager.registerPreLogoutAction(this);
+    this.refreshPinnedPlugins;
+    this.counter = 0;
+  }
+
+    onLogout(username: string): boolean {
+      this.pinnedPlugins = [];
+      return true;
+  }
 
     public refreshPinnedPlugins(): void {
       this.pinnedPlugins = [];

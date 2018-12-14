@@ -10,6 +10,13 @@
   Copyright Contributors to the Zowe Project.
 */
 
+/*
+  Imperfect solution to an imperfect world. See https://github.com/requirejs/requirejs/issues/787 and https://requirejs.org/docs/api.html#config-waitSeconds
+*/
+(window as any).requirejs.config({
+  waitSeconds: 0
+});
+
 /* These will be packaged into a single bundle by the webpack bundling system.
  * We then expose them to our module loader (requirejs) manually and use that
  * to load the desktop and external plugins. These requires use webpack. */
@@ -27,6 +34,7 @@ const libs: { [index: string]: {library: any} } = {
   '@angular/forms': require('@angular/forms'),
   '@angular/router': require('@angular/router'),
   '@angular/animations': require('@angular/animations'),
+  'angular-l10n': require('angular-l10n'),
   'rxjs/Rx': require('rxjs/Rx')
 };
 

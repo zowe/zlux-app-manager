@@ -12,9 +12,19 @@ import { NgModule, APP_INITIALIZER, LOCALE_ID, Inject } from '@angular/core';
 import { LanguageLocaleService } from './language-locale.service';
 import { localeInitializer, localeIdFactory } from './locale-initializer.provider';
 import { HttpClientModule } from '@angular/common/http';
-import { TranslationModule, TRANSLATION_CONFIG, LocaleConfig, ISOCode, L10nLoader, TranslationConfig, LOCALE_CONFIG } from 'angular-l10n';
+import {
+  HttpTranslationProvider,
+  ISOCode,
+  L10nLoader,
+  LOCALE_CONFIG,
+  LocaleConfig,
+  TRANSLATION_CONFIG,
+  TranslationConfig,
+  TranslationModule
+} from 'angular-l10n';
 import { L10nStorageService } from './l10n-storage.service';
 import { L10nConfigService } from './l10n-config.service';
+import { L10nCustomTranslationProvider } from './l10n-custom-translation.provider';
 
 @NgModule({
   imports: [
@@ -26,12 +36,17 @@ import { L10nConfigService } from './l10n-config.service';
         composedLanguage: [ISOCode.Language, ISOCode.Country],
         caching: true
       }},
-      { localeStorage: L10nStorageService }
+      {
+        localeStorage: L10nStorageService,
+        translationProvider: L10nCustomTranslationProvider
+      }
     )
   ],
   providers: [
     L10nConfigService,
     L10nStorageService,
+    HttpTranslationProvider,
+    L10nCustomTranslationProvider,
     { provide: LOCALE_ID, useFactory: localeIdFactory, deps: [LanguageLocaleService]},
     {
       provide: APP_INITIALIZER,
@@ -48,8 +63,9 @@ export class I18nModule {
     @Inject(TRANSLATION_CONFIG) private translationConfig: TranslationConfig,
     private l10nConfigService: L10nConfigService,
   ) {
+    const desktopPlugin = ZoweZLUX.pluginManager.getDesktopPlugin();
     this.localeConfig.defaultLocale = this.l10nConfigService.getDefaultLocale();
-    this.translationConfig.providers = this.l10nConfigService.getTranslationProviders();
+    this.translationConfig.providers = this.l10nConfigService.getTranslationProviders(desktopPlugin);
     this.l10nLoader.load();
   }
 

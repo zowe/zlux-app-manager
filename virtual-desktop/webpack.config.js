@@ -111,7 +111,7 @@ module.exports = {
   ],
   "externals": [
     function(context, request, callback) {
-      if (/(@angular)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs\/Rx$)/.test(request)){
+      if (/(@angular)|(angular\-l10n)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs\/Rx$)/.test(request)){
         return callback(null, {
           commonjs: request,
           commonjs2: request,
