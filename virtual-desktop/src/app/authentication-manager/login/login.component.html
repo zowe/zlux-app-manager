@@ -17,7 +17,7 @@
 <div class="login-panel" [class.hidden]="!isLoading && !needLogin">
   <div class="login-overlay">
   <div>
-    <img [src]="logo" alt="zLUX - z/OS Lightweight User Experience" />
+    <img [src]="logo" alt="Zowe - z/OS Lightweight User Experience" />
     <form class="login-form" [hidden]="!needLogin">
       <label for="userid" i18n="label|Label for username@@username-label">Username</label>
       <input class="userid" id="usernameInput" aria-labelledby="user id" tabindex="1" type="text" name="userid" [(ngModel)]="username" maxlength="8" autofocus [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
