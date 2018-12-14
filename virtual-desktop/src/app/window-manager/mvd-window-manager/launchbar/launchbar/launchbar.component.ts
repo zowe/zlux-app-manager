@@ -311,8 +311,10 @@ export class LaunchbarComponent implements AfterViewInit {
 
   onKeyDown(event: KeyboardEvent): void {
     if (event.keyCode === 13 || event.keyCode === 32) {
-      const launchbarIcon = this.keyManager.activeItem as LaunchbarIconComponent;
-      this.launchbarItemClicked(launchbarIcon.launchbarItem);
+      if (this.keyManager.activeItem) {
+        const launchbarIcon = this.keyManager.activeItem as LaunchbarIconComponent;
+        this.launchbarItemClicked(launchbarIcon.launchbarItem);
+      }
     } else {
       this.keyManager.onKeydown(event);
     }
