@@ -25,7 +25,7 @@ export class DsmUri implements ZLUX.UriBroker {
     relativePath;//suppress warning for now
     return "";
   }
-  unixFileUri(relativePath: string): string {
+  unixFileUri(route: string, absPath: string, sourceEncoding?: string | undefined, targetEncoding?: string | undefined, newName?: string | undefined, forceOverwrite?: boolean | undefined, noBackup?: boolean | undefined, sessionID?: number | undefined): string {
     relativePath;//suppress warning for now
     return "";
   }
