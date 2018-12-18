@@ -47,14 +47,18 @@ export class ReactPluginFactory extends PluginFactory {
     const scriptUrl = ReactPluginFactory.getReactComponentsURL(pluginDefinition);
 
     return new Promise((resolve, reject) => {
-      (window as any).require([scriptUrl], 
-        (components: MvdNativeReactPluginComponentDefinition) => {
-          components.registerComponentFactories();
-        },
-        (failure: any) => {
-          console.log(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
+      if (pluginDefinition.hasComponents()) {
+        (window as any).require([scriptUrl], 
+          (components: MvdNativeReactPluginComponentDefinition) => {
+            components.registerComponentFactories();
+          },
+          (failure: any) => {
+            console.log(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
+            resolve();
+          });
+        } else {
           resolve();
-        });
+        }
     });
   }
 
