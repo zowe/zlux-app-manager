@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -19,6 +19,7 @@ import { LaunchbarComponent } from './launchbar/launchbar.component';
 import { LaunchbarIconComponent } from './launchbar-icon/launchbar-icon.component';
 import { LaunchbarMenuComponent } from './launchbar-menu/launchbar-menu.component';
 import { LaunchbarWidgetComponent } from './launchbar-widget/launchbar-widget.component';
+import { LaunchbarMenuItemComponent } from './launchbar-menu-item/launchbar-menu-item.component';
 
 @NgModule({
   imports: [
@@ -29,6 +30,7 @@ import { LaunchbarWidgetComponent } from './launchbar-widget/launchbar-widget.co
     LaunchbarComponent,
     LaunchbarIconComponent,
     LaunchbarMenuComponent,
+    LaunchbarMenuItemComponent,
     LaunchbarWidgetComponent
   ],
   exports: [
@@ -42,9 +44,9 @@ export class LaunchbarModule { }
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

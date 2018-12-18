@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -50,24 +50,6 @@
   padding: 0;
   position: absolute;
   background: transparent;
-}
-
-.launch-widget-row {
-  list-style: none;
-  height: 60px;
-  margin: 0px 5px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.launch-widget-row .icon {
-  width: 50px;
-  height: 50px;
-}
-
-.launch-widget-row p {
-  margin-left: 60px;
-  line-height: 50px;
 }
 
 .launch-widget-popup {
@@ -130,9 +112,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

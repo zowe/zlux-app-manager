@@ -10,75 +10,63 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, ElementRef, HostListener, Input, Output, EventEmitter, Injector } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { PluginsDataService } from '../../services/plugins-data.service';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  Output,
+  QueryList,
+  ViewChild,
+  ViewChildren
+} from '@angular/core';
 import { LaunchbarItem } from '../shared/launchbar-item';
-import { ContextMenuItem } from 'pluginlib/inject-resources';
-import { WindowManagerService } from '../../shared/window-manager.service'
-import { TranslationService } from 'angular-l10n';
-import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
+import { LaunchbarMenuItemComponent } from '../launchbar-menu-item/launchbar-menu-item.component';
+import { FocusKeyManager } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'rs-com-launchbar-menu',
   templateUrl: './launchbar-menu.component.html',
-  styleUrls: ['./launchbar-menu.component.css']
+  styleUrls: ['./launchbar-menu.component.css'],
 })
 export class LaunchbarMenuComponent {
   @Input() menuItems: LaunchbarItem[];
-  @Output() itemClicked: EventEmitter<LaunchbarItem>;
-  @Output() menuStateChanged: EventEmitter<boolean>;
+  @Output() itemClicked: EventEmitter<LaunchbarItem> = new EventEmitter<LaunchbarItem>();
+  @Output() menuStateChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
   isActive: boolean = false;
-  contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
-  pluginManager: MVDHosting.PluginManagerInterface;
-  public applicationManager: MVDHosting.ApplicationManagerInterface;
-  propertyWindowPluginDef : DesktopPluginDefinitionImpl;
+  @ViewChildren(LaunchbarMenuItemComponent) items: QueryList<LaunchbarMenuItemComponent>;
+  keyManager: FocusKeyManager<LaunchbarMenuItemComponent>;
+  @ViewChild('popup') popupElementRef : ElementRef;
 
-  constructor(
-    private elementRef: ElementRef,
-    public windowManager: WindowManagerService,
-    private pluginsDataService: PluginsDataService,
-    private injector: Injector,
-    private translation: TranslationService
-
-  ) {
-    // Workaround for AoT problem with namespaces (see angular/angular#15613)
-    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
-    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
-    this.itemClicked = new EventEmitter();
-    this.menuStateChanged = new EventEmitter<boolean>();
+  constructor(private elementRef: ElementRef) {
   }
 
   ngOnInit(): void {
-    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.app.propview").then(viewerPlugin => {
-      const pluginImpl:DesktopPluginDefinitionImpl = viewerPlugin as DesktopPluginDefinitionImpl;
-      this.propertyWindowPluginDef=pluginImpl;
-    })
   }
-  
-   getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
-    const pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
-    const basePlugin = pluginImpl.getBasePlugin();
-    return {"isPropertyWindow":true,
-    "appName":pluginImpl.defaultWindowTitle,
-    "appVersion":basePlugin.getVersion(),
-    "appType":basePlugin.getType(),
-    "copyright":pluginImpl.getCopyright(),
-    "image":plugin.image
-    };    
+
+  ngAfterViewInit(): void {
+    this.keyManager = new FocusKeyManager(this.items).withWrap().withTypeAhead();
   }
-  
-  launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl){
-    let propertyWindowID = this.windowManager.getWindow(this.propertyWindowPluginDef);
-    if (propertyWindowID!=null){
-      this.windowManager.showWindow(propertyWindowID);
-    } else {
-      this.applicationManager.spawnApplication(this.propertyWindowPluginDef,this.getAppPropertyInformation(plugin));
+
+  activeToggle(): void {
+    if (this.isActive) {
+    this.deactivateMenu();
+  } else {
+    this.activateMenu();
     }
   }
-  
-  activeToggle(): void {
-    this.isActive = !this.isActive;
+
+  activateMenu(): void {
+    this.isActive = true;
+    window.setTimeout(() => {
+      this.keyManager.setFirstItemActive();
+      this.emitState();
+    }, 0);
+  }
+
+  deactivateMenu(): void {
+    this.isActive = false;
     this.emitState();
   }
 
@@ -88,16 +76,6 @@ export class LaunchbarMenuComponent {
     this.emitState();
   }
 
-  closeApplication(item: LaunchbarItem): void {
-    let windowId = this.windowManager.getWindow(item.plugin);
-    if (windowId != null) {
-      this.windowManager.closeWindow(windowId);
-    }
-  }
-
-  /**
-   * Close the launchbar icon if the user clicks anywhere other than on the launchbar area
-   */
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
     if (this.isActive && event && !this.elementRef.nativeElement.contains(event.target)) {
@@ -106,18 +84,30 @@ export class LaunchbarMenuComponent {
     }
   }
 
+  @HostListener('document:keydown', ['$event'])
+  onGlobalKeyDown(event: KeyboardEvent): void {
+    // Ctrl + Space
+    if (event.ctrlKey && event.keyCode === 32) {
+      if (!this.isActive) {
+        this.activateMenu();
+        this.emitState();
+      }
+    }
+  }
+
   private emitState(): void {
     this.menuStateChanged.emit(this.isActive);
   }
 
-  onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
-    var menuItems: ContextMenuItem[] =
-      [
-        this.pluginsDataService.pinContext(item),
-        { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin)},
-      ];
-    this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
-    return false;
+  onKeyDown(event: KeyboardEvent): void {
+    if (event.keyCode === 13 || event.keyCode === 32) {
+      const menuItem = this.keyManager.activeItem as LaunchbarMenuItemComponent;
+      this.clicked(menuItem.item);
+    } else if (event.keyCode === 27) {
+      this.deactivateMenu();
+    } else {
+      this.keyManager.onKeydown(event);
+    }
   }
 }
 

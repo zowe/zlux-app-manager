@@ -1,5 +1,3 @@
-
-
 <!--
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -10,19 +8,11 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="launch-widget">
-  <div class="launchbar-icon" (click)="activeToggle()" tabindex="0" (keydown.enter)="activeToggle()" (keydown.space)="activeToggle()"></div>
-  <div class="launchbar-seperator right"></div>
+<div class="launch-widget-row" (click)="clicked(item)" (contextmenu)="onRightClick($event, item)">
+  <img class="icon" [src]="item.image">
+  <p>{{item.label}}</p>
 </div>
 
-<ng-template [ngIf]="isActive">
-  <div class="launch-widget-popup" tabindex="-1" (keydown)="onKeyDown($event)" #popup>
-    <rs-com-launchbar-menu-item *ngFor="let item of menuItems" [item]="item" (itemClicked)="clicked(item)">
-    </rs-com-launchbar-menu-item>
-  </div>
-  <div class="launch-widget-caret caret-down"></div>
-</ng-template>
-
 <!--
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -32,4 +22,3 @@
 
   Copyright Contributors to the Zowe Project.
 -->
-
