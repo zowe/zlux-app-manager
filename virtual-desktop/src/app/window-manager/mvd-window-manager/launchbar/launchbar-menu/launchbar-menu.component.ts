@@ -21,9 +21,13 @@ import {
   ViewChild,
   ViewChildren
 } from '@angular/core';
+import {
+  FocusKeyManager,
+  FocusTrap,
+  FocusTrapFactory
+} from '@angular/cdk/a11y';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { LaunchbarMenuItemComponent } from '../launchbar-menu-item/launchbar-menu-item.component';
-import { FocusKeyManager } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'rs-com-launchbar-menu',
@@ -38,8 +42,12 @@ export class LaunchbarMenuComponent {
   @ViewChildren(LaunchbarMenuItemComponent) items: QueryList<LaunchbarMenuItemComponent>;
   keyManager: FocusKeyManager<LaunchbarMenuItemComponent>;
   @ViewChild('popup') popupElementRef : ElementRef;
+  private focusTrap: FocusTrap;
 
-  constructor(private elementRef: ElementRef) {
+  constructor(
+    private elementRef: ElementRef,
+    private focusTrapService: FocusTrapFactory
+    ) {
   }
 
   ngOnInit(): void {
@@ -60,12 +68,15 @@ export class LaunchbarMenuComponent {
   activateMenu(): void {
     this.isActive = true;
     window.setTimeout(() => {
-      this.keyManager.setFirstItemActive();
+      this.focusTrap = this.focusTrapService.create(this.popupElementRef.nativeElement);
+      this.focusTrap.focusFirstTabbableElement();
+      // this.keyManager.setFirstItemActive();
       this.emitState();
     }, 0);
   }
 
   deactivateMenu(): void {
+    this.focusTrap.destroy();
     this.isActive = false;
     this.emitState();
   }

@@ -22,7 +22,7 @@ import { FocusableOption } from '@angular/cdk/a11y';
   templateUrl: './launchbar-menu-item.component.html',
   styleUrls: ['./launchbar-menu-item.component.css'],
   host: {
-    'tabindex': '-1'
+    'tabindex': '0'
   }
 })
 export class LaunchbarMenuItemComponent implements FocusableOption {
