@@ -121,7 +121,6 @@ export class LaunchbarComponent {
 
   launchbarItemClicked(item: LaunchbarItem): void {
     if (item.instanceCount > 1) {
-      item.showIconLabel = item.showInstanceView;
       item.showInstanceView = !item.showInstanceView;
     } else if (item.instanceCount == 1) {
       let windowId = this.windowManager.getWindow(item.plugin);
@@ -173,7 +172,6 @@ export class LaunchbarComponent {
   }
   
   launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl){
-  
     let propertyWindowID = this.windowManager.getWindow(this.propertyWindowPluginDef);
     if (propertyWindowID!=null){
       this.windowManager.showWindow(propertyWindowID);

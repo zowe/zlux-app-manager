@@ -26,8 +26,20 @@ export class LaunchbarInstanceViewComponent {
   }
 
   ngOnInit(){
-    (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 
-      -(180 + (105  * (this.launchbarItem.windowPreviewsIds.length - 2))) + 'px';
+    //Doesn't check right bounds yet, for somereason bounds.right isn't giving the expected values
+    //and not sure why at this time
+    this.launchbarItem.showIconLabel = false;
+    let bounds = (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).getBoundingClientRect();
+    //260 offset is height of the instance viewer plus the height of the taskbar
+    (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.top = (document.body.clientHeight - 250) + 'px';
+    if (bounds != null) {
+      if (bounds.left - (180 + (105  * (this.launchbarItem.windowPreviewsIds.length - 2)))  < 0 ) {
+        (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 0 + 'px';
+      } else {
+        (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 
+        bounds.left - (180 + (105  * (this.launchbarItem.windowPreviewsIds.length - 2))) + 'px';
+      }
+    }
   }
 
   getTitleForWindow(windowId: MVDWindowManagement.WindowId): string {

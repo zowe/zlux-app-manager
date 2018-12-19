@@ -45,6 +45,7 @@ export class LaunchbarIconComponent {
       this.launchbarItem.showIconLabel = true;
     }
   }
+
   onMouseLeave(event: MouseEvent, item: LaunchbarItem) {
     this.launchbarItem.showIconLabel = false;
   }
@@ -56,6 +57,7 @@ export class LaunchbarIconComponent {
 
   onMouseLeaveInstanceView(event: MouseEvent, item: LaunchbarItem) {
     this.launchbarItem.showInstanceView = false;
+    this.launchbarItem.showIconLabel = false;
   }
   
   isRunning(): boolean {
