@@ -98,13 +98,15 @@ export class MvdUri implements ZLUX.UriBroker {
     return `${this.serverRootUri(`plugins?type=${pluginType}`)}`;
   }
 
-  pluginWSUri(plugin: ZLUX.Plugin, serviceName: string, relativePath: string) {
+  pluginWSUri(plugin: ZLUX.Plugin, serviceName: string, relativePath: string,
+        version = "_current") {
     if (relativePath == null) {
       relativePath = "";
     }
     const protocol = window.location.protocol;
     const wsProtocol = (protocol === 'https:') ? 'wss:' : 'ws:';
-    return `${wsProtocol}//${window.location.host}${this.pluginRootUri(plugin)}services/${serviceName}/${relativePath}`;
+    return `${wsProtocol}//${window.location.host}${this.pluginRootUri(plugin)}`
+        + `services/${serviceName}/${version}/${relativePath}`;
   }
 
   /**
@@ -118,20 +120,23 @@ export class MvdUri implements ZLUX.UriBroker {
    */
   pluginConfigForScopeUri(pluginDefinition: ZLUX.Plugin, scope: string, resourcePath: string, resourceName?: string): string {
     let name = resourceName ? '?name=' + resourceName : '';
-    return `${this.serverRootUri(`ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`)}`;
+    return `${this.serverRootUri(`ZLUX/plugins/org.zowe.configjs/services/data/_current`
+       + `/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`)}`;
     // return `/ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`;
   }
 
   /* Disabled for now, to be re-introduced with role-based access control use  
   pluginConfigForUserUri(pluginDefinition: ZLUX.Plugin, user: string, resourcePath: string, resourceName?: string) {
     let name = resourceName ? '?name=' + resourceName : '';
-    return `${this.serverRootUri(`ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`)}`;
+    return `${this.serverRootUri(`ZLUX/plugins/org.zowe.configjs/services/data/_current`
+       + `/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`)}`;
     // return `/ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`;    
   }
 
   pluginConfigForGroupUri(pluginDefinition: ZLUX.Plugin, group: string, resourcePath: string, resourceName?: string) {
     let name = resourceName ? '?name=' + resourceName : '';
-    return `${this.serverRootUri(`ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`)}`;
+    return `${this.serverRootUri(`ZLUX/plugins/org.zowe.configjs/services/data/_current`
+       + `/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`)}`;
     //return `/ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`;    
   }
   */
@@ -140,11 +145,13 @@ export class MvdUri implements ZLUX.UriBroker {
     return this.pluginConfigForScopeUri(pluginDefinition, "user", resourcePath, resourceName);
   }
 
-  pluginRESTUri(plugin: ZLUX.Plugin, serviceName: string, relativePath: string) {
+  pluginRESTUri(plugin: ZLUX.Plugin, serviceName: string, relativePath: string,
+        version = "_current") {
     if (relativePath == null) {
       relativePath = "";
     }
-    return `${this.pluginRootUri(plugin)}services/${serviceName}/${relativePath}`;
+    return `${this.pluginRootUri(plugin)}services/${serviceName}/${version}`
+       + `/${relativePath}`;
   }
 
   createParamURL(parameters: String[]): string {
