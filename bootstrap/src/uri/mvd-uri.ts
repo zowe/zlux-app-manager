@@ -19,7 +19,7 @@ export class MvdUri implements ZLUX.UriBroker {
   rasUri(uri: string): string {
     return `${this.serverRootUri(`ras/${uri}`)}`;
   }
-  unixFileUri(route: string, absPath: string, sourceEncoding?: string | undefined, targetEncoding?: string | undefined, newName?: string | undefined, forceOverwrite?: boolean | undefined, noBackup?: boolean | undefined, sessionID?: number | undefined): string {
+  unixFileUri(route: string, absPath: string, sourceEncoding?: string | undefined, targetEncoding?: string | undefined, newName?: string | undefined, forceOverwrite?: boolean | undefined, sessionID?: number | undefined, lastChunk?: boolean): string {
     let routeParam = route;
     let absPathParam = absPath;
     
@@ -27,7 +27,7 @@ export class MvdUri implements ZLUX.UriBroker {
     let targetEncodingParam = targetEncoding ? 'targetEncoding=' + targetEncoding : '';
     let newNameParam = newName ? 'newName=' + newName : '';
     let forceOverwriteParam = forceOverwrite ? 'forceOverwrite=' + forceOverwrite : '';
-    let noBackupParam = noBackup ? 'noBackup=' + noBackup : ''; 
+    let lastChunkParam = lastChunk ? 'lastChunk=' + lastChunk : ''; 
     let sessionIDParam = sessionID ? 'sessionID=' + sessionID : '';
     let paramArray = [sourceEncodingParam, targetEncodingParam, newNameParam, forceOverwriteParam, noBackupParam, sessionIDParam];
     let params = this.createParamURL(paramArray);
