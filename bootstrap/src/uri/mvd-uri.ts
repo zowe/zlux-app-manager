@@ -29,7 +29,7 @@ export class MvdUri implements ZLUX.UriBroker {
     let forceOverwriteParam = forceOverwrite ? 'forceOverwrite=' + forceOverwrite : '';
     let lastChunkParam = lastChunk ? 'lastChunk=' + lastChunk : ''; 
     let sessionIDParam = sessionID ? 'sessionID=' + sessionID : '';
-    let paramArray = [sourceEncodingParam, targetEncodingParam, newNameParam, forceOverwriteParam, noBackupParam, sessionIDParam];
+    let paramArray = [sourceEncodingParam, targetEncodingParam, newNameParam, forceOverwriteParam, lastChunkParam, sessionIDParam];
     let params = this.createParamURL(paramArray);
     
     return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`;
