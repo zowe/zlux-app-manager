@@ -50,7 +50,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
    * 2. Even though this looks like it starts at (0.0), doing this simplifies the logic of
    *    generateNewWindowPosition whuile still starting off at (NEW_WINDOW_POSITION_INCREMENT, NEW_WINDOW_POSITION_INCREMENT)
    */
-  private lastWindowPosition: WindowPosition;
+  private windowPositionsArray: Array<[String, MVDWindowManagement.WindowId, WindowPosition]>;
 
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
   readonly windowDeregisterEmitter: Subject<MVDWindowManagement.WindowId>;
@@ -75,7 +75,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     
     this.focusedWindow = null;
     this.topZIndex = 0;
-    this.lastWindowPosition = {left: 0, top: 0, width: 400, height: 400 / 1.6};
+    this.windowPositionsArray = new Array();
     this.contextMenuRequested = new Subject();
     this.windowDeregisterEmitter = new Subject();
 
@@ -101,14 +101,44 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   private generateNewWindowPosition(plugin: DesktopPluginDefinitionImpl): WindowPosition {
-    const { innerWidth, innerHeight } = window;
     let { width: dtWindowWidth, height: dtWindowHeight } = plugin.defaultWindowStyle;
+    let desktopHeight = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().bottom;
+    let desktopWidth = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().right;
+    let launchbarHeight = document.getElementsByClassName("launchbar-container")[0].clientHeight;
+    let nextLeft = (desktopWidth / 2) - (dtWindowWidth / 2);
+    let nextTop = (desktopHeight / 2) - (dtWindowHeight / 2) - (WindowManagerService.WINDOW_HEADER_HEIGHT / 2) - (launchbarHeight / 2);
+    
+    const { innerWidth, innerHeight } = window;
     const rightMostPosition = innerWidth - dtWindowWidth;
     const bottomMostPosition = innerHeight - dtWindowHeight;
+    const pluginIdentifier = plugin.getIdentifier();
 
-    const { left: lastTopLeft, top: lastTopRight } = this.lastWindowPosition;
-    let nextLeft = lastTopLeft + WindowManagerService.NEW_WINDOW_POSITION_INCREMENT;
-    let nextTop = lastTopRight + WindowManagerService.NEW_WINDOW_POSITION_INCREMENT;
+    if (this.runningPluginMap.has(pluginIdentifier) && this.runningPluginMap.get(pluginIdentifier)![0] != undefined)
+    { // If a plugin of the same type is already running, cascade an instance below it
+      let windowId: MVDWindowManagement.WindowId;
+      windowId = this.runningPluginMap.get(pluginIdentifier)![0];
+      
+        let windowPosition = {
+          ...this.getWindowPositionFor(pluginIdentifier, windowId),
+        } as WindowPosition
+        if (windowPosition != undefined && windowPosition.left != undefined)
+        {
+          nextLeft = windowPosition.left + WindowManagerService.NEW_WINDOW_POSITION_INCREMENT;
+          nextTop = windowPosition.top + WindowManagerService.NEW_WINDOW_POSITION_INCREMENT;
+          dtWindowHeight = windowPosition.height;
+          dtWindowWidth = windowPosition.width;
+        }
+    }
+    else 
+    { // If a plugin of the same type is not running, but has previously saved position data, re-open it
+      let windowPosition = {
+        ...this.getWindowPositionForId(pluginIdentifier),
+      } as WindowPosition
+      if (windowPosition != undefined && windowPosition.left != undefined && windowPosition.height != undefined)
+        {
+          return windowPosition;
+        }
+    }
 
     // Find best next starting position
     if (nextLeft > rightMostPosition) { // Start over both top and left
@@ -139,8 +169,6 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       width: dtWindowWidth,
       height: dtWindowHeight
     };
-
-    this.lastWindowPosition = newWindowPosition;
 
     return newWindowPosition;
   }
@@ -236,6 +264,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     } else {
       this.runningPluginMap.set(pluginId, [windowId]);
     }
+    
+    this.updateWindowPositions(pluginId, windowId, newWindowPosition);
+    
+    console.log(this.windowPositionsArray);
 
     /* Create viewport */
     const viewportId = this.viewportManager.createViewport(this.generateWindowProviders(windowId));
@@ -304,6 +336,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       console.warn('Attempted to close null window');
       return;
     }
+    this.updateWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
+       
+    console.log(this.windowPositionsArray);
     let appId = this.viewportManager.getApplicationInstanceId(desktopWindow.viewportId);
     if (appId!=null) {
       this.applicationManager.killApplication(desktopWindow.plugin, appId);
@@ -380,6 +415,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     desktopWindow.windowState.maximize();
     this.refreshMaximizedWindowSize(desktopWindow);
+    this.updateWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
+    
+    console.log(this.windowPositionsArray);
   }
 
   minimize(windowId: MVDWindowManagement.WindowId): void {
@@ -396,7 +434,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     if (desktopWindow == null) {
       throw new Error('Attempted to restore null window');
     }
-
+    this.updateWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
+    
+    console.log(this.windowPositionsArray);
     desktopWindow.windowState.restore();
   }
 
@@ -405,8 +445,49 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     if (desktopWindow == null) {
       throw new Error('Attempted to set position for null window');
     }
-
+    this.updateWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
+    
+    
+    console.log(this.windowPositionsArray);
     desktopWindow.windowState.position = pos;
+  }
+
+  updateWindowPositions(pluginId: String, windowId: MVDWindowManagement.WindowId, pos: WindowPosition): boolean {
+    let index = 0;
+    while (index < this.windowPositionsArray.length)
+    {
+      if (this.windowPositionsArray[index][0] == pluginId && this.windowPositionsArray[index][1] == windowId)
+      {
+        this.windowPositionsArray[index][2] = pos;
+        return true; // Returns true if a previously existing position was updated
+      } index++;
+    }
+    this.windowPositionsArray.push([pluginId, windowId, pos]);
+    return false; // Returns false if a new position data point was created
+  }
+
+  getWindowPositionFor(pluginId: String, windowId: MVDWindowManagement.WindowId): WindowPosition | null {
+    let index = this.windowPositionsArray.length-1;
+    while (index > -1)
+    {
+      if (this.windowPositionsArray[index][0] == pluginId && this.windowPositionsArray[index][1] == windowId)
+      {
+        return this.windowPositionsArray[index][2];
+      } index--;
+    }
+    return null;
+  }
+
+  getWindowPositionForId(pluginId: String): WindowPosition | null {
+    let index = this.windowPositionsArray.length-1;
+    while (index > -1)
+    {
+      if (this.windowPositionsArray[index][0] == pluginId)
+      {
+        return this.windowPositionsArray[index][2];
+      } index--;
+    }
+    return null;
   }
 
   maximizeToggle(windowId: MVDWindowManagement.WindowId): void {
@@ -462,6 +543,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     this.contextMenuRequested.next({xPos: newX, yPos: newY, items: items});
   }
+
 }
 
 
