@@ -63,8 +63,8 @@ export class WindowComponent {
     if (position.left + position.width - WINDOW_HEADER_HEIGHT < 0) {
       position.left = -position.width + WINDOW_HEADER_HEIGHT;
     }
-    let desktopHeight = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().bottom;
-    let desktopWidth = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().right;
+    let desktopHeight = document.getElementsByClassName('window-pane')[0].clientHeight;
+    let desktopWidth = document.getElementsByClassName('window-pane')[0].clientWidth;
     if ((position.top + WINDOW_HEADER_HEIGHT) > desktopHeight) {
       position.top = desktopHeight - WINDOW_HEADER_HEIGHT;
     }
