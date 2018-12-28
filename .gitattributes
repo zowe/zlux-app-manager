@@ -2,11 +2,10 @@
 # git's .gitattributes and .gitignore files to be encoded as EBCDIC.
 # Selected binary files will not be translated at all.
 # The default for text files
-*       git-encoding=iso8859-1 working-tree-encoding=ibm-1047
+*       git-encoding=iso8859-1 zos-working-tree-encoding=ibm-1047
 # git's files (which MUST be ASCII)
-.gitattributes   git-encoding=iso8859-1 working-tree-encoding=iso8859-1
-.gitignore       git-encoding=iso8859-1 working-tree-encoding=iso8859-1
-sonar-project.properties git-encoding=iso8859-1 working-tree-encoding=iso8859-1
+.gitattributes   git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1
+.gitignore       git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1
 # Binary files, selected by file extension.
 #
 # Note that "Binary" really just means "Not touched when moved
@@ -47,3 +46,5 @@ sonar-project.properties git-encoding=iso8859-1 working-tree-encoding=iso8859-1
 *.zip   git-encoding=BINARY    working-tree-encoding=BINARY
 # Always use LF for npm package files because npm cli likes to change line endings.
 package*.json text eol=lf
+# sonar scanning
+sonar-project.properties git-encoding=iso8859-1 zos-working-tree-encoding=iso8859-1
