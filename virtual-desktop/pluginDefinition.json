@@ -38,7 +38,8 @@
       "filename": "browserPreferences.js",
       "routerFactory": "browserPreferencesRouter",
       "dependenciesIncluded": true,
-      "initializerLookupMethod": "external"
+      "initializerLookupMethod": "external",
+      "version": "1.0.0"
     }    
   ]
 }
