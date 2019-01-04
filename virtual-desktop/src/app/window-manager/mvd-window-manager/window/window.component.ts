@@ -94,6 +94,7 @@ export class WindowComponent {
   }
 
   requestFocus(): void {
+    console.log("Requested FOCUS!!!!!!!!!!!");
     this.windowManager.requestWindowFocus(this.desktopWindow.windowId);
   }
 
