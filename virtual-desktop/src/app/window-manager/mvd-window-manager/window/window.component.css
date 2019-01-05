@@ -32,9 +32,9 @@
   margin: 0;
   padding: 0;
   background-color: #d6d6d6;
-  -webkit-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-  -moz-box-shadow:    0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-  box-shadow:         0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  -webkit-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.19);
+  -moz-box-shadow:    0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.19);
+  box-shadow:         0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.19);
   border: 1px solid transparent;
   border-radius: 6px 6px 0 0;
   z-index: 1;
@@ -90,6 +90,8 @@
   -webkit-box-shadow: 0 10px 30px rgba(0,0,0,0.25), 0px 6px 16px rgba(0,0,0,0.25);
   -moz-box-shadow:    0 10px 30px rgba(0,0,0,0.25), 0px 6px 16px rgba(0,0,0,0.25);
   box-shadow:         0 10px 30px rgba(0,0,0,0.25), 0px 6px 16px rgba(0,0,0,0.25);
+  border-color: #0700d6c7;
+  border-width: 2px;
 }
 
 .window .caption {
