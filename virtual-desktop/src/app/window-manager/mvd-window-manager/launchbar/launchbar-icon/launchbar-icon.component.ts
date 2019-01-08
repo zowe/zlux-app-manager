@@ -40,6 +40,12 @@ export class LaunchbarIconComponent {
     }
   }
 */  
+
+  ngDoCheck(){
+    if(this.launchbarItem.showInstanceView == true) {
+      console.log(this.launchbarItem)
+    }
+  }
   onMouseEnter(event: MouseEvent, item: LaunchbarItem) {
     if (!this.launchbarItem.showInstanceView) {
       this.launchbarItem.showIconLabel = true;

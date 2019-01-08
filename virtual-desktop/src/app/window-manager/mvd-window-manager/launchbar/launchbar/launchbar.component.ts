@@ -119,9 +119,10 @@ export class LaunchbarComponent {
     this.applicationManager.showApplicationWindow(item.plugin);
   }
 
-  launchbarItemClicked(item: LaunchbarItem): void {
+  launchbarItemClicked(event: MouseEvent, item: LaunchbarItem): void {
     if (item.instanceCount > 1) {
       item.showInstanceView = !item.showInstanceView;
+      (<HTMLImageElement>event.target)!.parentElement!.parentElement!.style.zIndex = '0';
     } else if (item.instanceCount == 1) {
       let windowId = this.windowManager.getWindow(item.plugin);
       if (windowId != null) {
@@ -268,7 +269,7 @@ export class LaunchbarComponent {
   onMouseUp(event: MouseEvent, item: LaunchbarItem): void {
       let mouseDifference = event.clientX - this.mouseOriginalX;
       if (Math.abs(mouseDifference) < 5 && event.button == 0) {
-        this.launchbarItemClicked(item);
+        this.launchbarItemClicked(event, item);
       } else if (!this.pluginsDataService.isPinnedPlugin(item)) {
         // The remaining logic assumes a pinned plugin, and messes up when the item is
         // not pinned, so, if the plugin is not pinned, jump out here.
@@ -301,6 +302,7 @@ export class LaunchbarComponent {
     let widgetEnd = document.getElementsByClassName("launch-widget")[0].clientWidth;
     let clockStart = window.innerWidth - document.getElementsByClassName("launchbar-clock")[0].clientWidth;
     if (this.moving) {
+      (<HTMLImageElement>event.target)!.parentElement!.parentElement!.style.zIndex = '7';
       if (this.currentEvent != undefined){
         this.newPosition = Math.floor(((<HTMLImageElement>this.currentEvent).getBoundingClientRect().left - this.originalX)/60);
         if (event.clientX > widgetEnd + 30 && event.clientX < clockStart - 65){
