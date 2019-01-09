@@ -20,6 +20,9 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { TranslationService } from 'angular-l10n';
 
+const CONTAINER_HEIGHT = 60;
+const ICONS_INITIAL_HEIGHT = -15;
+const ICONS_CHANGED_HEIGHT = 35;
 
 @Component({
   selector: 'rs-com-launchbar',
@@ -248,10 +251,10 @@ export class LaunchbarComponent {
   onMouseUpContainer(event: MouseEvent): void {
     let container = document.getElementById("container");
     if (container != null) {
-      container.style.height = 60 + 'px';
+      container.style.height = CONTAINER_HEIGHT + 'px';
       var elems = document.getElementsByClassName("launchbar-icon")
       for (var i = 1; i < elems.length; i++) {
-        (<HTMLImageElement>elems[i]).style.marginTop = -15 + 'px';
+        (<HTMLImageElement>elems[i]).style.marginTop = ICONS_INITIAL_HEIGHT + 'px';
       }
     }
     if (this.currentItem != null) {
@@ -265,7 +268,7 @@ export class LaunchbarComponent {
       container.style.height = 100 + "%";
       var elems = document.getElementsByClassName("launchbar-icon")
       for (var i = 1; i < elems.length; i++) {
-        (<HTMLImageElement>elems[i]).style.marginTop = 35 + 'px';
+        (<HTMLImageElement>elems[i]).style.marginTop = ICONS_CHANGED_HEIGHT + 'px';
       }
     }
   }
