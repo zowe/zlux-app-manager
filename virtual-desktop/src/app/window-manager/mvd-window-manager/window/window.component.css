@@ -81,7 +81,7 @@
 }
 
 .window.active .heading {
-  background: #455279;
+  background: #2f4158fc;
   color: #a9a9a9;
   -webkit-filter: brightness(1.8);
   border-bottom: 1px solid transparent;
