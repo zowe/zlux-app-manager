@@ -43,7 +43,7 @@ export class LaunchbarIconComponent {
 
   ngDoCheck(){
     if(this.launchbarItem.showInstanceView == true) {
-      console.log(this.launchbarItem)
+      // console.log(this.launchbarItem)
     }
   }
   onMouseEnter(event: MouseEvent, item: LaunchbarItem) {

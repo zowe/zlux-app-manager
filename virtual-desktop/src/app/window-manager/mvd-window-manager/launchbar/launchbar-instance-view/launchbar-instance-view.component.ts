@@ -13,6 +13,10 @@ import { Component, Input } from '@angular/core';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { WindowManagerService } from '../../shared/window-manager.service';
 
+const INSTANCE_TOP_HEIGHT = 250 //Height of the instance viewer plus the height of the taskbar
+const INSTANCE_INITIAL_OFFSET = 180
+const INSTANCE_ADDITIONAL_OFFSET = 105
+
 @Component({
   selector: 'zowe-launchbar-instance-view',
   templateUrl: './launchbar-instance-view.component.html',
@@ -30,14 +34,13 @@ export class LaunchbarInstanceViewComponent {
     //and not sure why at this time
     this.launchbarItem.showIconLabel = false;
     let bounds = (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).getBoundingClientRect();
-    //260 offset is height of the instance viewer plus the height of the taskbar
-    (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.top = (document.body.clientHeight - 250) + 'px';
+    (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.top = (document.body.clientHeight - INSTANCE_TOP_HEIGHT) + 'px';
     if (bounds != null) {
-      if (bounds.left - (180 + (105  * (this.launchbarItem.windowPreviewsIds.length - 2)))  < 0 ) {
+      if (bounds.left - (INSTANCE_INITIAL_OFFSET + (INSTANCE_ADDITIONAL_OFFSET  * (this.launchbarItem.windowPreviewsIds.length - 2)))  < 0 ) {
         (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 0 + 'px';
       } else {
         (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 
-        bounds.left - (180 + (105  * (this.launchbarItem.windowPreviewsIds.length - 2))) + 'px';
+        bounds.left - (INSTANCE_INITIAL_OFFSET + (INSTANCE_ADDITIONAL_OFFSET  * (this.launchbarItem.windowPreviewsIds.length - 2))) + 'px';
       }
     }
   }

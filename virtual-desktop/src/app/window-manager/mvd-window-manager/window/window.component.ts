@@ -18,6 +18,7 @@ import { WindowPosition } from '../shared/window-position';
 
 const SCREEN_EDGE_BORDER = 2;
 const WINDOW_HEADER_HEIGHT = WindowManagerService.WINDOW_HEADER_HEIGHT;
+const LAUNCHBAR_HEIGHT = 60;
 
 @Component({
   selector: 'rs-com-mvd-window',
@@ -30,6 +31,7 @@ export class WindowComponent {
 
   MIN_WIDTH = 180;
   MIN_HEIGHT = 100;
+  LAUNCHBAR_HEIGHT = 60;
 
   @Input() desktopWindow: DesktopWindow;
   applicationManager: MVDHosting.ApplicationManagerInterface;
@@ -69,8 +71,8 @@ export class WindowComponent {
     }
     var positionBottom = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().bottom;
     var positionRight = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().right;
-    if ((position.top + WINDOW_HEADER_HEIGHT) > positionBottom) {
-      position.top = positionBottom - WINDOW_HEADER_HEIGHT;
+    if ((position.top + WINDOW_HEADER_HEIGHT) > positionBottom - LAUNCHBAR_HEIGHT) {
+      position.top = positionBottom - WINDOW_HEADER_HEIGHT - LAUNCHBAR_HEIGHT;
     }
     if ((position.left + WINDOW_HEADER_HEIGHT) > positionRight) {
       position.left = positionRight - WINDOW_HEADER_HEIGHT;

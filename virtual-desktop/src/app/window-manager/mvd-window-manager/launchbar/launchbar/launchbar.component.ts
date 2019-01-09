@@ -75,7 +75,6 @@ export class LaunchbarComponent {
             this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl, this.windowManager));
           }
         }
-        
       })
     });
   }
@@ -134,17 +133,13 @@ export class LaunchbarComponent {
       }
     } else {
       item.showInstanceView = false;
-      this.applicationManager.showApplicationWindow(item.plugin).then((instanceId:MVDHosting.InstanceId)=> {
-        console.log('launchbarItemClicked I now have instanceId = '+instanceId);
-      });
+      this.applicationManager.showApplicationWindow(item.plugin)
     }
   }
 
   openWindow(item: LaunchbarItem): void {
     item.showInstanceView = false;
-    this.applicationManager.spawnApplication(item.plugin, null).then((instanceId:MVDHosting.InstanceId)=> {
-      console.log('launchbarItemClicked I now have instanceId = '+instanceId);
-    });
+    this.applicationManager.spawnApplication(item.plugin, null)
   }
 
   onStateChanged(isActive: boolean): void {
@@ -180,8 +175,6 @@ export class LaunchbarComponent {
       this.applicationManager.spawnApplication(this.propertyWindowPluginDef,this.getAppPropertyInformation(plugin));
     }  
   }
-    
-  
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     var menuItems: ContextMenuItem[];
@@ -252,7 +245,11 @@ export class LaunchbarComponent {
   onMouseUpContainer(event: MouseEvent): void {
     let container = document.getElementById("container");
     if (container != null) {
-      container.style.height = 110 + 'px';
+      container.style.height = 60 + 'px';
+      var elems = document.getElementsByClassName("launchbar-icon")
+      for (var i = 1; i < elems.length; i++) {
+        (<HTMLImageElement>elems[i]).style.marginTop = -15 + 'px';
+      }
     }
     if (this.currentItem != null) {
       this.onMouseUp(event, this.currentItem);
@@ -263,6 +260,10 @@ export class LaunchbarComponent {
     let container = document.getElementById("container");
     if (container != null) {
       container.style.height = 100 + "%";
+      var elems = document.getElementsByClassName("launchbar-icon")
+      for (var i = 1; i < elems.length; i++) {
+        (<HTMLImageElement>elems[i]).style.marginTop = 35 + 'px';
+      }
     }
   }
 
