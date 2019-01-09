@@ -10,7 +10,7 @@
     "lint": "tslint -c tslint.json \"src/**/*.ts\""
   },
   "dependencies": {
-    "html2canvas": "^1.0.0-alpha.12"
+    "html2canvas": "~1.0.0-alpha.12"
   },
   "devDependencies": {
     "@angular/animations": "~6.0.9",
