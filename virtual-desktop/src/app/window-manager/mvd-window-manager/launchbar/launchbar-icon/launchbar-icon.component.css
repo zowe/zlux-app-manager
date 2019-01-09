@@ -30,10 +30,6 @@
   background-position-y: 0px;
 }
 
-.instance {
-  z-index: 10;
-}
-
 .launchbar-icon-image {
   display: inline-block;
   box-sizing: border-box;

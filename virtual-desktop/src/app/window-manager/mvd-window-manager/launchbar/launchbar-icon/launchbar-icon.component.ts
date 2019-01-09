@@ -10,8 +10,6 @@
   Copyright Contributors to the Zowe Project.
 */
 
-
-
 import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
 import { LaunchbarItem } from '../shared/launchbar-item';
 
@@ -41,11 +39,6 @@ export class LaunchbarIconComponent {
   }
 */  
 
-  ngDoCheck(){
-    if(this.launchbarItem.showInstanceView == true) {
-      // console.log(this.launchbarItem)
-    }
-  }
   onMouseEnter(event: MouseEvent, item: LaunchbarItem) {
     if (!this.launchbarItem.showInstanceView) {
       this.launchbarItem.showIconLabel = true;

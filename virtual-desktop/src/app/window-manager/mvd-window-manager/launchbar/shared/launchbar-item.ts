@@ -11,7 +11,6 @@
 */
 
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
-//import { Observable } from '../../../../../../node_modules/rxjs';
 
 export abstract class LaunchbarItem {
   abstract readonly label: string;
@@ -23,14 +22,6 @@ export abstract class LaunchbarItem {
   abstract readonly windowPreviewsIds: Array<number>;
   showInstanceView: boolean;
   showIconLabel: boolean;
-  /*
-  observableClick: Observable<any>;
-  abstract clicked(): void;
-
-  getClickedObservable(): Observable<any> {
-    return this.observableClick;
-  }
-  */
 }
 
 

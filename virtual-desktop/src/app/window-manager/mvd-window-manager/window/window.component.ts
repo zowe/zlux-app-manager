@@ -31,7 +31,6 @@ export class WindowComponent {
 
   MIN_WIDTH = 180;
   MIN_HEIGHT = 100;
-  LAUNCHBAR_HEIGHT = 60;
 
   @Input() desktopWindow: DesktopWindow;
   applicationManager: MVDHosting.ApplicationManagerInterface;

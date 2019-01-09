@@ -13,7 +13,6 @@
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { LaunchbarItem } from '../launchbar-item';
 import { WindowManagerService } from '../../../shared/window-manager.service';
-//import { Observable, Observer } from '../../../../../../../node_modules/rxjs';
 import * as html2canvas from 'html2canvas';
 
 export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.PluginWatcher {
@@ -22,28 +21,19 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
   public windowPreviews: Array<HTMLImageElement>;
   public windowPreviewsIds: Array<number>;
 
-//  private clickObserver: Observer<boolean>;
   constructor(
     public readonly plugin: DesktopPluginDefinitionImpl,
     public windowManager: WindowManagerService,
   ) {
     super();
-    /*
-    this.observableClick = Observable.create((observer: Observer<boolean>)=> {
-      this.clickObserver = observer;
-    });
-*/
+
     this.instanceIds = [];
     this.windowPreviews = [];
     this.windowPreviewsIds = [];
     this.instanceCount = 0;
     ZoweZLUX.dispatcher.registerPluginWatcher(plugin.getBasePlugin(), this);
   }
-/*
-  clicked():void {
-    this.clickObserver.next(true);
-  }
-*/
+
   get label(): string {
     return this.plugin.label;
   }

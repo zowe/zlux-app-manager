@@ -11,7 +11,6 @@
     top: 0px;
     height: 190px;
     padding: 5px 5px 5px 5px;
-    /*(background-color: #334B6B;*/
     background-color: rgb(51,75,107, 0.7);
     z-index: 0;
 }
@@ -30,10 +29,6 @@
 
 .label-caption {
     margin-top: 0px;
-}
-
-.instance-snapshot {
-
 }
 
 .instance-preview {

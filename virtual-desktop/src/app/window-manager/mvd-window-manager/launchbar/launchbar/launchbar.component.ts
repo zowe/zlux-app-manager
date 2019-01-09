@@ -224,7 +224,9 @@ export class LaunchbarComponent {
     }
   }
 
+  // Commented out to disable rearrange functionality since there is a bug
   onMouseMove(event: MouseEvent, item: LaunchbarItem): void{
+    /*
     let widget = document.getElementsByClassName("launch-widget");
     let clockStart = window.innerWidth - document.getElementsByClassName("launchbar-clock")[0].clientWidth;
     if(event.which == 1){
@@ -240,6 +242,7 @@ export class LaunchbarComponent {
         (<HTMLImageElement>event.target).style.left = (clockStart - 65) + 'px';
       }
     }
+    */
   }
 
   onMouseUpContainer(event: MouseEvent): void {
@@ -278,6 +281,8 @@ export class LaunchbarComponent {
       } else {
         this.moving = false;
       }
+      // Commented out to disable rearrange functionality since there is a bug
+      /*
       if (event.button == 0 && Math.abs(mouseDifference) > 30) {
         if(mouseDifference > 0 ) {
           mouseDifference += 30;
@@ -294,13 +299,15 @@ export class LaunchbarComponent {
       } else if(event.button == 0 && Math.abs(mouseDifference) > 5) {
         this.pluginsDataService.refreshPinnedPlugins(this.allItems);
       }
+      */
       (<HTMLImageElement>event.target).style.zIndex = '7';
       this.currentEvent = null;
       this.currentItem = null;
   }
 
+  // Commented out to disable rearrange functionality since there is a bug
   onMouseMoveContainer(event: MouseEvent): void {
-    let widgetEnd = document.getElementsByClassName("launch-widget")[0].clientWidth;
+    /*let widgetEnd = document.getElementsByClassName("launch-widget")[0].clientWidth;
     let clockStart = window.innerWidth - document.getElementsByClassName("launchbar-clock")[0].clientWidth;
     if (this.moving) {
       (<HTMLImageElement>event.target)!.parentElement!.parentElement!.style.zIndex = '7';
@@ -315,7 +322,7 @@ export class LaunchbarComponent {
           (<HTMLImageElement>this.currentEvent).style.left = (clockStart - 65) + 'px';
         }
       }
-    }
+    }*/
   }
 }
 
