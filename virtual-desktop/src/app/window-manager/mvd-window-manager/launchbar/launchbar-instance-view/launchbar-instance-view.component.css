@@ -1,0 +1,45 @@
+.instance-item {
+    width: 200px;
+    height: 120px;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-top: 5px;
+}
+
+.instance-viewer {
+    position: fixed;
+    top: 0px;
+    height: 190px;
+    padding: 5px 5px 5px 5px;
+    background-color: rgb(51,75,107, 0.7);
+    z-index: 0;
+}
+
+.all-instances-box {
+    display: flex;
+    flex-direction: row;
+    height: 150px;
+}
+
+.caption {
+    color: white;
+    font-size: 8pt;
+    display: inline-block;
+}
+
+.label-caption {
+    margin-top: 0px;
+}
+
+.instance-preview {
+    opacity: 1;
+    transition: .5s ease;
+    backface-visibility: hidden;
+    width: 200px;
+    height: 120px;
+    margin-top: -10px;
+}
+
+.instance-snapshot:hover .instance-preview {
+    opacity: 0.5;
+}
