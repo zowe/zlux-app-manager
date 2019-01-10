@@ -49,7 +49,7 @@
   </div>
 
   <!-- Window body -->
-  <div class="body" (mousedown)="requestFocus()">
+  <div class="body" (mousedown)="requestFocus()" #windowBody>
     <com-rs-mvd-viewport [viewportId]="desktopWindow.viewportId">
       <!-- Loading display -->
       <div class="full-center">
