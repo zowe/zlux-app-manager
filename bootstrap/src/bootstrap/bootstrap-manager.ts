@@ -15,22 +15,23 @@ import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
 import { ZoweZLUXResources } from './zowe-resources'
 import { DSMResources } from './dsm-resources'
 
-
 declare var window: { ZoweZLUX: typeof ZoweZLUXResources };
 
 export class BootstrapManager {
   private static bootstrapPerformed = false;
-  private static logger: ZLUX.ComponentLogger = window.ZoweZLUX.logger.makeComponentLogger('_zlux.bootstrap');
+  //you cannot use this until after bootstrapGlobalResources
+  private static logger: ZLUX.ComponentLogger;
 
   private static bootstrapGlobalResources(simpleContainerRequested: boolean) {
     const uriBroker = (window as any)['GIZA_ENVIRONMENT'];
-    BootstrapManager.logger.info("bootstrapGlobalResources simpleContainerRequested flag value: ", simpleContainerRequested);
-    BootstrapManager.logger.info("bootstrapGlobalResources GIZA_ENVIRONMENT value: ", uriBroker);
     if (simpleContainerRequested && uriBroker.toUpperCase() === 'DSM') {
       window.ZoweZLUX = DSMResources;
     } else {
       window.ZoweZLUX = ZoweZLUXResources;
     }
+    BootstrapManager.logger = window.ZoweZLUX.logger.makeComponentLogger(`_zlux.bootstrap`);
+    BootstrapManager.logger.info("bootstrapGlobalResources simpleContainerRequested flag value: ", simpleContainerRequested);
+    BootstrapManager.logger.info("bootstrapGlobalResources GIZA_ENVIRONMENT value: ", uriBroker);    
   }
 
   private static bootstrapDesktopPlugin(desktop: ZLUX.Plugin, injectionCallback: (plugin: ZLUX.Plugin) => Promise<void>) {
