@@ -17,7 +17,6 @@ import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry'
 import { NotificationManager } from 'zlux-base/notification-manager/notification-manager'
 import { SimpleGlobalization } from '../i18n/simple-globalization'
-// import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
 
 declare var window: { ZoweZLUX: typeof DSMResources };
 window; /* Suppress TS error */
@@ -25,7 +24,7 @@ let logger = new Logger();
 logger.addDestination(logger.makeDefaultDestination(true,true,true));
 export class DSMResources {
   static pluginManager = PluginManager
-  static uriBroker:ZLUX.UriBroker = new DsmUri();
+  static uriBroker:ZLUX.UriBroker = new DsmUri(logger.makeComponentLogger('_zlux.uribroker'));
   static dispatcher:Dispatcher = new Dispatcher(logger);
   static logger:Logger = logger;
   static registry:ZLUX.Registry = new Registry();

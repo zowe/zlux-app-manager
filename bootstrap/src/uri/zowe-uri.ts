@@ -15,7 +15,12 @@ import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
 const proxy_path = 'zowe-zlux';
 const proxy_mode = (window.location.pathname.split('/')[1] == proxy_path) ? true : false;
 
-export class MvdUri implements ZLUX.UriBroker {
+export class ZoweUri implements ZLUX.UriBroker {
+
+  constructor(private logger: ZLUX.ComponentLogger) {
+    this.logger.debug(`Uribroker started`);
+  }
+  
   rasUri(uri: string): string {
     return `${this.serverRootUri(`ras/${uri}`)}`;
   }

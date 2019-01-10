@@ -11,13 +11,12 @@
 */
 
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
-import { MvdUri } from '../uri/mvd-uri'
+import { ZoweUri } from '../uri/zowe-uri'
 import { Dispatcher } from 'zlux-base/dispatcher/dispatcher'
 import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry'
 import { NotificationManager } from 'zlux-base/notification-manager/notification-manager'
 import { SimpleGlobalization } from '../i18n/simple-globalization'
-// import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
 
 declare var window: { ZoweZLUX: typeof ZoweZLUXResources,
                       COM_RS_COMMON_LOGGER: Logger};
@@ -28,7 +27,7 @@ window.COM_RS_COMMON_LOGGER = logger;
 
 export class ZoweZLUXResources {
   static pluginManager = PluginManager
-  static uriBroker:ZLUX.UriBroker = new MvdUri();
+  static uriBroker:ZLUX.UriBroker = new ZoweUri(logger.makeComponentLogger('_zlux.uribroker'));
   static dispatcher:Dispatcher = new Dispatcher(logger);
   static logger:Logger = logger;
   static registry:ZLUX.Registry = new Registry();

@@ -17,6 +17,10 @@ const proxy_mode = (window.location.pathname.split('/')[1] == proxy_path) ? true
 
 export class DsmUri implements ZLUX.UriBroker {
 
+  constructor(private logger: ZLUX.ComponentLogger) {
+    this.logger.debug(`Uribroker started`);
+  }
+
   private proxyURL(url: string): string {
     return proxy_mode ? `/${proxy_path}${url}` : url;
   }
@@ -109,7 +113,7 @@ export class DsmUri implements ZLUX.UriBroker {
     //const protocol = window.location.protocol;
     //const wsProtocol = (protocol === 'https:') ? 'wss:' : 'ws:';        
     // return protocol+'://'+host+`/ZLUX/plugins/${pluginDefinition.getIdentifier()}/services/data`+relativePath;
-    console.warn("pluginWSUri not implemented yet!", pluginDefinition, 
+    this.logger.warn("pluginWSUri not implemented yet!", pluginDefinition, 
         serviceName, relativePath, version);
     return "";
   }

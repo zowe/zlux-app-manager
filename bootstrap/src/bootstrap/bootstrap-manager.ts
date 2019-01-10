@@ -12,7 +12,7 @@
 
 import { Plugin } from 'zlux-base/plugin-manager/plugin'
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
-import { ZoweZLUXResources } from './rocket-mvd-resources'
+import { ZoweZLUXResources } from './zowe-resources'
 import { DSMResources } from './dsm-resources'
 
 
@@ -20,11 +20,12 @@ declare var window: { ZoweZLUX: typeof ZoweZLUXResources };
 
 export class BootstrapManager {
   private static bootstrapPerformed = false;
+  private static logger: ZLUX.ComponentLogger = window.ZoweZLUX.logger.makeComponentLogger('_zlux.bootstrap');
 
   private static bootstrapGlobalResources(simpleContainerRequested: boolean) {
     const uriBroker = (window as any)['GIZA_ENVIRONMENT'];
-    console.log("bootstrapGlobalResources simpleContainerRequested flag value: ", simpleContainerRequested);
-    console.log("bootstrapGlobalResources GIZA_ENVIRONMENT value: ", uriBroker);
+    BootstrapManager.logger.info("bootstrapGlobalResources simpleContainerRequested flag value: ", simpleContainerRequested);
+    BootstrapManager.logger.info("bootstrapGlobalResources GIZA_ENVIRONMENT value: ", uriBroker);
     if (simpleContainerRequested && uriBroker.toUpperCase() === 'DSM') {
       window.ZoweZLUX = DSMResources;
     } else {
@@ -43,7 +44,7 @@ export class BootstrapManager {
     PluginManager.setDesktopPlugin(desktop as Plugin);
 
     injectionCallback(desktop).then(() => {
-      console.log(`${desktop.getIdentifier()} has been bootstrapped successfully`);
+      BootstrapManager.logger.info(`${desktop.getIdentifier()} has been bootstrapped successfully`);
     }).catch(() => {
       throw new Error("Unable to load main script of desktop");
     });
@@ -61,11 +62,11 @@ export class BootstrapManager {
     BootstrapManager.bootstrapGlobalResources(simpleContainerRequested);
 
     PluginManager.loadPlugins(ZLUX.PluginType.Desktop).then(desktops => {
-      console.log(`${desktops.length} desktops available`);
-      console.log('desktops: ', desktops);
+      BootstrapManager.logger.info(`${desktops.length} desktops available`);
+      BootstrapManager.logger.info('desktops: ', desktops);
 
       if (desktops.length == 0) {
-        console.error("No desktops available to bootstrap.");
+        BootstrapManager.logger.warn("No desktops available to bootstrap.");
       } else {
         BootstrapManager.bootstrapDesktopPlugin(desktops[0], injectionCallback);
       }
