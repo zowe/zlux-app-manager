@@ -20,6 +20,9 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { TranslationService } from 'angular-l10n';
 
+const CONTAINER_HEIGHT = 60;
+const ICONS_INITIAL_HEIGHT = -15;
+const ICONS_CHANGED_HEIGHT = 35;
 
 @Component({
   selector: 'rs-com-launchbar',
@@ -72,10 +75,9 @@ export class LaunchbarComponent {
             const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;
             this.propertyWindowPluginDef = pluginImpl;
           } else {
-            this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl));
+            this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl, this.windowManager));
           }
         }
-        
       })
     });
   }
@@ -89,7 +91,7 @@ export class LaunchbarComponent {
     }
     if (this.loggedIn) {
       if(this.helperLoggedIn != true){
-        this.pluginsDataService.refreshPinnedPlugins();
+        this.pluginsDataService.refreshPinnedPlugins(this.allItems);
         this.helperLoggedIn = true;
       }
     }
@@ -119,8 +121,11 @@ export class LaunchbarComponent {
     this.applicationManager.showApplicationWindow(item.plugin);
   }
 
-  launchbarItemClicked(item: LaunchbarItem): void {
-    if (this.applicationManager.isApplicationRunning(item.plugin)) {
+  launchbarItemClicked(event: MouseEvent, item: LaunchbarItem): void {
+    if (item.instanceCount > 1) {
+      item.showInstanceView = !item.showInstanceView;
+      (<HTMLImageElement>event.target)!.parentElement!.parentElement!.style.zIndex = '0';
+    } else if (item.instanceCount == 1) {
       let windowId = this.windowManager.getWindow(item.plugin);
       if (windowId != null) {
         if (this.windowManager.windowHasFocus(windowId)){
@@ -130,18 +135,26 @@ export class LaunchbarComponent {
         }
       }
     } else {
-      this.applicationManager.showApplicationWindow(item.plugin);
+      item.showInstanceView = false;
+      this.applicationManager.showApplicationWindow(item.plugin)
     }
+  }
+
+  openWindow(item: LaunchbarItem): void {
+    item.showInstanceView = false;
+    this.applicationManager.spawnApplication(item.plugin, null)
   }
 
   onStateChanged(isActive: boolean): void {
     this.isActive = isActive;
-    }
+  }
 
-  closeApplication(item: LaunchbarItem): void {
-    let windowId = this.windowManager.getWindow(item.plugin);
-    if (windowId != null) {
-      this.windowManager.closeWindow(windowId);
+  closeAllWindows(item: LaunchbarItem): void {
+    let windowIds = this.windowManager.getWindowIDs(item.plugin);
+    if (windowIds != null) {
+      windowIds.forEach(windowId => {
+        this.windowManager.closeWindow(windowId);
+      });
     }
   }
 
@@ -158,7 +171,6 @@ export class LaunchbarComponent {
   }
   
   launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl){
-  
     let propertyWindowID = this.windowManager.getWindow(this.propertyWindowPluginDef);
     if (propertyWindowID!=null){
       this.windowManager.showWindow(propertyWindowID);
@@ -166,23 +178,27 @@ export class LaunchbarComponent {
       this.applicationManager.spawnApplication(this.propertyWindowPluginDef,this.getAppPropertyInformation(plugin));
     }  
   }
-    
-  
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
-    if (this.applicationManager.isApplicationRunning(item.plugin)) {
-      var menuItems: ContextMenuItem[] =
-        [
+    var menuItems: ContextMenuItem[];
+    if (item.instanceCount == 1) {
+        menuItems = [
           this.pluginsDataService.pinContext(item),
+          { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
+          { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)},
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
-          { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
-          { "text": this.translation.translate('Close'), "action": () => this.closeApplication(item) },         
-
+          { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) }
         ];
+    } else if (item.instanceCount != 0) {
+      menuItems = [
+        this.pluginsDataService.pinContext(item),
+        { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
+        { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)}
+      ];
     } else {
-      var menuItems: ContextMenuItem[] =
+      menuItems =
         [
-          { "text": this.translation.translate('Open'), "action": () => this.launchbarItemClicked(item) },       
+          { "text": this.translation.translate('Open'), "action": () => this.openWindow(item) },
           this.pluginsDataService.pinContext(item),
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
         ]
@@ -211,7 +227,9 @@ export class LaunchbarComponent {
     }
   }
 
+  // Commented out to disable rearrange functionality since there is a bug
   onMouseMove(event: MouseEvent, item: LaunchbarItem): void{
+    /*
     let widget = document.getElementsByClassName("launch-widget");
     let clockStart = window.innerWidth - document.getElementsByClassName("launchbar-clock")[0].clientWidth;
     if(event.which == 1){
@@ -227,12 +245,17 @@ export class LaunchbarComponent {
         (<HTMLImageElement>event.target).style.left = (clockStart - 65) + 'px';
       }
     }
+    */
   }
 
   onMouseUpContainer(event: MouseEvent): void {
     let container = document.getElementById("container");
     if (container != null) {
-      container.style.height = 110 + 'px';
+      container.style.height = CONTAINER_HEIGHT + 'px';
+      var elems = document.getElementsByClassName("launchbar-icon")
+      for (var i = 1; i < elems.length; i++) {
+        (<HTMLImageElement>elems[i]).style.marginTop = ICONS_INITIAL_HEIGHT + 'px';
+      }
     }
     if (this.currentItem != null) {
       this.onMouseUp(event, this.currentItem);
@@ -243,13 +266,17 @@ export class LaunchbarComponent {
     let container = document.getElementById("container");
     if (container != null) {
       container.style.height = 100 + "%";
+      var elems = document.getElementsByClassName("launchbar-icon")
+      for (var i = 1; i < elems.length; i++) {
+        (<HTMLImageElement>elems[i]).style.marginTop = ICONS_CHANGED_HEIGHT + 'px';
+      }
     }
   }
 
   onMouseUp(event: MouseEvent, item: LaunchbarItem): void {
       let mouseDifference = event.clientX - this.mouseOriginalX;
       if (Math.abs(mouseDifference) < 5 && event.button == 0) {
-        this.launchbarItemClicked(item);
+        this.launchbarItemClicked(event, item);
       } else if (!this.pluginsDataService.isPinnedPlugin(item)) {
         // The remaining logic assumes a pinned plugin, and messes up when the item is
         // not pinned, so, if the plugin is not pinned, jump out here.
@@ -257,6 +284,8 @@ export class LaunchbarComponent {
       } else {
         this.moving = false;
       }
+      // Commented out to disable rearrange functionality since there is a bug
+      /*
       if (event.button == 0 && Math.abs(mouseDifference) > 30) {
         if(mouseDifference > 0 ) {
           mouseDifference += 30;
@@ -271,17 +300,20 @@ export class LaunchbarComponent {
           this.pluginsDataService.arrayMove(pluginArray, index, index+offset);
         }
       } else if(event.button == 0 && Math.abs(mouseDifference) > 5) {
-        this.pluginsDataService.refreshPinnedPlugins();
+        this.pluginsDataService.refreshPinnedPlugins(this.allItems);
       }
+      */
       (<HTMLImageElement>event.target).style.zIndex = '7';
       this.currentEvent = null;
       this.currentItem = null;
   }
 
+  // Commented out to disable rearrange functionality since there is a bug
   onMouseMoveContainer(event: MouseEvent): void {
-    let widgetEnd = document.getElementsByClassName("launch-widget")[0].clientWidth;
+    /*let widgetEnd = document.getElementsByClassName("launch-widget")[0].clientWidth;
     let clockStart = window.innerWidth - document.getElementsByClassName("launchbar-clock")[0].clientWidth;
     if (this.moving) {
+      (<HTMLImageElement>event.target)!.parentElement!.parentElement!.style.zIndex = '7';
       if (this.currentEvent != undefined){
         this.newPosition = Math.floor(((<HTMLImageElement>this.currentEvent).getBoundingClientRect().left - this.originalX)/60);
         if (event.clientX > widgetEnd + 30 && event.clientX < clockStart - 65){
@@ -293,7 +325,7 @@ export class LaunchbarComponent {
           (<HTMLImageElement>this.currentEvent).style.left = (clockStart - 65) + 'px';
         }
       }
-    }
+    }*/
   }
 }
 

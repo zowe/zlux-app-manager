@@ -43,6 +43,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
+  public screenshot: boolean;
   /*
    * NOTES:
    * 1. We ignore the width and height here (I am reluctant to make a new data type just for this,
@@ -78,6 +79,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.windowPositionsMap = new Map();
     this.contextMenuRequested = new Subject();
     this.windowDeregisterEmitter = new Subject();
+    this.screenshot = true;
 
     this.windowMonitor.windowResized.subscribe(() => {
       Array.from(this.windowMap.values())
@@ -303,6 +305,16 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       return null;
     }
   }
+
+  getWindowIDs(plugin: MVDHosting.DesktopPluginDefinition): Array<MVDWindowManagement.WindowId> | null {
+    const desktopWindows = this.runningPluginMap.get(plugin.getIdentifier());
+    if (desktopWindows !== undefined) {
+      return desktopWindows.map((desktopWindow)=> {return desktopWindow/*.windowId*/;});
+    } else {
+      return null;
+    }
+  }
+ 
   
   showWindow(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
@@ -325,6 +337,18 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
 
     return desktopWindow.viewportId;
+  }
+
+  getHTML(windowId: MVDWindowManagement.WindowId) {
+    let windowHTML = this.applicationManager.getViewportComponentRef(this.getViewportId(windowId)).location.nativeElement;
+
+    return windowHTML.children[0].offsetParent
+  }
+
+  getPlugin(windowId: MVDWindowManagement.WindowId) {
+    const desktopWindow = this.windowMap.get(windowId);
+    var plugin = this.runningPluginMap.get(desktopWindow!.plugin.getIdentifier());
+    return plugin;
   }
 
   private destroyWindow(windowId: MVDWindowManagement.WindowId): void {
@@ -379,6 +403,15 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     desktopWindow.closeHandler = handler;
   }
 
+  getWindowTitle(windowId: MVDWindowManagement.WindowId): string | null {
+    const desktopWindow = this.windowMap.get(windowId);
+    if (desktopWindow == null) {
+      console.warn('Attempted to set window title for null window');
+      return null;
+    }
+    return desktopWindow.windowTitle;
+  }
+
   setWindowTitle(windowId: MVDWindowManagement.WindowId, title: string): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
@@ -390,6 +423,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   requestWindowFocus(destination: MVDWindowManagement.WindowId): boolean {
+    if (!this.windowHasFocus(destination) && this.screenshot == true){
+      this.screenshot = false;
+    }
+
     const desktopWindow = this.windowMap.get(destination);
     if (desktopWindow == null) {
       console.warn('Attempted to request focus for null window');

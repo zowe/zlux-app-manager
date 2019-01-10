@@ -19,16 +19,19 @@ export class MvdUri implements ZLUX.UriBroker {
   rasUri(uri: string): string {
     return `${this.serverRootUri(`ras/${uri}`)}`;
   }
-  unixFileUri(route: string, absPath: string, sourceEncoding?: string | undefined, targetEncoding?: string | undefined, newName?: string | undefined, forceOverwrite?: boolean | undefined): string {
+  unixFileUri(route: string, absPath: string, sourceEncoding?: string, targetEncoding?: string,
+               newName?: string, forceOverwrite?: boolean, sessionID?: number,
+               lastChunk?: boolean): string {
     let routeParam = route;
     let absPathParam = absPath;
     
     let sourceEncodingParam = sourceEncoding ? 'sourceEncoding=' + sourceEncoding : '';
     let targetEncodingParam = targetEncoding ? 'targetEncoding=' + targetEncoding : '';
     let newNameParam = newName ? 'newName=' + newName : '';
-    let forceOverwriteParam = forceOverwrite ? 'forceOverwrite=' + forceOverwrite : ''; 
-    
-    let paramArray = [sourceEncodingParam, targetEncodingParam, newNameParam, forceOverwriteParam];
+    let forceOverwriteParam = forceOverwrite ? 'forceOverwrite=' + forceOverwrite : '';
+    let lastChunkParam = lastChunk ? 'lastChunk=' + lastChunk : ''; 
+    let sessionIDParam = sessionID ? 'sessionID=' + sessionID : '';
+    let paramArray = [sourceEncodingParam, targetEncodingParam, newNameParam, forceOverwriteParam, lastChunkParam, sessionIDParam];
     let params = this.createParamURL(paramArray);
     
     return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`;
@@ -64,7 +67,7 @@ export class MvdUri implements ZLUX.UriBroker {
 
     let paramArray = [detailParam, typesParam, workAreaSizeParam, listMembersParam, includeMigratedParam, includeUnprintableParam, resumeNameParam, resumeCatalogNameParam];
     let params = this.createParamURL(paramArray);
-    return `${this.serverRootUri(`datasetMetadata/${dsn}${params}`)}`;
+    return `${this.serverRootUri(`datasetMetadata/name/${dsn}${params}`)}`;
   }
   pluginRootUri(pluginDefinition: ZLUX.Plugin): string {
     return `${this.serverRootUri(`ZLUX/plugins/${pluginDefinition.getIdentifier()}/`)}`;

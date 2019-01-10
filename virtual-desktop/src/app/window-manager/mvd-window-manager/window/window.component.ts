@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Injector, Input } from '@angular/core';
+import { Component, Injector, ElementRef, ViewChild, Input } from '@angular/core';
 import { DesktopWindow } from '../shared/desktop-window';
 import { DesktopWindowStateType } from '../shared/desktop-window-state';
 import { WindowManagerService } from '../shared/window-manager.service';
@@ -18,6 +18,7 @@ import { WindowPosition } from '../shared/window-position';
 
 const SCREEN_EDGE_BORDER = 2;
 const WINDOW_HEADER_HEIGHT = WindowManagerService.WINDOW_HEADER_HEIGHT;
+const LAUNCHBAR_HEIGHT = 60;
 
 @Component({
   selector: 'rs-com-mvd-window',
@@ -25,11 +26,15 @@ const WINDOW_HEADER_HEIGHT = WindowManagerService.WINDOW_HEADER_HEIGHT;
   styleUrls: ['window.component.css']
 })
 export class WindowComponent {
+  @ViewChild('windowBody')
+  public windowBodyRef: ElementRef;
+
   MIN_WIDTH = 180;
   MIN_HEIGHT = 100;
 
   @Input() desktopWindow: DesktopWindow;
   applicationManager: MVDHosting.ApplicationManagerInterface;
+
 
   constructor(
     public windowManager: WindowManagerService,
@@ -65,8 +70,8 @@ export class WindowComponent {
     }
     let desktopHeight = document.getElementsByClassName('window-pane')[0].clientHeight;
     let desktopWidth = document.getElementsByClassName('window-pane')[0].clientWidth;
-    if ((position.top + WINDOW_HEADER_HEIGHT) > desktopHeight) {
-      position.top = desktopHeight - WINDOW_HEADER_HEIGHT;
+    if ((position.top + WINDOW_HEADER_HEIGHT) > desktopHeight - LAUNCHBAR_HEIGHT) {
+      position.top = desktopHeight - WINDOW_HEADER_HEIGHT - LAUNCHBAR_HEIGHT;
     }
     if ((position.left + WINDOW_HEADER_HEIGHT) > desktopWidth) {
       position.left = desktopWidth - WINDOW_HEADER_HEIGHT;
