@@ -62,7 +62,8 @@ export class LaunchbarInstanceViewComponent {
       return item.windowPreviews[index].src;
     }
     catch(err) {
-      console.log("Unsupported screenshot loaded/iFrame applications currently not supported")
+      // this spams when preview is pending or App doesnt work with preview,
+      // and the failure case is obvious enough that a console log doesnt help
       return null;
     }
   }
