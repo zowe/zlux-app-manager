@@ -35,6 +35,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
    * but I don't know how
    */
   public static readonly WINDOW_HEADER_HEIGHT = 45;
+  public static readonly LAUNCHBAR_HEIGHT = 60;
   private static readonly NEW_WINDOW_POSITION_INCREMENT = WindowManagerService.WINDOW_HEADER_HEIGHT;
 
   private nextId: MVDWindowManagement.WindowId;
@@ -104,16 +105,18 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   private generateNewWindowPosition(plugin: DesktopPluginDefinitionImpl): WindowPosition {
     let { width: dtWindowWidth, height: dtWindowHeight } = plugin.defaultWindowStyle;
-    let desktopHeight = document.getElementsByClassName('window-pane')[0].clientHeight;
-    let desktopWidth = document.getElementsByClassName('window-pane')[0].clientWidth;
-    let launchbarHeight = document.getElementsByClassName('launchbar-container')[0].clientHeight;
-    let nextLeft = (desktopWidth / 2) - (dtWindowWidth / 2);
-    let nextTop = (desktopHeight / 2) - (dtWindowHeight / 2) - (WindowManagerService.WINDOW_HEADER_HEIGHT / 2) - (launchbarHeight / 2);
-    
+    const desktopHeight = document.getElementsByClassName('window-pane')[0].clientHeight;
+    const desktopWidth = document.getElementsByClassName('window-pane')[0].clientWidth;
+    const launchbarHeight = WindowManagerService.LAUNCHBAR_HEIGHT;
     const { innerWidth, innerHeight } = window;
     const rightMostPosition = innerWidth - dtWindowWidth;
     const bottomMostPosition = innerHeight - dtWindowHeight;
     const pluginIdentifier = plugin.getIdentifier();
+
+    // By default, plugins begin in the center of the screen (half of both x & y axes)
+    let nextLeft = (desktopWidth / 2) - (dtWindowWidth / 2);
+    let nextTop = (desktopHeight / 2) - (dtWindowHeight / 2) - (WindowManagerService.WINDOW_HEADER_HEIGHT / 2) - (launchbarHeight / 2);
+    
     
     if (this.runningPluginMap.get(pluginIdentifier) != undefined && this.runningPluginMap.get(pluginIdentifier)!.length > 0)
     { 
@@ -159,12 +162,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         }
     }
 
-    // Find best next starting position
-    if (nextLeft > rightMostPosition) { // Start over both top and left
-      nextLeft = WindowManagerService.NEW_WINDOW_POSITION_INCREMENT;
-      nextTop = WindowManagerService.NEW_WINDOW_POSITION_INCREMENT;
-    } else if  (nextTop > bottomMostPosition) { // Just start from the top, keep moving right
-      nextTop = WindowManagerService.NEW_WINDOW_POSITION_INCREMENT;
+    // When cascade has reached too far down or too far to the right, start again from 0,0
+    if (nextLeft > rightMostPosition || nextTop > (bottomMostPosition - launchbarHeight)) {
+      nextLeft = 0;
+      nextTop = 0;
     }
 
     /* We've chosen the best position based on history and requested window size, now we
