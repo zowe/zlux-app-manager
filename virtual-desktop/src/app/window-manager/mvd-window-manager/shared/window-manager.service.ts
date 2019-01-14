@@ -162,10 +162,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         }
     }
 
-    // When cascade has reached too far down or too far to the right, start again from 0,0
+    // When cascade has reached too far down or too far to the right, start again from 1, 1
     if (nextLeft > rightMostPosition || nextTop > (bottomMostPosition - launchbarHeight)) {
-      nextLeft = 0;
-      nextTop = 0;
+      nextLeft = 1;
+      nextTop = 1;
     }
 
     /* We've chosen the best position based on history and requested window size, now we
