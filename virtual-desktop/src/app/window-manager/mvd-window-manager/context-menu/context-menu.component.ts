@@ -56,7 +56,7 @@ export class ContextMenuComponent {
 
   validateX(xPos: number, menuWidth: number): number {
     let menuRight = xPos + menuWidth;
-    let screenWidth = document.body.clientWidth - 10;
+    let screenWidth = document.body.clientWidth - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuRight > screenWidth) {
       let difference = menuRight - screenWidth;
       xPos = xPos - difference
