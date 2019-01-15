@@ -56,7 +56,7 @@ export class ContextMenuComponent {
 
   validateX(xPos: number, menuWidth: number): number {
     let menuRight = xPos + menuWidth;
-    let screenWidth = document.body.clientWidth - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
+    let screenWidth = window.innerWidth - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuRight > screenWidth) {
       let difference = menuRight - screenWidth;
       xPos = xPos - difference
@@ -66,7 +66,7 @@ export class ContextMenuComponent {
 
   validateY(yPos: number, menuHeight: number): number {
     let menuBottom = menuHeight + yPos;
-    let screenHeight = document.body.clientHeight - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
+    let screenHeight = window.innerHeight - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuBottom > screenHeight) {
      let difference = menuBottom - screenHeight;
      yPos = yPos - difference;
