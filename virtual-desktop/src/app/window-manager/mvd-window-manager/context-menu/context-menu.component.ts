@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Input, Component, EventEmitter, Output, HostListener, ElementRef } from '@angular/core';
+import { Input, Component, EventEmitter, Output, HostListener, ElementRef, ViewChild } from '@angular/core';
 
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 
@@ -21,9 +21,29 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
 })
 export class ContextMenuComponent {
   hovering: ContextMenuItem;
+  newX: number;
+  newY: number;
 
-  @Input() xPos: number;
-  @Input() yPos: number;
+  @ViewChild('contextmenu')
+  set menu(contextmenu: any) {
+    contextmenu.nativeElement.style.opacity = 0;
+    setTimeout(() => { 
+      let menuHeight = contextmenu.nativeElement.clientHeight;
+      let menuWidth = contextmenu.nativeElement.clientWidth;
+      this.newY = this.validateY(this.newY, menuHeight);
+      this.newX = this.validateX(this.newX, menuWidth);
+      contextmenu.nativeElement.style.opacity = 1;
+    }, 0);
+  }
+
+  @Input() set xPos(xPos: number) {
+    this.newX = xPos;
+  };
+
+  @Input() set yPos(yPos: number) {
+    this.newY = yPos;
+  };
+
   @Input() menuItems: ContextMenuItem[];
 
   @Output() complete: EventEmitter<void>;
@@ -32,6 +52,26 @@ export class ContextMenuComponent {
     private elementRef: ElementRef
   ) {
     this.complete = new EventEmitter<void>();
+  }
+
+  validateX(xPos: number, menuWidth: number): number {
+    let menuRight = xPos + menuWidth;
+    let screenWidth = document.body.clientWidth - 10;
+    if (menuRight > screenWidth) {
+      let difference = menuRight - screenWidth;
+      xPos = xPos - difference
+    }
+    return xPos;
+  }
+
+  validateY(yPos: number, menuHeight: number): number {
+    let menuBottom = menuHeight + yPos;
+    let screenHeight = document.body.clientHeight - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
+    if (menuBottom > screenHeight) {
+     let difference = menuBottom - screenHeight;
+     yPos = yPos - difference;
+    }
+    return yPos;
   }
 
   itemClicked(menuItem: ContextMenuItem): void {
