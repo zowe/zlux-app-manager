@@ -18,7 +18,7 @@ import { WindowPosition } from '../shared/window-position';
 
 const SCREEN_EDGE_BORDER = 2;
 const WINDOW_HEADER_HEIGHT = WindowManagerService.WINDOW_HEADER_HEIGHT;
-const LAUNCHBAR_HEIGHT = 60;
+const LAUNCHBAR_HEIGHT = WindowManagerService.LAUNCHBAR_HEIGHT;
 
 @Component({
   selector: 'rs-com-mvd-window',
@@ -62,19 +62,22 @@ export class WindowComponent {
 
   positionStyle(): any {
     const position = this.getPosition();
+    const DESKTOP_HEIGHT = document.getElementsByClassName('window-pane')[0].clientHeight;
+    const DESKTOP_WIDTH = document.getElementsByClassName('window-pane')[0].clientWidth;
+
+    /* These 4 conditionals check if a window is out of bounds by checking if a window has been
+    dragged too far out of view, in either of the 4 directions, and locks it from going further. */
     if (position.top < 0) {
       position.top = SCREEN_EDGE_BORDER;
     }
     if (position.left + position.width - WINDOW_HEADER_HEIGHT < 0) {
       position.left = -position.width + WINDOW_HEADER_HEIGHT;
     }
-    var positionBottom = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().bottom;
-    var positionRight = document.getElementsByClassName('window-pane').item(0).getBoundingClientRect().right;
-    if ((position.top + WINDOW_HEADER_HEIGHT) > positionBottom - LAUNCHBAR_HEIGHT) {
-      position.top = positionBottom - WINDOW_HEADER_HEIGHT - LAUNCHBAR_HEIGHT;
+    if ((position.top + WINDOW_HEADER_HEIGHT) > DESKTOP_HEIGHT - LAUNCHBAR_HEIGHT) {
+      position.top = DESKTOP_HEIGHT - WINDOW_HEADER_HEIGHT - LAUNCHBAR_HEIGHT;
     }
-    if ((position.left + WINDOW_HEADER_HEIGHT) > positionRight) {
-      position.left = positionRight - WINDOW_HEADER_HEIGHT;
+    if ((position.left + WINDOW_HEADER_HEIGHT) > DESKTOP_WIDTH) {
+      position.left = DESKTOP_WIDTH - WINDOW_HEADER_HEIGHT;
     }
 
     return {
