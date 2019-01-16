@@ -43,10 +43,6 @@
 }
 
 .window.maximized {
-  top: 0 !important;
-  left: 0 !important;
-  width: calc(100% - 2px) !important;
-  height: calc(100% - 2px)  !important;
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
 }

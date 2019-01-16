@@ -36,7 +36,14 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
    */
   public static readonly WINDOW_HEADER_HEIGHT = 45;
   public static readonly LAUNCHBAR_HEIGHT = 60;
+  //The icons peek a bit above the launchbar
+  public static readonly LAUNCHBAR_ICON_HEIGHT_FLOAT = 15;
   private static readonly NEW_WINDOW_POSITION_INCREMENT = WindowManagerService.WINDOW_HEADER_HEIGHT;
+  private static readonly MAXIMIZE_WINDOW_HEIGHT_OFFSET = WindowManagerService.WINDOW_HEADER_HEIGHT
+                                                        + WindowManagerService.LAUNCHBAR_HEIGHT
+                                                        + WindowManagerService.LAUNCHBAR_ICON_HEIGHT_FLOAT
+                                                        //Padding for a cleaner UI look
+                                                        + 5;
 
   private nextId: MVDWindowManagement.WindowId;
   private windowMap: Map<MVDWindowManagement.WindowId, DesktopWindow>;
@@ -96,7 +103,12 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
  
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {
-    desktopWindow.windowState.position = { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+    //this is the window viewport size, so you must subtract the header and launchbar from the height.
+    desktopWindow.windowState.position = { top: 0,
+                                           left: 0,
+                                           width: window.innerWidth,
+                                           height: window.innerHeight
+                                           - WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET};
   }
 
   private generateWindowId(): MVDWindowManagement.WindowId {
@@ -432,6 +444,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     if (desktopWindow == null) {
       console.warn('Attempted to request focus for null window');
       return false;
+    }
+    //can't focus an unseen window!
+    if (desktopWindow.windowState.stateType === DesktopWindowStateType.Minimized) {
+      this.restore(destination);
     }
 
     this.focusedWindow = desktopWindow;
