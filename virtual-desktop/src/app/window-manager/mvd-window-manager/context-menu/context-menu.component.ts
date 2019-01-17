@@ -14,6 +14,8 @@ import { Input, Component, EventEmitter, Output, HostListener, ElementRef, ViewC
 
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 
+import { BaseLogger } from 'virtual-desktop-logger';
+
 @Component({
   selector: 'com-rs-mvd-context-menu',
   templateUrl: './context-menu.component.html',
@@ -48,8 +50,11 @@ export class ContextMenuComponent {
 
   @Output() complete: EventEmitter<void>;
 
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+
   constructor(
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    //private logger: DesktopLogger
   ) {
     this.complete = new EventEmitter<void>();
   }
@@ -75,7 +80,7 @@ export class ContextMenuComponent {
   }
 
   itemClicked(menuItem: ContextMenuItem): void {
-    console.log(menuItem.text);
+    this.logger.info(menuItem.text);
     if (menuItem.action) {
       menuItem.action();
     }

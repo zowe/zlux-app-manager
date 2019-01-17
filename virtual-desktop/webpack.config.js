@@ -26,6 +26,7 @@ module.exports = {
     "alias": {
       "app": path.resolve(__dirname, "src/app"),
       "pluginlib": path.resolve(__dirname, "src/pluginlib"),
+      "virtual-desktop-logger": path.resolve(__dirname, "src/app/shared/logger.ts"),
       "zlux-base": path.resolve(__dirname, "../../zlux-platform/base/src"),
       "zlux-interface": path.resolve(__dirname, "../../zlux-platform/interface/src")
     }

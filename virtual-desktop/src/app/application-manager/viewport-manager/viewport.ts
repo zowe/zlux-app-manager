@@ -11,11 +11,13 @@
 */
 
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 export class Viewport {
   private static nextViewportId: MVDHosting.ViewportId = 0;
   readonly viewportId: MVDHosting.ViewportId;
   readonly providers: Map<string, any>;
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(providers: Map<string, any>) {
     this.viewportId = Viewport.nextViewportId ++;
@@ -26,11 +28,11 @@ export class Viewport {
 
   checkProviders(): void {
     if (!this.providers.has(Angular2InjectionTokens.VIEWPORT_EVENTS)) {
-      console.warn('No VIEWPORT_EVENTS provided to custom viewport. This may cause plugins to behave unexpectedly.');
+      this.logger.warn('No VIEWPORT_EVENTS provided to custom viewport. This may cause plugins to behave unexpectedly.');
     }
 
     if (!this.providers.has(Angular2InjectionTokens.PLUGIN_EMBED_ACTIONS)) {
-      console.warn('No PLUGIN_EMBED_ACTIONS provided to custom viewport. This may cause plugins to behave unexpectedly.');
+      this.logger.warn('No PLUGIN_EMBED_ACTIONS provided to custom viewport. This may cause plugins to behave unexpectedly.');
     }
   }
 }

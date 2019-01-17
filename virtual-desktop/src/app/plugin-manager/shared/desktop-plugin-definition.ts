@@ -11,9 +11,10 @@
 */
 
 import { PluginWindowStyle } from './plugin-window-style';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefinition {
-
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   public widthOverride:number|undefined;
   public heightOverride:number|undefined;
 
@@ -44,7 +45,7 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
       if ('framework' in this.basePlugin.getWebContent()) {
         return this.basePlugin.getWebContent().framework;
       } else {
-        console.warn(`Plugin ${this.getIdentifier()} has no framework specified`);
+        this.logger.warn(`Plugin ${this.getIdentifier()} has no framework specified`);
         return 'unsupported';
       }
     } else {

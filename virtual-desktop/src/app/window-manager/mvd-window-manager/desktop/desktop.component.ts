@@ -14,6 +14,7 @@ import { Component, Injector } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Component({
   selector: 'rs-com-mvd-desktop',
@@ -44,11 +45,8 @@ constructor(
 }
 
 class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
-  private log:ZLUX.ComponentLogger;
-  constructor(private http: Http) {
-    //A small hack due to not being able to use the injection logger this early
-    this.log = ZoweZLUX.logger.makeComponentLogger('com.rs.mvd.ng2desktop');
-  }
+  private readonly log: ZLUX.ComponentLogger = BaseLogger;
+  constructor(private http: Http) { }
 
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
     let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
