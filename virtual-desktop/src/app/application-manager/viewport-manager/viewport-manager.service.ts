@@ -13,11 +13,13 @@
 import { Injectable } from '@angular/core';
 import { Viewport } from './viewport';
 // import { InstanceId } from '../application-instance';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Injectable()
 export class ViewportManager implements MVDHosting.ViewportManagerInterface {
   private viewports: Map<MVDHosting.ViewportId, Viewport>;
   private viewportInstances: Map<MVDHosting.ViewportId, MVDHosting.InstanceId>;
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   constructor() {
     this.viewports = new Map();
@@ -33,7 +35,7 @@ export class ViewportManager implements MVDHosting.ViewportManagerInterface {
 
   registerViewport(viewportId: MVDHosting.ViewportId, instanceId: MVDHosting.InstanceId): void {
     if (this.viewportInstances.has(viewportId)) {
-      console.warn('Attempting to replace an existing viewport id in registration');
+      this.logger.warn('Attempting to replace an existing viewport id=${viewportId} in registration ');
     }
 
     this.viewportInstances.set(viewportId, instanceId);
@@ -41,7 +43,7 @@ export class ViewportManager implements MVDHosting.ViewportManagerInterface {
 
   destroyViewport(viewportId: MVDHosting.ViewportId): void {
     // TODO
-    console.log(`we've said we will destroy the viewport... id=${viewportId}`);
+    this.logger.info(`Closing viewport ID=${viewportId}`);
   }
 
   getApplicationInstanceId(viewportId: MVDHosting.ViewportId): MVDHosting.InstanceId | null {

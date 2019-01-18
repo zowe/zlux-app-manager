@@ -23,6 +23,7 @@ import {
 import { Observable } from 'rxjs/Rx';
 
 import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Component({
   selector: 'rs-com-launchbar-widget',
@@ -31,6 +32,7 @@ import { LanguageLocaleService } from '../../../../i18n/language-locale.service'
   providers: [LanguageLocaleService]
 })
 export class LaunchbarWidgetComponent implements OnInit {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   date: Date;
   popupVisible: boolean;
@@ -96,16 +98,15 @@ export class LaunchbarWidgetComponent implements OnInit {
 
   setLanguage(value: string): void {
     this.languageLocaleService.setLanguage(value).subscribe(
-      arg => console.log(`arg=${arg}`),
+      arg => this.logger.debug(`setLanguage, arg=`,arg),
       err => {
-        console.log("got error");
-        console.log(err);
+        this.logger.warn("setLanguage error=",err);
       }
     )
   }
 
   setLocale(value: string): void {
-    this.languageLocaleService.setLocale('US').subscribe(arg => console.log(`arg=${arg}`))
+    this.languageLocaleService.setLocale('US').subscribe(arg => this.logger.debug(`setLocale, arg=`,arg))
   }
 }
 

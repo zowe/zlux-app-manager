@@ -14,6 +14,7 @@ import { Component, Injector, OnInit } from '@angular/core';
 import { ApplicationManager } from "app/application-manager/application-manager.service";
 import { PluginManager } from "app/plugin-manager/shared/plugin-manager";
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Component({
   selector: 'rs-com-root',
@@ -21,6 +22,7 @@ import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-p
   styleUrls: ['./simple.component.css'],
 })
 export class SimpleComponent implements OnInit {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   viewportId: MVDHosting.ViewportId;
   private windowManager: MVDWindowManagement.WindowManagerServiceInterface;
 
@@ -39,7 +41,7 @@ export class SimpleComponent implements OnInit {
 
     if (!requestedPluginID) {
       // Default back to sample plugin:
-      console.warn("GIZA_PLUGIN_TO_BE_LOADED not set, defaulting to sample plugin!");
+      this.logger.warn("GIZA_PLUGIN_TO_BE_LOADED not set, defaulting to sample plugin!");
       requestedPluginID = "com.rs.mvd.myplugin";
     }
 
@@ -55,10 +57,10 @@ export class SimpleComponent implements OnInit {
         this.applicationManager.spawnApplication(plugin as DesktopPluginDefinitionImpl, launchMetadata);
         this.viewportId = this.windowManager.getViewportId(1);
       } else {
-        console.error("plugin to be loaded not found: "+pluginID);
+        this.logger.warn("plugin to be loaded not found: "+pluginID);
       }
     })
-      .catch(x => console.log("plugin promise not returned"));
+      .catch(x => this.logger.warn("plugin promise not returned"));
   }
 
   parseUriArguments(): any {
