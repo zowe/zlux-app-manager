@@ -103,7 +103,7 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
   acceptableFrameworks(): string[] {
-    return ['angular2'];
+    return ['angular2', 'angular'];
   }
 
   loadComponentFactories(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<void> {
