@@ -183,16 +183,17 @@ export class LaunchbarComponent {
     var menuItems: ContextMenuItem[];
     if (item.instanceCount == 1) {
         menuItems = [
-          this.pluginsDataService.pinContext(item),
           { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
-          { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)},
+          { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
+          this.pluginsDataService.pinContext(item),
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
-          { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) }
+          { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)},
         ];
     } else if (item.instanceCount != 0) {
       menuItems = [
-        this.pluginsDataService.pinContext(item),
         { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
+        this.pluginsDataService.pinContext(item),
+        { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
         { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)}
       ];
     } else {

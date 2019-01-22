@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class='context-menu' [style.left.px]='xPos' [style.top.px]='yPos'>
+<div class='context-menu' #contextmenu [style.left.px]='this.newX' [style.top.px]='this.newY'>
   <ul>
     <ng-container *ngFor='let menuItem of menuItems'>
       <ng-container *ngIf='menuItem.children != null && menuItem.children.length > 0; then multiItem else singleItem'></ng-container>

@@ -18,9 +18,11 @@ import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desk
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { TranslationService } from 'angular-l10n';
 import { WindowManagerService } from '../shared/window-manager.service';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Injectable()
 export class PluginsDataService implements MVDHosting.LogoutActionInterface {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   public counter: number;
   public pinnedPlugins: LaunchbarItem[];
   private accessiblePlugins: LaunchbarItem[];
@@ -58,7 +60,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
           this.pluginManager.findPluginDefinition(p)
           .then(res => {
             if (res == null) {
-              console.log("Bad Plugin Definition")
+              this.logger.warn(`Bad Plugin Definition for plugin=${p}`)
             } else {
               this.pinnedPlugins.push(new PluginLaunchbarItem((res as DesktopPluginDefinitionImpl), this.windowManager));
             }
@@ -80,7 +82,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
     this.http.put(uri, params).subscribe((res) => {
       this.pinnedPlugins = this.getMatchingPlugins(this.accessiblePlugins, plugins);
     }, (err)=> {
-      console.log(`Could not update pinned plugins, err=${err}`);
+      this.logger.warn(`Could not update pinned plugins, err=${err}`);
     });
   }
 
@@ -90,7 +92,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
       this.pluginManager.findPluginDefinition(p)
         .then(res => {
           if (res == null) {
-            console.log("Bad Plugin Definition")
+            this.logger.warn(`Bad Plugin Definition for plugin=${p}`)
           } else {
             for (let i = 0; i < items.length; i++) {
               if (items[i].plugin.getKey() == (res as DesktopPluginDefinitionImpl).getKey()) {

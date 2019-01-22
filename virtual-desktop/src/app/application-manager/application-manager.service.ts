@@ -22,12 +22,14 @@ import { FailureModule } from './load-failure/failure.module';
 // import { ViewportId } from './viewport-manager/viewport';
 import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
   private failureModuleFactory: NgModuleFactory<FailureModule>;
   private applicationInstances: Map<MVDHosting.InstanceId, ApplicationInstance>;
   private nextInstanceId: MVDHosting.InstanceId;
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(
     private injector: Injector,
@@ -52,11 +54,10 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     (window as any).ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
        let applicationInstance:ApplicationInstance|undefined = this.applicationInstances.get(instanceId);
        if (applicationInstance){
-         console.log("i am an instance "+applicationInstance+" with iframeID="+applicationInstance.iframeId);
+         this.logger.debug(`PostMessage for instance=${applicationInstance}, iframeID=${applicationInstance.iframeId}`);
          let theIframe:HTMLElement|null = document.getElementById(applicationInstance.iframeId);
          if (theIframe){
-           console.log("iframe found "+theIframe);
-           console.log(theIframe);
+           this.logger.debug(`PostMessage iframe found=`,theIframe);
            let iframeWindow:Window|null = (theIframe as HTMLIFrameElement).contentWindow!;
            iframeWindow.postMessage({ zluxRemoteFunction: "echo", message: "Say Cheese"}, "*");
          }
@@ -86,10 +87,10 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
   private generateComponentRefFor(instance: ApplicationInstance, viewportId: MVDHosting.ViewportId, component: Type<any>): void {
     if (instance.moduleRef == null) {
-      console.warn('Component ref requested before module ref available');
+      this.logger.warn('Component ref requested before module ref available');
       return;
     } else if (instance.viewportContents.get(viewportId) != null) {
-      console.warn('Overwriting existing component ref for window');
+      this.logger.warn('Overwriting existing component ref for window');
     }
 
     const viewport = this.viewportManager.getViewport(viewportId);
@@ -100,16 +101,16 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
     const factory = instance.moduleRef.componentFactoryResolver.resolveComponentFactory(component);
     const componentRef = factory.create(this.injectionManager.generateComponentInjector(viewport, instance.moduleRef.injector));
-    //console.log("AppMgr about to associate aInst with component "+componentRef);
-    //console.log(componentRef);
+    //this.logger.info("AppMgr about to associate aInst with component "+componentRef);
+    //this.logger.info(componentRef);
     instance.viewportContents.set(viewportId, componentRef);
     let instanceOfComponent:any = componentRef.instance;
-    //console.log("instance = "+instanceOfComponent);
-    //console.log(instanceOfComponent);
+    //this.logger.info("instance = "+instanceOfComponent);
+    //this.logger.info(instanceOfComponent);
     if (instanceOfComponent.iframeId){
       instance.isIFrame = true;
       instance.iframeId = instanceOfComponent.iframeId;
-      console.log("iframeID found = "+instance.iframeId);
+      this.logger.debug("iframeID found = ",instance.iframeId);
     }
   }
 
@@ -132,8 +133,8 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         //  ComponentRef contains instantiated instance of Component
         const injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata);
         this.instantiateApplicationInstance(applicationInstance, compiled.moduleFactory, injector);
-        console.log('appMgr compiled.initialComponent='+compiled.initialComponent);
-        console.log(compiled.initialComponent);
+        this.logger.debug(`appMgr spawning plugin ID=${plugin.getIdentifier()}, `
+                         +`compiled.initialComponent=`,compiled.initialComponent);
         applicationInstance.setMainComponent(compiled.initialComponent); 
         this.generateMainComponentRefFor(applicationInstance, viewportId);   // new component is added to DOM here
         if (applicationInstance.isIFrame) {
@@ -148,7 +149,8 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         if (notATurtle && (typeof notATurtle.provideZLUXDispatcherCallbacks == 'function')) {
           ZoweZLUX.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
         } else {
-          console.log('Did not register App callbacks. Either could not find instance object for App or the object did not provide callbacks. Instance Obj='+notATurtle); 
+          this.logger.info(`App callbacks not registered. Couldn't find instance object or object didn't provide callbacks.`
+                          +`App ID=${plugin.getIdentifier()}, Instance Obj=`,notATurtle); 
         }
 
 
@@ -227,7 +229,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
 
   showApplicationInstanceWindow(plugin: DesktopPluginDefinitionImpl, viewportId: MVDHosting.ViewportId): void {
-    console.log('writeme, showapplicationinstancewindow');
+    this.logger.warn('Not yet implemented: showapplicationinstancewindow');
   }
 
   isApplicationRunning(plugin: DesktopPluginDefinitionImpl): boolean {
@@ -259,7 +261,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
   
   setEmbeddedInstanceInput(embeddedInstance: EmbeddedInstance, input: string, value: any): void {
-    console.log(`setEmbeddedInstanceInput '${input}' to value '${value}'`);
+    this.logger.debug(`setEmbeddedInstanceInput '${input}' to value '${value}'`);
     let appInstance = this.applicationInstances.get(embeddedInstance.instanceId);
     if (appInstance == undefined) {
       return;
@@ -287,7 +289,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
   
   getEmbeddedInstanceOutput(embeddedInstance: EmbeddedInstance, output: string): Observable<any> | undefined {
-    console.log(`getEmbeddedInstanceOutput '${output}'`);
+    this.logger.debug(`getEmbeddedInstanceOutput '${output}'`);
     let appInstance = this.applicationInstances.get(embeddedInstance.instanceId);
     if (appInstance !== undefined) {
       const componentRef = appInstance.viewportContents.get(embeddedInstance.viewportId);

@@ -16,6 +16,7 @@ import { Subject } from 'rxjs/Subject';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { ViewportComponent } from 'app/application-manager/viewport-manager/viewport/viewport.component';
 //import { AppPropertiesWindowComponent } from '../propertieswindow/app-properties-window.component';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 import { DesktopWindow, LocalWindowEvents } from './desktop-window';
 import { WindowPosition } from './window-position';
@@ -29,14 +30,21 @@ type PluginIdentifier = string;
 
 @Injectable()
 export class WindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
-
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   /*
    * I'd like to apply this constant to the ".window .header" selector in ../window/window.component.css
    * but I don't know how
    */
   public static readonly WINDOW_HEADER_HEIGHT = 45;
   public static readonly LAUNCHBAR_HEIGHT = 60;
+  //The icons peek a bit above the launchbar
+  public static readonly LAUNCHBAR_ICON_HEIGHT_FLOAT = 15;
   private static readonly NEW_WINDOW_POSITION_INCREMENT = WindowManagerService.WINDOW_HEADER_HEIGHT;
+  private static readonly MAXIMIZE_WINDOW_HEIGHT_OFFSET = WindowManagerService.WINDOW_HEADER_HEIGHT
+                                                        + WindowManagerService.LAUNCHBAR_HEIGHT
+                                                        + WindowManagerService.LAUNCHBAR_ICON_HEIGHT_FLOAT
+                                                        //Padding for a cleaner UI look
+                                                        + 5;
 
   private nextId: MVDWindowManagement.WindowId;
   private windowMap: Map<MVDWindowManagement.WindowId, DesktopWindow>;
@@ -96,7 +104,12 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
  
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {
-    desktopWindow.windowState.position = { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+    //this is the window viewport size, so you must subtract the header and launchbar from the height.
+    desktopWindow.windowState.position = { top: 0,
+                                           left: 0,
+                                           width: window.innerWidth,
+                                           height: window.innerHeight
+                                           - WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET};
   }
 
   private generateWindowId(): MVDWindowManagement.WindowId {
@@ -173,13 +186,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     if (nextLeft > rightMostPosition) {
       const newWidth = innerWidth - nextLeft;
-      console.log(`reducing width from ${dtWindowWidth} to ${newWidth} based on nextLeft ${nextLeft} and innerWidth ${innerWidth}`);
+      this.logger.debug(`reducing width from ${dtWindowWidth} to ${newWidth} based on nextLeft ${nextLeft} and innerWidth ${innerWidth}`);
       dtWindowWidth = newWidth;
     }
 
     if (nextTop > bottomMostPosition) {
       const newHeight = innerHeight - nextTop;
-      console.log(`reducing height from ${dtWindowHeight} to ${newHeight} based on nextTop ${nextTop} and innerHeight ${innerHeight}`);
+      this.logger.debug(`reducing height from ${dtWindowHeight} to ${newHeight} based on nextTop ${nextTop} and innerHeight ${innerHeight}`);
       dtWindowHeight = newHeight;
     }
 
@@ -371,7 +384,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   closeWindow(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      console.warn('Attempted to close null window');
+      this.logger.warn(`Attempted to close null window, ID=${windowId}`);
       return;
     }
     this.updateWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
@@ -397,7 +410,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   registerCloseHandler(windowId: MVDWindowManagement.WindowId, handler: () => Promise<void>): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      console.warn('Attempted to register close handler for null window');
+      this.logger.warn('Attempted to register close handler for null window, ID=${windowId}');
       return;
     }
 
@@ -407,7 +420,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   getWindowTitle(windowId: MVDWindowManagement.WindowId): string | null {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      console.warn('Attempted to set window title for null window');
+      this.logger.warn('Attempted to set window title for null window, ID=${windowId}');
       return null;
     }
     return desktopWindow.windowTitle;
@@ -416,7 +429,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   setWindowTitle(windowId: MVDWindowManagement.WindowId, title: string): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      console.warn('Attempted to set window title for null window');
+      this.logger.warn('Attempted to set window title for null window, ID=${windowId}');
       return;
     }
 
@@ -430,8 +443,12 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     const desktopWindow = this.windowMap.get(destination);
     if (desktopWindow == null) {
-      console.warn('Attempted to request focus for null window');
+      this.logger.warn('Attempted to request focus for null window, ID=${destination}');
       return false;
+    }
+    //can't focus an unseen window!
+    if (desktopWindow.windowState.stateType === DesktopWindowStateType.Minimized) {
+      this.restore(destination);
     }
 
     this.focusedWindow = desktopWindow;
@@ -495,7 +512,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
     this.updateWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
     //TODO(?): It seems like this method is never being used. The only method used to set position of a
-    //window is positionStyle() in window.component.ts --- console.log("Set position used here!");
+    //window is positionStyle() in window.component.ts --- this.logger.info("Set position used here!");
     desktopWindow.windowState.position = pos;
   }
 

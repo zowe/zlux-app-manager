@@ -20,6 +20,7 @@ import { Observable } from 'rxjs/Rx';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
 import { TranslationLoaderService } from '../../../i18n/translation-loader.service';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 interface MvdNativeAngularPlugin {
   pluginModule: any;
@@ -42,6 +43,7 @@ interface MvdNativeAngularPluginComponentDefinition {
 }
 
 class SimpleAngularComponentFactory extends ComponentFactory {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   constructor(
     private compiler: Compiler,
     private applicationRef: ApplicationRef,
@@ -57,7 +59,7 @@ class SimpleAngularComponentFactory extends ComponentFactory {
     const promise: Promise<ZLUX.IComponent> = new Promise((resolve, reject) => {
       (window as any).require([this.componentModulePath],
         (fullPlugin: MvdNativeAngularComponent) => {
-          console.log(fullPlugin);
+          this.logger.debug(`Instantiating into DOM=`,fullPlugin);
           return this.compiler.compileModuleAsync(fullPlugin.componentNgModule).then(factory => {
             const resolver = factory.create(this.injector).componentFactoryResolver;
             const outlet = new DomPortalOutlet(target, resolver, this.applicationRef, this.injector);
@@ -66,7 +68,7 @@ class SimpleAngularComponentFactory extends ComponentFactory {
 
             resolve(componentRef.instance as ZLUX.IComponent);
           }).catch((failure: any) => {
-            console.log(failure);
+            this.logger.warn(`Could not instantiate into DOM,`, failure);
             reject();
           });
         },
@@ -81,6 +83,7 @@ class SimpleAngularComponentFactory extends ComponentFactory {
 
 @Injectable()
 export class Angular2PluginFactory extends PluginFactory {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private static getAngularModuleURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'main.js');
   }
@@ -100,7 +103,7 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
   acceptableFrameworks(): string[] {
-    return ['angular2'];
+    return ['angular2', 'angular'];
   }
 
   loadComponentFactories(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<void> {
@@ -115,8 +118,8 @@ export class Angular2PluginFactory extends PluginFactory {
               const componentFactory = new SimpleAngularComponentFactory(this.compiler, this.applicationRef, this.injector,
               factory.componentScriptUrl, factory.componentClass, factory.capabilities);
 
-              console.log(`Registering component factory for plugin ${pluginDefinition.getIdentifier()}:`);
-              console.log(componentFactory);
+              this.logger.info(`Registering component factory for plugin=${pluginDefinition.getIdentifier()}:`);
+              this.logger.debug(componentFactory);
 
               ZoweZLUX.registry.registerComponentFactory(componentFactory);
 
@@ -124,7 +127,7 @@ export class Angular2PluginFactory extends PluginFactory {
             });
           },
           (failure: any) => {
-            console.log(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
+            this.logger.warn(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
             resolve();
           });
         } else {
@@ -137,7 +140,7 @@ export class Angular2PluginFactory extends PluginFactory {
     this.loadComponentFactories(pluginDefinition);
     const scriptUrl = Angular2PluginFactory.getAngularModuleURL(pluginDefinition);
 
-    console.trace("Angular2PluginFactory.loadPlugin scriptURL="+scriptUrl);
+    this.logger.info(`Loading Angular Plugin ID=${pluginDefinition.getIdentifier()}, URL=${scriptUrl}`);
 
     return new Promise((resolve, reject) => {
       (window as any).require([scriptUrl],

@@ -17,6 +17,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { PluginFactory } from '../plugin-factory';
 //import { DesktopPluginDefinition } from '../../shared/desktop-plugin-definition';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 var dragOn = false;
 var mouseDown = false;
@@ -24,7 +25,7 @@ let iFrameElement: HTMLElement;
 
 @Injectable()
 export class IFramePluginFactory extends PluginFactory {
-
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   constructor(
     private compiler: Compiler,
     private sanitizer: DomSanitizer
@@ -41,15 +42,16 @@ export class IFramePluginFactory extends PluginFactory {
   private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition): Type<any> {
     const basePlugin = pluginDefinition.getBasePlugin();
     const startingPage = basePlugin.getWebContent().startingPage || 'index.html';
-    console.log('startingPage', startingPage);
+    this.logger.debug('iframe startingPage', startingPage);
     let startingPageUri;
     if (startingPage.startsWith('http://') || startingPage.startsWith('https://')) {
       startingPageUri = startingPage;
     } else {
       startingPageUri = (window as any).ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
     }
-    console.log('startingPageUri', startingPageUri);
+    this.logger.debug('iframe startingPageUri', startingPageUri);
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
+    this.logger.info(`Loading iframe, URI=${startingPageUri}`);
     const theIframeId = "mvd_iframe_"+(IFramePluginFactory.iframeIndex++);
     return class IFrameComponentClass {
       startingPage: SafeResourceUrl = safeStartingPageUri;
@@ -67,7 +69,8 @@ export class IFramePluginFactory extends PluginFactory {
   }
 
   loadComponentFactories(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<void> {
-    console.log("IFrame component factories currently unsupported");
+    this.logger.info(`IFrame component factories currently unsupported. `
+                    +`Skipping for plugin ID=${pluginDefinition.getIdentifier()}`);
 
     return Promise.resolve();
   }

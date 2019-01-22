@@ -18,9 +18,11 @@ import { PluginFactory } from '../plugin-factory/plugin-factory';
 import { Angular2PluginFactory } from '../plugin-factory/angular2/angular2-plugin-factory';
 import { IFramePluginFactory } from '../plugin-factory/iframe/iframe-plugin-factory';
 import { ReactPluginFactory } from '../plugin-factory/react/react-plugin-factory';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Injectable()
 export class PluginLoader {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private frameworkMap: Map<string, PluginFactory[]>;
 
   constructor(
@@ -50,7 +52,7 @@ export class PluginLoader {
 
     if (pluginDefinition.getFramework() === 'unsupported') {
       return new Promise((resolve, reject) => {
-        console.log(`${pluginDefinition.getIdentifier()} does not use supported framework`);
+        this.logger.warn(`${pluginDefinition.getIdentifier()} does not use supported framework`);
         resolve();
       });
     } else if (pluginDefinition.getFramework() === 'n/a') {
@@ -73,7 +75,7 @@ export class PluginLoader {
 
     if (pluginDefinition.getFramework() === 'unsupported') {
       return new Promise((resolve, reject) => {
-        console.log(`${pluginDefinition.getIdentifier()} does not use supported framework`);
+        this.logger.warn(`${pluginDefinition.getIdentifier()} does not use supported framework`);
         resolve();
       });
     } else if (pluginDefinition.getFramework() === 'n/a') {

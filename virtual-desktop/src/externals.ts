@@ -17,6 +17,9 @@
   waitSeconds: 0
 });
 
+import { BaseLogger } from 'virtual-desktop-logger';
+const logger: ZLUX.ComponentLogger = BaseLogger;
+
 /* These will be packaged into a single bundle by the webpack bundling system.
  * We then expose them to our module loader (requirejs) manually and use that
  * to load the desktop and external plugins. These requires use webpack. */
@@ -43,7 +46,7 @@ for (const library in libs) {
   if (libs[library]) {
     (window as any).define(library, libs[library]);
   } else {
-    console.log(`Missing library ${library}`);
+    logger.warn(`Missing library ${library}`);
   }
 }
 

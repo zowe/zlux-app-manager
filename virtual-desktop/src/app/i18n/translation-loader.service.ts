@@ -19,11 +19,11 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import { LanguageLocaleService } from './language-locale.service';
 import * as Rx from 'rxjs/Rx';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Injectable()
 export class TranslationLoaderService {
-  private readonly plugin: ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
-  private readonly logger = ZoweZLUX.logger.makeComponentLogger(this.plugin.getIdentifier());
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(
     private languageLocaleService: LanguageLocaleService
