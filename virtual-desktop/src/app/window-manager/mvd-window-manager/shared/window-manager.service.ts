@@ -36,6 +36,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
    * but I don't know how
    */
   public static readonly WINDOW_HEADER_HEIGHT = 45;
+  public static readonly WINDOW_HEADER_BORDER_WIDTH = 3;
   public static readonly LAUNCHBAR_HEIGHT = 60;
   //The icons peek a bit above the launchbar
   public static readonly LAUNCHBAR_ICON_HEIGHT_FLOAT = 15;
@@ -43,6 +44,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private static readonly MAXIMIZE_WINDOW_HEIGHT_OFFSET = WindowManagerService.WINDOW_HEADER_HEIGHT
                                                         + WindowManagerService.LAUNCHBAR_HEIGHT
                                                         + WindowManagerService.LAUNCHBAR_ICON_HEIGHT_FLOAT
+                                                        + (WindowManagerService.WINDOW_HEADER_BORDER_WIDTH * 2)
                                                         //Padding for a cleaner UI look
                                                         + 5;
 
@@ -107,7 +109,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     //this is the window viewport size, so you must subtract the header and launchbar from the height.
     desktopWindow.windowState.position = { top: 0,
                                            left: 0,
-                                           width: window.innerWidth,
+                                           width: window.innerWidth
+                                           - (WindowManagerService.WINDOW_HEADER_BORDER_WIDTH * 2),
                                            height: window.innerHeight
                                            - WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET};
   }
