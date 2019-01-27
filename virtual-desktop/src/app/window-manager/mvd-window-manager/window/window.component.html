@@ -44,7 +44,7 @@
   <div [class.inactive]="!hasFocus()" class="heading" (mousedown)="requestFocus()">
     <div class="caption handle" #dragHandle>{{getTitle()}}</div>
     <div class="minimize-button" (click)="minimizeToggle()"></div>
-    <div class="maximize-button" (click)="maximizeToggle()"></div>
+    <div class="maximize-button" (click)="maximizeToggle()" [class.maximized]="isMaximized()"></div>
     <div class="close-button" (click)="close()"></div>
   </div>
 
