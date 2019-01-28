@@ -14,6 +14,7 @@ import { Injectable, Injector, EventEmitter } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 class ClearDispatcher implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
@@ -22,15 +23,15 @@ class ClearDispatcher implements MVDHosting.LogoutActionInterface {
   }
 }
 
-const WARNING_BEFORE_SESSION_EXPIRATION_MS = 300000; //or less if session is short. 5 minutes
+//5 minutes default. Less if session is shorter than twice this
+const WARNING_BEFORE_SESSION_EXPIRATION_MS = 300000; 
 
 export type LoginExpirationIdleCheckEvent = {
   shortestSessionDuration: number;
-  timeUntilExpiration: number;
+  expirationInMS: number;
 };
 
 export enum LoginScreenChangeReason {
-  UserLocked,
   UserLogout,
   UserLogin,
   SessionExpired
@@ -43,17 +44,16 @@ export class AuthenticationManager {
   private preLogoutActions: Array<MVDHosting.LogoutActionInterface>;
   readonly loginScreenVisibilityChanged: EventEmitter<LoginScreenChangeReason>;
   readonly loginExpirationIdleCheck: EventEmitter<LoginExpirationIdleCheckEvent>;
-  private log: ZLUX.ComponentLogger;
   private nearestExpiration: number;
   private expirations: Map<string,number>;
   private expirationWarning: any;
+  private readonly log: ZLUX.ComponentLogger = BaseLogger;
   
   constructor(
     public http: Http,
     private injector: Injector
   ) {
-    //TODO: Find a way to get the logger in a more formal manner if possible
-    this.log = ZoweZLUX.logger.makeComponentLogger("com.rs.mvd.ng2desktop.authentication");
+    this.log = BaseLogger.makeSublogger("auth");
     this.username = null;
     this.postLoginActions = new Array<MVDHosting.LoginActionInterface>();
     this.preLogoutActions = new Array<MVDHosting.LogoutActionInterface>();
@@ -94,6 +94,7 @@ export class AuthenticationManager {
             if (failedTypes.length > 0) {
               throw ErrorObservable.create('');//no need for a message here, just standard login prompt.
             }
+            this.setSessionTimeoutWatcher(jsonMessage.categories);
             this.username = this.defaultUsername();
             this.performPostLoginActions().subscribe(
               ()=> {
@@ -110,28 +111,27 @@ export class AuthenticationManager {
       return ErrorObservable.create('No Session Found');
     }
   }
-
-  private lockScreenInner(onlyIfIdle: boolean) {
-    this.loginScreenVisibilityChanged.emit(onlyIfIdle ? LoginScreenChangeReason.SessionExpired : LoginScreenChangeReason.UserLocked);
-  }  
-
-  requestLogin(): void {
-    this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogout);
-  }
-
-  requestLogout(): void {
-    const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+  
+  //requestLogin() used to exist here but it was counter-intuitive in behavior to requestLogout.
+  //This was not documented and therefore has been removed to prevent misuse and confusion.
+ 
+  private doLoggoutInner(reason: LoginScreenChangeReason): void {
+    const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
+      this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     windowManager.closeAllWindows();
     this.performLogout().subscribe(
       response => {
-        this.requestLogin();
+        this.loginScreenVisibilityChanged.emit(reason);
       },
-      error => {
-        this.requestLogin();
-        this.log.warn('Logout failed!');
-        this.log.warn(error);
+      (error: any) => {
+        this.loginScreenVisibilityChanged.emit(reason);
+        this.log.warn('Logout failed! Error=', error);
       }
     );
+  }
+
+  requestLogout(): void {
+    this.doLoggoutInner(LoginScreenChangeReason.UserLogout);
   }
 
   private performPostLoginActions(): Observable<any> {
@@ -184,33 +184,36 @@ export class AuthenticationManager {
     }
     this.expirations = expirations;
     if (this.nearestExpiration != -1) {
-      let lockAfterWarnTimer = this.nearestExpiration < (WARNING_BEFORE_SESSION_EXPIRATION_MS*2) ? Math.round(this.nearestExpiration/5) : WARNING_BEFORE_SESSION_EXPIRATION_MS; //if someone has a very tiny session
-      let warnTimer = this.nearestExpiration - lockAfterWarnTimer;
+      //if someone has a very tiny session, adjust timer
+      let logoutAfterWarnTimer = this.nearestExpiration < (WARNING_BEFORE_SESSION_EXPIRATION_MS*2) ?
+        Math.round(this.nearestExpiration/5) : WARNING_BEFORE_SESSION_EXPIRATION_MS;
       
-      this.expirationWarning = setTimeout(()=> {
-        let now = Date.now();
-        this.log.info(`Session will expire soon! Now=${now}, Expiration at ${now+lockAfterWarnTimer}`);
-        this.log.info(`Session expirations=${this.expirations.toString()}`);
-        this.loginExpirationIdleCheck.emit({shortestSessionDuration: this.nearestExpiration, timeUntilExpiration: lockAfterWarnTimer});
+      let warnTimer = this.nearestExpiration - logoutAfterWarnTimer;
+      
+      this.expirationWarning = setTimeout(()=> {       
+        this.log.info(`Session will expire soon! Logout will occur in ${logoutAfterWarnTimer/1000} seconds.`);
+        this.log.debug(`Session expirations=`,this.expirations);
+        this.loginExpirationIdleCheck.emit({shortestSessionDuration: this.nearestExpiration,
+                                            expirationInMS: logoutAfterWarnTimer});
         this.expirationWarning = setTimeout(()=> {
-          this.log.warn(`Session timeout reached, locking session to prompt for re-authentication`);
-          this.lockScreenInner(true);
-        },lockAfterWarnTimer);
+          this.log.warn(`Session timeout reached. Clearing desktop for new login.`);
+          this.doLoggoutInner(LoginScreenChangeReason.SessionExpired);
+        },logoutAfterWarnTimer);
       },warnTimer);
-      this.log.info(`Set session timeout watcher to notify when approaching ${warnTimer}ms before expiration`);      
+      this.log.debug(`Set session timeout watcher to notify ${warnTimer}ms before expiration`);
     }
   }
 
-  performSessionRefresh(): Observable<Response> {
-    console.log('service calling auth-refresh');
+  performSessionRenewal(): Observable<Response> {
+    this.log.info('Renewing session');
     return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh')).map(result=> {
       let jsonMessage = result.json();
       if (jsonMessage && jsonMessage.success === true) {
-        console.log('Resetting the timer as a result of a successful refresh');
+        this.log.info('Session renewal successful');
         this.setSessionTimeoutWatcher(jsonMessage.categories);
         return result;
       } else {
-        this.lockScreenInner(false);
+        this.log.warn('Session renewal unsuccessful');        
         throw Observable.throw(result);
       }
     });
@@ -237,7 +240,7 @@ export class AuthenticationManager {
   }
 
   private performLogout(): Observable<Response> {
-    this.performPreLogoutActions();    
+    this.performPreLogoutActions();
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-logout'), {})
       .map(response => {
         this.username = null;

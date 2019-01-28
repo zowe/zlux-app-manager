@@ -11,10 +11,13 @@
 */
 
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { AuthenticationManager, LoginScreenChangeReason, LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
+import { AuthenticationManager,
+         LoginScreenChangeReason,
+         LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
-import { Observable } from 'rxjs/Observable';
+//import { Observable } from 'rxjs/Observable';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 
@@ -24,6 +27,7 @@ const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
   styleUrls: [ 'login.component.css' ]
 })
 export class LoginComponent implements OnInit {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   logo: string = require('../../../assets/images/login/Zowe_Logo.png');
   isLoading:boolean;
@@ -33,6 +37,7 @@ export class LoginComponent implements OnInit {
   password: string;
   errorMessage: string | null;
   loginMessage: string;
+  private idleWarnModal: any;
   private lastActive: number = 0;
 
   constructor(
@@ -50,8 +55,6 @@ export class LoginComponent implements OnInit {
 
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
       switch (eventReason) {
-      case LoginScreenChangeReason.UserLocked:
-        this.errorMessage = 'Session Locked';
       case LoginScreenChangeReason.UserLogout:
         this.needLogin = true;
         break;
@@ -60,47 +63,73 @@ export class LoginComponent implements OnInit {
         this.needLogin = false;
         break;
       case LoginScreenChangeReason.SessionExpired:
-        if (this.isIdle()){
-          //I want to kill my little popup, but have no idea how to do it here.
-          this.errorMessage = 'Session Expired';
-          this.needLogin = true;
-        } else {
-          console.log('Ignoring passive log screen request due to user activity.');
+        if (this.idleWarnModal) {
+          this.popupManager.removeReport(this.idleWarnModal.id); 
+          this.idleWarnModal = undefined;
         }
+        this.errorMessage = 'Session Expired';
+        this.needLogin = true;
         break;
       default:
-        console.log('Ignoring unknown login screen change reason='+eventReason);
+        this.logger.warn('Ignoring unknown login screen change reason='+eventReason);
       }
       this.isLoading = false;
     });
     this.authenticationService.loginExpirationIdleCheck.subscribe((e: LoginExpirationIdleCheckEvent)=> {
       //it's not just about if its idle, but how long we've been idle for or when we were last active
       if (!this.isIdle()) {
-        console.log('Near session expiration, but refreshing session due to activity');
-        this.refreshSession();
+        this.logger.info('Near session expiration, but renewing session due to activity');
+        this.renewSession();
       } else {
-        console.log('Near session expiration. No activity detected, prompting to renew session');
-        let subject: Observable<any> = this.popupManager.reportError(
+        this.logger.info('Near session expiration. No activity detected, prompting to renew session');
+        this.idleWarnModal = this.popupManager.createErrorReport(
           ZluxErrorSeverity.WARNING,
           'Session Expiring Soon',
-          `Session will expire from inactivity soon. Click here to continue your session.`, {
+          `Session will expire in ${e.expirationInMS/1000} seconds unless renewed. `
+          +`Click here to renew your session.`,
+          {
             blocking: false,
             buttons: ["Continue"]
           });
-        console.log('Subject='+subject);
+        this.idleWarnModal.subject.subscribe((buttonName:any)=> {
+          if (buttonName == 'Continue') {
+            //may fail, so don't touch timers yet
+            this.renewSession();
+          }
+        });
       }
     });
   }
 
   private isIdle(): boolean {
     let idle = (Date.now() - this.lastActive) > ACTIVITY_IDLE_TIMEOUT_MS;
-    console.log('User idle='+idle);
+    this.logger.debug(`User lastActive=${this.lastActive}, now=${Date.now()}, idle={idle}`);
     return idle;
   }
 
-  refreshSession(): void {
-    console.log('User activity caused session refresh to activate.');
-    this.authenticationService.performSessionRefresh().subscribe();//i dont really care about the result, but angular refuses to do network stuff for me unless i subscribe
+  renewSession(): void {
+    this.authenticationService.performSessionRenewal().subscribe((result:any)=> {
+      if (this.idleWarnModal) {
+        this.idleWarnModal.subject.unsubscribe();
+        this.idleWarnModal = undefined;
+      }
+    }, (errorObservable)=> {
+      if (this.idleWarnModal) {
+        this.idleWarnModal.subject.unsubscribe();
+        this.idleWarnModal = this.popupManager.createErrorReport(
+          ZluxErrorSeverity.WARNING,
+          'Session Renewal Error',
+          `Session could not be renewed. Logout will occur unless renewed. Click here to retry.`, {
+            blocking: false,
+            buttons: ["Retry", "Dismiss"]
+          });
+        this.idleWarnModal.subject.subscribe((buttonName:any)=> {
+          if (buttonName == 'Retry') {
+            this.renewSession();
+          }
+        });        
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -144,8 +173,12 @@ export class LoginComponent implements OnInit {
   }
 
   protected detectActivity(): void {
-    console.log('activity detected!');
+    this.logger.debug('User activity detected');
     this.lastActive = Date.now();
+    if (this.idleWarnModal) {
+      this.popupManager.removeReport(this.idleWarnModal.id); 
+      this.idleWarnModal = undefined;
+    }    
   }
 
   attemptLogin(): void {
