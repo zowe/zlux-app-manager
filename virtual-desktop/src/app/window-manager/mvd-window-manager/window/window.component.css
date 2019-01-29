@@ -139,6 +139,11 @@
   background-image: url(../../../../assets/images/window/expand-normal.png);
 }
 
+.maximize-button.maximized {
+  left: 73px;
+  background-image: url(../../../../assets/images/window/expanded-normal.png);
+}
+
 .minimize-button {
   left: 42px;
   background-image: url(../../../../assets/images/window/minimize-normal.png);
@@ -159,6 +164,10 @@
   background-image: url(../../../../assets/images/window/expand-hover.png);
 }
 
+.maximize-button.maximized:hover {
+  background-image: url(../../../../assets/images/window/expanded-hover.png);
+}
+
 .minimize-button:hover {
   background-image: url(../../../../assets/images/window/minimize-hover.png);
 }
@@ -166,8 +175,13 @@
 .close-button:hover {
   background-image: url(../../../../assets/images/window/close-hover.png);
 }
+
 .maximize-button:active {
   background-image: url(../../../../assets/images/window/expand-pressed.png);
+}
+
+.maximize-button.maximized:active {
+  background-image: url(../../../../assets/images/window/expanded-pressed.png);
 }
 
 .minimize-button:active {
