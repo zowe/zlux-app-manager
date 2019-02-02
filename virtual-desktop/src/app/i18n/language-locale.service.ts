@@ -13,14 +13,14 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/mergeMap';
 import { fromPromise } from 'rxjs/observable/fromPromise';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 import { Globalization } from './globalization';
 
 @Injectable()
 export class LanguageLocaleService {
 
-  private readonly plugin: ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
-  private readonly logger = ZoweZLUX.logger.makeComponentLogger(this.plugin.getIdentifier());
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   readonly globalization: Globalization = new Globalization();
 

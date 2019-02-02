@@ -8,11 +8,13 @@
   Copyright Contributors to the Zowe Project.
 */
 
+import { BaseLogger } from 'virtual-desktop-logger';
+
 export class Globalization implements ZLUX.Globalization {
 
 
   private readonly plugin: ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
-  private readonly logger: ZLUX.ComponentLogger = ZoweZLUX.logger.makeComponentLogger(this.plugin.getIdentifier());
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   private readonly resourcePath = 'browser-preferences';
   // Maybe this could be a constructor arg in the future

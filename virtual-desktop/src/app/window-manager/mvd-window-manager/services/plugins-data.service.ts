@@ -17,11 +17,15 @@ import { PluginLaunchbarItem } from '../launchbar/shared/launchbar-items/plugin-
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { TranslationService } from 'angular-l10n';
+import { WindowManagerService } from '../shared/window-manager.service';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Injectable()
 export class PluginsDataService implements MVDHosting.LogoutActionInterface {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   public counter: number;
   public pinnedPlugins: LaunchbarItem[];
+  private accessiblePlugins: LaunchbarItem[];
   private scope: string = "user";
   private resourcePath: string = "ui/launchbar/plugins";
   private fileName: string = "pinnedPlugins.json"
@@ -31,7 +35,8 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
   constructor(
     private injector: Injector,
     private http: Http,
-    private translation: TranslationService
+    private translation: TranslationService,
+    private windowManager: WindowManagerService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
@@ -41,85 +46,103 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
     this.counter = 0;
   }
 
-    onLogout(username: string): boolean {
+  onLogout(username: string): boolean {
       this.pinnedPlugins = [];
       return true;
   }
 
-    public refreshPinnedPlugins(): void {
-      this.pinnedPlugins = [];
-      this.getResource("user", "ui/launchbar/plugins" , "pinnedPlugins.json")
+  public refreshPinnedPlugins(accessiblePlugins: LaunchbarItem[]): void {
+    this.accessiblePlugins = accessiblePlugins;
+    this.pinnedPlugins = [];
+    this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res =>{
         res.json().contents.plugins.forEach((p: string) => {
           this.pluginManager.findPluginDefinition(p)
           .then(res => {
             if (res == null) {
-              console.log("Bad Plugin Definition")
+              this.logger.warn(`Bad Plugin Definition for plugin=${p}`)
             } else {
-              this.pinnedPlugins.push(new PluginLaunchbarItem(res as DesktopPluginDefinitionImpl));
+              this.pinnedPlugins.push(new PluginLaunchbarItem((res as DesktopPluginDefinitionImpl), this.windowManager));
             }
           })
         })
       })
     }
 
-    public getResource(scope: string, resourcePath: string, fileName: string): Observable<any>{
-        let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
-        let headers = new Headers({ 'Content-Type': 'application/json' });
-        let options = new RequestOptions({ headers: headers });
-        return this.http.get(uri, options);
+  public getResource(scope: string, resourcePath: string, fileName: string): Observable<any>{
+    let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+    return this.http.get(uri, options);
+  }
 
-      }
+  public saveResource(plugins: string[], scope: string, resourcePath: string, fileName: string): void{
+    let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
+    let params = {"plugins": plugins};
+    this.http.put(uri, params).subscribe((res) => {
+      this.pinnedPlugins = this.getMatchingPlugins(this.accessiblePlugins, plugins);
+    }, (err)=> {
+      this.logger.warn(`Could not update pinned plugins, err=${err}`);
+    });
+  }
 
-    public saveResource(plugins: string[], scope: string, resourcePath: string, fileName: string): Observable<any>{
-        let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
-        let params = {"plugins": plugins};
-        return this.http.put(uri, params);
-      }
-
-    public isPinnedPlugin(item: LaunchbarItem): boolean{
-      const itemIdentifier: string = item.plugin.getBasePlugin().getIdentifier();
-      let foundPlugin = this.pinnedPlugins.find(function(launchbarItem: LaunchbarItem): boolean {
-        return launchbarItem.plugin.getBasePlugin().getIdentifier() == itemIdentifier;
-      });
-      if (foundPlugin != undefined) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-    public saveToConfigServer(item: LaunchbarItem): void {
-      this.getResource(this.scope, this.resourcePath, this.fileName)
-        .subscribe(res=>{
-          let plugins:string[];
-          if (res.status === 204) {
-            plugins = [];
+  private getMatchingPlugins(items: LaunchbarItem[], plugins: string[]): LaunchbarItem[] {
+    let list: LaunchbarItem[] = [];
+    plugins.forEach((p: string) => {
+      this.pluginManager.findPluginDefinition(p)
+        .then(res => {
+          if (res == null) {
+            this.logger.warn(`Bad Plugin Definition for plugin=${p}`)
           } else {
-            plugins = res.json().contents.plugins;
+            for (let i = 0; i < items.length; i++) {
+              if (items[i].plugin.getKey() == (res as DesktopPluginDefinitionImpl).getKey()) {
+                list.push(items[i]);
+                break;
+              }
+            }
           }
-          plugins.push(item.plugin.getBasePlugin().getIdentifier());
-          this.saveResource(plugins, this.scope, this.resourcePath, this.fileName)
-            .subscribe(resp=> {
-              this.refreshPinnedPlugins();
-            })
         })
-    }
+    });
+    return list;
+  }
 
-    public removeFromConfigServer(item: LaunchbarItem): void {
-      this.getResource(this.scope, this.resourcePath, this.fileName)
+  public isPinnedPlugin(item: LaunchbarItem): boolean{
+    const itemIdentifier: string = item.plugin.getBasePlugin().getIdentifier();
+    let foundPlugin = this.pinnedPlugins.find(function(launchbarItem: LaunchbarItem): boolean {
+      return launchbarItem.plugin.getBasePlugin().getIdentifier() == itemIdentifier;
+    });
+    if (foundPlugin != undefined) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public saveToConfigServer(item: LaunchbarItem): void {
+    this.getResource(this.scope, this.resourcePath, this.fileName)
+      .subscribe(res=>{
+        let plugins:string[];
+        if (res.status === 204) {
+          plugins = [];
+        } else {
+          plugins = res.json().contents.plugins;
+        }
+        plugins.push(item.plugin.getBasePlugin().getIdentifier());
+        this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
+      })
+  }
+
+  public removeFromConfigServer(item: LaunchbarItem): void {
+    this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res=>{
         let index = res.json().contents.plugins.indexOf(item.plugin.getBasePlugin().getIdentifier());
         let plugins = res.json().contents.plugins;
         if (index != -1) {
           plugins.splice(index, 1);
-          this.saveResource(plugins, this.scope, this.resourcePath, this.fileName)
-          .subscribe(res=>{
-            this.refreshPinnedPlugins();
-          })
+          this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
         }
       })
-    }
+  }
 
   public pinContext(item: LaunchbarItem): ContextMenuItem {
     return {
@@ -137,10 +160,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
     var element = arr[fromIndex];
     arr.splice(fromIndex, 1);
     arr.splice(toIndex, 0, element);
-    this.saveResource(arr, this.scope, this.resourcePath, this.fileName)
-    .subscribe(res => {
-      this.refreshPinnedPlugins();
-    })
+    this.saveResource(arr, this.scope, this.resourcePath, this.fileName);
   }
 }
 

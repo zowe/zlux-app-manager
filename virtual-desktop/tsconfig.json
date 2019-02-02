@@ -29,6 +29,9 @@
       "pluginlib/*": [
         "./pluginlib/*"
       ],
+      "virtual-desktop-logger": [
+        "./app/shared/logger"
+      ],
       "zlux-base/*": [
         "../../../zlux-platform/base/src/*"
       ],

@@ -19,6 +19,11 @@ var config = {
     "main": "./src/externals-main.ts",
     "externals": "./src/externals.ts"
   },
+  "resolve": {
+    "alias": {
+      "virtual-desktop-logger": path.resolve(__dirname, "src/app/shared/logger.ts"),
+    }
+  },
   "output": {
     "filename": "[name].js",
     "path": path.resolve(__dirname, "web")
