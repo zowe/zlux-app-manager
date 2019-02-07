@@ -12,7 +12,7 @@
 
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
 import { MvdUri } from '../uri/mvd-uri'
-import { Dispatcher } from 'zlux-base/dispatcher/dispatcher'
+import { DispatcherFactory } from 'zlux-base/dispatcher/dispatcher'
 import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry'
 import { NotificationManager } from 'zlux-base/notification-manager/notification-manager'
@@ -29,7 +29,7 @@ window.COM_RS_COMMON_LOGGER = logger;
 export class ZoweZLUXResources {
   static pluginManager = PluginManager
   static uriBroker:ZLUX.UriBroker = new MvdUri();
-  static dispatcher:Dispatcher = new Dispatcher(logger);
+  static dispatcher:ZLUX.Dispatcher = new DispatcherFactory().makeDispatcher(logger);
   static logger:Logger = logger;
   static registry:ZLUX.Registry = new Registry();
   static notificationManager:NotificationManager = new NotificationManager();
