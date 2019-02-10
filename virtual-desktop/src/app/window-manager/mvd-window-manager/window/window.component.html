@@ -59,7 +59,7 @@
   </div>
 
   <!-- Window resize grips -->
-  <div class="draggable-grips">
+  <div class="draggable-grips" (mousedown)="requestFocus()">
     <div class="grip-w" #w></div>
     <div class="grip-s" #s></div>
     <div class="grip-e" #e></div>

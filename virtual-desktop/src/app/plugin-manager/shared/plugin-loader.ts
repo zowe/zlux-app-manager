@@ -47,9 +47,8 @@ export class PluginLoader {
     });
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<CompiledPlugin> {
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, windowId: MVDHosting.ViewportId): Promise<CompiledPlugin> {
     const candidateFactories = this.frameworkMap.get(pluginDefinition.getFramework()) || [];
-
     if (pluginDefinition.getFramework() === 'unsupported') {
       return new Promise((resolve, reject) => {
         this.logger.warn(`${pluginDefinition.getIdentifier()} does not use supported framework`);
@@ -64,7 +63,7 @@ export class PluginLoader {
     /* Attempt all registered factories for the given framework */
     return candidateFactories.reduce(
       (promise, factory) => promise.catch((errors: any[]) =>
-        factory.loadPlugin(pluginDefinition).catch((error) => Promise.reject(errors.concat([error])))
+        factory.loadPlugin(pluginDefinition, windowId).catch((error) => Promise.reject(errors.concat([error])))
       ),
       Promise.reject([new Error(`All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
     );

@@ -64,7 +64,7 @@ export class ReactPluginFactory extends PluginFactory {
     });
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<CompiledPlugin> {
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, id: MVDHosting.ViewportId): Promise<CompiledPlugin> {
     const scriptUrl = ReactPluginFactory.getReactModuleURL(pluginDefinition);
     return new Promise((resolve, reject) => {
       (window as any).require([scriptUrl],
