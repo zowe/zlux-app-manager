@@ -17,7 +17,7 @@ import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 
 class ClearDispatcher implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
-    ZoweZLUX.dispatcher.clearDispatcher();
+    ZoweZLUX.dispatcher.clear();
     return true;
   }
 }
