@@ -15,6 +15,13 @@ import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 
+class ClearDispatcher implements MVDHosting.LogoutActionInterface {
+  onLogout(username: string | null): boolean {
+    ZoweZLUX.dispatcher.clear();
+    return true;
+  }
+}
+
 @Injectable()
 export class AuthenticationManager {
   username: string | null;
@@ -32,6 +39,7 @@ export class AuthenticationManager {
     this.username = null;
     this.postLoginActions = new Array<MVDHosting.LoginActionInterface>();
     this.preLogoutActions = new Array<MVDHosting.LogoutActionInterface>();
+    this.registerPreLogoutAction(new ClearDispatcher());
     this.loginScreenVisibilityChanged = new EventEmitter();
   }
 
