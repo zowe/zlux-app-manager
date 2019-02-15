@@ -34,7 +34,7 @@ export class IFramePluginFactory extends PluginFactory {
     window.addEventListener("blur", (event) => { //Checks if focus is lost from the desktop
       if (iFrameElement != null && document.activeElement.className == "mvd-iframe") //Checks if an IFrame caused it
       {
-        let stringId = iFrameElement.id.replace(/[^0-9\.]+/g, ""); //Extracts the Window ID from the IFrame ID
+        let stringId = iFrameElement.id.replace(/[^0-9\.]+/g, ""); //Extracts the instance ID from the IFrame ID
         const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
         windowManager.showWindow(parseInt(stringId, 10)); 
       }
@@ -50,7 +50,7 @@ export class IFramePluginFactory extends PluginFactory {
       return ['iframe'];
     }
 
-  private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition, pluginId: MVDHosting.ViewportId): Type<any> {
+  private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Type<any> {
     const basePlugin = pluginDefinition.getBasePlugin();
     const startingPage = basePlugin.getWebContent().startingPage || 'index.html';
     this.logger.debug('iframe startingPage', startingPage);
@@ -63,7 +63,7 @@ export class IFramePluginFactory extends PluginFactory {
     this.logger.debug('iframe startingPageUri', startingPageUri);
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
     this.logger.info(`Loading iframe, URI=${startingPageUri}`);
-    const theIframeId = "mvd_iframe_" + (pluginId); //Syncs the IFrame ID with its Window ID counterpart
+    const theIframeId = "mvd_iframe_" + (instanceId); //Syncs the IFrame ID with its instance ID counterpart
     return class IFrameComponentClass {
       startingPage: SafeResourceUrl = safeStartingPageUri;
       iframeId:string = theIframeId;
