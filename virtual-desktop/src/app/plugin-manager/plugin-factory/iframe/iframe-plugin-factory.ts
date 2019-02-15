@@ -10,10 +10,9 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Compiler, Component, Injectable, NgModule, Type } from '@angular/core';
+import { Compiler, Component, Injectable, NgModule, Type, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-
 import { PluginFactory } from '../plugin-factory';
 //import { DesktopPluginDefinition } from '../../shared/desktop-plugin-definition';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
@@ -27,10 +26,22 @@ let iFrameElement: HTMLElement;
 export class IFramePluginFactory extends PluginFactory {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   constructor(
+    private injector: Injector,
     private compiler: Compiler,
     private sanitizer: DomSanitizer
   ) {
     super();
+    window.addEventListener("blur", (event) => { //Checks if focus is lost from the desktop
+      if (iFrameElement != null && document.activeElement.className == "mvd-iframe") //Checks if an IFrame caused it
+      {
+        let stringId = iFrameElement.id.replace(/[^0-9\.]+/g, ""); //Extracts the instance ID from the IFrame ID
+        const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+        windowManager.showWindow(parseInt(stringId, 10)); 
+      }
+    }, false);
+    window.addEventListener("mouseover", (event) => {
+      window.focus(); //Without giving focus back to the desktop, there is no easy way to tell for clicks between IFrame to IFrame
+    }, false);
   }
 
   static iframeIndex:number = 1;
@@ -39,7 +50,7 @@ export class IFramePluginFactory extends PluginFactory {
       return ['iframe'];
     }
 
-  private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition): Type<any> {
+  private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Type<any> {
     const basePlugin = pluginDefinition.getBasePlugin();
     const startingPage = basePlugin.getWebContent().startingPage || 'index.html';
     this.logger.debug('iframe startingPage', startingPage);
@@ -52,7 +63,7 @@ export class IFramePluginFactory extends PluginFactory {
     this.logger.debug('iframe startingPageUri', startingPageUri);
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
     this.logger.info(`Loading iframe, URI=${startingPageUri}`);
-    const theIframeId = "mvd_iframe_"+(IFramePluginFactory.iframeIndex++);
+    const theIframeId = "mvd_iframe_" + (instanceId); //Syncs the IFrame ID with its instance ID counterpart
     return class IFrameComponentClass {
       startingPage: SafeResourceUrl = safeStartingPageUri;
       iframeId:string = theIframeId;
@@ -75,8 +86,8 @@ export class IFramePluginFactory extends PluginFactory {
     return Promise.resolve();
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<CompiledPlugin> {
-    const componentClass = this.createIFrameComponentClass(pluginDefinition);
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin> {
+    const componentClass = this.createIFrameComponentClass(pluginDefinition, instanceId);
     const metadata = {
       selector: 'rs-com-mvd-iframe-component',
       templateUrl: './iframe-plugin.component.html',
