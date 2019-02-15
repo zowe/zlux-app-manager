@@ -86,8 +86,8 @@ export class IFramePluginFactory extends PluginFactory {
     return Promise.resolve();
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, pluginId: MVDHosting.ViewportId): Promise<CompiledPlugin> {
-    const componentClass = this.createIFrameComponentClass(pluginDefinition, pluginId);
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin> {
+    const componentClass = this.createIFrameComponentClass(pluginDefinition, instanceId);
     const metadata = {
       selector: 'rs-com-mvd-iframe-component',
       templateUrl: './iframe-plugin.component.html',

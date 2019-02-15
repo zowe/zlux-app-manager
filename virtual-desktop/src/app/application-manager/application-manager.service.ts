@@ -125,7 +125,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   private spawnApplicationIntoViewport(plugin: DesktopPluginDefinitionImpl, launchMetadata: any,
     applicationInstance: ApplicationInstance, viewportId: MVDHosting.ViewportId): Promise<MVDHosting.InstanceId> {
     // TODO: race condition?
-    return this.pluginLoader.loadPlugin(plugin, viewportId)
+    return this.pluginLoader.loadPlugin(plugin, applicationInstance.instanceId)
       .then((compiled): MVDHosting.InstanceId => {
         //  When angular module is compiled, it produces and ngModuleFactory
         //  The ngModuleFactory, when given an injector produces a module ref
