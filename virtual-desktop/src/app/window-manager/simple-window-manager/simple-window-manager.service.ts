@@ -84,7 +84,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
     return {
       resized: this.windowResized,
       spawnContextMenu: (xRel, yRel, items) => this.spawnContextMenu(windowId, xRel, yRel, items),
-      registerCloseHandler: (handler: MVDHosting.ViewportCloseHandler) => this.viewportManager.registerViewportCloseHandler(viewportId, handler)
+      registerCloseHandler: (handler: ()=>Promise<any>) => this.viewportManager.registerViewportCloseHandler(viewportId, handler)
     };
   }
 

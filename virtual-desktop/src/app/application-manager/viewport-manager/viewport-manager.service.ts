@@ -20,7 +20,7 @@ export class ViewportManager implements MVDHosting.ViewportManagerInterface {
   private viewports: Map<MVDHosting.ViewportId, Viewport>;
   private viewportInstances: Map<MVDHosting.ViewportId, MVDHosting.InstanceId>;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
-  private closeHandlers: Map<MVDHosting.ViewportId, Array<MVDHosting.ViewportCloseHandler>>;
+  private closeHandlers: Map<MVDHosting.ViewportId, Array<() => Promise<any>>>;
   constructor() {
     this.viewports = new Map();
     this.viewportInstances = new Map();
@@ -42,20 +42,20 @@ export class ViewportManager implements MVDHosting.ViewportManagerInterface {
     this.viewportInstances.set(viewportId, instanceId);
   }
 
-  registerViewportCloseHandler(viewportId: MVDHosting.ViewportId, handler: MVDHosting.ViewportCloseHandler):void {
+  registerViewportCloseHandler(viewportId: MVDHosting.ViewportId, handler: () => Promise<any>):void {
     let handlers = this.closeHandlers.get(viewportId);
     if (!handlers) {
-      handlers = new Array<MVDHosting.ViewportCloseHandler>();
+      handlers = new Array<() => Promise<any>>();
       this.closeHandlers.set(viewportId, handlers);
     }
     handlers.push(handler);
   }
 
-  private closeWatcherLoop(pos: number, handlers: Array<MVDHosting.ViewportCloseHandler>, finishedCallback: any, rejectCallback: any): void {
+  private closeWatcherLoop(pos: number, handlers: Array<() => Promise<any>>, finishedCallback: any, rejectCallback: any): void {
     if (pos >= handlers.length) {
       finishedCallback();
     } else {
-      handlers[pos].onViewportClosed().then(()=> {
+      handlers[pos]().then(()=> {
         this.closeWatcherLoop(++pos, handlers, finishedCallback, rejectCallback);
       }).catch((reason:any)=> {
         rejectCallback();
