@@ -231,7 +231,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       restore: () => this.restore(windowId),
       setTitle: (title) => this.setWindowTitle(windowId, title),
       setPosition: (pos) => this.setPosition(windowId, pos),
-      spawnContextMenu: (xRel, yRel, items) => this.spawnContextMenu(windowId, xRel, yRel, items)
+      spawnContextMenu: (xRel, yRel, items) => this.spawnContextMenu(windowId, xRel, yRel, items),
+      registerCloseHandler: (handler)=> this.registerCloseHandler(windowId, handler)
     };
   }
 
@@ -398,16 +399,26 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
      return;
     }
     this.updateWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
-       
-    let appId = this.viewportManager.getApplicationInstanceId(desktopWindow.viewportId);
-    if (appId!=null) {
-      this.applicationManager.killApplication(desktopWindow.plugin, appId);
+
+    const closeViewports = ()=> {
+      desktopWindow.closeViewports(this.viewportManager).then(()=> {
+        if (appId!=null) {
+          this.applicationManager.killApplication(desktopWindow.plugin, appId);
+        }
+        this.destroyWindow(windowId);
+      }).catch((info:any)=> {
+        this.logger.warn(`Window could not be closed because of viewport. Details=`,info);
+        return;
+      }); 
     }
-    desktopWindow.closeViewports(this.viewportManager).then(()=> {
-      this.destroyWindow(windowId);
-    }).catch((info:any)=> {
-      this.logger.warn(`Window could not be closed because of viewport. Details=`,info);
-    });
+    
+    let appId = this.viewportManager.getApplicationInstanceId(desktopWindow.viewportId);
+    if (desktopWindow.closeHandler != null) {
+      desktopWindow.closeHandler().then(()=>{closeViewports();});
+    } else {
+      closeViewports();
+    }
+
   }
 
   closeAllWindows() :void {
@@ -415,6 +426,17 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     windows.forEach((window: DesktopWindow)=> {
       this.closeWindow(window.windowId);
     });
+  }
+
+  registerCloseHandler(windowId: MVDWindowManagement.WindowId, handler: () => Promise<void>): void {
+    this.logger.warn(`windowActions.registerCloseHandler is deprecated. Please use viewportEvents.registerCloseHandler instead.`);
+    const desktopWindow = this.windowMap.get(windowId);
+    if (desktopWindow == null) {
+      this.logger.warn('Attempted to register close handler for null window, ID=${windowId}');
+      return;
+    }
+
+    desktopWindow.closeHandler = handler;
   }
 
   getWindowTitle(windowId: MVDWindowManagement.WindowId): string | null {

@@ -32,11 +32,14 @@ export class DesktopWindow {
   private childViewports: Array<MVDHosting.ViewportId>;
   public readonly plugin: ZLUX.Plugin;
   viewportId: MVDHosting.ViewportId; //primary, if children exist
+
+  closeHandler: (() => Promise<void>) | null; //DEPRECATED 1.0.1, use viewport close handler instead of window
   
   constructor(windowId: MVDWindowManagement.WindowId, windowState: DesktopWindowState, plugin: ZLUX.Plugin) {
     this._windowTitle = '';
     this.windowId = windowId;
     this.windowState = windowState;
+    this.closeHandler = null;
     this.plugin = plugin;
     this.childViewports = new Array<MVDHosting.ViewportId>();
     this.localWindowEvents = {
