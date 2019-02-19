@@ -101,19 +101,25 @@ export class DesktopWindow {
         } else {
           this.closeViewportLoop(0, viewportManager, ()=> {
             resolve();
+          }, (reason:any)=> {
+            reject({viewport:this.viewportId, reason:reason});    
           });
         }
+      }).catch((reason:any)=> {
+        reject({viewport:this.viewportId, reason:reason});
       });
     });
   }
 
-  private closeViewportLoop(pos: number, viewportManager: MVDHosting.ViewportManagerInterface, finishedCallback: any): void {
+  private closeViewportLoop(pos: number, viewportManager: MVDHosting.ViewportManagerInterface, finishedCallback: any, rejectedCallback: any): void {
     if (pos >= this.childViewports.length) {
       finishedCallback();
     }
     else {
       viewportManager.destroyViewport(this.childViewports[pos]).then(()=> {
-        this.closeViewportLoop(++pos,viewportManager,finishedCallback);
+        this.closeViewportLoop(++pos,viewportManager,finishedCallback,rejectedCallback);
+      }).catch((reason:any)=> {
+        rejectedCallback(reason);
       });
     }
   }

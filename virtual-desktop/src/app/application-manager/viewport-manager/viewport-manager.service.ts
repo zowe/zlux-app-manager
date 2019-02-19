@@ -51,12 +51,14 @@ export class ViewportManager implements MVDHosting.ViewportManagerInterface {
     handlers.push(handler);
   }
 
-  private closeWatcherLoop(pos: number, handlers: Array<MVDHosting.ViewportCloseHandler>, finishedCallback: any): void {
+  private closeWatcherLoop(pos: number, handlers: Array<MVDHosting.ViewportCloseHandler>, finishedCallback: any, rejectCallback: any): void {
     if (pos >= handlers.length) {
       finishedCallback();
     } else {
       handlers[pos].onViewportClosed().then(()=> {
-        this.closeWatcherLoop(++pos, handlers, finishedCallback);
+        this.closeWatcherLoop(++pos, handlers, finishedCallback, rejectCallback);
+      }).catch((reason:any)=> {
+        rejectCallback();
       });
     }
   }
@@ -70,6 +72,8 @@ export class ViewportManager implements MVDHosting.ViewportManagerInterface {
       if (handlers) {
         this.closeWatcherLoop(0,handlers,()=> {
           resolve();
+        }, (reason:any)=> {
+          reject(reason);
         });
       } else {
         resolve();

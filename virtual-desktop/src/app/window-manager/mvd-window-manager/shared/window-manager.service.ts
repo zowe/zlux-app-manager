@@ -394,8 +394,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   closeWindow(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      this.logger.warn(`Attempted to close null window, ID=${windowId}`);
-      return;
+      this.logger.warn(`Attempted to close null window, ID=${windowId}`); 
+     return;
     }
     this.updateWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
        
@@ -405,7 +405,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
     desktopWindow.closeViewports(this.viewportManager).then(()=> {
       this.destroyWindow(windowId);
-    }
+    }).catch((info:any)=> {
+      this.logger.warn(`Window could not be closed because of viewport. Details=`,info);
+    });
   }
 
   closeAllWindows() :void {
