@@ -60,6 +60,8 @@ export interface Angular2PluginWindowEvents {
 
 export interface Angular2PluginViewportEvents {
   readonly resized: Subject<{width: number, height: number}>;
+  readonly spawnContextMenu: (xPos: number, yPos: number, items: ContextMenuItem[]) => void;
+  readonly registerCloseHandler: (handler: () => Promise<any>) => void;
 }
 
 export interface Angular2PluginEmbedActions {
