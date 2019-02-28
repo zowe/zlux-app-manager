@@ -12,12 +12,12 @@
     "declaration": false,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
+    "experimentalDecorators": false,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "strictNullChecks": true,
+    "noUnusedLocals": false,
+    "strictNullChecks": false,
     "skipLibCheck": true,
     "paths": {
       "bootstrap/*": [

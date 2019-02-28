@@ -55,6 +55,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
   public screenshot: boolean;
+  public showPersonalizationPanel: boolean = false;
   /*
    * NOTES:
    * 1. We ignore the width and height here (I am reluctant to make a new data type just for this,
@@ -69,6 +70,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private viewportManager: MVDHosting.ViewportManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
+  personalizationPanelShowChange = new Subject<boolean>();
 
   constructor(
     private injector: Injector,
@@ -81,6 +83,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.nextId = 0;
     this.windowMap = new Map();
+    this.personalizationPanelShowChange.subscribe((value) => {
+       this.showPersonalizationPanel = value;
+    });
 
     this.runningPluginMap = new Map();
 
@@ -104,7 +109,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     return Array.from(this.windowMap.values());
   }
 
- 
+  togglePersonalizationPanelVisibility() {
+    this.personalizationPanelShowChange.next(!this.showPersonalizationPanel);
+  }
+
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {
     //this is the window viewport size, so you must subtract the header and launchbar from the height.
     desktopWindow.windowState.position = { top: 0,

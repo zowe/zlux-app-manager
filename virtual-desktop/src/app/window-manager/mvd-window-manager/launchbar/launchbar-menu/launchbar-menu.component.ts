@@ -119,6 +119,12 @@ export class LaunchbarMenuComponent {
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     return false;
   }
+
+  togglePersonalize() {
+    //Toggle personalization modal
+    this.windowManager.togglePersonalizationPanelVisibility();
+    this.activeToggle();
+  }
 }
 
 
