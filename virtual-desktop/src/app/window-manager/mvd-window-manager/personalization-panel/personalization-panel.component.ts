@@ -14,6 +14,7 @@ import { Component, Injector } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { TranslationService } from 'angular-l10n';
+import { DesktopPluginDefinitionImpl } from "../../../../app/plugin-manager/shared/desktop-plugin-definition";
 
 const CONTAINER_HEIGHT = 60;
 const ICONS_INITIAL_HEIGHT = -15;
@@ -26,7 +27,9 @@ const ICONS_CHANGED_HEIGHT = 35;
   providers: [WindowManagerService]
 })
 export class PersonalizationComponent {
-  
+  settingsWindowPluginDef : DesktopPluginDefinitionImpl;
+  pluginManager: MVDHosting.PluginManagerInterface;
+  public applicationManager: MVDHosting.ApplicationManagerInterface;
    personalizationTools = [{
                             "title":"Keyboard Controls",
                             "imgSrc":"keyboard",
@@ -70,14 +73,33 @@ export class PersonalizationComponent {
     public windowManager: WindowManagerService,
     private translation: TranslationService
   ) {
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
    }
   
   ngOnInit(): void {
+    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.app.personalizationwindow").then(personalizationsPlugin => {
+      const pluginImpl:DesktopPluginDefinitionImpl = personalizationsPlugin as DesktopPluginDefinitionImpl;
+      this.settingsWindowPluginDef=pluginImpl;
+    })
+  }
 
+  getAppPropertyInformation():any{
+    return {"isPropertyWindow":true,
+    "settingsToolName":this.settingsWindowPluginDef.defaultWindowTitle,
+    "copyright":this.settingsWindowPluginDef.getCopyright(),
+    "image":this.settingsWindowPluginDef.image
+    };
   }
 
   openTool (tool:any) {
-    
+    let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
+    if (propertyWindowID==null){
+      this.windowManager.togglePersonalizationPanelVisibility();
+      this.applicationManager.spawnApplication(this.settingsWindowPluginDef,this.getAppPropertyInformation());
+    }else{
+      this.windowManager.showWindow(propertyWindowID);
+    }
   }
 
 /*

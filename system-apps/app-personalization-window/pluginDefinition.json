@@ -1,0 +1,23 @@
+{
+  "identifier": "org.zowe.zlux.appmanager.app.personalizationwindow",
+  "apiVersion": "1.0.0",
+  "pluginVersion": "1.0.0",
+  "pluginType": "application",
+  "isSystemPlugin":true,
+  "webContent": {
+    "framework": "angular2",
+    "launchDefinition": {
+      "pluginShortNameKey": "Zowe Personalization Window",
+      "pluginShortNameDefault": "Zowe Personalization Window",
+      "imageSrc": "assets/icon.png"
+    },
+    "descriptionKey": "Zowe Personalization Window",
+    "descriptionDefault": "Zowe Personalization Window",
+    "defaultWindowStyle": {
+      "width": 500,
+      "height": 500,
+      "x": 0,
+      "y": 0
+    }
+  }
+}

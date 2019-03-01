@@ -1,0 +1,62 @@
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+<div class="viewer" *ngIf=isViewerWindow>
+  TO VIEW ALL INSTALLED APPs
+</div>
+
+<div class="window" *ngIf=isPropertyWindow>
+
+  <!-- Window body -->
+
+  <div id="row" class="content">
+    <div id="column1">
+      <div id="column">
+          <img class="icon">
+          <label class="control-label" style="padding:10px;color:#36617a;font-weight: bolder" title="Background">Background</label>
+          <label class="control-label" style="padding:10px;color:#36617a" title="Screen Savers">Screen Savers</label>
+          <label class="control-label" style="padding:10px;color:#36617a" title="Resolution">Resolution</label>
+          <label class="control-label" style="padding:10px;color:#36617a" title="TBD">TBD</label>
+          <label class="control-label" style="padding:10px;color:#36617a" title="TBD">TBD</label>
+      </div>
+    </div>
+    <div id="column2">
+      <form class="form-horizontal well configurationForm" #backgroundChange="ngForm" style="overflow:hidden">
+        <div id="configFormInnerDiv">
+          <br>
+          <div class="form-group" style="margin-bottom:5px">
+            <label class="col-md-8 control-label" title="Background Image"> Background Image: </label>
+            <div class="col-md-12">
+              <input type="file" #fileName id="fileName" name="fileName" (change)="readFileAndDisplayImage($event)" class="form-control">
+            </div>
+            <br>
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="backgroundFormButton btn btn-primary">Save</button>
+            <button type="submit" class="backgroundFormButton btn btn-primary" (click)="applyBackground(fileName)">Apply</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <hr>
+  <p class="copyright">
+    {{copyright}}
+  </p>
+</div>
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->

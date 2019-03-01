@@ -1,0 +1,203 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+ 
+.viewer {
+  background-color: #FFFFFF;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.backgroundFormButton {
+    background-color:#2559a9;
+    color:#ffffff;
+    font-size:16px;
+    margin-left:10px;
+    float:right;
+    margin-right:10px;
+}
+
+.icon {
+   display:inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+  background-image: url('../assets/missing.png');
+  background-size: 80px 80px;
+  margin-top: 40px;
+  margin-left: 20px;
+  margin-right: 20px;
+  user-select: none;
+  padding: 0;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  background-repeat: no-repeat;
+  background-position-y: 0;
+  background-position-x: center;
+  background-color: #dde8f1;
+    z-index: 7;
+}
+
+.window {
+  position: relative;
+ 
+  margin: 0;
+  padding: 0;
+  background-color: #FFFFFF;
+  -webkit-box-shadow: 6px 6px 15px 0px rgba(0, 0, 0, 0.35);
+  -moz-box-shadow:    6px 6px 15px 0px rgba(0, 0, 0, 0.35);
+  box-shadow:         6px 6px 15px 0px rgba(0, 0, 0, 0.35);
+  border: 1px solid transparent;
+  border-radius: 6px 6px 0 0;
+  z-index: 1;
+  min-width: 100%;
+  min-height: 100%;
+  width:100%;
+  height:100%;
+  
+}
+
+.content {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  background-color: #FFFFFF;
+  z-index: 1;
+  min-width: 100px;
+  min-height: 40px;
+  width:100%;
+  height:70%;
+  
+}
+ 
+ 
+ 
+.window .caption {
+  font-family: 'Roboto';
+  font-weight: 400;
+  font-size: 20px;
+  cursor: default;
+  position: absolute;
+  padding-left:83px;
+  padding-right:83px;
+  left: 0px;
+  right: 0px;
+  height: 100%;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hr { 
+    display: block;
+    width:70%;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    margin-left: 20px;
+    margin-right: 20px;
+    border-style: inset;
+    border-width: 1px;
+   border-top: 1px solid #D3D3D3	;
+}
+ 
+ 
+#row{
+    display:flex;
+    flex-direction:row;
+justify-content: space-around;
+}
+
+#column{
+  display:flex;
+  flex-direction:column;
+justify-content: space-around;
+}
+
+#column1{
+    display:flex;
+    flex-direction:column;
+    width:30%;
+    background-color: #dde8f1;
+}
+
+
+#column2{
+    display:flex;
+    flex-direction:column;
+     width:70%
+}
+
+
+.app-name {
+  font-weight: bold;
+  font-size:1.5em;
+  margin-top: 1.5em;
+    margin-left: 0.2em;
+
+ }
+
+ #configFormInnerDiv{
+  color:#525349;
+}
+
+
+.form-group {
+  display: table;
+  width: 100%;
+  margin-right: -15px;
+  margin-left: -15px;
+  margin-bottom: 15px;
+  max-height: 10%;
+}
+
+ 
+ .constant {
+  font-weight: normal;
+
+  margin-top: 1.2em;
+      margin-left: 0.2em;
+
+ }
+ 
+.app-value {
+  margin-top: 1.2em;
+  font-weight: bold;
+      margin-left: 0.2em;
+
+
+ }
+ 
+ .copyright {
+  margin-top: 1.2em;
+  font-weight: light;
+  font-size:0.8em;
+  margin-left: 1.5em;
+ }
+ 
+.window .border-box-sizing {
+  box-sizing: border-box;
+}
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
