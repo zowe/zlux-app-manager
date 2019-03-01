@@ -47,15 +47,8 @@ export class AppComponent {
   readFileAndDisplayImage (e:any){
     var file  = e.target.files[0];
     var reader = new FileReader();
-    var windowPaneElement:any;
-    var windowPaneElems:any = document.getElementsByClassName("window-pane");
-    for(var i=0;i<windowPaneElems.length;i++){
-      var windowPane = windowPaneElems[i];
-      console.log("Window Pane "+ windowPane);
-      if(windowPane){
-          windowPaneElement = windowPaneElems[i];
-      }
-    }
+    var windowPaneElement:any = document.getElementsByClassName('window-pane')[0];
+
     if (file && file.type.match('image.*')) {
       reader.readAsDataURL(file);
     } else {
@@ -63,8 +56,9 @@ export class AppComponent {
       windowPaneElement.attr('src', '');
     }
     reader.onloadend = function (e:any) {
-      windowPaneElement.css('background', reader.result);
-      windowPaneElement.css('display', 'block');
+      windowPaneElement.style.background="none";
+      windowPaneElement.style.background = "url(" + reader.result + ")";
+      windowPaneElement.style.display = "block";
     }
   }
 
