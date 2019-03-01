@@ -15,6 +15,7 @@ import { Subject } from 'rxjs/Subject';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { TranslationService } from 'angular-l10n';
 import { DesktopPluginDefinitionImpl } from "../../../../app/plugin-manager/shared/desktop-plugin-definition";
+import { DesktopComponent } from "../desktop/desktop.component";
 
 const CONTAINER_HEIGHT = 60;
 const ICONS_INITIAL_HEIGHT = -15;
@@ -71,7 +72,8 @@ export class PersonalizationComponent {
    constructor(
     private injector: Injector,
     public windowManager: WindowManagerService,
-    private translation: TranslationService
+    private translation: TranslationService,
+    public desktopComponent : DesktopComponent,
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -96,6 +98,7 @@ export class PersonalizationComponent {
     let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
     if (propertyWindowID==null){
       this.windowManager.togglePersonalizationPanelVisibility();
+      this.desktopComponent.showPersonalizationPanel=false;
       this.applicationManager.spawnApplication(this.settingsWindowPluginDef,this.getAppPropertyInformation());
     }else{
       this.windowManager.showWindow(propertyWindowID);
