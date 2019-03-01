@@ -29,39 +29,39 @@ export class PersonalizationComponent {
   
    personalizationTools = [{
                             "title":"Keyboard Controls",
-                            "imgSrc":"keyboardSettings.png",
+                            "imgSrc":"keyboard",
                            },
                            {
                             "title":"Date and Time",
-                            "imgSrc":"keyboardSettings.png",
+                            "imgSrc":"calendar",
                            },
                            {
                             "title":"Display",
-                            "imgSrc":"keyboardSettings.png",
+                            "imgSrc":"resolution",
                            },
                            {
                             "title":"Skins",
-                            "imgSrc":"keyboardSettings.png",
+                            "imgSrc":"color_correction",
                            },
                            {
                             "title":"Language",
-                            "imgSrc":"keyboardSettings.png",
+                            "imgSrc":"foreign_language",
                            },
                            {
                             "title":"User Profile",
-                            "imgSrc":"keyboardSettings.png",
+                            "imgSrc":"management",
                            },
                            {
                             "title":"Fonts",
-                            "imgSrc":"keyboardSettings.png",
+                            "imgSrc":"font_color",
                            },
                            {
                             "title":"Sounds",
-                            "imgSrc":"keyboardSettings.png",
+                            "imgSrc":"audio_volume_medium",
                            },
                            {
                             "title":"Printer",
-                            "imgSrc":"keyboardSettings.png",
+                            "imgSrc":"printer",
                            }
   ];
 
@@ -74,6 +74,10 @@ export class PersonalizationComponent {
   
   ngOnInit(): void {
 
+  }
+
+  openTool (tool:any) {
+    
   }
 
 /*

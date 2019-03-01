@@ -19,8 +19,9 @@
   <div class="launch-widget-popup">
     <div class="launch-widget-row-settings" (click)="togglePersonalize()">
         <img class="icon">
-        <p>Personalize</p>
+        <p>Settings</p>
     </div>
+    <hr class="settingsSeperator">
     <div class="launch-widget-row" *ngFor="let item of menuItems" (click)="clicked(item)" (contextmenu)="onRightClick($event, item)">
       <img class="icon" [src]="item.image">
       <p>{{item.label}}</p>

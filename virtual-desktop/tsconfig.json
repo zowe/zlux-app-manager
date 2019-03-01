@@ -12,7 +12,7 @@
     "declaration": false,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": false,
+    "experimentalDecorators": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,

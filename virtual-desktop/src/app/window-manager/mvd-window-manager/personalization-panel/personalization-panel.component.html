@@ -11,8 +11,8 @@
 
 <div class="panelOverlay">
     <ul class="nav navbar-horizontal panelUl">
-      <li class="panelLi" *ngFor="let tool of personalizationTools">
-        <img class="panelItem"><br>
+      <li class="panelLi" *ngFor="let tool of personalizationTools" (click)="openTool(tool)">
+        <img class="panelItem_general panelItem_{{tool.imgSrc}}"><br>
         <span class="panelItemSpan">{{tool.title}}</span>
       </li>
     </ul>

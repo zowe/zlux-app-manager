@@ -11,23 +11,49 @@
 */
 
 .panelOverlay {
-	width:80%;
-	height:80%;
-	background: #557999;
-	opacity: 0.607843;
+	width:100%;
+	height:100%;
+	background:black;
+	opacity: 0.8;
 	position: absolute;
-	left:10%;
-	top:5%;
   z-index: 6001;
 }
 
-.panelItem {
-  width:200px;
-  height:200px;
+.panelItem_general {
   background-repeat: no-repeat;
   background-position: center;
   cursor: pointer;
-  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/keyboardSettings.png');
+  border: none;
+  padding:70px;
+}
+
+.panelItem_keyboard{
+  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/keyboard.png');
+}
+
+.panelItem_calendar{
+  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/calendar.png');
+}
+.panelItem_resolution{
+  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/resolution.png');
+}
+.panelItem_color_correction{
+  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/color_correction.png');
+}
+.panelItem_foreign_language{
+  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/foreign_language.png');
+}
+.panelItem_management{
+  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/management.png');
+}
+.panelItem_font_color{
+  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/font_color.png');
+}
+.panelItem_audio_volume_medium{
+  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/audio_volume_medium.png');
+}
+.panelItem_printer{
+  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/printer.png');
 }
 
 .panelUl {
