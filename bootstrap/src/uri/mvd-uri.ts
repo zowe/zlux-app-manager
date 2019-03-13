@@ -12,7 +12,8 @@
 
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
 
-const uri_prefix = window.location.pathname.split('ZLUX/plugins/')[0];
+const uri_prefix = window.location.pathname.split('ZLUX/plugins/org.zowe.zlux.bootstrap/web/index.html')[0];
+// const proxy_mode = (uri_prefix !== '/') ? true : false; // Tells whether we're behind API layer (true) or not (false)
 
 export class MvdUri implements ZLUX.UriBroker {
   rasUri(uri: string): string {
