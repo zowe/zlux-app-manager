@@ -80,7 +80,7 @@
   text-align: center;
 }
 
-.launchbar-seperator {
+.launchbar-separator {
   position: absolute;
   bottom: 0;
   height: 60px;
@@ -88,11 +88,11 @@
   background-color: #36617a;
 }
 
-.launchbar-seperator.right {
+.launchbar-separator.right {
   right: 0;
 }
 
-.launchbar-seperator.left {
+.launchbar-separator.left {
   left: 0;
 }
 

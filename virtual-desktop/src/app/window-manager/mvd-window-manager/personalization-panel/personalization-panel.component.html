@@ -9,11 +9,11 @@
 -->
 
 
-<div class="panelOverlay">
-    <ul class="nav navbar-horizontal panelUl">
-      <li class="panelLi" *ngFor="let tool of personalizationTools" (click)="openTool(tool)">
-        <img class="panelItem_general panelItem_{{tool.imgSrc}}"><br>
-        <span class="panelItemSpan">{{tool.title}}</span>
+<div class="personalization-panel">
+    <ul class="personalization-panel-ul">
+      <li class="personalization-panel-li" *ngFor="let tool of personalizationTools" (click)="openTool(tool)">
+        <img class="personalization-panel-item panel-item-{{tool.imgSrc}}"><br>
+        <span class="personalization-panel-span">{{tool.title}}</span>
       </li>
     </ul>
 </div>

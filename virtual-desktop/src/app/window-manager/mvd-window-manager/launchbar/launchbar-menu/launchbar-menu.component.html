@@ -12,16 +12,16 @@
 
 <div class="launch-widget">
   <div class="launchbar-icon" (click)="activeToggle()"></div>
-  <div class="launchbar-seperator right"></div>
+  <div class="launchbar-separator right"></div>
 </div>
 
 <ng-template [ngIf]="isActive">
   <div class="launch-widget-popup">
-    <div class="launch-widget-row-settings" (click)="togglePersonalize()">
-        <img class="icon">
-        <p>Settings</p>
+    <div class="launch-widget-row" (click)="togglePersonalize()">
+        <img class="icon" src="/ZLUX/plugins/org.zowe.zlux.appmanager.app.personalizationwindow/web/assets/settings.png">
+        <p>Preferences</p>
     </div>
-    <hr class="settingsSeperator">
+    <hr class="launchbar-separator-horizontal">
     <div class="launch-widget-row" *ngFor="let item of menuItems" (click)="clicked(item)" (contextmenu)="onRightClick($event, item)">
       <img class="icon" [src]="item.image">
       <p>{{item.label}}</p>

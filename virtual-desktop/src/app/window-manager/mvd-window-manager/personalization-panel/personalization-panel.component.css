@@ -10,70 +10,68 @@
   Copyright Contributors to the Zowe Project.
 */
 
-.panelOverlay {
-	width:80%;
-	height:80%;
-	background:black;
-	opacity: 0.8;
-	position: absolute;
-	left:10%;
-	top:5%;
+.personalization-panel {
+	width: 100%;
+  height: 80%;
+  background: #00000082;
+  position: absolute;
+  top: 5%;
   z-index: 6001;
 }
 
-.panelItem_general {
+.personalization-panel-item {
   background-repeat: no-repeat;
   background-position: center;
   cursor: pointer;
   border: none;
-  padding:70px;
+  padding: 70px;
 }
 
-.panelItem_keyboard{
+.panel-item-keyboard{
   background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/keyboard.png');
 }
 
-.panelItem_calendar{
+.panel-item-calendar{
   background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/calendar.png');
 }
-.panelItem_resolution{
+.panel-item-resolution{
   background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/resolution.png');
 }
-.panelItem_color_correction{
+.panel-item-color_correction{
   background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/color_correction.png');
 }
-.panelItem_foreign_language{
+.panel-item-foreign_language{
   background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/foreign_language.png');
 }
-.panelItem_management{
+.panel-item-management{
   background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/management.png');
 }
-.panelItem_font_color{
+.panel-item-font_color{
   background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/font_color.png');
 }
-.panelItem_audio_volume_medium{
+.panel-item-audio_volume_medium{
   background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/audio_volume_medium.png');
 }
-.panelItem_printer{
+.panel-item-printer{
   background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/printer.png');
 }
 
-.panelUl {
-  height:100%;
-  width:100%;
-  padding:50px;
+.personalization-panel-ul {
+  height: 100%;
+  width: 100%;
+  padding: 2%;
   overflow: auto;
   text-align: center;
 }
 
-.panelLi {
-  display:inline-block;
-  padding:2%;
+.personalization-panel-li {
+  display: inline-block;
+  padding: 2%;
 }
 
-.panelItemSpan {
-  color:white;
-  display:block;
+.personalization-panel-span {
+  color: white;
+  display: block;
 }
 
 /*
