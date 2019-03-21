@@ -80,14 +80,14 @@ export class AuthenticationManager {
 
   checkSessionValidity(): Observable<any> {
     if (this.defaultUsername() != null) {
-      return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth'))
+      return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh'))
         .map(result => {
           let jsonMessage = result.json();
           if (jsonMessage && jsonMessage.categories) {
             let failedTypes = [];
             let keys = Object.keys(jsonMessage.categories);
             for (let i = 0; i < keys.length; i++) {
-              if (!jsonMessage.categories[keys[i]].authenticated) {
+              if (!jsonMessage.categories[keys[i]].success) {
                 failedTypes.push(keys[i]);
               }
             }
