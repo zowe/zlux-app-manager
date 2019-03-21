@@ -14,6 +14,7 @@ import { Injectable, Injector, EventEmitter } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 class ClearDispatcher implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
@@ -22,25 +23,43 @@ class ClearDispatcher implements MVDHosting.LogoutActionInterface {
   }
 }
 
+//5 minutes default. Less if session is shorter than twice this
+const WARNING_BEFORE_SESSION_EXPIRATION_MS = 300000; 
+
+export type LoginExpirationIdleCheckEvent = {
+  shortestSessionDuration: number;
+  expirationInMS: number;
+};
+
+export enum LoginScreenChangeReason {
+  UserLogout,
+  UserLogin,
+  SessionExpired
+};
+
 @Injectable()
 export class AuthenticationManager {
   username: string | null;
   private postLoginActions: Array<MVDHosting.LoginActionInterface>;
   private preLogoutActions: Array<MVDHosting.LogoutActionInterface>;
-  readonly loginScreenVisibilityChanged: EventEmitter<boolean>;
-  private log: ZLUX.ComponentLogger;
+  readonly loginScreenVisibilityChanged: EventEmitter<LoginScreenChangeReason>;
+  readonly loginExpirationIdleCheck: EventEmitter<LoginExpirationIdleCheckEvent>;
+  private nearestExpiration: number;
+  private expirations: Map<string,number>;
+  private expirationWarning: any;
+  private readonly log: ZLUX.ComponentLogger = BaseLogger;
   
   constructor(
     public http: Http,
     private injector: Injector
   ) {
-    //TODO: Find a way to get the logger in a more formal manner if possible
-    this.log = ZoweZLUX.logger.makeComponentLogger("com.rs.mvd.ng2desktop.authentication");
+    this.log = BaseLogger.makeSublogger("auth");
     this.username = null;
     this.postLoginActions = new Array<MVDHosting.LoginActionInterface>();
     this.preLogoutActions = new Array<MVDHosting.LogoutActionInterface>();
     this.registerPreLogoutAction(new ClearDispatcher());
     this.loginScreenVisibilityChanged = new EventEmitter();
+    this.loginExpirationIdleCheck = new EventEmitter();
   }
 
   registerPostLoginAction(action:MVDHosting.LoginActionInterface):void {
@@ -61,25 +80,26 @@ export class AuthenticationManager {
 
   checkSessionValidity(): Observable<any> {
     if (this.defaultUsername() != null) {
-      return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth'))
+      return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh'))
         .map(result => {
           let jsonMessage = result.json();
           if (jsonMessage && jsonMessage.categories) {
             let failedTypes = [];
             let keys = Object.keys(jsonMessage.categories);
             for (let i = 0; i < keys.length; i++) {
-              if (!jsonMessage.categories[keys[i]].authenticated) {
+              if (!jsonMessage.categories[keys[i]].success) {
                 failedTypes.push(keys[i]);
               }
             }
             if (failedTypes.length > 0) {
               throw ErrorObservable.create('');//no need for a message here, just standard login prompt.
             }
+            this.setSessionTimeoutWatcher(jsonMessage.categories);
             this.username = this.defaultUsername();
             this.performPostLoginActions().subscribe(
               ()=> {
                 this.log.debug('Done performing post-login actions');
-                this.loginScreenVisibilityChanged.emit(false);
+                this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogin);
               }
             );
             return result;
@@ -91,24 +111,27 @@ export class AuthenticationManager {
       return ErrorObservable.create('No Session Found');
     }
   }
-
-  requestLogin(): void {
-    this.loginScreenVisibilityChanged.emit(true);
-  }
-
-  requestLogout(): void {
-    const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+  
+  //requestLogin() used to exist here but it was counter-intuitive in behavior to requestLogout.
+  //This was not documented and therefore has been removed to prevent misuse and confusion.
+ 
+  private doLoggoutInner(reason: LoginScreenChangeReason): void {
+    const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
+      this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     windowManager.closeAllWindows();
     this.performLogout().subscribe(
       response => {
-        this.requestLogin();
+        this.loginScreenVisibilityChanged.emit(reason);
       },
-      error => {
-        this.requestLogin();
-        this.log.warn('Logout failed!');
-        this.log.warn(error);
+      (error: any) => {
+        this.loginScreenVisibilityChanged.emit(reason);
+        this.log.warn('Logout failed! Error=', error);
       }
     );
+  }
+
+  requestLogout(): void {
+    this.doLoggoutInner(LoginScreenChangeReason.UserLogout);
   }
 
   private performPostLoginActions(): Observable<any> {
@@ -135,27 +158,89 @@ export class AuthenticationManager {
     }
   }  
 
+  private setSessionTimeoutWatcher(categories: any|undefined) {
+    if (!categories) {
+      return;
+    }
+    clearTimeout(this.expirationWarning);
+    this.nearestExpiration = -1;
+    let expirations = new Map<string,number>();
+    let now = Date.now();
+    for (let key in categories) {
+      let category:any = categories[key];
+      let nearestExpirationForCategory: number = -1;
+      for (let pluginKey in category.plugins) {
+        let plugin = category.plugins[pluginKey];
+        if (plugin.expms) {
+          if (nearestExpirationForCategory == -1 || nearestExpirationForCategory > plugin.expms) {
+            nearestExpirationForCategory = plugin.expms;
+            if (this.nearestExpiration == -1 || this.nearestExpiration > nearestExpirationForCategory) {
+              this.nearestExpiration = nearestExpirationForCategory;
+            }
+          }
+        }
+      }
+      expirations.set(category, now+nearestExpirationForCategory);
+    }
+    this.expirations = expirations;
+    if (this.nearestExpiration != -1) {
+      //if someone has a very tiny session, adjust timer
+      let logoutAfterWarnTimer = this.nearestExpiration < (WARNING_BEFORE_SESSION_EXPIRATION_MS*2) ?
+        Math.round(this.nearestExpiration/5) : WARNING_BEFORE_SESSION_EXPIRATION_MS;
+      
+      let warnTimer = this.nearestExpiration - logoutAfterWarnTimer;
+      
+      this.expirationWarning = setTimeout(()=> {       
+        this.log.info(`Session will expire soon! Logout will occur in ${logoutAfterWarnTimer/1000} seconds.`);
+        this.log.debug(`Session expirations=`,this.expirations);
+        this.loginExpirationIdleCheck.emit({shortestSessionDuration: this.nearestExpiration,
+                                            expirationInMS: logoutAfterWarnTimer});
+        this.expirationWarning = setTimeout(()=> {
+          this.log.warn(`Session timeout reached. Clearing desktop for new login.`);
+          this.doLoggoutInner(LoginScreenChangeReason.SessionExpired);
+        },logoutAfterWarnTimer);
+      },warnTimer);
+      this.log.debug(`Set session timeout watcher to notify ${warnTimer}ms before expiration`);
+    }
+  }
+
+  performSessionRenewal(): Observable<Response> {
+    this.log.info('Renewing session');
+    return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh')).map(result=> {
+      let jsonMessage = result.json();
+      if (jsonMessage && jsonMessage.success === true) {
+        this.log.info('Session renewal successful');
+        this.setSessionTimeoutWatcher(jsonMessage.categories);
+        return result;
+      } else {
+        this.log.warn('Session renewal unsuccessful');        
+        throw Observable.throw(result);
+      }
+    });
+  }
+
   performLogin(username: string, password: string): Observable<Response> {
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth'), { username: username, password: password })
     .map(result => {
-        let jsonMessage = result.json();
-        if (jsonMessage && jsonMessage.success === true) {
-          window.localStorage.setItem('username', username);
-          this.username = username;
-          this.performPostLoginActions().subscribe(
-            ()=> {
-              this.log.debug('Done performing post-login actions');
-              this.loginScreenVisibilityChanged.emit(false);              
-            });
-          return result;
-        } else {
-          throw Observable.throw(result);
-        }
-      });
+      let jsonMessage = result.json();
+      if (jsonMessage && jsonMessage.success === true) {
+        this.setSessionTimeoutWatcher(jsonMessage.categories);
+        window.localStorage.setItem('username', username);
+        this.username = username;
+        this.performPostLoginActions().subscribe(
+          ()=> {
+            this.log.debug('Done performing post-login actions');
+            this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogin);              
+          });
+        return result;
+      } else {
+        throw Observable.throw(result);
+      }
+    });
   }
 
   private performLogout(): Observable<Response> {
-    this.performPreLogoutActions();    
+    this.performPreLogoutActions();
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-logout'), {})
       .map(response => {
         this.username = null;
