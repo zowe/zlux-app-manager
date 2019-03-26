@@ -63,8 +63,12 @@ export class DesktopWindowState {
   }
 
   restore(): void {
-    this.position = this.normalPosition;
-    this.setStateType(DesktopWindowStateType.Normal);
+    if(this.PreviousStateType && this.PreviousStateType === DesktopWindowStateType.Maximized){
+      this.setStateType(DesktopWindowStateType.Maximized);  
+    } else {
+      this.position = this.normalPosition;
+      this.setStateType(DesktopWindowStateType.Normal);
+    }
   }
 
   /* Accessors and mutators */
