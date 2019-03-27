@@ -70,7 +70,6 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private viewportManager: MVDHosting.ViewportManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
-  personalizationPanelShowChange = new Subject<boolean>();
 
   constructor(
     private injector: Injector,
@@ -83,9 +82,6 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.nextId = 0;
     this.windowMap = new Map();
-    this.personalizationPanelShowChange.subscribe((value) => {
-       this.showPersonalizationPanel = value;
-    });
 
     this.runningPluginMap = new Map();
 
@@ -107,10 +103,6 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   /* TODO: https://github.com/angular/angular/issues/17725 gets in the way */
   getAllWindows(): DesktopWindow[] {
     return Array.from(this.windowMap.values());
-  }
-
-  togglePersonalizationPanelVisibility() {
-    this.personalizationPanelShowChange.next(!this.showPersonalizationPanel);
   }
 
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {

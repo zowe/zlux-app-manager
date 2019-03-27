@@ -11,12 +11,12 @@
 */
 
 .personalization-panel {
-	width: 100%;
-  height: 80%;
-  background: #00000082;
+  width: 100%;
+  height: 100%;
+  background: #171824f2;
   position: absolute;
-  top: 5%;
-  z-index: 6001;
+  z-index: 5000; /* Set to 5000 so panel stacks on top of windows, 
+  but does not take precendence over launchbar UI (6000+ z-index) */
 }
 
 .personalization-panel-item {
@@ -25,6 +25,8 @@
   cursor: pointer;
   border: none;
   padding: 70px;
+  -webkit-filter: drop-shadow( 0px 0px 5px #00000063 );
+  filter: drop-shadow( 0px 0px 5px #00000063 );
 }
 
 .panel-item-keyboard{
@@ -41,7 +43,7 @@
   background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/color_correction.png');
 }
 .panel-item-foreign_language{
-  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/foreign_language.png');
+  background-image: url('../../../../../../system-apps/app-settings-viewer/webClient/src/assets/language_icon.png');
 }
 .panel-item-management{
   background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/management.png');
@@ -61,6 +63,7 @@
   width: 100%;
   padding: 2%;
   overflow: auto;
+  display: flow-root;
   text-align: center;
 }
 
@@ -71,7 +74,11 @@
 
 .personalization-panel-span {
   color: white;
+  font-size: x-large;
+  font-family: inherit;
   display: block;
+  filter: drop-shadow( 0px 0px 5px #000000);
+  -webkit-filter: drop-shadow( 0px 0px 5px #000000);
 }
 
 /*

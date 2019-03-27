@@ -8,7 +8,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { BaseLogger } from 'virtual-desktop-logger';
+import { BaseLogger } from '../shared/logger';
 
 export class Globalization implements ZLUX.Globalization {
 

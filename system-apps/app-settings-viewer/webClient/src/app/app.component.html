@@ -1,5 +1,3 @@
-
-
 <!-- 
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -10,13 +8,7 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<ng-container *ngIf="contextMenuDef != null">
-  <com-rs-mvd-context-menu [xPos]="contextMenuDef.xPos" [yPos]="contextMenuDef.yPos" [menuItems]="contextMenuDef.items" (complete)="closeContextMenu()"></com-rs-mvd-context-menu>
-</ng-container>
-
-<rs-com-window-pane></rs-com-window-pane>
-<rs-com-launchbar></rs-com-launchbar>
-<rs-com-personalization-panel *ngIf="isPersonalizationPanelVisible"></rs-com-personalization-panel>
+<language-component></language-component>
 
 <!-- 
   This program and the accompanying materials are
@@ -27,4 +19,3 @@
   
   Copyright Contributors to the Zowe Project.
 -->
-

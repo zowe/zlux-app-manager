@@ -10,6 +10,17 @@
   Copyright Contributors to the Zowe Project.
 -->
 
+<div class="launchbar-user-popup" [class.hidden]="!popupVisible">
+  <h5 class="launchbar-username">{{getUsername()}}</h5>
+  <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()"
+    i18n="signout button|Title of Sign out button@@signout-button-title">Log out</button>
+  <h6 class="launchbar-plugin-version">{{getPluginVersion()}}</h6>
+  <!-- <button #languagebutton class="btn btn-primary launchbar-button" (click)="setLanguage('fr')">French</button>
+  <button #clearlanguagebutton class="btn btn-primary launchbar-button" (click)="setLanguage(null)">Clear Language</button>
+  <button #localebutton class="btn btn-primary launchbar-button" (click)="setLocale('US')">Locale</button>
+  -->
+</div>
+
 <div class="launchbar-clock">
   <div class="launchbar-separator left"></div>
   <span>
@@ -17,21 +28,8 @@
     <br>
     <span>{{date | date:'shortDate'}}</span>
   </span>
-  <div #usericon class="launchbar-user" (click)="togglePopup()"></div>
-</div>
-
-<div class="launchbar-user-popup" [class.hidden]="!popupVisible">
-  <h5 class="launchbar-username">{{getUsername()}}</h5>
-  <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()"
-    i18n="signout button|Title of Sign out button@@signout-button-title"
-  >Log out</button>
-  <h6 class="launchbar-plugin-version">{{getPluginVersion()}}</h6>
-  <!-- Convenience widgets for testing the i18n work in https://github.com/zowe/zlux-app-manager/issues/10
-    Once there is a better UI, we can delete this commented-out code:
-  <button #languagebutton class="btn btn-primary launchbar-button" (click)="setLanguage('fr')">French</button>
-  <button #clearlanguagebutton class="btn btn-primary launchbar-button" (click)="setLanguage(null)">Clear Language</button>
-  <button #localebutton class="btn btn-primary launchbar-button" (click)="setLocale('US')">Locale</button>
-  -->
+  <div #usericon class="launchbar-tray-icon settings" (click)="togglePersonalizationPanel()"></div>
+  <div #usericon class="launchbar-tray-icon user" (click)="togglePopup()"></div>
 </div>
 
 <!--

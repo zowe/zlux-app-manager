@@ -23,7 +23,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
 export class DesktopComponent {
 contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
 private authenticationManager: MVDHosting.AuthenticationManagerInterface;
-showPersonalizationPanel:boolean = false;
+private isPersonalizationPanelVisible: boolean;
 constructor(
     public windowManager: WindowManagerService,
     private http: Http,
@@ -33,14 +33,28 @@ constructor(
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.contextMenuDef = null;
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
-    this.windowManager.personalizationPanelShowChange.subscribe((value) => {
-      this.showPersonalizationPanel = value;
-   });
   }
   ngOnInit(): void {
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
+  }
+
+  showPersonalizationPanel(): void {
+    this.isPersonalizationPanelVisible = true;
+  }
+
+  hidePersonalizationPanel(): void {
+    this.isPersonalizationPanelVisible = false;
+  }
+
+  personalizationPanelToggle(): void {
+    if (this.isPersonalizationPanelVisible)
+    {
+      this.isPersonalizationPanelVisible = false;
+    } else {
+      this.isPersonalizationPanelVisible = true;
+    }
   }
 
   closeContextMenu(): void {

@@ -31,7 +31,9 @@ export class PersonalizationComponent {
   settingsWindowPluginDef : DesktopPluginDefinitionImpl;
   pluginManager: MVDHosting.PluginManagerInterface;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
-   personalizationTools = [{
+   personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
+                            of the Settings app.
+                          {
                             "title":"Keyboard Controls",
                             "imgSrc":"keyboard",
                            },
@@ -46,12 +48,12 @@ export class PersonalizationComponent {
                            {
                             "title":"Skins",
                             "imgSrc":"color_correction",
-                           },
+                           }, */
                            {
-                            "title":"Language",
+                            "title":"Languages",
                             "imgSrc":"foreign_language",
                            },
-                           {
+                          /*  {
                             "title":"User Profile",
                             "imgSrc":"management",
                            },
@@ -66,28 +68,28 @@ export class PersonalizationComponent {
                            {
                             "title":"Printer",
                             "imgSrc":"printer",
-                           }
+                           } */
   ];
 
    constructor(
     private injector: Injector,
     public windowManager: WindowManagerService,
     private translation: TranslationService,
-    public desktopComponent : DesktopComponent,
+    public desktopComponent: DesktopComponent,
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
    }
   
   ngOnInit(): void {
-    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.app.personalizationwindow").then(personalizationsPlugin => {
+    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.app.settingsviewer").then(personalizationsPlugin => {
       const pluginImpl:DesktopPluginDefinitionImpl = personalizationsPlugin as DesktopPluginDefinitionImpl;
       this.settingsWindowPluginDef=pluginImpl;
     })
   }
 
   getAppPropertyInformation():any{
-    return {"isPropertyWindow":true,
+    return {"isPropertyWindow":false,
     "settingsToolName":this.settingsWindowPluginDef.defaultWindowTitle,
     "copyright":this.settingsWindowPluginDef.getCopyright(),
     "image":this.settingsWindowPluginDef.image
@@ -95,12 +97,12 @@ export class PersonalizationComponent {
   }
 
   openTool (tool:any) {
+    console.log("Tool: " + tool);
     let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
-    if (propertyWindowID==null){
-      this.windowManager.togglePersonalizationPanelVisibility();
-      this.desktopComponent.showPersonalizationPanel=false;
+    if (propertyWindowID == null) {
+      this.desktopComponent.hidePersonalizationPanel();
       this.applicationManager.spawnApplication(this.settingsWindowPluginDef,this.getAppPropertyInformation());
-    }else{
+    } else {
       this.windowManager.showWindow(propertyWindowID);
     }
   }

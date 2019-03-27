@@ -8,27 +8,22 @@
   
   Copyright Contributors to the Zowe Project.
 */
-import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
-import { FormsModule }   from '@angular/forms';
+import { Component } from '@angular/core';
+//import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 
-// import libraries modules
- 
-import { AppComponent } from './app.component';
-   
-@NgModule({
-  declarations: [
-    AppComponent,
-  ],
-  imports: [
-    CommonModule,
-    FormsModule
-    ],
-  providers: [],
-  bootstrap: [AppComponent]
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
-export class AppModule { }
 
+export class AppComponent { 
+
+  constructor(
+    
+  ) {
+  }
+}
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies

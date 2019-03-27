@@ -91,9 +91,8 @@
   overflow-y: scroll;
 }
 
-.launchbar-separator-horizontal {
+.launchbar-separator-hor {
   color: #36617a;
-  margin-top: 5px;
 }
 
 .caret-up {

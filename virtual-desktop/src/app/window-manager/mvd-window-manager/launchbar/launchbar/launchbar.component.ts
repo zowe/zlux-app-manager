@@ -46,7 +46,7 @@ export class LaunchbarComponent {
   private pluginManager: MVDHosting.PluginManagerInterface;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
-  propertyWindowPluginDef : DesktopPluginDefinitionImpl;
+  propertyWindowPluginDef: DesktopPluginDefinitionImpl;
   
    constructor(
     private pluginsDataService: PluginsDataService,
@@ -71,9 +71,12 @@ export class LaunchbarComponent {
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
         if (p.getBasePlugin().getWebContent() != null) {
-          if (p.getIdentifier()==='org.zowe.zlux.appmanager.app.propview'){
+          if (p.getIdentifier() === 'org.zowe.zlux.appmanager.app.propview') {
             const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;
             this.propertyWindowPluginDef = pluginImpl;
+          } else if (p.getIdentifier() === 'org.zowe.zlux.appmanager.app.settingsviewer') { 
+            // UI decision made to not display Settings application with the main application menu.
+            // The Settings apps will be accessible via their own dedicated panel, and need not hog the menu.
           } else {
             this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl, this.windowManager));
           }
