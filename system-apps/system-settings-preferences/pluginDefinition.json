@@ -7,12 +7,12 @@
   "webContent": {
     "framework": "angular2",
     "launchDefinition": {
-      "pluginShortNameKey": "Settings",
-      "pluginShortNameDefault": "Settings",
+      "pluginShortNameKey": "Personalization",
+      "pluginShortNameDefault": "Personalization",
       "imageSrc": "assets/icon.png"
     },
-    "descriptionKey": "Settings",
-    "descriptionDefault": "Settings",
+    "descriptionKey": "Personalization",
+    "descriptionDefault": "Personalization",
     "defaultWindowStyle": {
       "width": 500,
       "height": 500,
