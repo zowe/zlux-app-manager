@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="desktop-cover" [class.active]="isLoading || needLogin">
+<div class="desktop-cover" (click)="detectActivity()" (keypress)="detectActivity()" [class.active]="isLoading || needLogin">
   <ng-content></ng-content>
 </div>
 
@@ -41,6 +41,10 @@
   </div>
   </div>
 </div>
+
+<!-- sometimes we may not be able to tell if the user is idle or not, so ask them directly with a popup -->
+<zlux-popup-manager>
+</zlux-popup-manager>
 
 <!--
   This program and the accompanying materials are

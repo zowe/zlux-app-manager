@@ -77,7 +77,8 @@
 }
 
 .btn.btn-primary.launchbar-button{
-  width: 100%
+  width: 100%;
+  margin: 5px 0px 5px 0px;
 }
 
 .launch-user-caret {
