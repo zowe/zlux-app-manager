@@ -10,16 +10,10 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Injector } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Component, Injector, HostListener } from '@angular/core';
 import { WindowManagerService } from '../shared/window-manager.service';
-import { TranslationService } from 'angular-l10n';
 import { DesktopPluginDefinitionImpl } from "../../../../app/plugin-manager/shared/desktop-plugin-definition";
 import { DesktopComponent } from "../desktop/desktop.component";
-
-const CONTAINER_HEIGHT = 60;
-const ICONS_INITIAL_HEIGHT = -15;
-const ICONS_CHANGED_HEIGHT = 35;
 
 @Component({
   selector: 'rs-com-personalization-panel',
@@ -28,11 +22,19 @@ const ICONS_CHANGED_HEIGHT = 35;
   providers: [WindowManagerService]
 })
 export class PersonalizationComponent {
-  settingsWindowPluginDef : DesktopPluginDefinitionImpl;
-  pluginManager: MVDHosting.PluginManagerInterface;
+  @HostListener('document:click', ['$event.target'])
+  public onClick(targetElement: any) {
+    if (this.panelHover == false)
+    {
+      this.desktopComponent.hidePersonalizationPanel();
+    }
+  }
+  private settingsWindowPluginDef: DesktopPluginDefinitionImpl;
+  private pluginManager: MVDHosting.PluginManagerInterface;
+  private panelHover: boolean;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
    personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
-                            of the Settings app.
+                            of the Settings & Personalization app.
                           {
                             "title":"Keyboard Controls",
                             "imgSrc":"keyboard",
@@ -73,16 +75,15 @@ export class PersonalizationComponent {
 
    constructor(
     private injector: Injector,
-    public windowManager: WindowManagerService,
-    private translation: TranslationService,
-    public desktopComponent: DesktopComponent,
+    private windowManager: WindowManagerService,
+    private desktopComponent: DesktopComponent,
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
    }
   
   ngOnInit(): void {
-    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.app.settingsviewer").then(personalizationsPlugin => {
+    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.system.settings-preferences").then(personalizationsPlugin => {
       const pluginImpl:DesktopPluginDefinitionImpl = personalizationsPlugin as DesktopPluginDefinitionImpl;
       this.settingsWindowPluginDef=pluginImpl;
     })
@@ -101,10 +102,18 @@ export class PersonalizationComponent {
     let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
     if (propertyWindowID == null) {
       this.desktopComponent.hidePersonalizationPanel();
-      this.applicationManager.spawnApplication(this.settingsWindowPluginDef,this.getAppPropertyInformation());
+      this.applicationManager.spawnApplication(this.settingsWindowPluginDef, this.getAppPropertyInformation());
     } else {
       this.windowManager.showWindow(propertyWindowID);
     }
+  }
+
+  panelMouseEnter(): void {
+    this.panelHover = true;
+  }
+
+  panelMouseLeave(): void {
+    this.panelHover = false;
   }
 
 /*

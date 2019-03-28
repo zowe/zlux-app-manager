@@ -1,5 +1,5 @@
 {
-  "name": "org.zowe.zlux.appmanager.app.settingsviewer",
+  "name": "org.zowe.zlux.appmanager.system.settings-preferences",
   "version": "1.0.0",
   "scripts": {
     "start": "webpack --progress --colors --watch",

@@ -74,7 +74,7 @@ export class LaunchbarComponent {
           if (p.getIdentifier() === 'org.zowe.zlux.appmanager.app.propview') {
             const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;
             this.propertyWindowPluginDef = pluginImpl;
-          } else if (p.getIdentifier() === 'org.zowe.zlux.appmanager.app.settingsviewer') { 
+          } else if (p.getIdentifier() === 'org.zowe.zlux.appmanager.system.settings-preferences') { 
             // UI decision made to not display Settings application with the main application menu.
             // The Settings apps will be accessible via their own dedicated panel, and need not hog the menu.
           } else {
