@@ -31,7 +31,7 @@ const ICONS_CHANGED_HEIGHT = 35;
   providers: [PluginsDataService]
 })
 export class LaunchbarComponent {
-  private allItems: LaunchbarItem[];
+  allItems: LaunchbarItem[];
   runItems: LaunchbarItem[];
   isActive: boolean;
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
