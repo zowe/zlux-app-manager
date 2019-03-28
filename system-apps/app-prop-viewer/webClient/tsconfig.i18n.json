@@ -1,5 +1,5 @@
 {
-  "extends": "../../../virtual-desktop/plugin-config/tsconfig.i18n.json",
+  "extends": "../../../virtual-desktop/plugin-config/tsconfig.ngx-i18n.json",
     
   "include": [
     "./src"
