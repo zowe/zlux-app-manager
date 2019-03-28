@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LanguageLocaleService } from '../../../../../virtual-desktop/src/app/i18n/language-locale.service';
-import { ZluxPopupWindowModule, ZluxButtonModule, ZluxVeilModule } from '@zlux/widgets';
+import { ZluxPopupWindowModule, ZluxButtonModule } from '@zlux/widgets';
 
 // import libraries modules
  
@@ -27,8 +27,7 @@ import { LanguageComponent } from './language/language.component';
     CommonModule,
     FormsModule,
     ZluxPopupWindowModule,
-    ZluxButtonModule,
-    ZluxVeilModule
+    ZluxButtonModule
     ],
   providers: [LanguageLocaleService],
   bootstrap: [AppComponent]
