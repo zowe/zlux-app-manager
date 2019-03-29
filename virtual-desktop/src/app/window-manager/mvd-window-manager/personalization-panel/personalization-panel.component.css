@@ -29,33 +29,8 @@
   filter: drop-shadow( 0px 0px 5px #00000063 );
 }
 
-.panel-item-keyboard{
-  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/keyboard.png');
-}
-
-.panel-item-calendar{
-  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/calendar.png');
-}
-.panel-item-resolution{
-  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/resolution.png');
-}
-.panel-item-color_correction{
-  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/color_correction.png');
-}
 .panel-item-foreign_language{
   background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/language_icon.png');
-}
-.panel-item-management{
-  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/management.png');
-}
-.panel-item-font_color{
-  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/font_color.png');
-}
-.panel-item-audio_volume_medium{
-  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/audio_volume_medium.png');
-}
-.panel-item-printer{
-  background-image: url('../../../../../../virtual-desktop/src/assets/images/personalization/printer.png');
 }
 
 .personalization-panel-ul {

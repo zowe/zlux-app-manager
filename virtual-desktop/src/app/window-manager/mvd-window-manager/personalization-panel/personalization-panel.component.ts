@@ -14,6 +14,7 @@ import { Component, Injector, HostListener } from '@angular/core';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { DesktopPluginDefinitionImpl } from "../../../../app/plugin-manager/shared/desktop-plugin-definition";
 import { DesktopComponent } from "../desktop/desktop.component";
+import { TranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'rs-com-personalization-panel',
@@ -33,6 +34,7 @@ export class PersonalizationComponent {
   private pluginManager: MVDHosting.PluginManagerInterface;
   private panelHover: boolean;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
+  public LanguagesTitle: string;
    personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
                             of the Settings & Personalization app.
                           {
@@ -52,7 +54,7 @@ export class PersonalizationComponent {
                             "imgSrc":"color_correction",
                            }, */
                            {
-                            "title":"Languages",
+                            "title":this.translation.translate("Languages"),
                             "imgSrc":"foreign_language",
                            },
                           /*  {
@@ -77,9 +79,11 @@ export class PersonalizationComponent {
     private injector: Injector,
     private windowManager: WindowManagerService,
     private desktopComponent: DesktopComponent,
+    private translation: TranslationService
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.LanguagesTitle = this.translation.translate("Languages");
    }
   
   ngOnInit(): void {
