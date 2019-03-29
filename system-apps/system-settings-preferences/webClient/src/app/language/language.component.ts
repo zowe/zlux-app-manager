@@ -79,26 +79,31 @@ export class LanguageComponent {
 
   selectEnglish(): void {
     this.selectedLanguage = "English";
+    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
     this.idLanguage = "en";
   }
 
   selectFrench(): void {
     this.selectedLanguage = "French";
+    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
     this.idLanguage = "fr";
   }
 
   selectRussian(): void {
     this.selectedLanguage = "Russian";
+    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
     this.idLanguage = "ru";
   }
 
   selectChinese(): void {
     this.selectedLanguage = "Chinese";
+    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
     this.idLanguage = "zh";
   }
 
   selectJapanese(): void {
     this.selectedLanguage = "Japanese";
+    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
     this.idLanguage = "ja";
   }
 
@@ -134,6 +139,7 @@ export class LanguageComponent {
   }
 
   updateLanguageStrings(): void {
+    this.selectedLanguage = this.translation.translate(this.selectedLanguage, null, this.idLanguage+"-");
     this.Languages = this.translation.translate('Languages', null, this.idLanguage+"-");
     this.Apply = this.translation.translate('Apply', null, this.idLanguage+"-");
     this.LanguageChanges = this.translation.translate('Language Changes', null, this.idLanguage+"-");

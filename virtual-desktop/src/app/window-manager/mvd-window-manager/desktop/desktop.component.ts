@@ -23,7 +23,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
 export class DesktopComponent {
 contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
 private authenticationManager: MVDHosting.AuthenticationManagerInterface;
-private isPersonalizationPanelVisible: boolean;
+public isPersonalizationPanelVisible: boolean;
 constructor(
     public windowManager: WindowManagerService,
     private http: Http,

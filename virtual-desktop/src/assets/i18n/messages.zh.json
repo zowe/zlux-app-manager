@@ -14,5 +14,10 @@
   "For language changes to take effect, Zowe must be restarted.": "为使语言变更生效，Zowe必须重新启动。",
   "Would you like to restart the desktop?": "是否立即重新启动？",
   "Restart Now": "立即重新启动",
-  "Restart Later":  "稍后重新启动"
+  "Restart Later":  "稍后重新启动",
+  "English": "英语",
+  "French": "法语",
+  "Russian": "俄语",
+  "Japanese": "日语",
+  "Chinese": "中文"
 }

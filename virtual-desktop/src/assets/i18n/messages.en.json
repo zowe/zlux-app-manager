@@ -14,5 +14,10 @@
   "For language changes to take effect, Zowe must be restarted.": "For language changes to take effect, Zowe must be restarted.",
   "Would you like to restart the desktop?": "Would you like to restart the desktop?",
   "Restart Now": "Restart Now",
-  "Restart Later":  "Restart Later"
+  "Restart Later":  "Restart Later",
+  "English": "English",
+  "French": "French",
+  "Russian": "Russian",
+  "Japanese": "Japanese",
+  "Chinese": "Chinese"
 }
