@@ -10,7 +10,10 @@
     "outDir": "./src/assets/i18n",
     "paths": {
       "@angular/core": ["../node_modules/@angular/core"],
-      "zlux-base/*": ["../../../zlux-platform/base/src/*"]
+      "zlux-base/*": ["../../../zlux-platform/base/src/*"],
+      "virtual-desktop-logger": [
+        "./app/shared/logger"
+      ]      
     }
   }
 }
