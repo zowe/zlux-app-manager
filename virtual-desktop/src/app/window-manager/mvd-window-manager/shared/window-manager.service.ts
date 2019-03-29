@@ -55,6 +55,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
   public screenshot: boolean;
+  public showPersonalizationPanel: boolean = false;
   /*
    * NOTES:
    * 1. We ignore the width and height here (I am reluctant to make a new data type just for this,
@@ -104,7 +105,6 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     return Array.from(this.windowMap.values());
   }
 
- 
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {
     //this is the window viewport size, so you must subtract the header and launchbar from the height.
     desktopWindow.windowState.position = { top: 0,

@@ -6,5 +6,18 @@
   "Open": "打开",
   "Properties":"属性",
   "AuthenticationFailed": "{{numTypes}} 个类型验证失败 类型: {{types}}",
-  "UsernameRequired": "用户名不能为空"
+  "UsernameRequired": "用户名不能为空",
+  "Languages": "语言",
+  "Language Selected": "当前语言",
+  "Apply": "应用",
+  "Language Changes": "语言变更",
+  "For language changes to take effect, Zowe must be restarted.": "为使语言变更生效，Zowe必须重新启动。",
+  "Would you like to restart the desktop?": "是否立即重新启动？",
+  "Restart Now": "立即重新启动",
+  "Restart Later":  "稍后重新启动",
+  "English": "英语",
+  "French": "法语",
+  "Russian": "俄语",
+  "Japanese": "日语",
+  "Chinese": "中文"
 }

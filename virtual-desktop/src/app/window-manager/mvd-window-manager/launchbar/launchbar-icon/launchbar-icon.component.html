@@ -9,10 +9,10 @@
   
   Copyright Contributors to the Zowe Project.
 -->
-<div class="launchbar-icon" (mouseleave)="onMouseLeaveInstanceView($event, item)">
-<zowe-launchbar-instance-view class="instance" *ngIf="launchbarItem.showInstanceView" [launchbarItem]="launchbarItem" (mouseenter)="onMouseEnterInstanceView($event, item)" (mouseleave)="onMouseLeaveInstanceView($event, item)"></zowe-launchbar-instance-view>
+<div class="launchbar-icon" (mouseleave)="onMouseLeaveInstanceView($event)">
+<zowe-launchbar-instance-view class="instance" *ngIf="launchbarItem.showInstanceView" [launchbarItem]="launchbarItem" (mouseenter)="onMouseEnterInstanceView($event)" (mouseleave)="onMouseLeaveInstanceView($event)"></zowe-launchbar-instance-view>
 <p *ngIf="launchbarItem.showIconLabel" class="launchbar-caption truncate">{{launchbarItem.label}}</p>
-<div class="launchbar-icon-image" (mouseenter)="onMouseEnter($event, item)" (mouseleave)="onMouseLeave($event, item)" [title]="launchbarItem.label" [style.background-image]="launchbarItem.image == null ? undefined : launchbarItem.image | cssUrl">
+<div class="launchbar-icon-image" (mouseenter)="onMouseEnter($event)" (mouseleave)="onMouseLeave($event)" [title]="launchbarItem.label" [style.background-image]="launchbarItem.image == null ? undefined : launchbarItem.image | cssUrl">
   <div class="launchbar-icon-marker-dots" *ngIf="launchbarItem.instanceCount <= 5">
     <div class="launchbar-icon-marker-dot" *ngFor="let i of launchbarItem.instanceIdArray"></div>
   </div>

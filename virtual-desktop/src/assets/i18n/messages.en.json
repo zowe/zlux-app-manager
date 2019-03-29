@@ -6,6 +6,18 @@
   "Open": "Open",
   "Properties":"Properties",
   "AuthenticationFailed": "Authentication failed for {{numTypes}} types. Types: {{types}}",
-  "UsernameRequired": "Username required"
-
+  "UsernameRequired": "Username required",
+  "Languages": "Languages",
+  "Language Selected": "Language Selected",
+  "Apply": "Apply",
+  "Language Changes": "Language Changes",
+  "For language changes to take effect, Zowe must be restarted.": "For language changes to take effect, Zowe must be restarted.",
+  "Would you like to restart the desktop?": "Would you like to restart the desktop?",
+  "Restart Now": "Restart Now",
+  "Restart Later":  "Restart Later",
+  "English": "English",
+  "French": "French",
+  "Russian": "Russian",
+  "Japanese": "Japanese",
+  "Chinese": "Chinese"
 }

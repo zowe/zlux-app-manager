@@ -15,7 +15,8 @@ import { Subject } from 'rxjs/Subject';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
-import { WindowManagerService } from '../../shared/window-manager.service'
+import { WindowManagerService } from '../../shared/window-manager.service';
+import { DesktopComponent } from "../../desktop/desktop.component";
 import { TranslationService } from 'angular-l10n';
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
 
@@ -39,7 +40,8 @@ export class LaunchbarMenuComponent {
     public windowManager: WindowManagerService,
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
-    private translation: TranslationService
+    private translation: TranslationService,
+    private desktopComponent: DesktopComponent
 
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
@@ -118,6 +120,11 @@ export class LaunchbarMenuComponent {
       ];
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     return false;
+  }
+
+  personalizationPanelToggle() {
+    this.desktopComponent.personalizationPanelToggle();
+    //this.activeToggle();
   }
 }
 
