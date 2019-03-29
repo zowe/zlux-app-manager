@@ -13,7 +13,7 @@
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
 
 const uri_prefix = window.location.pathname.split('ZLUX/plugins/')[0];
-// const proxy_mode = (uri_prefix !== '/') ? true : false; // Tells whether we're behind API layer (true) or not (false)
+const proxy_mode = (uri_prefix !== '/') ? true : false; // Tells whether we're behind API layer (true) or not (false)
 
 export class MvdUri implements ZLUX.UriBroker {
   rasUri(uri: string): string {
@@ -108,8 +108,9 @@ export class MvdUri implements ZLUX.UriBroker {
     }
     const protocol = window.location.protocol;
     const wsProtocol = (protocol === 'https:') ? 'wss:' : 'ws:';
-    return `${wsProtocol}//${window.location.host}${this.pluginRootUri(plugin)}`
+    const uri = `${wsProtocol}//${window.location.host}${this.pluginRootUri(plugin)}`
         + `services/${serviceName}/${version}/${relativePath}`;
+    return proxy_mode ? uri.replace('ui', 'ws') : uri;
   }
 
   /**
