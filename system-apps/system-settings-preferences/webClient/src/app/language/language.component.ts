@@ -136,12 +136,12 @@ export class LanguageComponent {
   updateLanguageStrings(): void {
     this.Languages = this.translation.translate('Languages', null, this.idLanguage+"-");
     this.Apply = this.translation.translate('Apply', null, this.idLanguage+"-");
-    this.LanguageChanges = this.translation.translate('LanguageChanges', null, this.idLanguage+"-");
-    this.LanguageSelected = this.translation.translate('LanguageSelected', null, this.idLanguage+"-");
-    this.RestartDescr1 = this.translation.translate('RestartDescr1', null, this.idLanguage+"-");
-    this.RestartDescr2 = this.translation.translate('RestartDescr2', null, this.idLanguage+"-");
-    this.RestartLater = this.translation.translate('RestartLater', null, this.idLanguage+"-");
-    this.RestartNow = this.translation.translate('RestartNow', null, this.idLanguage+"-");
+    this.LanguageChanges = this.translation.translate('Language Changes', null, this.idLanguage+"-");
+    this.LanguageSelected = this.translation.translate('Language Selected', null, this.idLanguage+"-");
+    this.RestartDescr1 = this.translation.translate('For language changes to take effect, Zowe must be restarted.', null, this.idLanguage+"-");
+    this.RestartDescr2 = this.translation.translate('Would you like to restart the desktop?', null, this.idLanguage+"-");
+    this.RestartLater = this.translation.translate('Restart Later', null, this.idLanguage+"-");
+    this.RestartNow = this.translation.translate('Restart Now', null, this.idLanguage+"-");
 
   }
 

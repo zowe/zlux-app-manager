@@ -8,11 +8,11 @@
   "AuthenticationFailed": "Ошибка аутентификации для {{types}}",
   "UsernameRequired": "Введите имя пользователя",
   "Languages": "Языки",
-  "LanguageSelected": "Выбранный Язык",
+  "Language Selected": "Выбранный Язык",
   "Apply": "Применять",
-  "LanguageChanges": "Изменения Языка",
-  "RestartDescr1": "Чтобы полностью изменить язык, нужно перезагрузить Zowe.",
-  "RestartDescr2": "Вы хотите перезагрузить рабочий стол?",
-  "RestartNow": "Перезагрузить Сейчас",
-  "RestartLater":  "Перезагрузить Позже"
+  "Language Changes": "Изменения Языка",
+  "For language changes to take effect, Zowe must be restarted.": "Чтобы полностью изменить язык, нужно перезагрузить Zowe.",
+  "Would you like to restart the desktop?": "Вы хотите перезагрузить рабочий стол?",
+  "Restart Now": "Перезагрузить Сейчас",
+  "Restart Later":  "Перезагрузить Позже"
 }

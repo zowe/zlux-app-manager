@@ -8,11 +8,11 @@
   "AuthenticationFailed": "{{numTypes}}個の認証プロバイダー({{types}})に対して認証が失敗しました",
   "UsernameRequired": "ユーザー名が必要です",
   "Languages": "言語",
-  "LanguageSelected": "選択された言語",
+  "Language Selected": "選択された言語",
   "Apply": "適用",
-  "LanguageChanges": "言語変更",
-  "RestartDescr1": "言語の変更を反映するには、Zoweを再起動する必要があります。",
-  "RestartDescr2": "デスクトップを再起動しますか?",
-  "RestartNow": "今すぐ再起動",
-  "RestartLater":  "後で再起動"
+  "Language Changes": "言語変更",
+  "For language changes to take effect, Zowe must be restarted.": "言語の変更を反映するには、Zoweを再起動する必要があります。",
+  "Would you like to restart the desktop?": "デスクトップを再起動しますか?",
+  "Restart Now": "今すぐ再起動",
+  "Restart Later":  "後で再起動"
 }

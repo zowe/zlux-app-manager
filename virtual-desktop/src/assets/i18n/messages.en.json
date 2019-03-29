@@ -8,11 +8,11 @@
   "AuthenticationFailed": "Authentication failed for {{numTypes}} types. Types: {{types}}",
   "UsernameRequired": "Username required",
   "Languages": "Languages",
-  "LanguageSelected": "Language Selected",
+  "Language Selected": "Language Selected",
   "Apply": "Apply",
-  "LanguageChanges": "Language Changes",
-  "RestartDescr1": "For language changes to take effect, Zowe must be restarted.",
-  "RestartDescr2": "Would you like to restart the desktop?",
-  "RestartNow": "Restart Now",
-  "RestartLater":  "Restart Later"
+  "Language Changes": "Language Changes",
+  "For language changes to take effect, Zowe must be restarted.": "For language changes to take effect, Zowe must be restarted.",
+  "Would you like to restart the desktop?": "Would you like to restart the desktop?",
+  "Restart Now": "Restart Now",
+  "Restart Later":  "Restart Later"
 }
