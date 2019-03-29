@@ -110,7 +110,9 @@ export class MvdUri implements ZLUX.UriBroker {
     const wsProtocol = (protocol === 'https:') ? 'wss:' : 'ws:';
     const uri = `${wsProtocol}//${window.location.host}${this.pluginRootUri(plugin)}`
         + `services/${serviceName}/${version}/${relativePath}`;
-    return proxy_mode ? uri.replace('ui', 'ws') : uri;
+    // This is a workaround for the mediation layer not having a dynamic way to get the websocket uri for zlux
+    // Since we know our uri is /ui/v1/zlux/ behind the api-layer we replace the ui with ws to get /ws/v1/zlux/
+    return proxy_mode ? uri.replace('/ui/', '/ws/') : uri;
   }
 
   /**
