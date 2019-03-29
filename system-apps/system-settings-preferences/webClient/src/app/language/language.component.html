@@ -19,15 +19,15 @@
   </div>
   <div class="language-content-right">
     
-    <label class="language-label" title="Background Image"> Language Selected: {{selectedLanguage}}</label>
-    <button type="submit" class="language-submit" (click)="applyLanguage()">Apply</button>
+    <label class="language-label" title="Background Image"> {{LanguageSelected}}: {{selectedLanguage}}</label>
+    <button type="submit" class="language-submit" (click)="applyLanguage()">{{Apply}}</button>
   </div>
 </div>
 
 <!-- Zowe popup window is immutable by design, so we must pass a style via HTML -->
 <div class="global-veil" *ngIf="isVeilVisible">
 <zlux-popup-window
-      header="Language Changes"
+      header="{{LanguageChanges}}"
       (onCloseWindow)="closeRestartWindow()"
       [dark]="true"
       [currentStyle]="{ 'width': '700px',
@@ -40,16 +40,14 @@
       'margin-top': '15%', 
       'color': '#36617a' }"
       *ngIf="isRestartWindowVisible">
-      <div class="content-close"><br>For language changes to take effect, Zowe must be restarted.<br>Would you like to restart the desktop?</div>
+      <div class="content-close"><br>{{RestartDescr1}}<br>{{RestartDescr2}}</div>
       <zlux-popup-window-button-area [ngStyle]="{'background-color':'rgb(236, 200, 240)'}">
         <zlux-button (click)="restartZowe(); exit();"
-          i18n-label="label|Label for Save Changes and Exit button@@save-changes-and-exit-label"
-          label="Restart Now"
+          label="{{RestartNow}}"
           callToAction="true">
         </zlux-button>
         <zlux-button (click)="closeRestartWindow()"
-          i18n-label="label|Label for Exit button@@exit-button-label"
-          label="Restart Later">
+          label="{{RestartLater}}">
         </zlux-button>
       </zlux-popup-window-button-area>
   </zlux-popup-window>

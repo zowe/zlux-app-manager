@@ -16,8 +16,8 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
     "skipLibCheck": true,
     "paths": {
       "bootstrap/*": [
@@ -29,8 +29,8 @@
       "pluginlib/*": [
         "./pluginlib/*"
       ],
-      "virtual-desktop-logger": [
-        "./app/shared/logger"
+      "virtual-desktop-logger/*": [
+        "./app/shared/*"
       ],
       "zlux-base/*": [
         "../../../zlux-platform/base/src/*"

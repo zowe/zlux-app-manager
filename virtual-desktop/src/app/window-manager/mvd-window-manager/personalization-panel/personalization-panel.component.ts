@@ -83,7 +83,7 @@ export class PersonalizationComponent {
    }
   
   ngOnInit(): void {
-    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.system.settings-preferences").then(personalizationsPlugin => {
+    this.pluginManager.findPluginDefinition("org.zowe.zlux.ng2desktop.settings").then(personalizationsPlugin => {
       const pluginImpl:DesktopPluginDefinitionImpl = personalizationsPlugin as DesktopPluginDefinitionImpl;
       this.settingsWindowPluginDef=pluginImpl;
     })

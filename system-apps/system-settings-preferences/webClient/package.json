@@ -1,10 +1,10 @@
 {
-  "name": "org.zowe.zlux.appmanager.system.settings-preferences",
+  "name": "org.zowe.zlux.ng2desktop.settings",
   "version": "1.0.0",
   "scripts": {
     "start": "webpack --progress --colors --watch",
     "build": "webpack --progress --colors",
-    "i18n": "ng-xi18n -p tsconfig.i18n.json --i18nFormat=xlf  --outFile=messages.xlf",
+    "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json",
     "lint": "tslint -c tslint.json \"./**/*.ts\""
   },
   "license": "EPL-2.0",
@@ -23,6 +23,7 @@
     "@angular/platform-browser": "~6.0.9",
     "@angular/platform-browser-dynamic": "~6.0.9",
     "@angular/router": "~6.0.9",
+    "angular-l10n": "~5.2.0",
     "@zlux/widgets": "git+ssh://git@github.com:zowe/zlux-widgets.git",
     "angular2-template-loader": "~0.6.2",
     "codelyzer": "~4.4.2",
@@ -32,6 +33,7 @@
     "exports-loader": "~0.7.0",
     "file-loader": "~1.1.11",
     "html-loader": "~0.5.5",
+    "ngx-i18nsupport": "~0.17.1",
     "rxjs": "~6.2.2",
     "rxjs-compat": "~6.2.2",
     "source-map-loader": "~0.2.3",

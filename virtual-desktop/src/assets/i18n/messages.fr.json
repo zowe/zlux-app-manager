@@ -6,6 +6,13 @@
   "Open": "Ouvrir",
   "Properties":"Propriétés",
   "AuthenticationFailed": "L'authentification a échoué pour {{numTypes}} types. Les types: {{types}}",
-  "UsernameRequired": "Nom d'utilisateur requis"
-
+  "UsernameRequired": "Nom d'utilisateur requis",
+  "Languages": "Langues",
+  "LanguageSelected": "Langue Sélectionnée",
+  "Apply": "Appliquer",
+  "LanguageChanges": "Changement de Langue",
+  "RestartDescr1": "Pour que le changement de langue prenne effet, Zowe doit être redémarré.",
+  "RestartDescr2": "Voulez-vous redémarrer votre session?",
+  "RestartNow": "Redémarrer Maintenant",
+  "RestartLater":  "Redémarrer Plus Tard"
 }

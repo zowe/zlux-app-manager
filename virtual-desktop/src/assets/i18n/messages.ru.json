@@ -6,5 +6,13 @@
   "Open": "Открыть",
   "Properties": "Свойства",
   "AuthenticationFailed": "Ошибка аутентификации для {{types}}",
-  "UsernameRequired": "Введите имя пользователя"
+  "UsernameRequired": "Введите имя пользователя",
+  "Languages": "Языки",
+  "LanguageSelected": "Выбранный Язык",
+  "Apply": "Применять",
+  "LanguageChanges": "Изменения Языка",
+  "RestartDescr1": "Чтобы полностью изменить язык, нужно перезагрузить Zowe.",
+  "RestartDescr2": "Вы хотите перезагрузить рабочий стол?",
+  "RestartNow": "Перезагрузить Сейчас",
+  "RestartLater":  "Перезагрузить Позже"
 }

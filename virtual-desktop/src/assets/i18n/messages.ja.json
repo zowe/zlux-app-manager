@@ -6,5 +6,13 @@
   "Open": "開く",
   "Properties":"プロパティー",
   "AuthenticationFailed": "{{numTypes}}個の認証プロバイダー({{types}})に対して認証が失敗しました",
-  "UsernameRequired": "ユーザー名が必要です"
+  "UsernameRequired": "ユーザー名が必要です",
+  "Languages": "言語",
+  "LanguageSelected": "選択された言語",
+  "Apply": "適用",
+  "LanguageChanges": "言語変更",
+  "RestartDescr1": "言語の変更を反映するには、Zoweを再起動する必要があります。",
+  "RestartDescr2": "デスクトップを再起動しますか?",
+  "RestartNow": "今すぐ再起動",
+  "RestartLater":  "後で再起動"
 }

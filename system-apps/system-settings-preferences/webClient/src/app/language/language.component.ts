@@ -8,11 +8,11 @@
   
   Copyright Contributors to the Zowe Project.
 */
-import { Component } from '@angular/core';
+import { Component, Inject, Optional } from '@angular/core';
 import { BaseLogger } from '../../../../../../virtual-desktop/src/app/shared/logger';
 import { LanguageLocaleService } from '../../../../../../virtual-desktop/src/app/i18n/language-locale.service';
-//import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
-//import { LaunchbarWidgetComponent } from '../../../../../../virtual-desktop/src/app/window-manager/mvd-window-manager/launchbar/launchbar-widget/launchbar-widget.component';
+import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
+import { TranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'language-component',
@@ -28,16 +28,27 @@ export class LanguageComponent {
   public isRestartWindowVisible: boolean;
   public isVeilVisible: boolean;
 
+  // Strings used in UI
+  public Languages: string;
+  public RestartDescr1: string;
+  public RestartDescr2: string;
+  public Apply: string;
+  public LanguageSelected: string;
+  public RestartNow: string;
+  public RestartLater: string;
+  public LanguageChanges: string;
+
   constructor(
     private languageLocaleService: LanguageLocaleService,
-    //private launchbarWidget: LaunchbarWidgetComponent,
-    // @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any
-  ) {
+    private translation: TranslationService,
+    @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
 
-    this.selectedLanguage = "English";
-    this.idLanguage = "en";
+  ) {
     this.isRestartWindowVisible = false;
     this.isVeilVisible = false;
+    this.updateLanguageSelection();
+    this.updateLanguageStrings();
+    if (this.windowActions) {this.windowActions.setTitle(this.Languages);}
   }
 
   applyLanguage(): void {
@@ -61,6 +72,10 @@ export class LanguageComponent {
   restartZowe(): void {
     window.location.reload();
   }
+
+  //TODO: Ideally, when selecting a language in the panel we would adjust the language strings to the chosen
+  //language in real-time (contrary to restarting the desktop) but this doesn't work yet as this.translation
+  //only loads translations for the currently loaded language (that of which data is coming from a cookie)
 
   selectEnglish(): void {
     this.selectedLanguage = "English";
@@ -87,9 +102,47 @@ export class LanguageComponent {
     this.idLanguage = "ja";
   }
 
-  selectGeneral(): void {
-    // this.applyLanguage();
-    // console.log("applied!");
+  updateLanguageSelection(): void {
+    this.idLanguage = this.languageLocaleService.getLanguage();
+
+    switch(this.idLanguage) {
+      case "en": {
+        this.selectEnglish();
+        break;
+      }
+      case "fr": {
+        this.selectFrench();
+        break;
+      }
+      case "ja": {
+        this.selectJapanese();
+        break;
+      }
+      case "ru": {
+        this.selectRussian();
+        break;
+      }
+      case "zh": {
+        this.selectChinese();
+        break;
+      }
+      default: {
+        this.selectEnglish();
+        break;
+      }
+    }
+  }
+
+  updateLanguageStrings(): void {
+    this.Languages = this.translation.translate('Languages', null, this.idLanguage+"-");
+    this.Apply = this.translation.translate('Apply', null, this.idLanguage+"-");
+    this.LanguageChanges = this.translation.translate('LanguageChanges', null, this.idLanguage+"-");
+    this.LanguageSelected = this.translation.translate('LanguageSelected', null, this.idLanguage+"-");
+    this.RestartDescr1 = this.translation.translate('RestartDescr1', null, this.idLanguage+"-");
+    this.RestartDescr2 = this.translation.translate('RestartDescr2', null, this.idLanguage+"-");
+    this.RestartLater = this.translation.translate('RestartLater', null, this.idLanguage+"-");
+    this.RestartNow = this.translation.translate('RestartNow', null, this.idLanguage+"-");
+
   }
 
 }
