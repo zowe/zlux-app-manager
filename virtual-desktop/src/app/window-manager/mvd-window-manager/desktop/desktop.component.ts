@@ -54,40 +54,44 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
     let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
     this.log.debug(`Getting recognizers from "${recognizersUri}", actions from "${actionsUri}"`);
     this.http.get(recognizersUri).map((res:Response)=>res.json()).subscribe((config: any)=> {
-      let appContents = config.contents;
-      let appsWithRecognizers:string[] = [];
-      plugins.forEach((plugin:ZLUX.Plugin)=> {
-        let id = plugin.getIdentifier();
-        if (appContents[id]) {
-          appsWithRecognizers.push(id);
-        }
-      });
-      appsWithRecognizers.forEach(appWithRecognizer=> {
-        appContents[appWithRecognizer].recognizers.forEach((recognizerObject:ZLUX.RecognizerObject)=> {
-          ZoweZLUX.dispatcher.addRecognizerFromObject(recognizerObject.clause,recognizerObject.id);
-        });
-        this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);
-      });
-    });
-    this.http.get(actionsUri).map((res:Response)=>res.json()).subscribe((config: any)=> {
-      let appContents = config.contents;
-      let appsWithActions:string[] = [];
-      plugins.forEach((plugin:ZLUX.Plugin)=> {
-        let id = plugin.getIdentifier();
-        if (appContents[id]) {
-          appsWithActions.push(id);
-        }
-      });
-      appsWithActions.forEach(appWithAction=> {
-        appContents[appWithAction].actions.forEach((actionObject:any)=> {
-          let mode: any = ZoweZLUX.dispatcher.constants.ActionTargetMode[actionObject.targetMode];
-          let type: any = ZoweZLUX.dispatcher.constants.ActionType[actionObject.type];
-          if (actionObject.id && actionObject.defaultName && actionObject.targetId && actionObject.arg && mode !== undefined && type !== undefined) {
-            ZoweZLUX.dispatcher.registerAction(ZoweZLUX.dispatcher.makeAction(actionObject.id, actionObject.defaultName, (mode as ZLUX.ActionTargetMode), (type as ZLUX.ActionType), actionObject.targetId, actionObject.arg));
+      if (config) {
+        let appContents = config.contents;
+        let appsWithRecognizers:string[] = [];
+        plugins.forEach((plugin:ZLUX.Plugin)=> {
+          let id = plugin.getIdentifier();
+          if (appContents[id]) {
+            appsWithRecognizers.push(id);
           }
         });
-        this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);
-      });
+        appsWithRecognizers.forEach(appWithRecognizer=> {
+          appContents[appWithRecognizer].recognizers.forEach((recognizerObject:ZLUX.RecognizerObject)=> {
+            ZoweZLUX.dispatcher.addRecognizerFromObject(recognizerObject.clause,recognizerObject.id);
+          });
+          this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);
+        });
+      }
+    });
+    this.http.get(actionsUri).map((res:Response)=>res.json()).subscribe((config: any)=> {
+      if (config) {
+        let appContents = config.contents;
+        let appsWithActions:string[] = [];
+        plugins.forEach((plugin:ZLUX.Plugin)=> {
+          let id = plugin.getIdentifier();
+          if (appContents[id]) {
+            appsWithActions.push(id);
+          }
+        });
+        appsWithActions.forEach(appWithAction=> {
+          appContents[appWithAction].actions.forEach((actionObject:any)=> {
+            let mode: any = ZoweZLUX.dispatcher.constants.ActionTargetMode[actionObject.targetMode];
+            let type: any = ZoweZLUX.dispatcher.constants.ActionType[actionObject.type];
+            if (actionObject.id && actionObject.defaultName && actionObject.targetId && actionObject.arg && mode !== undefined && type !== undefined) {
+              ZoweZLUX.dispatcher.registerAction(ZoweZLUX.dispatcher.makeAction(actionObject.id, actionObject.defaultName, (mode as ZLUX.ActionTargetMode), (type as ZLUX.ActionType), actionObject.targetId, actionObject.arg));
+            }
+          });
+          this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);
+        });
+      }
     });
     return true;
   }
