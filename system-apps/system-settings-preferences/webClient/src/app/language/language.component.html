@@ -11,15 +11,16 @@
   <div class="language-content-left">
       <img class="language-icon"><hr class="language-separator-hor">
       <!-- <button class="language-button" (click)="selectGeneral()" style="font-weight: bolder;" title="Select General Settings">General</button><hr class="language-separator-hor"> -->
-      <button class="language-button" (click)="selectEnglish()" title="English">English</button><hr class="language-separator-hor">
-      <button class="language-button" (click)="selectChinese()" title="Chinese">中文</button><hr class="language-separator-hor">
-      <button class="language-button" (click)="selectFrench()" title="French">Français</button><hr class="language-separator-hor">
-      <button class="language-button" (click)="selectJapanese()" title="Japanese">日本人</button><hr class="language-separator-hor">
-      <button class="language-button" (click)="selectRussian()" title="Russian">Pусский</button><hr class="language-separator-hor">
+      <button class="language-button" (click)="selectEnglish()" title="{{Select}}">English</button><hr class="language-separator-hor">
+      <button class="language-button" (click)="selectChinese()" title="{{Select}}">中文</button><hr class="language-separator-hor">
+      <button class="language-button" (click)="selectFrench()" title="{{Select}}">Français</button><hr class="language-separator-hor">
+      <button class="language-button" (click)="selectJapanese()" title="{{Select}}">日本人</button><hr class="language-separator-hor">
+      <button class="language-button" (click)="selectRussian()" title="{{Select}}">Pусский</button><hr class="language-separator-hor">
+      <button class="language-button" (click)="selectGerman()" title="{{Select}}">Deutsch</button><hr class="language-separator-hor">
   </div>
   <div class="language-content-right">
     
-    <label class="language-label" title="Background Image"> {{LanguageSelected}}: {{selectedLanguage}}</label>
+    <label class="language-label"> {{LanguageSelected}}: {{selectedLanguage}}</label>
     <button type="submit" class="language-submit" (click)="applyLanguage()">{{Apply}}</button>
   </div>
 </div>

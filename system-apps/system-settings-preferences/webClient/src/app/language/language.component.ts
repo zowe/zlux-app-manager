@@ -37,6 +37,7 @@ export class LanguageComponent {
   public RestartNow: string;
   public RestartLater: string;
   public LanguageChanges: string;
+  public Select: string;
 
   constructor(
     private languageLocaleService: LanguageLocaleService,
@@ -107,6 +108,12 @@ export class LanguageComponent {
     this.idLanguage = "ja";
   }
 
+  selectGerman(): void {
+    this.selectedLanguage = "German";
+    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
+    this.idLanguage = "de";
+  }
+
   updateLanguageSelection(): void {
     this.idLanguage = this.languageLocaleService.getLanguage();
 
@@ -131,6 +138,10 @@ export class LanguageComponent {
         this.selectChinese();
         break;
       }
+      case "de": {
+        this.selectGerman();
+        break;
+      }
       default: {
         this.selectEnglish();
         break;
@@ -148,6 +159,7 @@ export class LanguageComponent {
     this.RestartDescr2 = this.translation.translate('Would you like to restart the desktop?', null, this.idLanguage+"-");
     this.RestartLater = this.translation.translate('Restart Later', null, this.idLanguage+"-");
     this.RestartNow = this.translation.translate('Restart Now', null, this.idLanguage+"-");
+    this.Select = this.translation.translate('Select', null, this.idLanguage+"-");
 
   }
 
