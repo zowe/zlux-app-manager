@@ -12,7 +12,8 @@
 
 var webpack = require('webpack');
 var path = require('path');
-//const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
+const BrotliPlugin = require('brotli-webpack-plugin');
 
 var config = {
   "entry":  {
@@ -44,6 +45,9 @@ var config = {
       }
     ]
   },
+  optimization: {
+  },
+  mode: 'production',
   plugins: [
     new webpack.NamedModulesPlugin(),
     new webpack.ContextReplacementPlugin(
@@ -51,7 +55,14 @@ var config = {
       path.resolve(__dirname),
       {}
     ),
-    // new UglifyJsPlugin()
+    new CompressionPlugin({
+      threshold: 100000,
+      minRatio: 0.8
+    }),
+    new BrotliPlugin({
+      threshold: 100000,
+      minRatio: 0.8
+    })
   ]
 };
 
