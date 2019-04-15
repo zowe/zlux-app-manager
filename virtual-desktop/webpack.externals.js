@@ -13,7 +13,6 @@
 var webpack = require('webpack');
 var path = require('path');
 const CompressionPlugin = require('compression-webpack-plugin');
-const BrotliPlugin = require('brotli-webpack-plugin');
 
 var config = {
   "entry":  {
@@ -56,10 +55,6 @@ var config = {
       {}
     ),
     new CompressionPlugin({
-      threshold: 100000,
-      minRatio: 0.8
-    }),
-    new BrotliPlugin({
       threshold: 100000,
       minRatio: 0.8
     })

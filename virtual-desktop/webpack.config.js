@@ -13,7 +13,6 @@
 const path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
-const BrotliPlugin = require('brotli-webpack-plugin');
 
 module.exports = {
   "devtool": "source-map",
@@ -112,10 +111,6 @@ module.exports = {
       }
     ]),
     new CompressionPlugin({
-      threshold: 100000,
-      minRatio: 0.8
-    }),
-    new BrotliPlugin({
       threshold: 100000,
       minRatio: 0.8
     })
