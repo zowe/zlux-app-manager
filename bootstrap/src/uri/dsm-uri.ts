@@ -25,18 +25,20 @@ export class DsmUri implements ZLUX.UriBroker {
     relativePath;//suppress warning for now
     return "";
   }
-  unixFileUri(route: string, absPath: string, sourceEncoding?: string, targetEncoding?: string,
+  unixFileUri(route: string, absPath: string,
+              sourceEncodingOrOptions?: string|ZLUX.UnixFileUriOptions, targetEncoding?: string,
                newName?: string, forceOverwrite?: boolean, sessionID?: number,
-               lastChunk?: boolean): string {
+               lastChunk?: boolean, responseType?: string): string {
     //suppress warning for now
     route;
     absPath;
-    sourceEncoding;
+    sourceEncodingOrOptions;
     targetEncoding;
     newName;
     forceOverwrite;
     sessionID;
     lastChunk;
+    responseType;
     return "";
   }
   datasetContentsUri(relativePath: string): string {
