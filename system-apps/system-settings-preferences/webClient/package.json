@@ -1,6 +1,6 @@
 {
   "name": "org.zowe.zlux.ng2desktop.settings",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "start": "webpack --progress --colors --watch",
     "build": "webpack --progress --colors",
@@ -40,7 +40,7 @@
     "ts-loader": "~4.4.2",
     "tslint": "~5.10.0",
     "typescript": "~2.7.2",
-    "webpack": "~4.4.0",
+    "webpack": "~4.7.0",
     "webpack-cli": "~3.0.0",
     "webpack-config": "~7.5.0",
     "zone.js": "~0.8.26"

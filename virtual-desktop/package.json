@@ -36,7 +36,7 @@
     "file-loader": "~1.1.11",
     "font-awesome": "~4.7.0",
     "html2canvas": "~1.0.0-alpha.12",
-    "jquery": "~3.3.0",
+    "jquery": "~3.4.0",
     "json-loader": "~0.5.7",
     "ngx-i18nsupport": "~0.17.1",
     "popper.js": "~1.14.3",
