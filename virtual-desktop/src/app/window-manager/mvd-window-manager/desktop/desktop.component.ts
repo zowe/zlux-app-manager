@@ -23,6 +23,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
 export class DesktopComponent {
 contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
 private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+public isPersonalizationPanelVisible: boolean;
 constructor(
     public windowManager: WindowManagerService,
     private http: Http,
@@ -37,6 +38,23 @@ constructor(
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
+  }
+
+  showPersonalizationPanel(): void {
+    this.isPersonalizationPanelVisible = true;
+  }
+
+  hidePersonalizationPanel(): void {
+    this.isPersonalizationPanelVisible = false;
+  }
+
+  personalizationPanelToggle(): void {
+    if (this.isPersonalizationPanelVisible)
+    {
+      this.isPersonalizationPanelVisible = false;
+    } else {
+      this.isPersonalizationPanelVisible = true;
+    }
   }
 
   closeContextMenu(): void {

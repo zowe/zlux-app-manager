@@ -172,7 +172,7 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  protected detectActivity(): void {
+  detectActivity(): void {
     this.logger.debug('User activity detected');
     this.lastActive = Date.now();
     if (this.idleWarnModal) {

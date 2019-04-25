@@ -39,22 +39,22 @@ export class LaunchbarIconComponent {
   }
 */  
 
-  onMouseEnter(event: MouseEvent, item: LaunchbarItem) {
+  onMouseEnter(event: MouseEvent) {
     if (!this.launchbarItem.showInstanceView) {
       this.launchbarItem.showIconLabel = true;
     }
   }
 
-  onMouseLeave(event: MouseEvent, item: LaunchbarItem) {
+  onMouseLeave(event: MouseEvent) {
     this.launchbarItem.showIconLabel = false;
   }
 
-  onMouseEnterInstanceView(event: MouseEvent, item: LaunchbarItem) {
+  onMouseEnterInstanceView(event: MouseEvent) {
     this.launchbarItem.showIconLabel = false;
     this.launchbarItem.showInstanceView = true;
   }
 
-  onMouseLeaveInstanceView(event: MouseEvent, item: LaunchbarItem) {
+  onMouseLeaveInstanceView(event: MouseEvent) {
     this.launchbarItem.showInstanceView = false;
     this.launchbarItem.showIconLabel = false;
   }

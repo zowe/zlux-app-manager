@@ -21,9 +21,9 @@ import {
   ViewChild
   } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
-
+import { DesktopComponent } from "../../desktop/desktop.component";
 import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
-import { BaseLogger } from 'virtual-desktop-logger';
+import { BaseLogger } from '../../../../shared/logger';
 
 @Component({
   selector: 'rs-com-launchbar-widget',
@@ -48,7 +48,8 @@ export class LaunchbarWidgetComponent implements OnInit {
 
   constructor(
     private injector: Injector,
-    private languageLocaleService: LanguageLocaleService
+    private languageLocaleService: LanguageLocaleService,
+    private desktopComponent: DesktopComponent
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
@@ -79,6 +80,11 @@ export class LaunchbarWidgetComponent implements OnInit {
   togglePopup(): void {
     this.popupVisible = !this.popupVisible;
     this.popupStateChanged.emit(this.popupVisible);
+  }
+
+  togglePersonalizationPanel() {
+    this.desktopComponent.personalizationPanelToggle();
+    //this.activeToggle();
   }
 
   @HostListener('document:mousedown', ['$event'])

@@ -26,7 +26,7 @@ export class LaunchbarInstanceViewComponent {
   @Input() launchbarItem: LaunchbarItem;
 
   constructor(/*@Inject(MVDHosting.Tokens.ApplicationManagerToken) private applicationManager: MVDHosting.ApplicationManagerInterface*/
-  protected windowManager: WindowManagerService) {
+  public windowManager: WindowManagerService) {
   }
 
   ngOnInit(){

@@ -12,6 +12,7 @@
 
 const path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
   "devtool": "source-map",
@@ -108,7 +109,11 @@ module.exports = {
         from: path.resolve(__dirname, './src/assets/i18n'),
         to: path.resolve('./web/assets/i18n')
       }
-    ])
+    ]),
+    new CompressionPlugin({
+      threshold: 100000,
+      minRatio: 0.8
+    })
   ],
   "externals": [
     function(context, request, callback) {

@@ -1,7 +1,7 @@
 {
   "identifier": "org.zowe.zlux.appmanager.app.propview",
   "apiVersion": "1.0.0",
-  "pluginVersion": "1.0.0",
+  "pluginVersion": "1.0.1",
   "pluginType": "application",
   "isSystemPlugin":true,
   "webContent": {
@@ -15,9 +15,7 @@
     "descriptionDefault": "Zowe Viewer",
     "defaultWindowStyle": {
       "width": 350,
-      "height": 450,
-      "x": 0,
-      "y": 0
+      "height": 450
     }
   }
 }

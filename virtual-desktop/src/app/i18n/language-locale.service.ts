@@ -13,7 +13,8 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/mergeMap';
 import { fromPromise } from 'rxjs/observable/fromPromise';
-import { BaseLogger } from 'virtual-desktop-logger';
+import { BaseLogger } from '../shared/logger';
+import { _throw } from 'rxjs/observable/throw';
 
 import { Globalization } from './globalization';
 
@@ -81,7 +82,8 @@ export class LanguageLocaleService {
         } else {
           const message: string = `no locale data found for locale id ${value}`;
           this.logger.warn(message)
-          return Observable.throwError(message);
+          //return Observable.throwError(message);
+          return _throw(message);
         }
       });
     }
