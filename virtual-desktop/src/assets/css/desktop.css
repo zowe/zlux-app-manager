@@ -36,303 +36,20 @@ html:fullscreen {
 }
 
 body {
-  margin: 0;
-  padding: 0;
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
   line-height: 1.42857143;
-  color: #333;
-  background-color: #666;
   width:100%;
   height:100%;
 }
 
 .desktop {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
   position: absolute;
   width: 100%;
   height: 100%;
-  -ms-user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
   cursor: default;
   overflow: hidden;
-}
-
-.taskbar {
-  box-sizing: border-box;
-  position: absolute;
-  width: 100%;
-  height: 50px;
-  left: 0;
-  bottom: 0;
-  background-color: #6f6f6f;
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-.taskbar-icon {
-  display: inline-block;
-  box-sizing: border-box;
-  position: relative;
-  width: 100px;
-  background-color: #aaaaaa;
-  vertical-align: middle;
-  margin-left: 10px;
-  border-radius: 3px;
-  padding: 10px;
-  user-select: none;
-  -ms-user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  cursor: default;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: 0.3s;
-}
-
-.windows-container{
-  box-sizing: border-box;
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  bottom: 0;
-  background: transparent;
-  margin: 0;
-  padding: 0;
-}
-
-.launch-url-overlay {
-  position: absolute;
-  display: none;
-  right: 10px;
-  top: 55px;
-  width: 300px;
-  height: 100px;
-  z-index: 10;
-  background: #dde8f1;
-  border-radius: 8px;
-  border-top-right-radius: 0px;
-  padding: 10px;
-  box-shadow: 0px 0px 10px #777;
-  /*filter: drop-shadow(0px 0px 20px #999);*/
-}
-
-.launch-url-field {
-  display: block;
-  width: 90%;
-  margin: 0 auto;
-  margin-bottom: 10px;
-}
-
-.launchbar-toggler {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 14px;
-  background-color: transparent;
-  z-index: 1000;
-}
-
-/* SB */
-
-.launchbar-search {
-  position: absolute;
-  bottom: 0;
-  right: 160px;
-  width: 290px;
-  height: 60px;
-  z-index: 7;
-}
-
-.launchbar-search .input-group-addon {
-  background: #66bf9c;
-  border-color: #569f89;
-  border-top-right-radius: 6px;
-  border-bottom-right-radius: 6px;
-  background-image: url('../images/window/search.png');
-  background-size: 20px;
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 50px;
-}
-
-.launchbar-search .search-field {
-  height: 34px;
-  width: 180px;
-  border-radius: 6px;
-  border: #ccc 1px solid;
-}
-
-.launchbar-search-popup {
-  width: 400px;
-  height: 350px;
-  position: absolute;
-  bottom: 90px;
-  right: 160px;
-  border-radius: 10px;
-  background: #dde8f1;
-  overflow: hidden;
-}
-
-.launchbar-search-caret {
-  position: absolute;
-  bottom: 70px;
-  right: 220px;
-  border-top: 20px solid #c3c7ce;
-}
-
-.launchbar-search-popup .scroll {
-  overflow-y: scroll;
-  height: calc(100% - 40px); /* Compensate for height of "advanced search" div */
-  width: 100%;
-  padding: 25px;
-  padding-top: 15px;
-}
-
-.launchbar-search-popup .header {
-  width: 100%;
-  background: #b0cfd9;
-  padding: 3px;
-  padding-left: 8px;
-  font-size: 10pt;
-  margin-bottom: 5px;
-}
-
-.launchbar-search-popup .advanced-search {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  padding: 5px;
-  padding-top: 10px;
-  width: 100%;
-  height: 40px;
-
-  background: #c3c7ce;
-  color: #646b6b;
-  text-align: center;
-}
-
-.launchbar-search-popup .arrow {
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 20px;
-  height: 20px;
-  margin-top: 10px
-}
-
-.launchbar-search-popup .arrow-down {
-  background-image: url('../images/window/down.png');
-}
-
-.launchbar-search-popup .arrow-up {
-  background-image: url('../images/window/up.png');
-}
-
-.desktop-blur {
-  filter: blur(10px) grayscale(0.7) hue-rotate(30deg);
-  transition: 0.5s filter ease-out;
-}
-
-.desktop-clear {
-  filter: none;
-  transition: 0.5s filter ease-in;
-}
-
-.vertical-centered {
-  display: table-cell;
-  vertical-align: middle;
-}
-
-.nowrap {
-  white-space: nowrap;
-}
-.centered {
-  text-align: center;
-}
-
-.refresh-button {
-  width: 16px;
-  height: 16px;
-  background-image: url(../images/window/refresh-normal.png);
-  background-repeat: no-repeat;
-  background-color: transparent;
-  border-color: transparent;
-}
-
-.system-management {
-  background-image: url(../images/window/mainframe-management1.png);
-  background-repeat: no-repeat;
-  width: 982px;
-  height: 890px;
-}
-
-.logical-storage {
-  background-image: url(../images/window/logical1.png);
-  background-repeat: no-repeat;
-  width: 998px;
-  height: 751px;
-}
-
-.tn3270-container {
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-.addTerminalButton{
-  color:white;
-  background:#3c7299;
-  width:150px;
-  height:40px
-}
-
-.launchbar-button-container {
-  position: absolute;
-  width: 120px;
-  bottom: 65px;
-  left: -30px;
-  display: inline-block;
-}
-
-.launchbar-button button {
-  color: white;
-  background-color: #3c7299;
-  width: 100%;
-  font-family: 'Roboto', sans-serif;
-  font-size: 13px;
-  font-weight: 400;
-  display: inline-block;
-  white-space: nowrap;
-}
-
-.launchbar-context-menu {
-  position: absolute;
-  width: auto;
-  height: 390px;
-  z-index: 999;
-  font-family: 'Helvetica';
-  font-size: 16px;
-/* caused overlay onto launchbar  background-color:#224c67; */
-  color:#ffffff;
-  font-weight: 400;
-  overflow: hidden;
-}
-
-.iframe-blocker {
-  display: none;
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 99;
 }
 
 /* Force the scroll bar to be show in webkit browser (Mac hides by default) */
@@ -346,6 +63,15 @@ body {
     background-color: rgba(0,0,0,.35);
     -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
 }
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url("~primeng/resources/themes/omega/fonts/roboto-v15-latin-regular.eot");
+  /* IE9 Compat Modes */
+  src: local("Roboto"), local("Roboto-Regular"), url("~primeng/resources/themes/omega/fonts/roboto-v15-latin-regular.eot?#iefix") format("embedded-opentype"), url("~primeng/resources/themes/omega/fonts/roboto-v15-latin-regular.woff2") format("woff2"), url("~primeng/resources/themes/omega/fonts/roboto-v15-latin-regular.woff") format("woff"), url("~primeng/resources/themes/omega/fonts/roboto-v15-latin-regular.ttf") format("truetype"), url("~primeng/resources/themes/omega/fonts/roboto-v15-latin-regular.svg#Roboto") format("svg");
+  /* Legacy iOS */ }
 
 
 /*

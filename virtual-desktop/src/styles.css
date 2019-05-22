@@ -19,12 +19,7 @@
 
 @import url('~bootstrap/dist/css/bootstrap.min.css');
 @import url('~font-awesome/css/font-awesome.min.css');
-@import url('~primeng/resources/primeng.min.css');
-@import url('~primeng/resources/themes/omega/theme.css');
-@import url('./assets/css/styles.css');
-@import url('./assets/css/app.css');
 @import url('./assets/css/desktop.css');
-@import url('./assets/css/animate.css');
 
 /*
   This program and the accompanying materials are
