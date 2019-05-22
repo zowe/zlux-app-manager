@@ -79,6 +79,11 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
        if (applicationInstance){
          let theIframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instanceId}`);
          if (theIframe){
+           this.logger.debug(`Checking if double-iframe`);
+           let secondIframe = (theIframe as HTMLIFrameElement).contentWindow.document.getElementById('zluxIframe');
+           if (secondIframe) {
+             theIframe = secondIframe;
+           }
            this.logger.debug(`PostMessage for instance=`,applicationInstance);
            let iframeWindow:Window|null = (theIframe as HTMLIFrameElement).contentWindow!;
            iframeWindow.postMessage(message, "*");
