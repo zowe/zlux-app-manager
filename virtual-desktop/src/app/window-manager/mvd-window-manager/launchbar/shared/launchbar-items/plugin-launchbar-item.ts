@@ -62,7 +62,7 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
       let instanceIndex = self.windowPreviewsIds.indexOf(instanceId);
 
       if (windowIds != null && windowHTML != -1) {
-        html2canvas(windowHTML).then(function(canvas) {
+        html2canvas(windowHTML, {logging:false}).then(function(canvas) {
           imgPrev.src = canvas.toDataURL();
           if (instanceIndex != -1){
             self.windowPreviews[instanceIndex] = imgPrev;

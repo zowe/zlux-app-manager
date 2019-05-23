@@ -44,7 +44,9 @@
       "node_modules/@types"
     ],
     "lib": [
+      "es5",
       "es2016",
+      "es6",
       "dom"
     ]
   }
