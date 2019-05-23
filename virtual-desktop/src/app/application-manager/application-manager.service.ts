@@ -23,7 +23,7 @@ import { FailureModule } from './load-failure/failure.module';
 import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { IFRAME_NAME_PREFIX } from '../shared/named-elements.ts';
+import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements.ts';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
@@ -79,8 +79,12 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
        if (applicationInstance){
          let theIframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instanceId}`);
          if (theIframe){
-           this.logger.debug(`Checking if double-iframe`);
-           let secondIframe = (theIframe as HTMLIFrameElement).contentWindow.document.getElementById('zluxIframe');
+           /* checking if iframe-in-iframe, which we can see in a remote host scenario.
+              Sending the message to the wrong iframe will result in the message being dropped.
+              The inner iframe is not under control of the zlux framework, so the name here is by convention.
+              If people use the wrong name, they get nothing.
+           */
+           let secondIframe = (theIframe as HTMLIFrameElement).contentWindow.document.getElementById(INNER_IFRAME_NAME);
            if (secondIframe) {
              theIframe = secondIframe;
            }
