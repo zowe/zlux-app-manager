@@ -1,6 +1,6 @@
 {
   "name": "org.zowe.zlux.ng2desktop.settings",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scripts": {
     "start": "webpack --progress --colors --watch",
     "build": "webpack --progress --colors",
