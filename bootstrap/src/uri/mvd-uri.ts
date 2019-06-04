@@ -47,7 +47,7 @@ export class MvdUri implements ZLUX.UriBroker {
     });
     let params = this.createParamURL(paramArray);
     let routeParam = route;
-    let absPathParam = absPath;
+    let absPathParam = encodeURIComponent(absPath);
     
     return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`;
   }
