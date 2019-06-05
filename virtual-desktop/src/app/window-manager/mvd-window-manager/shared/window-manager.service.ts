@@ -121,17 +121,15 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   private generateNewWindowPosition(plugin: DesktopPluginDefinitionImpl): WindowPosition {
     let { width: dtWindowWidth, height: dtWindowHeight } = plugin.defaultWindowStyle;
-    const desktopHeight = document.getElementsByClassName('window-pane')[0].clientHeight;
-    const desktopWidth = document.getElementsByClassName('window-pane')[0].clientWidth;
     const launchbarHeight = WindowManagerService.LAUNCHBAR_HEIGHT;
     const { innerWidth, innerHeight } = window;
     const rightMostPosition = innerWidth - dtWindowWidth;
     const bottomMostPosition = innerHeight - dtWindowHeight;
     const pluginIdentifier = plugin.getIdentifier();
 
-    // By default, plugins begin in the center of the screen (half of both x & y axes)
-    let nextLeft = (desktopWidth / 2) - (dtWindowWidth / 2);
-    let nextTop = (desktopHeight / 2) - (dtWindowHeight / 2) - (WindowManagerService.WINDOW_HEADER_HEIGHT / 2) - (launchbarHeight / 2);
+    //Init to top-left
+    let nextLeft = 0;
+    let nextTop = 0;
     
     
     if (this.runningPluginMap.get(pluginIdentifier) != undefined && this.runningPluginMap.get(pluginIdentifier)!.length > 0)
