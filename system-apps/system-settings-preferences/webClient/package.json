@@ -24,7 +24,7 @@
     "@angular/platform-browser-dynamic": "~6.0.9",
     "@angular/router": "~6.0.9",
     "angular-l10n": "~5.2.0",
-    "@zlux/widgets": "git+ssh://git@github.com:zowe/zlux-widgets.git",
+    "@zlux/widgets": "git+https://github.com/zowe/zlux-widgets.git",
     "angular2-template-loader": "~0.6.2",
     "codelyzer": "~4.4.2",
     "copy-webpack-plugin": "~4.5.2",
