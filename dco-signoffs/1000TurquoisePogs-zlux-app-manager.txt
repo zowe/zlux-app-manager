@@ -1,0 +1,3 @@
+I, 1000TurquoisePogs hereby sign-off-by all of my past commits to this repo subject to the Developer Certificate of Origin (DCO), Version 1.1. In the past I have used emails: sgrady@rocketsoftware.com
+
+69433b27fa611a08e8013cd7773d0f44c55c9cb9 initial commit

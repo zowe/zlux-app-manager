@@ -23,6 +23,7 @@ import { FailureModule } from './load-failure/failure.module';
 import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements.ts';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
@@ -42,7 +43,6 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);
     this.applicationInstances = new Map();
     this.nextInstanceId = 0;
-
     (window as any).ZoweZLUX.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
       return this.pluginManager.findPluginDefinition(zluxPlugin.getIdentifier()).then(plugin => {
         if (plugin == null) {
@@ -51,17 +51,49 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         return this.spawnApplication(plugin as DesktopPluginDefinitionImpl, metadata);
       });
     });
+    window.addEventListener('message',(message:any)=> {
+      if (message.data === 'iframeload') {
+        this.applicationInstances.forEach((appInstance)=> {
+          let instance = appInstance.instanceId;
+          const iframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instance}`);
+          console.log(`iframe=`,iframe);
+          if (iframe) {
+            if ((iframe as any).contentWindow == message.source
+                || (iframe as any).contentWindow == message.source.parent
+                || ((iframe as any).src.indexOf(message.origin) == 0)) {
+              //it's this one
+              const appInstance = this.applicationInstances.get(instance);
+              if (appInstance) {
+                const pluginId = appInstance.plugin.getIdentifier();
+                this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);
+                return ZoweZLUX.dispatcher.iframeLoaded(instance, pluginId);
+              }
+            }
+          }
+        });
+        this.logger.warn(`No iframe identified as source of message`);
+      }
+    });
     (window as any).ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
        let applicationInstance:ApplicationInstance|undefined = this.applicationInstances.get(instanceId);
        if (applicationInstance){
-         this.logger.debug(`PostMessage for instance=${applicationInstance}, iframeID=${applicationInstance.iframeId}`);
-         let theIframe:HTMLElement|null = document.getElementById(applicationInstance.iframeId);
+         let theIframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instanceId}`);
          if (theIframe){
-           this.logger.debug(`PostMessage iframe found=`,theIframe);
+           /* checking if iframe-in-iframe, which we can see in a remote host scenario.
+              Sending the message to the wrong iframe will result in the message being dropped.
+              The inner iframe is not under control of the zlux framework, so the name here is by convention.
+              If people use the wrong name, they get nothing.
+           */
+           let secondIframe = (theIframe as HTMLIFrameElement).contentWindow.document.getElementById(INNER_IFRAME_NAME);
+           if (secondIframe) {
+             theIframe = secondIframe;
+           }
+           this.logger.debug(`PostMessage for instance=`,applicationInstance);
            let iframeWindow:Window|null = (theIframe as HTMLIFrameElement).contentWindow!;
-           iframeWindow.postMessage({ zluxRemoteFunction: "echo", message: "Say Cheese"}, "*");
+           iframeWindow.postMessage(message, "*");
+         } else {
+           this.logger.warn(`iframe postMessage failed, no iframe found for ${applicationInstance.plugin.getIdentifier()}, id=${instanceId}`);
          }
-         
        }
     });
   }
@@ -148,7 +180,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
                                                     applicationInstance.isIFrame );   // instanceId is proxy handle to isntance
         if (notATurtle && (typeof notATurtle.provideZLUXDispatcherCallbacks == 'function')) {
           ZoweZLUX.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
-        } else {
+        } else if (!applicationInstance.isIFrame) {
           this.logger.info(`App callbacks not registered. Couldn't find instance object or object didn't provide callbacks.`
                           +`App ID=${plugin.getIdentifier()}, Instance Obj=`,notATurtle); 
         }
