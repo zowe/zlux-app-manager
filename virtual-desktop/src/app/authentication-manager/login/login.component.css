@@ -75,19 +75,19 @@
 }
 
 .login-form .userid {
-  font-family: 'Roboto';
+  font-family: 'Roboto', sans-serif;
   font-size: 19px;
   color: #353535;
 }
 
 .login-form .password {
-  font-family: 'Roboto';
+  font-family: 'Roboto', sans-serif;
   font-size: 19px;
   text-transform: uppercase;
 }
 
 .login-form label {
-  font-family: 'Roboto';
+  font-family: 'Roboto', sans-serif;
   font-size: 17px;
   color: #474747;
   margin-bottom: 0;
@@ -124,13 +124,13 @@
 }
 
 .login-label {
-  font-family: 'Roboto';
+  font-family: 'Roboto', sans-serif;
   font-size: 20px;
   color: #474747;
 }
 
 .login-plugin-version {
-  font-family: 'Roboto';
+  font-family: 'Roboto', sans-serif;
   font-size: 16px;
   color: #47474785;
 }
