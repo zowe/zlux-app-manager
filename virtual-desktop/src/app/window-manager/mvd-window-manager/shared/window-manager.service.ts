@@ -135,33 +135,34 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     const selectedPluginWindows = this.runningPluginMap.get(pluginIdentifier);
     if (selectedPluginWindows && selectedPluginWindows.length > 0) {
       let windowId: MVDWindowManagement.WindowId;
-      windowId = selectedPluginWindows[selectedPluginWindows.length - 1];
-      const windowPosition = {
-        ...this.getWindowPositionFor(pluginIdentifier, windowId),
-      } as WindowPosition
-      const lastSavedPosition = {
-        ...this.getWindowPositionFromId(pluginIdentifier),
-      } as WindowPosition
+      windowId = this.runningPluginMap.get(pluginIdentifier)![this.runningPluginMap.get(pluginIdentifier)!.length-1];
 
-      if (lastSavedPosition.width === windowPosition.width
-        && lastSavedPosition.height === windowPosition.height
-        && lastSavedPosition.top === windowPosition.top
-        && lastSavedPosition.left === windowPosition.left) {
-          // If a plugin of the same type is already running, cascade an instance below it
-        if (windowPosition && windowPosition.left && windowPosition.height) {
-          nextLeft = windowPosition.left + WindowManagerService.NEW_WINDOW_POSITION_INCREMENT;
-          nextTop = windowPosition.top + WindowManagerService.NEW_WINDOW_POSITION_INCREMENT;
-          dtWindowHeight = windowPosition.height;
-          dtWindowWidth = windowPosition.width;
-        }
-      } else { // If a previously opened plugin instance has been closed, restore it
-        if (lastSavedPosition && windowPosition.left !== undefined
-          && windowPosition !== null && lastSavedPosition.height) {
-          nextLeft = lastSavedPosition.left;
-          nextTop = lastSavedPosition.top;
-          dtWindowHeight = lastSavedPosition.height;
-          dtWindowWidth = lastSavedPosition.width;
-        }
+        let windowPosition = {
+          ...this.getWindowPositionFor(pluginIdentifier, windowId),
+        } as WindowPosition
+        let lastSavedPosition = {
+          ...this.getWindowPositionFromId(pluginIdentifier),
+        } as WindowPosition
+        if (lastSavedPosition.width == windowPosition.width && lastSavedPosition.height == 
+          windowPosition.height && lastSavedPosition.top == windowPosition.top && lastSavedPosition.left 
+          == windowPosition.left)
+        { // If a plugin of the same type is already running, cascade an instance below it
+          if (windowPosition && windowPosition.left && windowPosition.height)
+          {
+            nextLeft = windowPosition.left + WindowManagerService.NEW_WINDOW_POSITION_INCREMENT;
+            nextTop = windowPosition.top + WindowManagerService.NEW_WINDOW_POSITION_INCREMENT;
+            dtWindowHeight = windowPosition.height;
+            dtWindowWidth = windowPosition.width;
+          }
+        } else 
+        { // If a previously opened plugin instance has been closed, restore it
+          if (lastSavedPosition && lastSavedPosition.left && lastSavedPosition.height)
+          {
+            nextLeft = lastSavedPosition.left;
+            nextTop = lastSavedPosition.top;
+            dtWindowHeight = lastSavedPosition.height;
+            dtWindowWidth = lastSavedPosition.width;
+          }
       }
     } else { // If a plugin of the same type is not running, but has previously saved position data, re-open it
       let windowPosition = {
