@@ -63,7 +63,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
    * 2. Even though this looks like it starts at (0.0), doing this simplifies the logic of
    *    generateNewWindowPosition whuile still starting off at (NEW_WINDOW_POSITION_INCREMENT, NEW_WINDOW_POSITION_INCREMENT)
    */
-  private windowPositionsMap: Map<String, Map<MVDWindowManagement.WindowId, WindowPosition>>;
+  private lastWindowPositionMap: Map<String, Map<MVDWindowManagement.WindowId, WindowPosition>>;
 
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
   readonly windowDeregisterEmitter: Subject<MVDWindowManagement.WindowId>;
@@ -87,7 +87,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     this.focusedWindow = null;
     this.topZIndex = 0;
-    this.windowPositionsMap = new Map();
+    this.lastWindowPositionMap = new Map();
     this.contextMenuRequested = new Subject();
     this.windowDeregisterEmitter = new Subject();
     this.screenshot = true;
@@ -302,7 +302,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       this.runningPluginMap.set(pluginId, [windowId]);
     }
 
-    this.updateWindowPositions(pluginId, windowId, newWindowPosition);
+    this.updateLastWindowPositions(pluginId, windowId, newWindowPosition);
 
     /* Create viewport */
     desktopWindow.viewportId = this.viewportManager.createViewport((viewportId: MVDHosting.ViewportId)=> {
@@ -391,7 +391,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       this.logger.warn(`Attempted to close null window, ID=${windowId}`); 
      return;
     }
-    this.updateWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
+    this.updateLastWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
 
     const closeViewports = ()=> {
       desktopWindow.closeViewports(this.viewportManager).then(()=> {
@@ -514,7 +514,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       throw new Error('Attempted to restore null window');
     }
     desktopWindow.windowState.restore();
-    this.updateWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
+    this.updateLastWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
   }
 
   setPosition(windowId: MVDWindowManagement.WindowId, pos: WindowPosition): void {
@@ -525,27 +525,27 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     //TODO(?): It seems like this method is never being used. The only method used to set position of a
     //window is positionStyle() in window.component.ts --- this.logger.info("Set position used here!");
     desktopWindow.windowState.position = pos;
-    this.updateWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
+    this.updateLastWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
   }
 
-  updateWindowPositions(pluginId: String, windowId: MVDWindowManagement.WindowId, pos: WindowPosition): boolean {
-    let positionMap = this.windowPositionsMap.get(pluginId);
+  updateLastWindowPositions(pluginId: String, windowId: MVDWindowManagement.WindowId, pos: WindowPosition): boolean {
+    let positionMap = this.lastWindowPositionMap.get(pluginId);
     if (positionMap) {
       let windowPosition = positionMap.get(windowId);
       if (windowPosition) {
         positionMap.set(windowId, pos);
-        this.windowPositionsMap.set(pluginId, positionMap);
+        this.lastWindowPositionMap.set(pluginId, positionMap);
         return true; // Returns if true if existing position data has been overwritten
       }
     }
     positionMap = new Map();
     positionMap.set(windowId, pos);
-    this.windowPositionsMap.set(pluginId, positionMap);
+    this.lastWindowPositionMap.set(pluginId, positionMap);
     return false; // Returns false if a new position data point was created
   }
 
   getWindowPositionFor(pluginId: String, windowId: MVDWindowManagement.WindowId): WindowPosition | null {
-    let positionMap = this.windowPositionsMap.get(pluginId);
+    let positionMap = this.lastWindowPositionMap.get(pluginId);
     if (positionMap)
     {
       let windowPosition = positionMap.get(windowId);
@@ -558,7 +558,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   getWindowPositionFromId(pluginId: String): WindowPosition | null {
-    let positionMap = this.windowPositionsMap.get(pluginId);
+    let positionMap = this.lastWindowPositionMap.get(pluginId);
     if (positionMap)
     {
       let IDsMap = Array.from(positionMap.keys());
