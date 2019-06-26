@@ -50,9 +50,6 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
     return 1;
   }
 
-  maximize(windowId:MVDWindowManagement.WindowId): void {
-   // this function does nothing
-  }
 
   /* This likely does nothing right now and that's ok since the simple window manager is quite trivial*/
   closeWindow(windowId: MVDWindowManagement.WindowId): void {
