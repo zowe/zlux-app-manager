@@ -51,6 +51,9 @@ export class MvdUri implements ZLUX.UriBroker {
     
     return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`;
   }
+  omvsSegmentUri(): string {
+    return `${this.serverRootUri('omvs')}`;
+  }
   datasetContentsUri(dsn: string): string {
     return `${this.serverRootUri(`datasetContents/${encodeURIComponent(dsn)}`)}`;
   }
