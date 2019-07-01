@@ -17,6 +17,7 @@
  * tilde (~) to inform the css-loader. 
  */
 
+@import url('~typeface-roboto/index.css');
 @import url('~bootstrap/dist/css/bootstrap.min.css');
 @import url('~font-awesome/css/font-awesome.min.css');
 @import url('./assets/css/desktop.css');
