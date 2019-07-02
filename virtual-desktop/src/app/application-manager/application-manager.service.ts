@@ -57,6 +57,30 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         return this.spawnApplication(plugin as DesktopPluginDefinitionImpl, metadata);
       });
     });
+    
+    (window as any).ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
+       let applicationInstance:ApplicationInstance|undefined = this.applicationInstances.get(instanceId);
+       if (applicationInstance){
+         let theIframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instanceId}`);
+         console.log("== the iframe ==")
+         if (theIframe){
+           /* checking if iframe-in-iframe, which we can see in a remote host scenario.
+              Sending the message to the wrong iframe will result in the message being dropped.
+              The inner iframe is not under control of the zlux framework, so the name here is by convention.
+              If people use the wrong name, they get nothing.
+           */
+           let secondIframe = (theIframe as HTMLIFrameElement).contentWindow.document.getElementById(INNER_IFRAME_NAME);
+           if (secondIframe) {
+             theIframe = secondIframe;
+           }
+           this.logger.debug(`PostMessage for instance=`,applicationInstance);
+           let iframeWindow:Window|null = (theIframe as HTMLIFrameElement).contentWindow!;
+           iframeWindow.postMessage(message, "*");
+         } else {
+           this.logger.warn(`iframe postMessage failed, no iframe found for ${applicationInstance.plugin.getIdentifier()}, id=${instanceId}`);
+         }
+       }
+    });
     window.addEventListener('message',(message:any)=> {
       if (message.data === 'iframeload') {
         this.applicationInstances.forEach((appInstance)=> {
@@ -79,28 +103,6 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         });
         this.logger.warn(`No iframe identified as source of message`);
       }
-    });
-    (window as any).ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
-       let applicationInstance:ApplicationInstance|undefined = this.applicationInstances.get(instanceId);
-       if (applicationInstance){
-         let theIframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instanceId}`);
-         if (theIframe){
-           /* checking if iframe-in-iframe, which we can see in a remote host scenario.
-              Sending the message to the wrong iframe will result in the message being dropped.
-              The inner iframe is not under control of the zlux framework, so the name here is by convention.
-              If people use the wrong name, they get nothing.
-           */
-           let secondIframe = (theIframe as HTMLIFrameElement).contentWindow.document.getElementById(INNER_IFRAME_NAME);
-           if (secondIframe) {
-             theIframe = secondIframe;
-           }
-           this.logger.debug(`PostMessage for instance=`,applicationInstance);
-           let iframeWindow:Window|null = (theIframe as HTMLIFrameElement).contentWindow!;
-           iframeWindow.postMessage(message, "*");
-         } else {
-           this.logger.warn(`iframe postMessage failed, no iframe found for ${applicationInstance.plugin.getIdentifier()}, id=${instanceId}`);
-         }
-       }
     });
   }
 
@@ -172,12 +174,8 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         // so we return as to not repeat the process and create two Viewports for one instance
         return applicationInstance.instanceId;
       }
-      let injector;
-      if (messages) {
-        injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata, messages);
-      } else {
-        injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata);
-      }
+      const injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata, applicationInstance.instanceId, messages);
+    
       this.instantiateApplicationInstance(applicationInstance, compiled.moduleFactory, injector);
       this.logger.debug(`appMgr spawning plugin ID=${plugin.getIdentifier()}, `
                         +`compiled.initialComponent=`,compiled.initialComponent);
