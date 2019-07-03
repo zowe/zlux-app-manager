@@ -23,7 +23,7 @@ declare var window: { ZoweZLUX: typeof ZoweZLUXResources,
                       COM_RS_COMMON_LOGGER: Logger};
 window; /* Suppress TS error */
 let logger = new Logger();
-logger.addDestination(logger.makeDefaultDestination(true,true,true,true,false));
+logger.addDestination(logger.makeDefaultDestination(true,true,true,true,true));
 window.COM_RS_COMMON_LOGGER = logger;
 
 export class ZoweZLUXResources {

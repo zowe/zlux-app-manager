@@ -227,6 +227,7 @@ export class AuthenticationManager {
         this.setSessionTimeoutWatcher(jsonMessage.categories);
         window.localStorage.setItem('username', username);
         this.username = username;
+        (ZoweZLUX.logger as any)._setBrowserUsername(username);
         this.performPostLoginActions().subscribe(
           ()=> {
             this.log.debug('Done performing post-login actions');
