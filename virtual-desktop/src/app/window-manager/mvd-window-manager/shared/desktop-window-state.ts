@@ -23,7 +23,7 @@ export enum DesktopWindowStateType {
 export class DesktopWindowState {
   private _stateType: DesktopWindowStateType;
   private _previousStateType : DesktopWindowStateType;
-  private normalPosition: WindowPosition;
+  private _normalPosition: WindowPosition;
   private _position: WindowPosition;
   zIndex: number;
 
@@ -33,7 +33,7 @@ export class DesktopWindowState {
   constructor(zIndex: number, position: WindowPosition) {
     this._stateType = DesktopWindowStateType.Normal;
     this._previousStateType = DesktopWindowStateType.Normal;
-    this.normalPosition = position;
+    this._normalPosition = position;
     this._position = position;
     this.zIndex = zIndex;
     this.stateChanged = new EventEmitter<DesktopWindowStateType>(true);
@@ -51,13 +51,13 @@ export class DesktopWindowState {
   }
 
   maximize(): void {
-    this.normalPosition = this.position;
+    this._normalPosition = this.position;
     this.setStateType(DesktopWindowStateType.Maximized);
   }
 
   minimize(): void {
     if (this._stateType !== DesktopWindowStateType.Maximized) {
-      this.normalPosition = this.position;
+      this._normalPosition = this.position;
     }
     this.setStateType(DesktopWindowStateType.Minimized);
   }
@@ -66,7 +66,7 @@ export class DesktopWindowState {
     if(this.PreviousStateType && this.PreviousStateType === DesktopWindowStateType.Maximized){
       this.setStateType(DesktopWindowStateType.Maximized);  
     } else {
-      this.position = this.normalPosition;
+      this.position = this._normalPosition;
       this.setStateType(DesktopWindowStateType.Normal);
     }
   }
@@ -92,6 +92,10 @@ export class DesktopWindowState {
       this._position = position;
       this.positionChanged.emit(position);
     }
+  }
+
+  get normalPosition(): WindowPosition {
+    return this._normalPosition;
   }
 
   get shouldRender(): boolean {

@@ -41,6 +41,9 @@ export class DsmUri implements ZLUX.UriBroker {
     responseType;
     return "";
   }
+  omvsSegmentUri(): string {
+    return `${this.serverRootUri('omvs')}`;
+  }
   datasetContentsUri(relativePath: string): string {
     relativePath;//suppress warning for now
     return "";
