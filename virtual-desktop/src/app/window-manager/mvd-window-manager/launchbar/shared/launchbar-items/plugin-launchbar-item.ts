@@ -34,6 +34,10 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
     ZoweZLUX.dispatcher.registerPluginWatcher(plugin.getBasePlugin(), this);
   }
 
+  get tooltip(): string {
+    return this.plugin.basePlugin.getWebContent().descriptionDefault;
+  }
+
   get label(): string {
     return this.plugin.label;
   }
