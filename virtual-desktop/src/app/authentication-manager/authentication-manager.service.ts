@@ -245,6 +245,7 @@ export class AuthenticationManager {
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-logout'), {})
       .map(response => {
         this.username = null;
+        (ZoweZLUX.logger as any)._setBrowserUsername('N/A');
         return response;
       });
   }
