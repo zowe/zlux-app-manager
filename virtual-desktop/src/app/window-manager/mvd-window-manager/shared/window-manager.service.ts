@@ -92,16 +92,14 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.contextMenuRequested = new Subject();
     this.windowDeregisterEmitter = new Subject();
     this.screenshot = true;
-    ZoweZLUX.dispatcher.setWindowManager({
+    ZoweZLUX.dispatcher.attachWindowManager({
       "maximize" : (id: MVDWindowManagement.WindowId) => {
         this.maximize(id);
       },
       "minimize" : (id: MVDWindowManagement.WindowId) => {
         this.minimize(id);
-      },
-      "nextId": () => this.nextId,
+      }
     });
-    // {"maximize" : (id)=>{this.maximize(id);} })
     this.windowMonitor.windowResized.subscribe(() => {
       Array.from(this.windowMap.values())
         .filter(win => win.windowState.stateType === DesktopWindowStateType.Maximized)
