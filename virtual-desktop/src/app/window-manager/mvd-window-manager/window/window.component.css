@@ -113,8 +113,8 @@
   width: 100%;
   top: 45px;
   bottom: 0px;
+  background-color: #FFFFFF;
   overflow: auto;
-  background-color: #eeeeee;
 }
 
 .window .border-box-sizing {
