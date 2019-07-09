@@ -97,6 +97,40 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         .filter(win => win.windowState.stateType === DesktopWindowStateType.Maximized)
         .forEach(win => this.refreshMaximizedWindowSize(win));
     });
+
+    this.blockTabOnUnfocusedWindow();
+  }
+
+  private blockTabOnUnfocusedWindow(): void {
+    document.addEventListener("keyup", (event) => {
+      if(this.focusedWindow != null){
+        if(event.which == 9){ // tab
+          let activeElemParents = this.getParentElements(event.target);
+          let parentViewportID:Number = -1;
+          let parentViewport = activeElemParents.find((elem) => {
+            return elem.nodeName.toLowerCase() === 'com-rs-mvd-viewport'
+          });
+          if(parentViewport !== undefined){
+            parentViewportID = parentViewport.getAttribute('ng-reflect-viewport-id');
+            if(Number(this.focusedWindow.viewportId) != parentViewportID){
+              this.getHTML(this.focusedWindow.windowId).setAttribute('tabindex', '0');
+              this.getHTML(this.focusedWindow.windowId).focus();
+              console.log('Element in background window currently active');
+            }
+          }
+        }
+      }
+    });
+  }
+
+  private getParentElements(element: any){
+    var parents = [];
+    var iElem = element;
+    while(iElem.parentNode !== document && iElem.parentNode.nodeName.toLowerCase() !== 'body'){
+      parents.unshift(iElem.parentNode);
+      iElem = iElem.parentNode;
+    }
+    return parents;
   }
 
   /* TODO: https://github.com/angular/angular/issues/17725 gets in the way */
