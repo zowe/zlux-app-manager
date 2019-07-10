@@ -113,9 +113,11 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
           if(parentViewport !== undefined){
             parentViewportID = parentViewport.getAttribute('ng-reflect-viewport-id');
             if(Number(this.focusedWindow.viewportId) != parentViewportID){
-              this.getHTML(this.focusedWindow.windowId).setAttribute('tabindex', '0');
-              this.getHTML(this.focusedWindow.windowId).focus();
-              this.getHTML(this.focusedWindow.windowId).setAttribute('tabindex', null);
+              let focusHTML = this.getHTML(this.focusedWindow.windowId);
+              let focusTabIndex = focusHTML.getAttribute('tabindex');
+              focusHTML.setAttribute('tabindex', '0');
+              focusHTML.focus();
+              focusHTML.setAttribute('tabindex', focusTabIndex);
             }
           }
         }
