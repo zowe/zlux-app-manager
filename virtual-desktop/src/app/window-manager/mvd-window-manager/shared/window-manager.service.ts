@@ -102,11 +102,11 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   private blockTabOnUnfocusedWindow(): void {
-    document.addEventListener("keyup", (event) => {
+    let blockTab = (event: any) => {
       if(this.focusedWindow != null){
         if(event.which == 9){ // tab
-          let activeElemParents = this.getParentElements(event.target);
-          let parentViewportID:Number = -1;
+          let activeElemParents = this.getParentElements(document.activeElement);
+          let parentViewportID: Number = -1;
           let parentViewport = activeElemParents.find((elem) => {
             return elem.nodeName.toLowerCase() === 'com-rs-mvd-viewport'
           });
@@ -115,12 +115,14 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
             if(Number(this.focusedWindow.viewportId) != parentViewportID){
               this.getHTML(this.focusedWindow.windowId).setAttribute('tabindex', '0');
               this.getHTML(this.focusedWindow.windowId).focus();
-              console.log('Element in background window currently active');
+              this.getHTML(this.focusedWindow.windowId).setAttribute('tabindex', null);
             }
           }
         }
       }
-    });
+    }
+    document.addEventListener('keyup', blockTab, false);
+    document.addEventListener('keydown', blockTab, false);
   }
 
   private getParentElements(element: any){
