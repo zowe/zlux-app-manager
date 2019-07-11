@@ -102,23 +102,16 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   private blockTabOnUnfocusedWindow(): void {
-    let blockTab = (event: any) => {
+    let blockTab = (event: KeyboardEvent) => {
       if(this.focusedWindow != null){
-        if(event.which == 9){ // tab
-          let activeElemParents = this.getParentElements(document.activeElement);
-          let parentViewportID: Number = -1;
-          let parentViewport = activeElemParents.find((elem) => {
-            return elem.nodeName.toLowerCase() === 'com-rs-mvd-viewport'
-          });
-          if(parentViewport !== undefined){
-            parentViewportID = parentViewport.getAttribute('ng-reflect-viewport-id');
-            if(Number(this.focusedWindow.viewportId) != parentViewportID){
-              let focusHTML = this.getHTML(this.focusedWindow.windowId);
-              let focusTabIndex = focusHTML.getAttribute('tabindex');
-              focusHTML.setAttribute('tabindex', '0');
-              focusHTML.focus();
-              focusHTML.setAttribute('tabindex', focusTabIndex);
-            }
+        if(event.keyCode == 9){ // tab
+          let activeViewportID = this.getViewportIdFromDOM(document.activeElement);
+          if(activeViewportID != Number(this.focusedWindow.viewportId)){
+            let focusHTML = this.getHTML(this.focusedWindow.windowId);
+            let focusTabIndex = focusHTML.getAttribute('tabindex');
+            focusHTML.setAttribute('tabindex', '0');
+            focusHTML.focus();
+            focusHTML.setAttribute('tabindex', focusTabIndex);
           }
         }
       }
@@ -127,14 +120,17 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     document.addEventListener('keydown', blockTab, false);
   }
 
-  private getParentElements(element: any){
-    var parents = [];
-    var iElem = element;
-    while(iElem.parentNode !== document && iElem.parentNode.nodeName.toLowerCase() !== 'body'){
-      parents.unshift(iElem.parentNode);
-      iElem = iElem.parentNode;
+  private getViewportIdFromDOM(element: any){
+    var parentViewportElement: any;
+    var head = element;
+    while(head.parentNode !== document && head.parentNode.nodeName.toLowerCase() !== 'body'){
+      if(head.parentNode.nodeName.toLowerCase() === 'com-rs-mvd-viewport'){
+        parentViewportElement = head.parentNode;
+        break;
+      }
+      head = head.parentNode;
     }
-    return parents;
+    return (parentViewportElement !== undefined) ? parentViewportElement.getAttribute('ng-reflect-viewport-id') : -1;
   }
 
   /* TODO: https://github.com/angular/angular/issues/17725 gets in the way */
