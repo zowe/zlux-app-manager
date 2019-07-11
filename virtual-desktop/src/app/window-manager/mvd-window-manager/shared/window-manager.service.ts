@@ -97,6 +97,42 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         .filter(win => win.windowState.stateType === DesktopWindowStateType.Maximized)
         .forEach(win => this.refreshMaximizedWindowSize(win));
     });
+    this.blockTabOnUnfocusedWindow();
+  }
+
+  private blockTabOnUnfocusedWindow(): void {
+    let blockTab = (event: KeyboardEvent) => {
+      if(this.focusedWindow != null){
+        if(event.keyCode == 9){ // tab
+          let activeViewportID = this.getViewportIdFromDOM(document.activeElement);
+          if(activeViewportID != Number(this.focusedWindow.viewportId)){
+            let focusHTML = this.getHTML(this.focusedWindow.windowId);
+            let focusTabIndex = focusHTML.getAttribute('tabindex');
+            focusHTML.setAttribute('tabindex', '0');
+            focusHTML.focus();
+            focusHTML.setAttribute('tabindex', focusTabIndex);
+          }
+        }
+      }
+    }
+    document.addEventListener('keyup', blockTab, false);
+    document.addEventListener('keydown', blockTab, false);
+  }
+
+  private getViewportIdFromDOM(element: any): Number{
+    var parentViewportElement: any;
+    var head = element;
+    while(head.parentNode !== document && head.parentNode.nodeName.toLowerCase() !== 'body'){
+      if(head.parentNode.nodeName.toLowerCase() === 'com-rs-mvd-viewport'){
+        parentViewportElement = head.parentNode;
+        break;
+      }
+      head = head.parentNode;
+    }
+    if(parentViewportElement === undefined){
+      return -1;
+    }
+    return parentViewportElement.getAttribute('ng-reflect-viewport-id');
   }
 
   /* TODO: https://github.com/angular/angular/issues/17725 gets in the way */
