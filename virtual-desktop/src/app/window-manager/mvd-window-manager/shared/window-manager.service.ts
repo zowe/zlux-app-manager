@@ -122,7 +122,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private getViewportIdFromDOM(element: any): Number{
     var parentViewportElement: any;
     var head = element;
-    while(head.parentNode !== document && head.parentNode.nodeName.toLowerCase() !== 'body'){
+    while(head.parentNode !== document
+          && head.parentNode.nodeName.toLowerCase() !== 'body'){
       if(head.parentNode.nodeName.toLowerCase() === 'com-rs-mvd-viewport'){
         parentViewportElement = head.parentNode;
         break;
