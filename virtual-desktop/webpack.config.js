@@ -115,6 +115,7 @@ module.exports = {
       minRatio: 0.8
     })
   ],
+  mode: 'production',
   "externals": [
     function(context, request, callback) {
       if (/(@angular)|(angular\-l10n)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs\/Rx$)/.test(request)){
