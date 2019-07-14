@@ -66,7 +66,7 @@ export class LaunchbarComponent {
      this.helperLoggedIn = false; //helperLoggedIn is to indicate when the initial login happens
    }
   
-  ngOnInit(): void {
+  getAllItems(): void {
     this.allItems = [];
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
@@ -94,6 +94,7 @@ export class LaunchbarComponent {
     }
     if (this.loggedIn) {
       if(this.helperLoggedIn != true){
+        this.getAllItems();
         this.pluginsDataService.refreshPinnedPlugins(this.allItems);
         this.helperLoggedIn = true;
       }
