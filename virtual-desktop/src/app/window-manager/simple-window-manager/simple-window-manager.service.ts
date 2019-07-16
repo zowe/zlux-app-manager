@@ -50,6 +50,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
     return 1;
   }
 
+
   /* This likely does nothing right now and that's ok since the simple window manager is quite trivial*/
   closeWindow(windowId: MVDWindowManagement.WindowId): void {
     let appId = this.viewportManager.getApplicationInstanceId(this.theViewportId);
