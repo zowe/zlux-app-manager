@@ -122,8 +122,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private getViewportIdFromDOM(element: any): Number{
     var parentViewportElement: any;
     var head = element;
-    while(head.parentNode !== document
-          && head.parentNode.nodeName.toLowerCase() !== 'body'){
+    while(head.parentNode !== document){
       if(head.parentNode.nodeName.toLowerCase() === 'com-rs-mvd-viewport'){
         parentViewportElement = head.parentNode;
         break;
@@ -133,7 +132,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     if(parentViewportElement === undefined){
       return -1;
     }
-    return parentViewportElement.getAttribute('ng-reflect-viewport-id');
+    return parentViewportElement.getAttribute('rs-com-viewport-id');
   }
 
   /* TODO: https://github.com/angular/angular/issues/17725 gets in the way */
