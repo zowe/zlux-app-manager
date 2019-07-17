@@ -97,13 +97,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         .filter(win => win.windowState.stateType === DesktopWindowStateType.Maximized)
         .forEach(win => this.refreshMaximizedWindowSize(win));
     });
-    this.blockTabOnUnfocusedWindow();
-  }
 
-  private blockTabOnUnfocusedWindow(): void {
-    let blockTab = (event: KeyboardEvent) => {
+    let tabHandler = (event: KeyboardEvent) => {
       if(this.focusedWindow != null){
-        if(event.keyCode == 9){ // tab
+        if(event.keyCode == 9 || event.which == 9){ // tab
           let activeViewportID = this.getViewportIdFromDOM(document.activeElement);
           if(activeViewportID != Number(this.focusedWindow.viewportId)){
             let focusHTML = this.getHTML(this.focusedWindow.windowId);
@@ -115,8 +112,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         }
       }
     }
-    document.addEventListener('keyup', blockTab, false);
-    document.addEventListener('keydown', blockTab, false);
+    document.addEventListener('keyup', tabHandler, false);
+    document.addEventListener('keydown', tabHandler, false);
   }
 
   private getViewportIdFromDOM(element: any): Number{
