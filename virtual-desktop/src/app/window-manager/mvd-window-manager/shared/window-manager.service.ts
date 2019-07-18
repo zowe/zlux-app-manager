@@ -119,8 +119,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private getViewportIdFromDOM(element: any): Number{
     var parentViewportElement: any;
     var head = element;
+    const viewportTag: string = 'com-rs-mvd-viewport';
+    const viewportIdAttr: string = 'rs-com-viewport-id';
     while(head.parentNode !== document){
-      if(head.parentNode.nodeName.toLowerCase() === 'com-rs-mvd-viewport'){
+      if(head.parentNode.nodeName.toLowerCase() === viewportTag){
         parentViewportElement = head.parentNode;
         break;
       }
@@ -129,7 +131,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     if(parentViewportElement === undefined){
       return -1;
     }
-    return parentViewportElement.getAttribute('rs-com-viewport-id');
+    return parentViewportElement.getAttribute(viewportIdAttr);
   }
 
   /* TODO: https://github.com/angular/angular/issues/17725 gets in the way */
@@ -377,7 +379,6 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
           this.maximize(windowId);
         }
       }
-      this.requestWindowFocus(windowId);
     }
   }
 
