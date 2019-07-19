@@ -35,7 +35,8 @@ export class ReactPluginComponent implements AfterViewInit, OnDestroy {
     @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) viewportEvents: Angular2PluginViewportEvents,
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) pluginDefinition: MVDHosting.DesktopPluginDefinition,
     @Inject(Angular2InjectionTokens.LOGGER) logger: ZLUX.ComponentLogger,
-    @Inject(Angular2InjectionTokens.LAUNCH_METADATA) launchMetadata: any
+    @Inject(Angular2InjectionTokens.LAUNCH_METADATA) launchMetadata: any,
+    @Inject(Angular2InjectionTokens.WINDOW_INSTANCE_ID) instanceId: any
   ) {
     this.resources = {
       mainWindowId: mainWindowId,
@@ -44,7 +45,8 @@ export class ReactPluginComponent implements AfterViewInit, OnDestroy {
       viewportEvents: viewportEvents,
       logger: logger,
       pluginDefinition: pluginDefinition,
-      launchMetadata: launchMetadata
+      launchMetadata: launchMetadata,
+      instanceId: instanceId
     };
   }
 

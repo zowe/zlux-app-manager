@@ -56,7 +56,6 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
        let applicationInstance:ApplicationInstance|undefined = this.applicationInstances.get(instanceId);
        if (applicationInstance){
          let theIframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instanceId}`);
-         console.log("== the iframe ==")
          if (theIframe){
            /* checking if iframe-in-iframe, which we can see in a remote host scenario.
               Sending the message to the wrong iframe will result in the message being dropped.
@@ -80,11 +79,12 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         this.applicationInstances.forEach((appInstance)=> {
           let instance = appInstance.instanceId;
           const iframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instance}`);
-          console.log(`iframe=`,iframe);
           if (iframe) {
-            if ((iframe as any).contentWindow == message.source
-                || (iframe as any).contentWindow == message.source.parent
-                || ((iframe as any).src.indexOf(message.origin) == 0)) {
+            // this always resolved as true oddly enough
+            // if ((iframe as any).contentWindow === message.source
+            //     || (iframe as any).contentWindow === message.source.parent
+            //     || ((iframe as any).src.indexOf(message.origin) == 0)) { 
+            if ((iframe as any).contentWindow.frameElement.id === message.source.frameElement.id) {
               //it's this one
               const appInstance = this.applicationInstances.get(instance);
               if (appInstance) {
@@ -178,6 +178,9 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         ZoweZLUX.dispatcher.registerPluginInstance(plugin.getBasePlugin(),                  // this is Plugin class instance
                                                     applicationInstance.instanceId,
                                                     applicationInstance.isIFrame );   // instanceId is proxy handle to isntance
+        if (applicationInstance.isIFrame) {
+          ZoweZLUX.dispatcher.addPendingIframe(plugin.getBasePlugin(), null)
+        }
         if (notATurtle && (typeof notATurtle.provideZLUXDispatcherCallbacks == 'function')) {
           ZoweZLUX.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
         } else if (!applicationInstance.isIFrame) {

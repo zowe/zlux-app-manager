@@ -36,6 +36,8 @@ export const Angular2InjectionTokens = {
   MAIN_WINDOW_ID: 'virtualdesktop-ng2.0-0-0.window-id', /* optional */
   WINDOW_ACTIONS: 'virtualdesktop-ng2.0-0-0.window-actions', /* optional */
   WINDOW_EVENTS: 'virtualdesktop-ng2.0-0-0.window-events', /* optional */
+
+  WINDOW_INSTANCE_ID: 'virtualdesktop-ng2.0-0-0.window-instance-id'
 };
 
 export interface Angular2PluginWindowActions {
