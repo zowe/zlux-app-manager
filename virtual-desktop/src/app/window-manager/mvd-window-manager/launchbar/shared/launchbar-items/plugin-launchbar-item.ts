@@ -32,6 +32,15 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
     this.windowPreviewsIds = [];
     this.instanceCount = 0;
     ZoweZLUX.dispatcher.registerPluginWatcher(plugin.getBasePlugin(), this);
+    this.windowManager.screenshotRequestEmitter.subscribe((id)=> {
+      if (this.instanceIds.length < 2) {
+        return; //performance hack until we get some task viewer that needs this
+      }
+      let index = this.instanceIds.indexOf(id);
+      if (index != -1) {
+        this.generateSnapshot(id);
+      }
+    });
   }
 
   get label(): string {
@@ -78,18 +87,6 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
     }
   }
 
-  refreshScreenshot(instanceId: MVDHosting.InstanceId){
-    var self = this;
-    let index = this.instanceIds.indexOf(instanceId);
-    if (index != -1) {
-      if (this.windowManager.screenshot == false) {
-        this.generateSnapshot(instanceId);
-        this.windowManager.screenshot = true;
-      }
-      setTimeout(function() { self.refreshScreenshot(instanceId); }, 1000);
-    }
-  }
-
   destroySnapshot(instanceId: MVDHosting.InstanceId) {
     let index = this.windowPreviewsIds.indexOf(instanceId);
     if (index > -1) {
@@ -100,12 +97,19 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
 
   instanceAdded(instanceId: MVDHosting.InstanceId, isEmbedded: boolean|undefined) {
     var self = this;
-    setTimeout(function() { self.generateSnapshot(instanceId); }, 3000);
+    if (this.instanceIds.length != 0) {
+      //skip first for performance
+      setTimeout(function() {
+        self.generateSnapshot(instanceId);
+      }, 3000);
+    } if (this.instanceIds.length == 1) {
+      //go back and init first. slightly worse for performance
+      self.generateSnapshot(this.instanceIds[0]);
+    }
     if (!isEmbedded) {
       this.instanceIds.push(instanceId);
       this.instanceCount++;
     }
-    setTimeout(function() { self.refreshScreenshot(instanceId); }, 1000);
   }
   instanceRemoved(instanceId: MVDHosting.InstanceId) {
     this.destroySnapshot(instanceId);

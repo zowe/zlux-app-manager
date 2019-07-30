@@ -54,7 +54,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
-  public screenshot: boolean;
+  private _lastScreenshotId: number = -1;
   public showPersonalizationPanel: boolean = false;
   /*
    * NOTES:
@@ -70,6 +70,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private viewportManager: MVDHosting.ViewportManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
+  public screenshotRequestEmitter: Subject<MVDWindowManagement.WindowId>;
 
   constructor(
     private injector: Injector,
@@ -90,7 +91,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.lastWindowPositionMap = new Map();
     this.contextMenuRequested = new Subject();
     this.windowDeregisterEmitter = new Subject();
-    this.screenshot = true;
+    this.screenshotRequestEmitter = new Subject();
 
     this.windowMonitor.windowResized.subscribe(() => {
       Array.from(this.windowMap.values())
@@ -452,8 +453,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   requestWindowFocus(destination: MVDWindowManagement.WindowId): boolean {
-    if (!this.windowHasFocus(destination) && this.screenshot == true){
-      this.screenshot = false;
+    if (!this.windowHasFocus(destination) && this._lastScreenshotId != destination){
+      this.screenshotRequestEmitter.next(this._lastScreenshotId);
+      this._lastScreenshotId = destination;
     }
 
     const desktopWindow = this.windowMap.get(destination);
