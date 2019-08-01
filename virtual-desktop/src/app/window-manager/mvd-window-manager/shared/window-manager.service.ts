@@ -70,7 +70,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private viewportManager: MVDHosting.ViewportManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
-  public screenshotRequestEmitter: Subject<MVDWindowManagement.WindowId>;
+  public screenshotRequestEmitter: Subject<{pluginId: string, windowId: MVDWindowManagement.WindowId}>;
 
   constructor(
     private injector: Injector,
@@ -472,7 +472,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     desktopWindow.windowState.zIndex = this.topZIndex ++;
     if (requestScreenshot){
       setTimeout(()=> {
-        this.screenshotRequestEmitter.next(this._lastScreenshotId);
+        this.screenshotRequestEmitter.next({pluginId: desktopWindow.plugin.getIdentifier(), windowId: this._lastScreenshotId});
         this._lastScreenshotId = destination;
       },500); //delay a bit for performance perception
     }
@@ -623,7 +623,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         break;
     }
   }
-
+  
   spawnContextMenu(windowId: MVDWindowManagement.WindowId, xRelative: number, yRelative: number, items: ContextMenuItem[]): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {

@@ -36,11 +36,11 @@ export class LaunchbarInstanceViewComponent {
     let bounds = (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).getBoundingClientRect();
     (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.top = (document.body.clientHeight - INSTANCE_TOP_HEIGHT) + 'px';
     if (bounds != null) {
-      if (bounds.left - (INSTANCE_INITIAL_OFFSET + (INSTANCE_ADDITIONAL_OFFSET  * (this.launchbarItem.windowPreviewsIds.length - 2)))  < 0 ) {
+      if (bounds.left - (INSTANCE_INITIAL_OFFSET + (INSTANCE_ADDITIONAL_OFFSET  * (this.launchbarItem.instanceIds.length - 2)))  < 0 ) {
         (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 0 + 'px';
       } else {
         (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 
-        bounds.left - (INSTANCE_INITIAL_OFFSET + (INSTANCE_ADDITIONAL_OFFSET  * (this.launchbarItem.windowPreviewsIds.length - 2))) + 'px';
+        bounds.left - (INSTANCE_INITIAL_OFFSET + (INSTANCE_ADDITIONAL_OFFSET  * (this.launchbarItem.instanceIds.length - 2))) + 'px';
       }
     }
   }
