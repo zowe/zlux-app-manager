@@ -453,16 +453,16 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   requestWindowFocus(destination: MVDWindowManagement.WindowId): boolean {
-    if (!this.windowHasFocus(destination) && this._lastScreenshotId != destination){
-      this.screenshotRequestEmitter.next(this._lastScreenshotId);
-      this._lastScreenshotId = destination;
-    }
-
     const desktopWindow = this.windowMap.get(destination);
     if (desktopWindow == null) {
       this.logger.warn('Attempted to request focus for null window, ID=${destination}');
       return false;
     }
+    let requestScreenshot = false;
+    if (!this.windowHasFocus(destination) && this._lastScreenshotId != destination){
+      requestScreenshot = true;
+    }
+
     //can't focus an unseen window!
     if (desktopWindow.windowState.stateType === DesktopWindowStateType.Minimized) {
       this.restore(destination);
@@ -470,7 +470,12 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     this.focusedWindow = desktopWindow;
     desktopWindow.windowState.zIndex = this.topZIndex ++;
-
+    if (requestScreenshot){
+      setTimeout(()=> {
+        this.screenshotRequestEmitter.next(this._lastScreenshotId);
+        this._lastScreenshotId = destination;
+      },500); //delay a bit for performance perception
+    }
     return true;
   }
 
