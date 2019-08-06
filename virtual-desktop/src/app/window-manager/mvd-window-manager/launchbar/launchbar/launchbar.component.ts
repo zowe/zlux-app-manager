@@ -181,12 +181,23 @@ export class LaunchbarComponent {
       this.applicationManager.spawnApplication(this.propertyWindowPluginDef,this.getAppPropertyInformation(plugin));
     }  
   }
+
+  openInNewTab(item: LaunchbarItem): void {
+    const plginType:string = item.plugin.getFramework();
+    if (plginType === 'iframe') {
+      // Still allows IFrames to comprehend URL parameters if address is copy/pasted later
+      window.open(`${location.origin}/ZLUX/plugins/${item.plugin.basePlugin.getIdentifier()}/web/`);
+    } else {
+      window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}`);
+    }
+  }
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     var menuItems: ContextMenuItem[];
     if (item.instanceCount == 1) {
         menuItems = [
           { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
+          { "text" : "Open Standalone", "action": () => this.openInNewTab(item)},
           { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
           this.pluginsDataService.pinContext(item),
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
@@ -195,6 +206,7 @@ export class LaunchbarComponent {
     } else if (item.instanceCount != 0) {
       menuItems = [
         { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
+        { "text" : "Open Standalone", "action": () => this.openInNewTab(item)},
         this.pluginsDataService.pinContext(item),
         { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
         { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)}
@@ -203,6 +215,7 @@ export class LaunchbarComponent {
       menuItems =
         [
           { "text": this.translation.translate('Open'), "action": () => this.openWindow(item) },
+          { "text" : "Open Standalone", "action": () => this.openInNewTab(item)},
           this.pluginsDataService.pinContext(item),
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
         ]
