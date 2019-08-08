@@ -92,7 +92,7 @@ export class IFramePluginComponent implements AfterViewInit, OnDestroy {
       if (res !== undefined) {
         return res;
       }
-      console.log('NEXT ERROR', nextPart);
+      // console.log('NEXT ERROR', nextPart);
 
       throw new ReferenceError(`${nextPart} of ${path} does not exist`);
     }, undefined);
@@ -116,7 +116,7 @@ export class IFramePluginComponent implements AfterViewInit, OnDestroy {
     try {
       resolvedAction = action && this.resolve(prefix, action);
     } catch (e) {
-      console.log(`Error in performing action: ${e}` );
+      // console.log(`Error in performing action: ${e}` );
     }
     const params = data.data && data.data.params;
     if (resolvedAction !== undefined) {
@@ -130,7 +130,7 @@ export class IFramePluginComponent implements AfterViewInit, OnDestroy {
           const saveKey = `${prefix}-${data.data.saveKey}`;
           this.functionMap.set(saveKey, result);
         } else {
-          console.log('Please provide a save key');
+         // console.log('Please provide a save key');
         }
         result = 'Complete';
       }

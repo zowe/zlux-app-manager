@@ -61,13 +61,11 @@ const resolve = (prefix: string, path: string) => {
         res = res.bind(obj);
       }
     }
-    // console.log('RES', res);
     for (const a in res) {
       if (!res.hasOwnProperty(a)) {
         continue;
       }
 
-      // console.log(a);
     }
     if (res !== undefined) {
       return res;
@@ -100,7 +98,8 @@ function receiveMessage(event: any) {
   try {
     resolvedAction = action && resolve(prefix, action);
   } catch (e) {
-    console.log(`Error in performing action: ${e}` );
+    // console.log(`Error in performing action: ${e}` );
+    // TODO: handle error condition
   }
   const params = data.data && data.data.params;
   if (resolvedAction !== undefined) {
@@ -114,7 +113,8 @@ function receiveMessage(event: any) {
         const saveKey = `${prefix}-${data.data.saveKey}`;
         functionMap.set(saveKey, result);
       } else {
-        console.log('Please provide a save key');
+        // console.log('Please provide a save key');
+        // TODO: Add logging with ZLUX Logger
       }
       result = 'Complete';
     }
