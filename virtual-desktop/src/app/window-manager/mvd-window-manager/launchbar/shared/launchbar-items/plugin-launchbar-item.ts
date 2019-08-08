@@ -43,6 +43,10 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
     });
   }
 
+  get tooltip(): string {
+    return this.plugin.basePlugin.getWebContent().descriptionDefault;
+  }
+
   get label(): string {
     return this.plugin.label;
   }
