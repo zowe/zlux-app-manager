@@ -97,6 +97,41 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         .filter(win => win.windowState.stateType === DesktopWindowStateType.Maximized)
         .forEach(win => this.refreshMaximizedWindowSize(win));
     });
+
+    let tabHandler = (event: KeyboardEvent) => {
+      if(this.focusedWindow != null){
+        if(event.keyCode == 9 || event.which == 9){ // tab
+          let activeViewportID = this.getViewportIdFromDOM(document.activeElement);
+          if(activeViewportID != Number(this.focusedWindow.viewportId)){
+            let focusHTML = this.getHTML(this.focusedWindow.windowId);
+            let focusTabIndex = focusHTML.getAttribute('tabindex');
+            focusHTML.setAttribute('tabindex', '0');
+            focusHTML.focus();
+            focusHTML.setAttribute('tabindex', focusTabIndex);
+          }
+        }
+      }
+    }
+    document.addEventListener('keyup', tabHandler, false);
+    document.addEventListener('keydown', tabHandler, false);
+  }
+
+  private getViewportIdFromDOM(element: any): Number{
+    var parentViewportElement: any;
+    var head = element;
+    const viewportTag: string = 'com-rs-mvd-viewport';
+    const viewportIdAttr: string = 'rs-com-viewport-id';
+    while(head.parentNode !== document){
+      if(head.parentNode.nodeName.toLowerCase() === viewportTag){
+        parentViewportElement = head.parentNode;
+        break;
+      }
+      head = head.parentNode;
+    }
+    if(parentViewportElement === undefined){
+      return -1;
+    }
+    return parentViewportElement.getAttribute(viewportIdAttr);
   }
 
   /* TODO: https://github.com/angular/angular/issues/17725 gets in the way */
@@ -344,7 +379,6 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
           this.maximize(windowId);
         }
       }
-      this.requestWindowFocus(windowId);
     }
   }
 
