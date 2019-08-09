@@ -186,7 +186,7 @@ export class LaunchbarComponent {
     const plginType:string = item.plugin.getFramework();
     if (plginType === 'iframe') {
       // Still allows IFrames to comprehend URL parameters if address is copy/pasted later
-      window.open(`${location.origin}/ZLUX/plugins/${item.plugin.basePlugin.getIdentifier()}/web/`);
+      window.open(`${location.origin}${(window as any).ZoweZLUX.uriBroker.pluginResourceUri(item.plugin, '')}`);
     } else {
       window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}`);
     }
