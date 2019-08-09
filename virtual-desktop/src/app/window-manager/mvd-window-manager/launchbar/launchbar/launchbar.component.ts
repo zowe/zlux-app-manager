@@ -126,10 +126,10 @@ export class LaunchbarComponent {
   }
 
   launchbarItemClicked(event: MouseEvent, item: LaunchbarItem): void {
-    if (item.instanceCount > 1) {
+    if (item.instanceIds.length > 1) {
       item.showInstanceView = !item.showInstanceView;
       (<HTMLImageElement>event.target)!.parentElement!.parentElement!.style.zIndex = '0';
-    } else if (item.instanceCount == 1) {
+    } else if (item.instanceIds.length == 1) {
       let windowId = this.windowManager.getWindow(item.plugin);
       if (windowId != null) {
         if (this.windowManager.windowHasFocus(windowId)){
@@ -185,7 +185,7 @@ export class LaunchbarComponent {
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     var menuItems: ContextMenuItem[];
-    if (item.instanceCount == 1) {
+    if (item.instanceIds.length == 1) {
         menuItems = [
           { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
           { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
@@ -193,7 +193,7 @@ export class LaunchbarComponent {
           { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
           { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)},
         ];
-    } else if (item.instanceCount != 0) {
+    } else if (item.instanceIds.length != 0) {
       menuItems = [
         { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
         this.pluginsDataService.pinContext(item),
