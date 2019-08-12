@@ -9,3 +9,4 @@
 */
 
 export const BaseLogger = ZoweZLUX.logger.makeComponentLogger('org.zowe.zlux.ng2desktop'); //the one hardcoded place
+BaseLogger.info(`App framework initializing. User agent=${navigator.userAgent}`);
