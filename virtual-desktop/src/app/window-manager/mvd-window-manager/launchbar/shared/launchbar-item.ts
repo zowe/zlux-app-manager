@@ -18,9 +18,8 @@ export abstract class LaunchbarItem {
   abstract readonly tooltip: string;
   abstract readonly plugin: DesktopPluginDefinitionImpl;
   abstract readonly launchMetadata: any;
-  abstract readonly instanceCount: number;
   abstract readonly windowPreviews: Array<HTMLImageElement>;
-  abstract readonly windowPreviewsIds: Array<number>;
+  abstract readonly instanceIds: Array<number>;
   showInstanceView: boolean;
   showIconLabel: boolean;
 }
