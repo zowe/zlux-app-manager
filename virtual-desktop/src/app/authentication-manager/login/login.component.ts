@@ -67,7 +67,7 @@ export class LoginComponent implements OnInit {
           this.popupManager.removeReport(this.idleWarnModal.id); 
           this.idleWarnModal = undefined;
         }
-        this.errorMessage = 'Session Expired';
+        this.errorMessage = this.translation.translate('Session Expired');
         this.needLogin = true;
         break;
       default:
@@ -84,15 +84,16 @@ export class LoginComponent implements OnInit {
         this.logger.info('Near session expiration. No activity detected, prompting to renew session');
         this.idleWarnModal = this.popupManager.createErrorReport(
           ZluxErrorSeverity.WARNING,
-          'Session Expiring Soon',
-          `Session will expire in ${e.expirationInMS/1000} seconds unless renewed. `
-          +`Click here to renew your session.`,
+          this.translation.translate('Session Expiring Soon'),
+          this.translation.translate('Session will expire unless renewed.',
+                { expirationInMS: e.expirationInMS/1000 })
+          +this.translation.translate('Click here to renew your session.'),
           {
             blocking: false,
-            buttons: ["Continue"]
+            buttons: [this.translation.translate('Continue')]
           });
         this.idleWarnModal.subject.subscribe((buttonName:any)=> {
-          if (buttonName == 'Continue') {
+          if (buttonName == this.translation.translate('Continue')) {
             //may fail, so don't touch timers yet
             this.renewSession();
           }
@@ -118,13 +119,14 @@ export class LoginComponent implements OnInit {
         this.idleWarnModal.subject.unsubscribe();
         this.idleWarnModal = this.popupManager.createErrorReport(
           ZluxErrorSeverity.WARNING,
-          'Session Renewal Error',
-          `Session could not be renewed. Logout will occur unless renewed. Click here to retry.`, {
+          this.translation.translate('Session Renewal Error'),
+          this.translation.translate('Session could not be renewed. Logout will occur unless renewed. Click here to retry.'), 
+          {
             blocking: false,
-            buttons: ["Retry", "Dismiss"]
+            buttons: [this.translation.translate('Retry'), this.translation.translate('Dismiss')]
           });
         this.idleWarnModal.subject.subscribe((buttonName:any)=> {
-          if (buttonName == 'Retry') {
+          if (buttonName == this.translation.translate('Retry')) {
             this.renewSession();
           }
         });        

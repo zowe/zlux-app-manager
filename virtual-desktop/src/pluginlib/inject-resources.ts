@@ -47,7 +47,7 @@ export interface Angular2PluginWindowActions {
   readonly restore: () => void;
   readonly setTitle: (title: string) => void;
   readonly setPosition: (pos: {top: number, left: number, width: number, height: number}) => void;
-  readonly spawnContextMenu: (xPos: number, yPos: number, items: ContextMenuItem[]) => void;
+  readonly spawnContextMenu: (xPos: number, yPos: number, items: ContextMenuItem[], isAbsolutePos?: boolean) => void;
   readonly registerCloseHandler: (handler: () => Promise<void>) => void;
 }
 
