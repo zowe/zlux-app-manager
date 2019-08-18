@@ -4,14 +4,22 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit } from '@angular/core';
-import { AuthenticationManager } from '../authentication-manager.service';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { AuthenticationManager,
+         LoginScreenChangeReason,
+         LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
+import { TranslationService } from 'angular-l10n';
+//import { Observable } from 'rxjs/Observable';
+import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
+import { BaseLogger } from 'virtual-desktop-logger';
+
+const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 
 @Component({
   selector: 'rs-com-login',
@@ -19,6 +27,8 @@ import { AuthenticationManager } from '../authentication-manager.service';
   styleUrls: [ 'login.component.css' ]
 })
 export class LoginComponent implements OnInit {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   logo: string = require('../../../assets/images/login/Zowe_Logo.png');
   isLoading:boolean;
   needLogin:boolean;
@@ -26,9 +36,15 @@ export class LoginComponent implements OnInit {
   username: string;
   password: string;
   errorMessage: string | null;
+  loginMessage: string;
+  private idleWarnModal: any;
+  private lastActive: number = 0;
 
   constructor(
-    private authenticationService: AuthenticationManager
+    private authenticationService: AuthenticationManager,
+    private translation: TranslationService,
+    private cdr: ChangeDetectorRef,
+    private popupManager: ZluxPopupManagerService    
   ) {
     this.isLoading = true;
     this.needLogin = false;
@@ -37,9 +53,82 @@ export class LoginComponent implements OnInit {
     this.password = '';
     this.errorMessage = null;
 
-    this.authenticationService.loginScreenVisibilityChanged.subscribe((needLogin: boolean) => {
-      this.needLogin = needLogin;
+    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
+      switch (eventReason) {
+      case LoginScreenChangeReason.UserLogout:
+        this.needLogin = true;
+        break;
+      case LoginScreenChangeReason.UserLogin:
+        this.errorMessage = '';
+        this.needLogin = false;
+        break;
+      case LoginScreenChangeReason.SessionExpired:
+        if (this.idleWarnModal) {
+          this.popupManager.removeReport(this.idleWarnModal.id); 
+          this.idleWarnModal = undefined;
+        }
+        this.errorMessage = 'Session Expired';
+        this.needLogin = true;
+        break;
+      default:
+        this.logger.warn('Ignoring unknown login screen change reason='+eventReason);
+      }
       this.isLoading = false;
+    });
+    this.authenticationService.loginExpirationIdleCheck.subscribe((e: LoginExpirationIdleCheckEvent)=> {
+      //it's not just about if its idle, but how long we've been idle for or when we were last active
+      if (!this.isIdle()) {
+        this.logger.info('Near session expiration, but renewing session due to activity');
+        this.renewSession();
+      } else {
+        this.logger.info('Near session expiration. No activity detected, prompting to renew session');
+        this.idleWarnModal = this.popupManager.createErrorReport(
+          ZluxErrorSeverity.WARNING,
+          'Session Expiring Soon',
+          `Session will expire in ${e.expirationInMS/1000} seconds unless renewed. `
+          +`Click here to renew your session.`,
+          {
+            blocking: false,
+            buttons: ["Continue"]
+          });
+        this.idleWarnModal.subject.subscribe((buttonName:any)=> {
+          if (buttonName == 'Continue') {
+            //may fail, so don't touch timers yet
+            this.renewSession();
+          }
+        });
+      }
+    });
+  }
+
+  private isIdle(): boolean {
+    let idle = (Date.now() - this.lastActive) > ACTIVITY_IDLE_TIMEOUT_MS;
+    this.logger.debug(`User lastActive=${this.lastActive}, now=${Date.now()}, idle={idle}`);
+    return idle;
+  }
+
+  renewSession(): void {
+    this.authenticationService.performSessionRenewal().subscribe((result:any)=> {
+      if (this.idleWarnModal) {
+        this.idleWarnModal.subject.unsubscribe();
+        this.idleWarnModal = undefined;
+      }
+    }, (errorObservable)=> {
+      if (this.idleWarnModal) {
+        this.idleWarnModal.subject.unsubscribe();
+        this.idleWarnModal = this.popupManager.createErrorReport(
+          ZluxErrorSeverity.WARNING,
+          'Session Renewal Error',
+          `Session could not be renewed. Logout will occur unless renewed. Click here to retry.`, {
+            blocking: false,
+            buttons: ["Retry", "Dismiss"]
+          });
+        this.idleWarnModal.subject.subscribe((buttonName:any)=> {
+          if (buttonName == 'Retry') {
+            this.renewSession();
+          }
+        });        
+      }
     });
   }
 
@@ -65,7 +154,8 @@ export class LoginComponent implements OnInit {
                   failedTypes.push(keys[i]);
                 }
               }
-              this.errorMessage = `Authentication failed for ${failedTypes.length} types. Types: ${JSON.stringify(failedTypes)}`;
+              this.errorMessage = this.translation.translate('AuthenticationFailed',
+                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
             }
           } catch (e) {
             this.errorMessage = error;
@@ -73,7 +163,7 @@ export class LoginComponent implements OnInit {
         }
         this.isLoading = false;
         this.needLogin = true;
-    });
+      });
   }
 
   considerSubmit(event: KeyboardEvent): void {
@@ -82,12 +172,31 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  detectActivity(): void {
+    this.logger.debug('User activity detected');
+    this.lastActive = Date.now();
+    if (this.idleWarnModal) {
+      this.popupManager.removeReport(this.idleWarnModal.id); 
+      this.idleWarnModal = undefined;
+    }    
+  }
+
   attemptLogin(): void {
     this.errorMessage = null;
     this.needLogin = false;
     this.locked = true;
     this.isLoading = true;
+    // See https://github.com/angular/angular/issues/22426
+    this.cdr.detectChanges();
 
+    if (this.username==null || this.username==''){
+      this.errorMessage= this.translation.translate('UsernameRequired');
+      this.password = '';
+      this.locked = false;
+      this.needLogin = true;
+      this.isLoading = false;
+      return;
+    }
     this.authenticationService.performLogin(this.username!, this.password!).subscribe(
       result => {
         this.password = '';
@@ -105,16 +214,22 @@ export class LoginComponent implements OnInit {
                 failedTypes.push(keys[i]);
               }
             }
-            this.errorMessage = `Authentication failed for ${failedTypes.length} types. Types: ${JSON.stringify(failedTypes)}`;
+            this.errorMessage = this.translation.translate('AuthenticationFailed',
+              { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+
           }
         } else {
           this.errorMessage = error.text();
         }
         this.password = '';
         this.locked = false;
-        this.isLoading = false;  
+        this.isLoading = false;
       }
     );
+  }
+
+  getPluginVersion(): string | null {
+    return "v. " + this.plugin.version;
   }
 }
 
@@ -123,9 +238,9 @@ export class LoginComponent implements OnInit {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

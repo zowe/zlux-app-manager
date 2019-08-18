@@ -1,28 +1,28 @@
 
 
-<!-- 
+<!--
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="desktop-cover" [class.active]="isLoading || needLogin">
+<div class="desktop-cover" (click)="detectActivity()" (keypress)="detectActivity()" [class.active]="isLoading || needLogin">
   <ng-content></ng-content>
 </div>
 
-<div class="login-panel" [class.hidden]="!isLoading && !needLogin">  
+<div class="login-panel" [class.hidden]="!isLoading && !needLogin">
   <div class="login-overlay">
   <div>
-    <img [src]="logo" alt="zLUX - z/OS Lightweight User Experience" />
+    <img [src]="logo" alt="Zowe - z/OS Lightweight User Experience" />
     <form class="login-form" [hidden]="!needLogin">
-      <label for="userid">Username</label>
-      <input class="userid" id="usernameInput" aria-labelledby="user id" tabindex="1" type="text" name="userid" [(ngModel)]="username" maxlength="8" autofocus [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
-      <label for="password">Password</label>
-      <input class="password" id="passwordInput" aria-labelledby="password" tabindex="1" type="password" name="password"[(ngModel)]="password" maxlength="8" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
+      <label for="userid" i18n="label|Label for username@@username-label">Username</label>
+      <input class="userid" id="usernameInput" aria-labelledby="user id" tabindex="1" type="text" name="userid" [(ngModel)]="username" minlength="1" maxlength="100" autofocus [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
+      <label for="password" i18n="label|Label for password@@password-label">Password</label>
+      <input class="password" id="passwordInput" aria-labelledby="password" tabindex="1" type="password" name="password"[(ngModel)]="password" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
     </form>
     <p class="login-error">{{errorMessage || "&nbsp;"}}</p>
     <p class="login-message">{{loginMessage || "&nbsp;"}}</p>
@@ -30,23 +30,29 @@
     <button id="#loginButton"
             class="login-button"
             (click)="attemptLogin()"
-            [hidden]="!needLogin" 
+            [hidden]="!needLogin"
             [disabled]="locked">
       <span class="login-button-icon"></span>
       <br>
-      <span class="login-label">Login</span>
+      <span class="login-label" i18n="button title|Title of Login button@@login-button-title">Log in</span>
+      <br><br>
+      <span class="login-plugin-version">{{getPluginVersion()}}</span>
     </button>
   </div>
   </div>
 </div>
 
-<!-- 
+<!-- sometimes we may not be able to tell if the user is idle or not, so ask them directly with a popup -->
+<zlux-popup-manager>
+</zlux-popup-manager>
+
+<!--
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 -->
 

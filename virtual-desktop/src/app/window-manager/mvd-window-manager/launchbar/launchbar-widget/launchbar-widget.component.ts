@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -15,28 +15,44 @@ import {
   ElementRef,
   EventEmitter,
   HostListener,
-  Inject,
+  Injector,
   OnInit,
   Output,
   ViewChild
   } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
+import { DesktopComponent } from "../../desktop/desktop.component";
+import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
+import { BaseLogger } from '../../../../shared/logger';
 
 @Component({
   selector: 'rs-com-launchbar-widget',
   templateUrl: 'launchbar-widget.component.html',
-  styleUrls: [ 'launchbar-widget.component.css' ]
+  styleUrls: [ 'launchbar-widget.component.css' ],
+  providers: [LanguageLocaleService]
 })
 export class LaunchbarWidgetComponent implements OnInit {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   date: Date;
   popupVisible: boolean;
   @Output() popupStateChanged = new EventEmitter<boolean>();
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
+  authenticationManager: MVDHosting.AuthenticationManagerInterface;
+
+  // Convenience widgets for testing the i18n work
+  // @ViewChild('languagebutton') languageButton: ElementRef;
+  // @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;
+  // @ViewChild('localebutton') localeButton: ElementRef;
 
   constructor(
-    @Inject(MVDHosting.Tokens.AuthenticationManagerToken) public authenticationManager: MVDHosting.AuthenticationManagerInterface
+    private injector: Injector,
+    private languageLocaleService: LanguageLocaleService,
+    private desktopComponent: DesktopComponent
   ) {
+    // Workaround for AoT problem with namespaces (see angular/angular#15613)
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.date = new Date();
     this.popupVisible = false;
   }
@@ -51,6 +67,10 @@ export class LaunchbarWidgetComponent implements OnInit {
     return this.authenticationManager.getUsername();
   }
 
+  getPluginVersion(): string | null {
+    return "v. " + this.plugin.version;
+  }
+
   logout(): void {
     this.popupVisible = false;
     this.popupStateChanged.emit(this.popupVisible);
@@ -62,14 +82,37 @@ export class LaunchbarWidgetComponent implements OnInit {
     this.popupStateChanged.emit(this.popupVisible);
   }
 
+  togglePersonalizationPanel() {
+    this.desktopComponent.personalizationPanelToggle();
+    //this.activeToggle();
+  }
+
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
     if (this.popupVisible && event
-       && !this.userIcon.nativeElement.contains(event.target)
-       && this.logoutButton.nativeElement !== event.target) {
+        && !this.userIcon.nativeElement.contains(event.target)
+        && this.logoutButton.nativeElement !== event.target
+        // Convenience widgets for testing the i18n work
+        // && this.languageButton.nativeElement !== event.target
+        // && this.clearLanguageButton.nativeElement !== event.target
+        // && this.localeButton.nativeElement !== event.target
+      ) {
       this.popupVisible = false;
       this.popupStateChanged.emit(this.popupVisible);
     }
+  }
+
+  setLanguage(value: string): void {
+    this.languageLocaleService.setLanguage(value).subscribe(
+      arg => this.logger.debug(`setLanguage, arg=`,arg),
+      err => {
+        this.logger.warn("setLanguage error=",err);
+      }
+    )
+  }
+
+  setLocale(value: string): void {
+    this.languageLocaleService.setLocale('US').subscribe(arg => this.logger.debug(`setLocale, arg=`,arg))
   }
 }
 
@@ -78,9 +121,9 @@ export class LaunchbarWidgetComponent implements OnInit {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

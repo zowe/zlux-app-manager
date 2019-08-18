@@ -21,17 +21,28 @@ export class DsmUri implements ZLUX.UriBroker {
     return proxy_mode ? `/${proxy_path}${url}` : url;
   }
 
-  unixFileMetadataUri(relativePath: string): string {
-    relativePath;//suppress warning for now
-    return "";
-  }
   rasUri(relativePath: string): string {
     relativePath;//suppress warning for now
     return "";
   }
-  unixFileContentsUri(relativePath: string): string {
-    relativePath;//suppress warning for now
+  unixFileUri(route: string, absPath: string,
+              sourceEncodingOrOptions?: string|ZLUX.UnixFileUriOptions, targetEncoding?: string,
+               newName?: string, forceOverwrite?: boolean, sessionID?: number,
+               lastChunk?: boolean, responseType?: string): string {
+    //suppress warning for now
+    route;
+    absPath;
+    sourceEncodingOrOptions;
+    targetEncoding;
+    newName;
+    forceOverwrite;
+    sessionID;
+    lastChunk;
+    responseType;
     return "";
+  }
+  omvsSegmentUri(): string {
+    return `${this.serverRootUri('omvs')}`;
   }
   datasetContentsUri(relativePath: string): string {
     relativePath;//suppress warning for now
@@ -95,14 +106,16 @@ export class DsmUri implements ZLUX.UriBroker {
     return this.pluginServletUri()+`?pluginType=${pluginType}`
   }
 
-  pluginWSUri(pluginDefinition: ZLUX.Plugin, serviceName:string, relativePath:string){
+  pluginWSUri(pluginDefinition: ZLUX.Plugin, serviceName:string, 
+        relativePath: string, version = "_current"){
     if (relativePath == null) {
       relativePath = "";
     }        
     //const protocol = window.location.protocol;
     //const wsProtocol = (protocol === 'https:') ? 'wss:' : 'ws:';        
     // return protocol+'://'+host+`/ZLUX/plugins/${pluginDefinition.getIdentifier()}/services/data`+relativePath;
-    console.warn("pluginWSUri not implemented yet!", pluginDefinition, serviceName, relativePath);
+    console.warn("pluginWSUri not implemented yet!", pluginDefinition, 
+        serviceName, relativePath, version);
     return "";
   }
 
@@ -117,34 +130,42 @@ export class DsmUri implements ZLUX.UriBroker {
    */
   pluginConfigForScopeUri(pluginDefinition: ZLUX.Plugin, scope: string, resourcePath:string, resourceName?:string): string {
     let name = resourceName ? '?name='+resourceName : '';    
-    return this.pluginServletUri()+`?pluginRESTUri=/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`;
+    return this.pluginServletUri()+`?pluginRESTUri=/ZLUX/plugins/org.zowe.configjs`
+        + `/services/data/_current/${pluginDefinition.getIdentifier()}/${scope}/`
+        + `${resourcePath}${name}`;
   }
 
   /**
-     Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/com.rs.configjs/services/data instead
-   */
+     Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/org.zowe.configjs/services/data instead
+  */
+  /* Disabled for now, to be re-introduced with role-based access control use
   pluginConfigForUserUri(pluginDefinition: ZLUX.Plugin, user:string, resourcePath:string, resourceName?:string) {
     let name = resourceName ? '?name='+resourceName : '';    
-    return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`);    
+    return this.proxyURL(`/ZLUX/plugins/org.zowe.configjs/services/data/_current`
+        + `/${pluginDefinition.getIdentifier()}/users/${user}/${resourcePath}${name}`);    
   }
-
+  */
   /**
-     Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/com.rs.configjs/services/data instead
-   */  
+     Note: This may be unimplemented for /config, and if DSM is equipped for it, should rely on /ZLUX/plugins/org.zowe.configjs/services/data instead
+  */
+  /* Disabled for now, to be re-introduced with role-based access control use  
   pluginConfigForGroupUri(pluginDefinition: ZLUX.Plugin, group:string, resourcePath:string, resourceName?:string) {
     let name = resourceName ? '?name='+resourceName : '';    
-    return this.proxyURL(`/ZLUX/plugins/com.rs.configjs/services/data/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`);    
-  }  
+    return this.proxyURL(`/ZLUX/plugins/org.zowe.configjs/services/data/_current`
+        + `/${pluginDefinition.getIdentifier()}/group/${group}/${resourcePath}${name}`);    
+  }  */
   
   pluginConfigUri(pluginDefinition: ZLUX.Plugin, resourcePath:string, resourceName?:string) {
     return this.pluginConfigForScopeUri(pluginDefinition, "user", resourcePath, resourceName);
   }
   
-  pluginRESTUri(plugin:ZLUX.Plugin, serviceName: string, relativePath:string){
+  pluginRESTUri(plugin:ZLUX.Plugin, serviceName: string, relativePath:string, 
+        version = "_current"){
     if (relativePath == null) {
       relativePath = "";
     }    
-    return this.pluginServletUri()+`?pluginRESTUri=/ZLUX/plugins/${plugin.getIdentifier()}/services/${serviceName}/${relativePath}`;
+    return this.pluginServletUri()+`?pluginRESTUri=/ZLUX/plugins/`
+        + `${plugin.getIdentifier()}/services/${serviceName}/${version}/${relativePath}`;
   }
 
   private pluginServletUri(){

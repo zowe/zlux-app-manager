@@ -17,6 +17,7 @@ import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
 
 import { ReactPluginComponent, ReactEntryHook } from './react-plugin.component';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 interface MvdNativeReactPluginComponentDefinition {
   registerComponentFactories(): void;
@@ -24,13 +25,14 @@ interface MvdNativeReactPluginComponentDefinition {
 
 @Injectable()
 export class ReactPluginFactory extends PluginFactory {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private static getReactModuleURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
     // TODO: clean this up with .d.ts file
-    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'main.js');
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'main.js');
   }
 
   private static getReactComponentsURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
-    return RocketMVD.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'components.js');
   }
 
   constructor(
@@ -47,18 +49,22 @@ export class ReactPluginFactory extends PluginFactory {
     const scriptUrl = ReactPluginFactory.getReactComponentsURL(pluginDefinition);
 
     return new Promise((resolve, reject) => {
-      (window as any).require([scriptUrl], 
-        (components: MvdNativeReactPluginComponentDefinition) => {
-          components.registerComponentFactories();
-        },
-        (failure: any) => {
-          console.log(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
+      if (pluginDefinition.hasComponents()) {
+        (window as any).require([scriptUrl], 
+          (components: MvdNativeReactPluginComponentDefinition) => {
+            components.registerComponentFactories();
+          },
+          (failure: any) => {
+            this.logger.warn(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
+            resolve();
+          });
+        } else {
           resolve();
-        });
+        }
     });
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<CompiledPlugin> {
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin> {
     const scriptUrl = ReactPluginFactory.getReactModuleURL(pluginDefinition);
     return new Promise((resolve, reject) => {
       (window as any).require([scriptUrl],

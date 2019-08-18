@@ -11,6 +11,7 @@
 */
 
 import { Component, ViewContainerRef, ComponentRef, Input, SimpleChanges } from '@angular/core';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Component({
   selector: 'direct-embed-component',
@@ -18,7 +19,7 @@ import { Component, ViewContainerRef, ComponentRef, Input, SimpleChanges } from 
 })
 export class DirectEmbedComponent {
   @Input() component: ComponentRef<any>;
-
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   constructor(
     private viewContainerRef: ViewContainerRef
   ) {
@@ -29,7 +30,7 @@ export class DirectEmbedComponent {
     if (changes['component']) {
       this.viewContainerRef.clear();
 
-      console.log(this.component);
+      this.logger.debug(`ngOnChanges=`,this.component);
       if (this.component != null) {
         this.viewContainerRef.insert(this.component.hostView);
       }

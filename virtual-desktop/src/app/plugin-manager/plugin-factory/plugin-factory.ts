@@ -15,7 +15,7 @@ import { CompiledPlugin } from '../shared/compiled-plugin';
 
 export abstract class PluginFactory {
   abstract acceptableFrameworks(): string[];
-  abstract loadPlugin(plugin: MVDHosting.DesktopPluginDefinition): Promise<CompiledPlugin>;
+  abstract loadPlugin(plugin: MVDHosting.DesktopPluginDefinition, id: MVDHosting.ViewportId): Promise<CompiledPlugin>;
   abstract loadComponentFactories(plugin: MVDHosting.DesktopPluginDefinition): Promise<void>;
 }
 

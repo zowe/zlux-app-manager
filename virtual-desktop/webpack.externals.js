@@ -12,12 +12,17 @@
 
 var webpack = require('webpack');
 var path = require('path');
-//const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 var config = {
   "entry":  {
     "main": "./src/externals-main.ts",
     "externals": "./src/externals.ts"
+  },
+  "resolve": {
+    "alias": {
+      "virtual-desktop-logger": path.resolve(__dirname, "src/app/shared/logger.ts"),
+    }
   },
   "output": {
     "filename": "[name].js",
@@ -39,6 +44,9 @@ var config = {
       }
     ]
   },
+  optimization: {
+  },
+  mode: 'production',
   plugins: [
     new webpack.NamedModulesPlugin(),
     new webpack.ContextReplacementPlugin(
@@ -46,7 +54,10 @@ var config = {
       path.resolve(__dirname),
       {}
     ),
-    // new UglifyJsPlugin()
+    new CompressionPlugin({
+      threshold: 100000,
+      minRatio: 0.8
+    })
   ]
 };
 

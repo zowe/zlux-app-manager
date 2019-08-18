@@ -16,22 +16,25 @@ import { Dispatcher } from 'zlux-base/dispatcher/dispatcher'
 import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry'
 import { NotificationManager } from 'zlux-base/notification-manager/notification-manager'
+import { SimpleGlobalization } from '../i18n/simple-globalization'
 // import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
 
-declare var window: { RocketMVD: typeof RocketMVDResources,
+declare var window: { ZoweZLUX: typeof ZoweZLUXResources,
                       COM_RS_COMMON_LOGGER: Logger};
 window; /* Suppress TS error */
 let logger = new Logger();
 logger.addDestination(logger.makeDefaultDestination(true,true,true));
 window.COM_RS_COMMON_LOGGER = logger;
 
-export class RocketMVDResources {
-  static PluginManager = PluginManager
+export class ZoweZLUXResources {
+  static pluginManager = PluginManager
   static uriBroker:ZLUX.UriBroker = new MvdUri();
   static dispatcher:Dispatcher = new Dispatcher(logger);
   static logger:Logger = logger;
   static registry:ZLUX.Registry = new Registry();
-  static NotificationManager:NotificationManager = new NotificationManager();
+  static notificationManager:NotificationManager = new NotificationManager();
+  // currently replaced in plugin-manager.module
+  static globalization: ZLUX.Globalization = new SimpleGlobalization();
 }
 
 

@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -24,12 +22,15 @@ import { FailureModule } from './load-failure/failure.module';
 // import { ViewportId } from './viewport-manager/viewport';
 import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
+import { BaseLogger } from 'virtual-desktop-logger';
+import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements.ts';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
   private failureModuleFactory: NgModuleFactory<FailureModule>;
   private applicationInstances: Map<MVDHosting.InstanceId, ApplicationInstance>;
   private nextInstanceId: MVDHosting.InstanceId;
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(
     private injector: Injector,
@@ -42,8 +43,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);
     this.applicationInstances = new Map();
     this.nextInstanceId = 0;
-
-    (window as any).RocketMVD.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
+    (window as any).ZoweZLUX.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
       return this.pluginManager.findPluginDefinition(zluxPlugin.getIdentifier()).then(plugin => {
         if (plugin == null) {
           throw new Error('Unknown plugin in launch handler '+zluxPlugin);
@@ -51,18 +51,49 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         return this.spawnApplication(plugin as DesktopPluginDefinitionImpl, metadata);
       });
     });
-    (window as any).RocketMVD.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
+    window.addEventListener('message',(message:any)=> {
+      if (message.data === 'iframeload') {
+        this.applicationInstances.forEach((appInstance)=> {
+          let instance = appInstance.instanceId;
+          const iframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instance}`);
+          console.log(`iframe=`,iframe);
+          if (iframe) {
+            if ((iframe as any).contentWindow == message.source
+                || (iframe as any).contentWindow == message.source.parent
+                || ((iframe as any).src.indexOf(message.origin) == 0)) {
+              //it's this one
+              const appInstance = this.applicationInstances.get(instance);
+              if (appInstance) {
+                const pluginId = appInstance.plugin.getIdentifier();
+                this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);
+                return ZoweZLUX.dispatcher.iframeLoaded(instance, pluginId);
+              }
+            }
+          }
+        });
+        this.logger.warn(`No iframe identified as source of message`);
+      }
+    });
+    (window as any).ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
        let applicationInstance:ApplicationInstance|undefined = this.applicationInstances.get(instanceId);
        if (applicationInstance){
-         console.log("i am an instance "+applicationInstance+" with iframeID="+applicationInstance.iframeId);
-         let theIframe:HTMLElement|null = document.getElementById(applicationInstance.iframeId);
+         let theIframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instanceId}`);
          if (theIframe){
-           console.log("iframe found "+theIframe);
-           console.log(theIframe);
+           /* checking if iframe-in-iframe, which we can see in a remote host scenario.
+              Sending the message to the wrong iframe will result in the message being dropped.
+              The inner iframe is not under control of the zlux framework, so the name here is by convention.
+              If people use the wrong name, they get nothing.
+           */
+           let secondIframe = (theIframe as HTMLIFrameElement).contentWindow.document.getElementById(INNER_IFRAME_NAME);
+           if (secondIframe) {
+             theIframe = secondIframe;
+           }
+           this.logger.debug(`PostMessage for instance=`,applicationInstance);
            let iframeWindow:Window|null = (theIframe as HTMLIFrameElement).contentWindow!;
-           iframeWindow.postMessage({ zluxRemoteFunction: "echo", message: "Say Cheese"}, "*");
+           iframeWindow.postMessage(message, "*");
+         } else {
+           this.logger.warn(`iframe postMessage failed, no iframe found for ${applicationInstance.plugin.getIdentifier()}, id=${instanceId}`);
          }
-         
        }
     });
   }
@@ -88,10 +119,10 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
   private generateComponentRefFor(instance: ApplicationInstance, viewportId: MVDHosting.ViewportId, component: Type<any>): void {
     if (instance.moduleRef == null) {
-      console.warn('Component ref requested before module ref available');
+      this.logger.warn('Component ref requested before module ref available');
       return;
     } else if (instance.viewportContents.get(viewportId) != null) {
-      console.warn('Overwriting existing component ref for window');
+      this.logger.warn('Overwriting existing component ref for window');
     }
 
     const viewport = this.viewportManager.getViewport(viewportId);
@@ -102,16 +133,16 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
     const factory = instance.moduleRef.componentFactoryResolver.resolveComponentFactory(component);
     const componentRef = factory.create(this.injectionManager.generateComponentInjector(viewport, instance.moduleRef.injector));
-    //console.log("AppMgr about to associate aInst with component "+componentRef);
-    //console.log(componentRef);
+    //this.logger.info("AppMgr about to associate aInst with component "+componentRef);
+    //this.logger.info(componentRef);
     instance.viewportContents.set(viewportId, componentRef);
     let instanceOfComponent:any = componentRef.instance;
-    //console.log("instance = "+instanceOfComponent);
-    //console.log(instanceOfComponent);
+    //this.logger.info("instance = "+instanceOfComponent);
+    //this.logger.info(instanceOfComponent);
     if (instanceOfComponent.iframeId){
       instance.isIFrame = true;
       instance.iframeId = instanceOfComponent.iframeId;
-      console.log("iframeID found = "+instance.iframeId);
+      this.logger.debug("iframeID found = ",instance.iframeId);
     }
   }
 
@@ -126,7 +157,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   private spawnApplicationIntoViewport(plugin: DesktopPluginDefinitionImpl, launchMetadata: any,
     applicationInstance: ApplicationInstance, viewportId: MVDHosting.ViewportId): Promise<MVDHosting.InstanceId> {
     // TODO: race condition?
-    return this.pluginLoader.loadPlugin(plugin)
+    return this.pluginLoader.loadPlugin(plugin, applicationInstance.instanceId)
       .then((compiled): MVDHosting.InstanceId => {
         //  When angular module is compiled, it produces and ngModuleFactory
         //  The ngModuleFactory, when given an injector produces a module ref
@@ -134,8 +165,8 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         //  ComponentRef contains instantiated instance of Component
         const injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata);
         this.instantiateApplicationInstance(applicationInstance, compiled.moduleFactory, injector);
-        console.log('appMgr compiled.initialComponent='+compiled.initialComponent);
-        console.log(compiled.initialComponent);
+        this.logger.debug(`appMgr spawning plugin ID=${plugin.getIdentifier()}, `
+                         +`compiled.initialComponent=`,compiled.initialComponent);
         applicationInstance.setMainComponent(compiled.initialComponent); 
         this.generateMainComponentRefFor(applicationInstance, viewportId);   // new component is added to DOM here
         if (applicationInstance.isIFrame) {
@@ -144,13 +175,14 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         //Beneath all the abstraction is the instance of the App object, framework-independent
         let notATurtle = this.getJavascriptObjectForApplication(applicationInstance, viewportId);
         // JOE HAX - register to dispatcher
-        RocketMVD.dispatcher.registerPluginInstance(plugin.getBasePlugin(),                  // this is Plugin class instance
+        ZoweZLUX.dispatcher.registerPluginInstance(plugin.getBasePlugin(),                  // this is Plugin class instance
                                                     applicationInstance.instanceId,
                                                     applicationInstance.isIFrame );   // instanceId is proxy handle to isntance
         if (notATurtle && (typeof notATurtle.provideZLUXDispatcherCallbacks == 'function')) {
-          RocketMVD.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
-        } else {
-          console.log('Did not register App callbacks. Either could not find instance object for App or the object did not provide callbacks. Instance Obj='+notATurtle); 
+          ZoweZLUX.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
+        } else if (!applicationInstance.isIFrame) {
+          this.logger.info(`App callbacks not registered. Couldn't find instance object or object didn't provide callbacks.`
+                          +`App ID=${plugin.getIdentifier()}, Instance Obj=`,notATurtle); 
         }
 
 
@@ -215,14 +247,21 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     return this.spawnApplicationIntoViewport(plugin, launchMetadata, applicationInstance, viewportId);
   }
 
-  showApplicationWindow(plugin: DesktopPluginDefinitionImpl): void {
+  showApplicationWindow(plugin: DesktopPluginDefinitionImpl): Promise<MVDHosting.InstanceId> {
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     const windowId = windowManager.getWindow(plugin);
     if (windowId != null) {
       windowManager.showWindow(windowId);
+      return new Promise((resolve,reject)=> {
+        resolve(windowId); //possibly a bug: windowid and instanceid could be different?
+      });
     } else {
-      this.spawnApplication(plugin, null);
+      return this.spawnApplication(plugin, null);
     }
+  }
+
+  showApplicationInstanceWindow(plugin: DesktopPluginDefinitionImpl, viewportId: MVDHosting.ViewportId): void {
+    this.logger.warn('Not yet implemented: showapplicationinstancewindow');
   }
 
   isApplicationRunning(plugin: DesktopPluginDefinitionImpl): boolean {
@@ -254,7 +293,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
   
   setEmbeddedInstanceInput(embeddedInstance: EmbeddedInstance, input: string, value: any): void {
-    console.log(`setEmbeddedInstanceInput '${input}' to value '${value}'`);
+    this.logger.debug(`setEmbeddedInstanceInput '${input}' to value '${value}'`);
     let appInstance = this.applicationInstances.get(embeddedInstance.instanceId);
     if (appInstance == undefined) {
       return;
@@ -282,7 +321,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
   
   getEmbeddedInstanceOutput(embeddedInstance: EmbeddedInstance, output: string): Observable<any> | undefined {
-    console.log(`getEmbeddedInstanceOutput '${output}'`);
+    this.logger.debug(`getEmbeddedInstanceOutput '${output}'`);
     let appInstance = this.applicationInstances.get(embeddedInstance.instanceId);
     if (appInstance !== undefined) {
       const componentRef = appInstance.viewportContents.get(embeddedInstance.viewportId);
@@ -297,7 +336,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
 
   killApplication(plugin:ZLUX.Plugin, appId:MVDHosting.InstanceId):void {
-    RocketMVD.dispatcher.deregisterPluginInstance(plugin,
+    ZoweZLUX.dispatcher.deregisterPluginInstance(plugin,
                                                 appId);   // instanceId is proxy handle to isntance 
 
   }

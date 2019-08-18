@@ -11,9 +11,10 @@
 */
 
 import { PluginWindowStyle } from './plugin-window-style';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefinition {
-
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   public widthOverride:number|undefined;
   public heightOverride:number|undefined;
 
@@ -27,10 +28,12 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
     height: MVDHosting.DESKTOP_PLUGIN_DEFAULTS.HEIGHT
   };
 
+  private key:string;
+
   constructor(
     public readonly basePlugin: ZLUX.Plugin
   ) {
-
+    this.key = basePlugin.getKey();
   }
 
   get hasWebContent(): boolean {
@@ -39,10 +42,14 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
 
   getFramework(): string {
     if (this.hasWebContent) {
-      return this.basePlugin.getWebContent().framework;
+      if ('framework' in this.basePlugin.getWebContent()) {
+        return this.basePlugin.getWebContent().framework;
+      } else {
+        this.logger.warn(`Plugin ${this.getIdentifier()} has no framework specified`);
+        return 'unsupported';
+      }
     } else {
-      console.warn(`Plugin ${this.getIdentifier()} has no framework specified`);
-      return 'unsupported';
+      return 'n/a';
     }
   }
 
@@ -50,10 +57,22 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
     return this.basePlugin.getIdentifier();
   }
 
+  getKey(): string {
+    return this.key;
+  }
+
   getBasePlugin(): ZLUX.Plugin {
     return this.basePlugin;
   }
 
+  getCopyright():string {
+    return this.basePlugin.getCopyright();
+  }
+
+  hasComponents(): boolean {
+    return this.basePlugin.hasComponents();
+  }
+  
   get label(): string {
     if (this.hasWebContent && this.basePlugin.getWebContent().launchDefinition != null) {
       return this.basePlugin.getWebContent().launchDefinition.pluginShortNameDefault;
@@ -64,7 +83,7 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
 
   get image(): string | null {
     // TODO: clean this up with .d.ts
-    const uriBroker = (window as any).RocketMVD.uriBroker;
+    const uriBroker = (window as any).ZoweZLUX.uriBroker;
     if (!this.hasWebContent){
         return null;
     }

@@ -186,21 +186,33 @@ export class SizeableDirective implements OnInit {
       const loss = Math.min(width - this.minWidth, this.overshootWidth);
       this.overshootWidth -= loss;
       width -= loss;
+      if(compass == Compass.w) {
+        left += loss;
+      }
     }
 
     if (this.overshootHeight > 0 && height > this.minHeight) {
       const loss = Math.min(height - this.minHeight, this.overshootHeight);
       this.overshootHeight -= loss;
       height -= loss;
+      if(compass == Compass.n) {
+        top += loss;
+      }
     }
 
     if (width < this.minWidth) {
       this.overshootWidth += this.minWidth - width;
+      if(compass == Compass.w) {
+        left -= this.minWidth - width;
+      }
       width = this.minWidth;
     }
 
     if (height < this.minHeight) {
       this.overshootHeight += this.minHeight - height;
+      if(compass == Compass.n) {
+        top -= this.minHeight - height;
+      }
       height = this.minHeight;
     }
 

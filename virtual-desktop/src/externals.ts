@@ -4,11 +4,21 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
+
+/*
+  Imperfect solution to an imperfect world. See https://github.com/requirejs/requirejs/issues/787 and https://requirejs.org/docs/api.html#config-waitSeconds
+*/
+(window as any).requirejs.config({
+  waitSeconds: 0
+});
+
+import { BaseLogger } from 'virtual-desktop-logger';
+const logger: ZLUX.ComponentLogger = BaseLogger;
 
 /* These will be packaged into a single bundle by the webpack bundling system.
  * We then expose them to our module loader (requirejs) manually and use that
@@ -17,6 +27,7 @@
 const libs: { [index: string]: {library: any} } = {
   '@angular/core': require('@angular/core'),
   '@angular/common': require('@angular/common'),
+  '@angular/common/http': require('@angular/common/http'),
   '@angular/http': require('@angular/http'),
   '@angular/platform-browser': require('@angular/platform-browser'),
   '@angular/platform-browser/animations': require('@angular/platform-browser/animations'),
@@ -26,6 +37,7 @@ const libs: { [index: string]: {library: any} } = {
   '@angular/forms': require('@angular/forms'),
   '@angular/router': require('@angular/router'),
   '@angular/animations': require('@angular/animations'),
+  'angular-l10n': require('angular-l10n'),
   'rxjs/Rx': require('rxjs/Rx')
 };
 
@@ -34,13 +46,13 @@ for (const library in libs) {
   if (libs[library]) {
     (window as any).define(library, libs[library]);
   } else {
-    console.log(`Missing library ${library}`);
+    logger.warn(`Missing library ${library}`);
   }
 }
 
 /* Perform bootstrap using requirejs */
 (window as any).requirejs([
-  RocketMVD.uriBroker.pluginResourceUri(RocketMVD.PluginManager.getDesktopPlugin(), 'desktop.js')
+  ZoweZLUX.uriBroker.pluginResourceUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'desktop.js')
 ], (desktop: any) => {
   /* Prepare the DOM for boostrapping */
   const element = document.createElement('rs-com-root');
@@ -55,9 +67,9 @@ for (const library in libs) {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

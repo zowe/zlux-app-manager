@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -15,14 +15,14 @@
  * To set up the desktop, this file must provide a public path for CSS
  * resources, load any external/global stylesheets and scripts, prepare the DOM
  * for the Angular application, and bootstrap the application. The core MVD
- * implementation exists at window.RocketMVD.
+ * implementation exists at window.ZoweZLUX.
  */
 
 
 /* Establish our public path before loading CSS resources */
 // @ts-ignore
 declare let __webpack_public_path__: string;
-const uriBroker = (window as any).RocketMVD.uriBroker;
+const uriBroker = (window as any).ZoweZLUX.uriBroker;
 __webpack_public_path__ = uriBroker.desktopRootUri();
 
 /* Load external/global resources */
@@ -52,7 +52,8 @@ if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
 }
 
 export function performBootstrap(): void {
-  platformBrowserDynamic().bootstrapModule(mainModule);
+  MvdModuleFactory.getTranslationProviders()
+    .then(providers => platformBrowserDynamic().bootstrapModule(mainModule, {providers: providers}));
 }
 
 
@@ -60,9 +61,9 @@ export function performBootstrap(): void {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

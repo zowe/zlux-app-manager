@@ -18,9 +18,11 @@ import { PluginFactory } from '../plugin-factory/plugin-factory';
 import { Angular2PluginFactory } from '../plugin-factory/angular2/angular2-plugin-factory';
 import { IFramePluginFactory } from '../plugin-factory/iframe/iframe-plugin-factory';
 import { ReactPluginFactory } from '../plugin-factory/react/react-plugin-factory';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Injectable()
 export class PluginLoader {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private frameworkMap: Map<string, PluginFactory[]>;
 
   constructor(
@@ -45,13 +47,23 @@ export class PluginLoader {
     });
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<CompiledPlugin> {
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin> {
     const candidateFactories = this.frameworkMap.get(pluginDefinition.getFramework()) || [];
+    if (pluginDefinition.getFramework() === 'unsupported') {
+      return new Promise((resolve, reject) => {
+        this.logger.warn(`${pluginDefinition.getIdentifier()} does not use supported framework`);
+        resolve();
+      });
+    } else if (pluginDefinition.getFramework() === 'n/a') {
+      return new Promise((resolve, reject) => {
+        resolve();
+      });
+    }
 
     /* Attempt all registered factories for the given framework */
     return candidateFactories.reduce(
       (promise, factory) => promise.catch((errors: any[]) =>
-        factory.loadPlugin(pluginDefinition).catch((error) => Promise.reject(errors.concat([error])))
+        factory.loadPlugin(pluginDefinition, instanceId).catch((error) => Promise.reject(errors.concat([error])))
       ),
       Promise.reject([new Error(`All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
     );
@@ -59,6 +71,17 @@ export class PluginLoader {
 
   loadPluginComponentFactories(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<void> {
     const candidateFactories = this.frameworkMap.get(pluginDefinition.getFramework()) || [];
+
+    if (pluginDefinition.getFramework() === 'unsupported') {
+      return new Promise((resolve, reject) => {
+        this.logger.warn(`${pluginDefinition.getIdentifier()} does not use supported framework`);
+        resolve();
+      });
+    } else if (pluginDefinition.getFramework() === 'n/a') {
+      return new Promise((resolve, reject) => {
+        resolve();
+      });
+    }
 
     /* Attempt all registered factories for the given framework */
     return candidateFactories.reduce(

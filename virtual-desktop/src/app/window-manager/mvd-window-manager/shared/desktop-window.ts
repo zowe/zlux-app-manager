@@ -29,16 +29,19 @@ export class DesktopWindow {
   readonly windowId: MVDWindowManagement.WindowId;
   readonly windowState: DesktopWindowState;
   readonly localWindowEvents: LocalWindowEvents;
+  private childViewports: Array<MVDHosting.ViewportId>;
   public readonly plugin: ZLUX.Plugin;
-  viewportId: MVDHosting.ViewportId;
-  closeHandler: (() => Promise<void>) | null;
+  viewportId: MVDHosting.ViewportId; //primary, if children exist
 
+  closeHandler: (() => Promise<void>) | null; //DEPRECATED 1.0.1, use viewport close handler instead of window
+  
   constructor(windowId: MVDWindowManagement.WindowId, windowState: DesktopWindowState, plugin: ZLUX.Plugin) {
     this._windowTitle = '';
     this.windowId = windowId;
     this.windowState = windowState;
     this.closeHandler = null;
     this.plugin = plugin;
+    this.childViewports = new Array<MVDHosting.ViewportId>();
     this.localWindowEvents = {
       windowMaximized: new EventEmitter<void>(true),
       windowMinimized: new EventEmitter<void>(true),
@@ -87,6 +90,41 @@ export class DesktopWindow {
   set windowTitle(value: string) {
     this._windowTitle = value;
     this.localWindowEvents.windowTitleChanged.emit(value);
+  }
+
+  addChildViewport(viewportId: MVDHosting.ViewportId): void{
+    this.childViewports.push(viewportId);
+  }
+
+  closeViewports(viewportManager: MVDHosting.ViewportManagerInterface): Promise<any> {
+    return new Promise((resolve, reject)=> {
+      viewportManager.destroyViewport(this.viewportId).then(()=> {
+        if (this.childViewports.length == 0) {
+          resolve();
+        } else {
+          this.closeViewportLoop(0, viewportManager, ()=> {
+            resolve();
+          }, (reason:any)=> {
+            reject({viewport:this.viewportId, reason:reason});    
+          });
+        }
+      }).catch((reason:any)=> {
+        reject({viewport:this.viewportId, reason:reason});
+      });
+    });
+  }
+
+  private closeViewportLoop(pos: number, viewportManager: MVDHosting.ViewportManagerInterface, finishedCallback: any, rejectedCallback: any): void {
+    if (pos >= this.childViewports.length) {
+      finishedCallback();
+    }
+    else {
+      viewportManager.destroyViewport(this.childViewports[pos]).then(()=> {
+        this.closeViewportLoop(++pos,viewportManager,finishedCallback,rejectedCallback);
+      }).catch((reason:any)=> {
+        rejectedCallback(reason);
+      });
+    }
   }
 }
 

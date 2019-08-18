@@ -17,7 +17,7 @@
   width: 60px;
   height: 60px;
   background-size: 60px 60px;
-  margin-top: 25px;
+  margin-top: 35px;
   margin-left: 5px;
   margin-right: 5px;
   user-select: none;
@@ -52,6 +52,12 @@
   background: transparent;
 }
 
+.launch-widget-row-settings p {
+  margin-left: 60px;
+  line-height: 50px;
+}
+
+
 .launch-widget-row {
   list-style: none;
   height: 60px;
@@ -85,6 +91,10 @@
   overflow-y: scroll;
 }
 
+.launchbar-separator-hor {
+  color: #36617a;
+}
+
 .caret-up {
   width: 0;
   height: 0;
@@ -109,7 +119,7 @@
   left: 45px;
 }
 
-.launchbar-seperator {
+.launchbar-separator {
   position: absolute;
   bottom: 0;
   height: 60px;
@@ -117,11 +127,11 @@
   background-color: #36617a;
 }
 
-.launchbar-seperator.right {
+.launchbar-separator.right {
   right: 0;
 }
 
-.launchbar-seperator.left {
+.launchbar-separator.left {
   left: 0;
 }
 

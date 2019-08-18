@@ -9,10 +9,22 @@
   
   Copyright Contributors to the Zowe Project.
 -->
-
-<div class="launchbar-icon" (click)="clicked()" [title]="launchbarItem.label" [style.background-image]="launchbarItem.image == null ? undefined : launchbarItem.image | cssUrl">
-  <p class="launchbar-caption truncate">{{launchbarItem.label}}</p>
-  <div class="launchbar-icon-marker"  [ngClass]="{'running': isRunning()}"></div>
+<div class="launchbar-icon" (mouseleave)="onMouseLeaveInstanceView($event)">
+<zowe-launchbar-instance-view class="instance" *ngIf="launchbarItem.showInstanceView" [launchbarItem]="launchbarItem" (mouseenter)="onMouseEnterInstanceView($event)" (mouseleave)="onMouseLeaveInstanceView($event)"></zowe-launchbar-instance-view>
+<p *ngIf="launchbarItem.showIconLabel" class="launchbar-caption truncate">{{launchbarItem.label}}</p>
+<div class="launchbar-icon-image" (mouseenter)="onMouseEnter($event)" (mouseleave)="onMouseLeave($event)" [title]="launchbarItem.label" [style.background-image]="launchbarItem.image == null ? undefined : launchbarItem.image | cssUrl">
+  <div class="launchbar-icon-marker-dots" *ngIf="launchbarItem.instanceCount <= 5">
+    <div class="launchbar-icon-marker-dot" *ngFor="let i of launchbarItem.instanceIdArray"></div>
+  </div>
+  <div class="launchbar-icon-marker-dots" *ngIf="launchbarItem.instanceCount > 5">
+    <div class="launchbar-icon-marker-dot"></div> <!-- 5 dots, plus a + symbol -->
+    <div class="launchbar-icon-marker-dot"></div>
+    <div class="launchbar-icon-marker-dot"></div>
+    <div class="launchbar-icon-marker-dot"></div>
+    <div class="launchbar-icon-marker-dot"></div>
+    <div class="launchbar-icon-marker-more">+</div>
+  </div>
+</div>
 </div>
 
 <!-- 

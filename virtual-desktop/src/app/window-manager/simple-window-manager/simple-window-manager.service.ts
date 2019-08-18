@@ -10,30 +10,56 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, EventEmitter } from '@angular/core';
+import { Injectable, Injector, EventEmitter } from '@angular/core';
 // import { DesktopPluginDefinition } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { ViewportManager } from 'app/application-manager/viewport-manager/viewport-manager.service';
-import { Angular2InjectionTokens, Angular2PluginViewportEvents } from 'pluginlib/inject-resources';
+import { ContextMenuItem, Angular2InjectionTokens, Angular2PluginViewportEvents } from 'pluginlib/inject-resources';
+import { BaseLogger } from 'virtual-desktop-logger';
+import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class SimpleWindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private theViewportId: MVDHosting.ViewportId;
   readonly windowResized: EventEmitter<{ width: number, height: number }>;
+  private applicationManager: MVDHosting.ApplicationManagerInterface;
+  private pluginDef: MVDHosting.DesktopPluginDefinition;
 
+  contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
+  
   constructor(
-    private viewportManager: ViewportManager
+    private viewportManager: ViewportManager,
+    private injector: Injector
   ) {
+    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.windowResized = new EventEmitter<{ width: number, height: number }>(true);
+    this.contextMenuRequested = new Subject();
     window.addEventListener('resize', () => this.onResize(), false);
   }
 
   createWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId {
-    this.theViewportId = this.viewportManager.createViewport(this.generateWindowProviders());
-    return 1;
+    let windowId = 1;
+    this.pluginDef = plugin;
+    this.theViewportId = this.viewportManager.createViewport((viewportId: MVDHosting.ViewportId)=> {
+      return this.generateWindowProviders(windowId, viewportId);
+    });
+    return windowId;
   }
 
   getWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId | null {
     return 1;
+  }
+
+  /* This likely does nothing right now and that's ok since the simple window manager is quite trivial*/
+  closeWindow(windowId: MVDWindowManagement.WindowId): void {
+    let appId = this.viewportManager.getApplicationInstanceId(this.theViewportId);
+    if (appId!=null) {
+      this.applicationManager.killApplication(this.pluginDef.getBasePlugin(), appId);
+    }
+  }
+
+  closeAllWindows(): void {
+    this.closeWindow(1);
   }
 
   showWindow(windowId: MVDWindowManagement.WindowId): void {
@@ -43,22 +69,28 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
     return this.theViewportId;
   }
 
-  private generateWindowProviders(): Map<string, any> {
+  spawnContextMenu(windowId: MVDWindowManagement.WindowId, xRelative: number, yRelative: number, items: ContextMenuItem[]): void {
+    this.contextMenuRequested.next({xPos: xRelative, yPos: yRelative, items: items});
+  }
+    
+  private generateWindowProviders(windowId: MVDWindowManagement.WindowId, viewportId: MVDHosting.ViewportId): Map<string, any> {
     const providers: Map<string, any> = new Map();
-    providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider());
+    providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId, viewportId));
 
     return providers;
   }
 
-  private generateViewportEventsProvider(): Angular2PluginViewportEvents {
+  private generateViewportEventsProvider(windowId: MVDWindowManagement.WindowId, viewportId: MVDHosting.ViewportId): Angular2PluginViewportEvents {
     return {
-      resized: this.windowResized
+      resized: this.windowResized,
+      spawnContextMenu: (xRel, yRel, items) => this.spawnContextMenu(windowId, xRel, yRel, items),
+      registerCloseHandler: (handler: ()=>Promise<any>) => this.viewportManager.registerViewportCloseHandler(viewportId, handler)
     };
   }
 
   private onResize() {
     const wh = { width: document.body.clientWidth, height: document.body.clientHeight };
-    console.log('onresize', JSON.stringify(wh));
+    this.logger.debug('onresize', JSON.stringify(wh));
     this.windowResized.emit(wh);
   }
 

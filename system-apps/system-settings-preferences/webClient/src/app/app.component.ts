@@ -1,5 +1,4 @@
 
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -9,37 +8,22 @@
   
   Copyright Contributors to the Zowe Project.
 */
+import { Component } from '@angular/core';
+//import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 
-.menu {
-  list-style: none;
-  border-bottom: 0.1em solid black;
-  margin-bottom: 2em;
-  padding: 0 0 0.5em;
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+
+export class AppComponent { 
+
+  constructor(
+    
+  ) {
+  }
 }
-
-.menu:before {
-  content: "[";
-}
-
-.menu:after {
-  content: "]";
-}
-
-.menu > li {
-  display: inline;
-}
-
-.menu > li:before {
-  content: "|";
-  padding-right: 0.3em;
-}
-
-.menu > li:nth-child(1):before {
-  content: "";
-  padding: 0;
-}
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -49,4 +33,3 @@
   
   Copyright Contributors to the Zowe Project.
 */
-

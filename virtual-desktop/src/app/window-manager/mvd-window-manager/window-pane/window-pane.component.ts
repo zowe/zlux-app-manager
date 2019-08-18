@@ -15,6 +15,7 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
 
 import { DesktopWindow } from '../shared/desktop-window';
 import { WindowManagerService } from '../shared/window-manager.service';
+import { BaseLogger } from 'virtual-desktop-logger';
 
 @Component({
   selector: 'rs-com-window-pane',
@@ -22,13 +23,13 @@ import { WindowManagerService } from '../shared/window-manager.service';
   styleUrls: ['window-pane.component.css']
 })
 export class WindowPaneComponent implements OnInit {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
 
   constructor(
     public windowManager: WindowManagerService
   ) {
-    console.log("Window-pane-component wMgr="+windowManager);
-    console.log(windowManager);
+    this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;
   }
 

@@ -44,12 +44,12 @@
   <div [class.inactive]="!hasFocus()" class="heading" (mousedown)="requestFocus()">
     <div class="caption handle" #dragHandle>{{getTitle()}}</div>
     <div class="minimize-button" (click)="minimizeToggle()"></div>
-    <div class="maximize-button" (click)="maximizeToggle()"></div>
+    <div class="maximize-button" (click)="maximizeToggle()" [class.maximized]="isMaximized()"></div>
     <div class="close-button" (click)="close()"></div>
   </div>
 
   <!-- Window body -->
-  <div class="body" (mousedown)="requestFocus()">
+  <div class="body" (mousedown)="requestFocus()" #windowBody>
     <com-rs-mvd-viewport [viewportId]="desktopWindow.viewportId">
       <!-- Loading display -->
       <div class="full-center">
@@ -59,7 +59,7 @@
   </div>
 
   <!-- Window resize grips -->
-  <div class="draggable-grips">
+  <div class="draggable-grips" (mousedown)="requestFocus()">
     <div class="grip-w" #w></div>
     <div class="grip-s" #s></div>
     <div class="grip-e" #e></div>

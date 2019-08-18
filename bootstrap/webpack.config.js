@@ -14,6 +14,7 @@ const path = require('path');
 const ProgressPlugin = require('webpack/lib/ProgressPlugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { NoEmitOnErrorsPlugin } = require('webpack');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
   "devtool": "source-map",
@@ -67,7 +68,11 @@ module.exports = {
     new ProgressPlugin(),
     new HtmlWebpackPlugin({
       "title": "Zowe Desktop"
-    })
+    }),
+    new CompressionPlugin({
+      threshold: 100000,
+      minRatio: 0.8
+    })    
   ],
   "node": {
     "fs": "empty"

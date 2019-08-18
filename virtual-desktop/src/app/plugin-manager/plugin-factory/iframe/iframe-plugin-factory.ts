@@ -10,13 +10,14 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Compiler, Component, Injectable, NgModule, Type } from '@angular/core';
+import { Compiler, Component, Injectable, NgModule, Type, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-
 import { PluginFactory } from '../plugin-factory';
 //import { DesktopPluginDefinition } from '../../shared/desktop-plugin-definition';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
+import { BaseLogger } from 'virtual-desktop-logger';
+import { IFRAME_NAME_PREFIX } from '../../../shared/named-elements';
 
 var dragOn = false;
 var mouseDown = false;
@@ -24,12 +25,24 @@ let iFrameElement: HTMLElement;
 
 @Injectable()
 export class IFramePluginFactory extends PluginFactory {
-
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   constructor(
+    private injector: Injector,
     private compiler: Compiler,
     private sanitizer: DomSanitizer
   ) {
     super();
+    window.addEventListener("blur", (event) => { //Checks if focus is lost from the desktop
+      if (iFrameElement != null && document.activeElement.className == "mvd-iframe") //Checks if an IFrame caused it
+      {
+        let stringId = iFrameElement.id.replace(/[^0-9\.]+/g, ""); //Extracts the instance ID from the IFrame ID
+        const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+        windowManager.showWindow(parseInt(stringId, 10)); 
+      }
+    }, false);
+    window.addEventListener("mouseover", (event) => {
+      window.focus(); //Without giving focus back to the desktop, there is no easy way to tell for clicks between IFrame to IFrame
+    }, false);
   }
 
   static iframeIndex:number = 1;
@@ -38,19 +51,20 @@ export class IFramePluginFactory extends PluginFactory {
       return ['iframe'];
     }
 
-  private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition): Type<any> {
+  private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Type<any> {
     const basePlugin = pluginDefinition.getBasePlugin();
     const startingPage = basePlugin.getWebContent().startingPage || 'index.html';
-    console.log('startingPage', startingPage);
+    this.logger.debug('iframe startingPage', startingPage);
     let startingPageUri;
     if (startingPage.startsWith('http://') || startingPage.startsWith('https://')) {
       startingPageUri = startingPage;
     } else {
-      startingPageUri = (window as any).RocketMVD.uriBroker.pluginResourceUri(basePlugin, startingPage);
+      startingPageUri = (window as any).ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
     }
-    console.log('startingPageUri', startingPageUri);
+    this.logger.debug('iframe startingPageUri', startingPageUri);
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
-    const theIframeId = "mvd_iframe_"+(IFramePluginFactory.iframeIndex++);
+    this.logger.info(`Loading iframe, URI=${startingPageUri}`);
+    const theIframeId = IFRAME_NAME_PREFIX + (instanceId); //Syncs the IFrame ID with its instance ID counterpart
     return class IFrameComponentClass {
       startingPage: SafeResourceUrl = safeStartingPageUri;
       iframeId:string = theIframeId;
@@ -67,13 +81,14 @@ export class IFramePluginFactory extends PluginFactory {
   }
 
   loadComponentFactories(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<void> {
-    console.log("IFrame component factories currently unsupported");
+    this.logger.info(`IFrame component factories currently unsupported. `
+                    +`Skipping for plugin ID=${pluginDefinition.getIdentifier()}`);
 
     return Promise.resolve();
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<CompiledPlugin> {
-    const componentClass = this.createIFrameComponentClass(pluginDefinition);
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin> {
+    const componentClass = this.createIFrameComponentClass(pluginDefinition, instanceId);
     const metadata = {
       selector: 'rs-com-mvd-iframe-component',
       templateUrl: './iframe-plugin.component.html',
