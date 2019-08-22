@@ -10,6 +10,7 @@
 
 import { Injectable, Injector, NgModuleFactory, Compiler, ComponentRef, Type, SimpleChanges, SimpleChange, OnChanges } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { HttpClient } from '@angular/common/http';
 
 import { PluginLoader } from 'app/plugin-manager/shared/plugin-loader';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
@@ -24,6 +25,7 @@ import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements.ts';
+import { L10nConfigService } from '../i18n/l10n-config.service';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
@@ -31,6 +33,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   private applicationInstances: Map<MVDHosting.InstanceId, ApplicationInstance>;
   private nextInstanceId: MVDHosting.InstanceId;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  private knownLoggerMessageChecks: string[];
 
   constructor(
     private injector: Injector,
@@ -38,10 +41,13 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     private viewportManager: ViewportManager,   // convention in angular is that injectable singleton provider from module will by keyed by type and placed in slot.
     private pluginManager: PluginManager,
     private injectionManager: InjectionManager,
-    private compiler: Compiler
+    private compiler: Compiler,
+    private l10nConfigService: L10nConfigService,
+    private http: HttpClient,
   ) {
     this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);
     this.applicationInstances = new Map();
+    this.knownLoggerMessageChecks = [];
     this.nextInstanceId = 0;
     (window as any).ZoweZLUX.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
       return this.pluginManager.findPluginDefinition(zluxPlugin.getIdentifier()).then(plugin => {
@@ -154,39 +160,77 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     this.generateComponentRefFor(instance, viewportId, instance.mainComponent);
   }
 
+  private generateInjectorAfterCheckingForLoggerMessages(compiled: any, plugin: DesktopPluginDefinitionImpl, launchMetadata: any,
+    applicationInstance: ApplicationInstance, viewportId: MVDHosting.ViewportId, messages: any): number {
+      //  When angular module is compiled, it produces and ngModuleFactory
+      //  The ngModuleFactory, when given an injector produces a module ref
+      //  The moduleRef, when given type of component and component-level injector produces component-ref
+      //  ComponentRef contains instantiated instance of Component
+      if (applicationInstance.mainComponent) {
+        // applicationInstance should not have its main component initialized (gets set further down the method)
+        // if applicationInstance does have a mainComponent, it means the application generation became out of sync
+        // so we return as to not repeat the process and create two Viewports for one instance
+        return applicationInstance.instanceId;
+      }
+      let injector;
+      if (messages) {
+        injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata, messages);
+      } else {
+        injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata);
+      }
+      this.instantiateApplicationInstance(applicationInstance, compiled.moduleFactory, injector);
+      this.logger.debug(`appMgr spawning plugin ID=${plugin.getIdentifier()}, `
+                        +`compiled.initialComponent=`,compiled.initialComponent);
+      applicationInstance.setMainComponent(compiled.initialComponent); 
+      this.generateMainComponentRefFor(applicationInstance, viewportId);   // new component is added to DOM here
+      if (applicationInstance.isIFrame) {
+        // applicationInstance.ifrramwWindow = 
+      }
+      //Beneath all the abstraction is the instance of the App object, framework-independent
+      let notATurtle = this.getJavascriptObjectForApplication(applicationInstance, viewportId);
+      // JOE HAX - register to dispatcher
+      ZoweZLUX.dispatcher.registerPluginInstance(plugin.getBasePlugin(),                  // this is Plugin class instance
+                                                  applicationInstance.instanceId,
+                                                  applicationInstance.isIFrame );   // instanceId is proxy handle to isntance
+      if (notATurtle && (typeof notATurtle.provideZLUXDispatcherCallbacks == 'function')) {
+        ZoweZLUX.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
+      } else if (!applicationInstance.isIFrame) {
+        this.logger.info(`App callbacks not registered. Couldn't find instance object or object didn't provide callbacks.`
+                        +`App ID=${plugin.getIdentifier()}, Instance Obj=`,notATurtle); 
+      }
+
+
+      return applicationInstance.instanceId;
+    }
+
   private spawnApplicationIntoViewport(plugin: DesktopPluginDefinitionImpl, launchMetadata: any,
     applicationInstance: ApplicationInstance, viewportId: MVDHosting.ViewportId): Promise<MVDHosting.InstanceId> {
-    // TODO: race condition?
-    return this.pluginLoader.loadPlugin(plugin, applicationInstance.instanceId)
-      .then((compiled): MVDHosting.InstanceId => {
-        //  When angular module is compiled, it produces and ngModuleFactory
-        //  The ngModuleFactory, when given an injector produces a module ref
-        //  The moduleRef, when given type of component and component-level injector produces component-ref
-        //  ComponentRef contains instantiated instance of Component
-        const injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata);
-        this.instantiateApplicationInstance(applicationInstance, compiled.moduleFactory, injector);
-        this.logger.debug(`appMgr spawning plugin ID=${plugin.getIdentifier()}, `
-                         +`compiled.initialComponent=`,compiled.initialComponent);
-        applicationInstance.setMainComponent(compiled.initialComponent); 
-        this.generateMainComponentRefFor(applicationInstance, viewportId);   // new component is added to DOM here
-        if (applicationInstance.isIFrame) {
-          // applicationInstance.ifrramwWindow = 
+    // TODO: Race condition problem, this Promise may become out of sync. A check is used to handle this inside this.generateInjectorAfterCheckingForLoggerMessages
+    // but would be best to solve the root cause (if there is a better way)
+    return new Promise((resolve, reject)=> {
+      this.pluginLoader.loadPlugin(plugin, applicationInstance.instanceId)
+      .then((compiled): void => {
+        if (this.knownLoggerMessageChecks.indexOf(plugin.getIdentifier()) > -1) { // Check if logger has been instantiated (no need to re-generate messages)
+          resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null));
+        } else {
+          this.knownLoggerMessageChecks.push(plugin.getIdentifier());
+          let languageCode = this.l10nConfigService.getDefaultLocale().languageCode; // Figure out the desktop language
+          let string = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/log/messages_${languageCode}.json`);
+          this.http.get(string).subscribe( // Try to load log messages of language
+          messages => {
+            resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
+          }, error => {
+            if (error.status = 404) { // If it cannot load log messages
+              let string = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/log/messages_en.json`); // Default to English
+              this.http.get(string).subscribe(
+                messages => {
+                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
+                }, error => { // In all other cases, load the logger without messages
+                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null));
+                });
+            }
+          });
         }
-        //Beneath all the abstraction is the instance of the App object, framework-independent
-        let notATurtle = this.getJavascriptObjectForApplication(applicationInstance, viewportId);
-        // JOE HAX - register to dispatcher
-        ZoweZLUX.dispatcher.registerPluginInstance(plugin.getBasePlugin(),                  // this is Plugin class instance
-                                                    applicationInstance.instanceId,
-                                                    applicationInstance.isIFrame );   // instanceId is proxy handle to isntance
-        if (notATurtle && (typeof notATurtle.provideZLUXDispatcherCallbacks == 'function')) {
-          ZoweZLUX.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
-        } else if (!applicationInstance.isIFrame) {
-          this.logger.info(`App callbacks not registered. Couldn't find instance object or object didn't provide callbacks.`
-                          +`App ID=${plugin.getIdentifier()}, Instance Obj=`,notATurtle); 
-        }
-
-
-        return applicationInstance.instanceId;
       })
       .catch((errors) => {
         const injector = this.injectionManager.generateFailurePluginInjector(errors);
@@ -194,8 +238,11 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         applicationInstance.setMainComponent(LoadFailureComponent);
         this.generateMainComponentRefFor(applicationInstance, viewportId);
 
-        return Promise.reject(errors);
+        reject(errors);
       });
+
+    });
+
   }
 
   spawnApplicationWithParms(plugin:ZLUX.Plugin, viewParms:any, launchMetadata:any):Promise<MVDHosting.InstanceId>{
