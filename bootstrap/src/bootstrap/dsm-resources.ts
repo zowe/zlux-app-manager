@@ -15,7 +15,7 @@ import { DsmUri } from '../uri/dsm-uri'
 import { Dispatcher } from 'zlux-base/dispatcher/dispatcher'
 import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry'
-import { NotificationManager } from 'zlux-base/notification-manager/notification-manager'
+import { ZoweNotificationManager } from 'zlux-base/notification-manager/notification-manager'
 import { SimpleGlobalization } from '../i18n/simple-globalization'
 // import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
 
@@ -23,13 +23,16 @@ declare var window: { ZoweZLUX: typeof DSMResources };
 window; /* Suppress TS error */
 let logger = new Logger();
 logger.addDestination(logger.makeDefaultDestination(true,true,true));
+
+console.log("DSMs")
+console.log( PluginManager )
 export class DSMResources {
   static pluginManager = PluginManager
   static uriBroker:ZLUX.UriBroker = new DsmUri();
   static dispatcher:Dispatcher = new Dispatcher(logger);
   static logger:Logger = logger;
   static registry:ZLUX.Registry = new Registry();
-  static notificationManager:NotificationManager = new NotificationManager();
+  static zoweNotificationManager:ZoweNotificationManager = new ZoweNotificationManager();
   // currently replaced in plugin-manager.module
   static globalization: ZLUX.Globalization = new SimpleGlobalization();
 }

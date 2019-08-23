@@ -20,6 +20,8 @@ import { LaunchbarIconComponent } from './launchbar-icon/launchbar-icon.componen
 import { LaunchbarMenuComponent } from './launchbar-menu/launchbar-menu.component';
 import { LaunchbarWidgetComponent } from './launchbar-widget/launchbar-widget.component';
 import { LaunchbarInstanceViewComponent } from './launchbar-instance-view/launchbar-instance-view.component';
+import { LaunchbarNotificationsComponent } from './launchbar-notifications/launchbar-notifications.component';
+// import { ZoweNotificationManager } from '../../../../../../../zlux-platform/base/src/notification-manager/notification-manager'
 
 @NgModule({
   imports: [
@@ -31,11 +33,15 @@ import { LaunchbarInstanceViewComponent } from './launchbar-instance-view/launch
     LaunchbarIconComponent,
     LaunchbarMenuComponent,
     LaunchbarWidgetComponent,
-    LaunchbarInstanceViewComponent
+    LaunchbarInstanceViewComponent,
+    LaunchbarNotificationsComponent
   ],
   exports: [
     LaunchbarComponent
   ],
+  providers:[
+    // {provide: MVDHosting.Tokens.ZoweNotificationManagerToken, useExisting: ZoweNotificationManager }
+  ]
 })
 export class LaunchbarModule { }
 
