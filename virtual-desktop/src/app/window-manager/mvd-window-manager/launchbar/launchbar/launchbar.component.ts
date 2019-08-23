@@ -123,7 +123,7 @@ export class LaunchbarComponent {
     return openItems;
   }
   menuItemClicked(item: LaunchbarItem): void {
-    this.applicationManager.showApplicationWindow(item.plugin);
+    this.applicationManager.spawnApplication(item.plugin, null)
   }
 
   launchbarItemClicked(event: MouseEvent, item: LaunchbarItem): void {
