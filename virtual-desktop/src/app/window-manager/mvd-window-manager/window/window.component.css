@@ -91,13 +91,15 @@
 }
 
 .window .caption {
-  font-family: 'Roboto';
+  font-family: 'Roboto', sans-serif;
   font-weight: 400;
   font-size: 20px;
   cursor: default;
   position: absolute;
   padding-left:83px;
   padding-right:83px;
+  padding-top: 10px;
+  top: 0px;
   left: 0px;
   right: 0px;
   height: 100%;
@@ -113,8 +115,8 @@
   width: 100%;
   top: 45px;
   bottom: 0px;
+  background-color: #FFFFFF;
   overflow: auto;
-  background-color: #eeeeee;
 }
 
 .window .border-box-sizing {

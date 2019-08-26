@@ -41,6 +41,9 @@ export class DsmUri implements ZLUX.UriBroker {
     responseType;
     return "";
   }
+  omvsSegmentUri(): string {
+    return `${this.serverRootUri('omvs')}`;
+  }
   datasetContentsUri(relativePath: string): string {
     relativePath;//suppress warning for now
     return "";
@@ -58,7 +61,7 @@ export class DsmUri implements ZLUX.UriBroker {
     resumeCatalogName;
     return "";
   }
-  datasetMetadataUri(relativePath: string, detail?: string | undefined, types?: string | undefined, listMembers?: boolean | undefined, workAreaSize?: number | undefined, includeMigrated?: boolean | undefined, includeUnprintable?: boolean | undefined, resumeName?: string | undefined, resumeCatalogName?: string | undefined): string {
+  datasetMetadataUri(relativePath: string, detail?: string | undefined, types?: string | undefined, listMembers?: boolean | undefined, workAreaSize?: number | undefined, includeMigrated?: boolean | undefined, includeUnprintable?: boolean | undefined, resumeName?: string | undefined, resumeCatalogName?: string | undefined, addQualifiers?: string | undefined): string {
     relativePath;
     detail;
     types;
@@ -68,6 +71,7 @@ export class DsmUri implements ZLUX.UriBroker {
     includeUnprintable;
     resumeName;
     resumeCatalogName;
+    addQualifiers;
     return "";
   }
 
