@@ -14,7 +14,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { PluginLoader } from 'app/plugin-manager/shared/plugin-loader';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
-import { PluginManager } from "app/plugin-manager/shared/plugin-manager";
+import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 
 import { LoadFailureComponent } from './load-failure/load-failure.component';
 import { InjectionManager } from './injection-manager/injection-manager.service';
@@ -215,14 +215,14 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         } else {
           this.knownLoggerMessageChecks.push(plugin.getIdentifier());
           let languageCode = this.l10nConfigService.getDefaultLocale().languageCode; // Figure out the desktop language
-          let string = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_${languageCode}.json`);
-          this.http.get(string).subscribe( // Try to load log messages of language
+          let messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_${languageCode}.json`);
+          this.http.get(messageLoc).subscribe( // Try to load log messages of language
           messages => {
             resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
           }, error => {
             if (error.status = 404) { // If it cannot load log messages
-              let string = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_en.json`); // Default to English
-              this.http.get(string).subscribe(
+              messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_en.json`); // Default to English
+              this.http.get(messageLoc).subscribe(
                 messages => {
                   resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
                 }, error => { // In all other cases, load the logger without messages
