@@ -7,15 +7,6 @@
   
   Copyright Contributors to the Zowe Project.
 */
-//import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
-// import { L10nConfigService } from '../i18n/l10n-config.service';
-// import { HttpClient } from '@angular/common/http';
-// import { Component } from '@angular/core';
-//import { PluginManager } from '../plugin-manager/shared/plugin-manager';
-
-// var pluginManager = ZoweZLUX.pluginManager;
-// var l10nConfigService: L10nConfigService;
-// var http: HttpClient;
 
 const baseLoggerIdentifier = 'org.zowe.zlux.ng2desktop' //the one hardcoded place
 export var BaseLogger: any = ZoweZLUX.logger.makeComponentLogger(baseLoggerIdentifier);
