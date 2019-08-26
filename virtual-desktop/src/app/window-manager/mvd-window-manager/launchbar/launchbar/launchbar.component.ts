@@ -19,6 +19,7 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { TranslationService } from 'angular-l10n';
+import { generateInstanceActions } from '../shared/context-utils';
 
 const CONTAINER_HEIGHT = 60;
 const ICONS_INITIAL_HEIGHT = -15;
@@ -66,7 +67,7 @@ export class LaunchbarComponent {
      this.helperLoggedIn = false; //helperLoggedIn is to indicate when the initial login happens
    }
   
-  ngOnInit(): void {
+  getAllItems(): void {
     this.allItems = [];
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
@@ -94,6 +95,7 @@ export class LaunchbarComponent {
     }
     if (this.loggedIn) {
       if(this.helperLoggedIn != true){
+        this.getAllItems();
         this.pluginsDataService.refreshPinnedPlugins(this.allItems);
         this.helperLoggedIn = true;
       }
@@ -121,14 +123,14 @@ export class LaunchbarComponent {
     return openItems;
   }
   menuItemClicked(item: LaunchbarItem): void {
-    this.applicationManager.showApplicationWindow(item.plugin);
+    this.applicationManager.spawnApplication(item.plugin, null)
   }
 
   launchbarItemClicked(event: MouseEvent, item: LaunchbarItem): void {
-    if (item.instanceCount > 1) {
+    if (item.instanceIds.length > 1) {
       item.showInstanceView = !item.showInstanceView;
       (<HTMLImageElement>event.target)!.parentElement!.parentElement!.style.zIndex = '0';
-    } else if (item.instanceCount == 1) {
+    } else if (item.instanceIds.length == 1) {
       let windowId = this.windowManager.getWindow(item.plugin);
       if (windowId != null) {
         if (this.windowManager.windowHasFocus(windowId)){
@@ -143,92 +145,14 @@ export class LaunchbarComponent {
     }
   }
 
-  openWindow(item: LaunchbarItem): void {
-    item.showInstanceView = false;
-    this.applicationManager.spawnApplication(item.plugin, null)
-  }
-
   onStateChanged(isActive: boolean): void {
     this.isActive = isActive;
   }
-
-  closeAllWindows(item: LaunchbarItem): void {
-    let windowIds = this.windowManager.getWindowIDs(item.plugin);
-    if (windowIds != null) {
-      windowIds.forEach(windowId => {
-        this.windowManager.closeWindow(windowId);
-      });
-    }
-  }
-
-  getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
-    const pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
-    const basePlugin = pluginImpl.getBasePlugin();
-    return {"isPropertyWindow":true,
-    "appName":pluginImpl.defaultWindowTitle,
-    "appVersion":basePlugin.getVersion(),
-    "appType":basePlugin.getType(),
-    "copyright":pluginImpl.getCopyright(),
-    "image":plugin.image
-    };    
-  }
-  
-  launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl){
-    let propertyWindowID = this.windowManager.getWindow(this.propertyWindowPluginDef);
-    if (propertyWindowID!=null){
-      this.windowManager.showWindow(propertyWindowID);
-    } else {
-      this.applicationManager.spawnApplication(this.propertyWindowPluginDef,this.getAppPropertyInformation(plugin));
-    }  
-  }
-
-  openStandalone(item: LaunchbarItem): void {
-    const plginType:string = item.plugin.getFramework();
-    if (plginType === 'iframe') {
-      // Still allows IFrames to comprehend URL parameters if address is copy/pasted later
-      window.open(`${location.origin}${(window as any).ZoweZLUX.uriBroker.pluginResourceUri(item.plugin, '')}`);
-    } else {
-      window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}`);
-    }
-  }
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
-    var menuItems: ContextMenuItem[];
-    if (item.instanceCount == 1) {
-        menuItems = [
-          { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
-          { "text" : this.translation.translate("Open In New Browser Tab"), "action": () => this.openStandalone(item)},
-          { "text": this.translation.translate('BringToFront'), "action": () => this.bringItemFront(item) },
-          this.pluginsDataService.pinContext(item),
-          { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
-          { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)},
-        ];
-    } else if (item.instanceCount != 0) {
-      menuItems = [
-        { "text": this.translation.translate("Open New"), "action": ()=> this.openWindow(item)},
-        { "text" : this.translation.translate("Open In New Browser Tab"), "action": () => this.openStandalone(item)},
-        this.pluginsDataService.pinContext(item),
-        { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
-        { "text": this.translation.translate("Close All"), "action": ()=> this.closeAllWindows(item)}
-      ];
-    } else {
-      menuItems =
-        [
-          { "text": this.translation.translate('Open'), "action": () => this.openWindow(item) },
-          { "text" : this.translation.translate("Open In New Browser Tab"), "action": () => this.openStandalone(item)},
-          this.pluginsDataService.pinContext(item),
-          { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin) },
-        ]
-    }
+    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY - 60, items: menuItems});
     return false;
-  }
-
-  bringItemFront(item: LaunchbarItem): void {
-    let windowId = this.windowManager.getWindow(item.plugin);
-    if (windowId != null) {
-      this.windowManager.requestWindowFocus(windowId);
-    }
   }
 
   onMouseDown(event: MouseEvent, item: LaunchbarItem): void {
