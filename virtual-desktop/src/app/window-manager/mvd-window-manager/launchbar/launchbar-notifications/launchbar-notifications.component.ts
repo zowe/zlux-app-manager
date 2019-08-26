@@ -15,83 +15,9 @@
 // import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 // import { ZoweNotificationManager } from '../../../../../../../../zlux-platform/base/src/notification-manager/notification-manager'
 import { ZoweNotification } from '../../../../../../../../zlux-platform/base/src/notification-manager/notification'
-
-// @Component({
-//   selector: 'rs-com-launchbar-notifications',
-//   templateUrl: 'launchbar-notifications.component.html',
-//   styleUrls: [ 'launchbar-notifications.component.css' ]
-// })
-// export class LaunchbarNotificationsComponent implements MVDHosting.ZoweNotificationWatcher, OnInit {
-//   public messageCount: number;
-//   private ws: WebSocket;
-//   private notificationManager: any;
-
-  
-//   constructor(
-//     // private injector: Injector
-//     // @Inject(Angular2InjectionTokens.LOGGER) private log: ZLUX.ComponentLogger
-//     ) {
-//     this.notificationManager = new ZoweNotificationManager;
-
-//     this.messageCount = 0;
-//     this.notificationManager.addMessageHandler(this);
-
-//     /* If the server needs to send a message, we use the websocket,
-//     else, an application will just call handleMessageAdded handleMessageAdded
-//     the notificationCount will be updated in real time */
-//     const myHost = window.location.host;
-//     const protocol = window.location.protocol;
-//     const wsProtocol = (protocol === 'https:') ? 'wss:' : 'ws:';
-//     let computedURL:string = `${wsProtocol}//${myHost}/plugins/com.rs.zlux.notification.websocket/services/notificationsdata/`;
-//     this.ws = new WebSocket(computedURL);
-//     // this.log.info("WebSocket created");
-//   }
-
-//   ngOnInit() {
-//     this.ws.onmessage = function (event) {
-//       // Do something?
-//     }
-
-//     this.ws.onerror = function (event) {
-//       this.close();
-//     }
-//   }
-
-//   handleMessageAdded(): void {
-//     this.messageCount = this.notificationManager.getCount();
-//   }
-
-//   buttonClicked(event: any): void {
-//     console.log(event)
-//     console.log("Ayo")
-//     let test = new ZoweNotification("test", 1)
-//     this.notificationManager.push(test)
-//   }
-// }
-
-
-/*
-  This program and the accompanying materials are
-  made available under the terms of the Eclipse Public License v2.0 which accompanies
-  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
-  SPDX-License-Identifier: EPL-2.0
-  
-  Copyright Contributors to the Zowe Project.
-*/
-
-
-/*
-  This program and the accompanying materials are
-  made available under the terms of the Eclipse Public License v2.0 which accompanies
-  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
-  SPDX-License-Identifier: EPL-2.0
-  
-  Copyright Contributors to the Zowe Project.
-*/
-
 import { Component, OnInit } from '@angular/core';
+import { SnackBarService } from '../../services/snack-bar.service';
+
 // import { BaseLogger } from 'virtual-desktop-logger';
 
 // import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
@@ -99,14 +25,15 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'rs-com-launchbar-notifications',
   templateUrl: 'launchbar-notifications.component.html',
-  styleUrls: [ 'launchbar-notifications.component.css' ]
+  styleUrls: [ 'launchbar-notifications.component.css', '../../services/snack-bar-style.css' ]
 })
 export class LaunchbarNotificationsComponent implements MVDHosting.ZoweNotificationWatcher, OnInit {
   public messageCount: any;
   // private ws: WebSocket;
   // private log: ZLUX.ComponentLogger;
-  
+
   constructor(
+    private snackBar: SnackBarService
     // @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefinition: ZLUX.ContainerPluginDefinition,
 
     // @Inject(Angular2InjectionTokens.LOGGER) private log: ZLUX.ComponentLogger
@@ -149,7 +76,9 @@ export class LaunchbarNotificationsComponent implements MVDHosting.ZoweNotificat
 
   handleMessageAddedTest(data: any): void {
     console.log("ya yeet")
-    this.messageCount = data;
+    this.messageCount = data['count'];
+    this.snackBar.open(data['message'], 'Dismiss', {duration: 5000, panelClass: 'myapp-no-padding-dialog'});
+
   }
 
   buttonClicked(event: any): void {

@@ -1,0 +1,26 @@
+.mat-simple-snackbar {
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    font-size: 14px;
+  }
+  
+  .mat-simple-snackbar-action {
+    line-height: 1;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 500;
+  }
+
+  .mat-snack-bar-container {
+    background: #323232;
+    color: #fff
+  }
+  
+  .mat-simple-snackbar-action {
+    color: #ff4081
+  }
+  
+  /* over write mat style */
+  
+  .mat-simple-snackbar-action button {
+    color: #3f51b5;
+  }

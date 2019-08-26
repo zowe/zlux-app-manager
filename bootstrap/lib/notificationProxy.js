@@ -53,6 +53,8 @@ exports.adminNotificationWebsocketRouter = function(context) {
     let count = 0;
     var aWss = expressWs2.getWss();
     let clients = [];
+    let client_ids = [];
+    let instance_ids = [];
 
     return new Promise(function(resolve, reject) {
     //   let securityConfig = context.plugin.server.config.user.node.https;
@@ -70,12 +72,46 @@ exports.adminNotificationWebsocketRouter = function(context) {
       router.ws('/',function(ws,req) {
         // context.logger.info(ws)
         // context.logger.info(req)
-        // context.logger.info(req.client)
+        // context.logger.info(req)
+        // context.logger.info(req.headers)
+        // context.logger.info(req.headers['host'])
+        // context.logger.info(req.headers['host'].split(":"))
+        // context.logger.info(req.headers['host'].split(":")[1])
+        // context.logger.info("connect.sid." + req.headers['host'].split(":")[1])
+        // context.logger.info(req.cookies["connect.sid." + req.headers['host'].split(":")[1]])
         // context.logger.info(req.cookies)
+        let id = req.cookies["connect.sid." + req.headers['host'].split(":")[1]]
+        // let symbols = Object.getOwnPropertySymbols(req.socket['_tlsOptions']['server'])
+        // let asyncId = req.socket['_tlsOptions']['server'][symbols[symbols.length - 1]]
+        // let ssl_symbols = Object.getOwnPropertySymbols(req.client.ssl['_parent'])
+        // let inner_ssl_symbols = Object.getOwnPropertySymbols(req.client.ssl['_parent'][ssl_symbols[0]])
+        // let asyncId = req.client.ssl['_parent'][ssl_symbols[0]][inner_ssl_symbols[0]]
+        let symbols = Object.getOwnPropertySymbols(req.client)
+        let asyncId = req.client[symbols[1]]
+        
+        context.logger.info(id)
+        let index = client_ids.indexOf(id)
+        if (index === -1) {
+            client_ids.push(id)
+            clients.push([ws])
+            instance_ids.push([asyncId])
+        } else {
+            context.logger.info(clients)
+            context.logger.info(client_ids)
+            context.logger.info(instance_ids)
+            clients[index].push(ws)
+            instance_ids[index].push(asyncId)
+        }
+
+        // const myHost = window.location.host;
+        // const protocol = window.location.protocol;
+        // context.logger.info(myHost)
+        // context.logger.info(protocol)
         // context.logger.info(req.clients)
 
-        context.logger.info("yayayaya")
-        clients.push(ws)
+        // context.logger.info("yayayaya")
+        // clients.push(ws)
+
         ws.on('open',()=>{
             // ws.send("hey")
             // aWss.clients.forEach(function (client) {
@@ -84,9 +120,34 @@ exports.adminNotificationWebsocketRouter = function(context) {
             context.logger.info("yaya")
         });
 
-        ws.on('message', ()=>{
+        ws.on('message', (mess)=>{
             count = count + 1;
-            context.logger.info('tetsetsteest')
+            context.logger.info(JSON.parse(mess))
+            // let id = req.cookies["connect.sid." + req.headers['host'].split(":")[1]]
+            // context.logger.info(id)
+            // context.logger.info(client_ids.length)
+            // context.logger.info(req.socket['_tlsOptions'])
+            // context.logger.info(Object.getOwnPropertySymbols(req.socket['_tlsOptions']['server']))
+            // Object.getOwnPropertySymbols(req.socket['_tlsOptions']['server']).forEach(function(yeet) {
+            //     context.logger.info(yeet)
+            //     context.logger.info(req.socket['_tlsOptions']['server'][yeet])
+            // })
+            // let symbols = Object.getOwnPropertySymbols(req.socket['_tlsOptions']['server'])
+            // context.logger.info(symbols)
+            // context.logger.info(symbols.length)
+            // context.logger.info(req.socket['_tlsOptions']['server'][symbols[symbols.length - 1]])
+            // let ssl_symbols = Object.getOwnPropertySymbols(req.client.ssl['_parent'])
+            // let inner_ssl_symbols = Object.getOwnPropertySymbols(req.client.ssl['_parent'][ssl_symbols[0]])
+            let symbols = Object.getOwnPropertySymbols(req.client)
+            context.logger.info(req.client[symbols[1]])
+            // let ssl_symbols = Object.getOwnPropertySymbols(req.socket)
+            // context.logger.info(req.socket['_tlsOptions']['ssl'][symbols[symbols.length - 1]])
+
+            // context.logger.info(req.socket['_tlsOptions']['server'].requestCert)
+            // context.logger.info(req)
+            // context.logger.info(instance_ids)
+            // context.logger.info(client_ids)
+            // context.logger.info(req.cookies)
             // if (message.data) {
             //     if (message.data === 'test') {
                     
@@ -94,17 +155,46 @@ exports.adminNotificationWebsocketRouter = function(context) {
             // }
             // ws.send(clients.length)
             // clients[0].send("yeet")
-
+            // context.logger.info(clients)
             clients.forEach(function(client) {
-                client.send(count)
+                client.forEach(function(instance) {
+                    instance.send(JSON.stringify({'count': count, 'message': JSON.parse(mess)['message']}))
+                })
             })
 
             // context.logger.info(aWss)
             // context.logger.info(aWss.clients)
-            aWss.clients.forEach(function (client) {
-                context.logger.info(client)
-                client.send(count);
-            });
+            // aWss.clients.forEach(function (client) {
+            //     context.logger.info(client)
+            //     client.send(count);
+            // });
+        })
+
+        ws.on('close', ()=> {
+            let id_index = client_ids.indexOf(req.cookies["connect.sid." + req.headers['host'].split(":")[1]])
+            // let symbols_close = Object.getOwnPropertySymbols(req.socket['_tlsOptions']['server'])
+            // let asyncId_index = instance_ids[id_index].indexOf(req.socket['_tlsOptions']['server'][symbols_close[symbols_close.length - 1]])
+            // client_ids.splice(index, 1)
+            // clients.splice(index, 1)
+            context.logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+            let symbols_close = Object.getOwnPropertySymbols(req.client)
+            context.logger.info(symbols_close)
+            let asyncId_close = req.client[symbols_close[1]]
+            context.logger.info(asyncId_close)
+            let asyncId_index = instance_ids[id_index].indexOf(asyncId_close)
+            // let ssl_symbols_close = Object.getOwnPropertySymbols(req.client.ssl['_parent'])
+            // let inner_ssl_symbols_close = Object.getOwnPropertySymbols(req.client.ssl['_parent'][ssl_symbols_close[0]])
+            // let asyncId_close = req.client.ssl['_parent'][ssl_symbols_close[0]][inner_ssl_symbols_close[0]]
+            // context.logger.info(clients)
+            // context.logger.info(instance_ids)
+            clients[id_index].splice(asyncId_index, 1)
+            instance_ids[id_index].splice(asyncId_index, 1)
+            // context.logger.info(clients)
+            // context.logger.info(instance_ids)
+            // context.logger.info("yeetyeetyeet")
+            // context.logger.info(id_index)
+            // context.logger.info(symbols_close)
+            // context.logger.info(asyncId_close)
         })
         // new NotificationWebsocketProxy(AdminMessageConfig,req.ip,context,ws,handlers);
 
