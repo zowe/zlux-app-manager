@@ -87,7 +87,7 @@ export function generateInstanceActions(item: LaunchbarItem,
   if (item.instanceIds.length == 1) {
     menuItems = [
       { "text": translationService.translate("Open New"), "action": ()=> openWindow(item, applicationManager)},
-      { "text" : this.translation.translate("Open In New Browser Tab"), "action": () => openStandalone(item)},
+      { "text" : translationService.translate("Open In New Browser Tab"), "action": () => openStandalone(item)},
       { "text": translationService.translate('BringToFront'), "action": () => bringItemFront(item, windowManager) },
       pluginsDataService.pinContext(item),
       { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
@@ -96,7 +96,7 @@ export function generateInstanceActions(item: LaunchbarItem,
   } else if (item.instanceIds.length != 0) {
     menuItems = [
       { "text": translationService.translate("Open New"), "action": ()=> openWindow(item, applicationManager)},
-      { "text" : this.translation.translate("Open In New Browser Tab"), "action": () => openStandalone(item)},
+      { "text" : translationService.translate("Open In New Browser Tab"), "action": () => openStandalone(item)},
       pluginsDataService.pinContext(item),
       { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
       { "text": translationService.translate("Close All"), "action": ()=> closeAllWindows(item, windowManager)}
@@ -105,7 +105,7 @@ export function generateInstanceActions(item: LaunchbarItem,
     menuItems =
       [
       { "text": translationService.translate('Open'), "action": () => openWindow(item, applicationManager) },
-      { "text" : this.translation.translate("Open In New Browser Tab"), "action": () => openStandalone(item)},
+      { "text" : translationService.translate("Open In New Browser Tab"), "action": () => openStandalone(item)},
       pluginsDataService.pinContext(item),
       { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
     ]
