@@ -9,10 +9,9 @@
 */
 
 
-import { ZoweNotification } from '../../../../../../../../zlux-platform/base/src/notification-manager/notification'
+import { ZoweNotification } from 'zlux-base/notification-manager/notification'
 import { Component, OnInit } from '@angular/core';
-// import { SnackBarService } from '../../services/snack-bar.service';
-// import { BaseLogger } from 'virtual-desktop-logger';
+
 import { MatSnackBar} from '@angular/material';
 
 @Component({
@@ -24,12 +23,7 @@ export class LaunchbarNotificationsComponent implements MVDHosting.ZoweNotificat
   public messageCount: any;
   public shown: boolean;
 
-  constructor(
-    // private snackBar: SnackBarService,
-    private testBar: MatSnackBar
-    // @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefinition: ZLUX.ContainerPluginDefinition,
-    // @Inject(Angular2InjectionTokens.LOGGER) private log: ZLUX.ComponentLogger
-    ) {
+  constructor(private testBar: MatSnackBar) {
     this.messageCount = 0;
     this.shown = true;
     ZoweZLUX.zoweNotificationManager.addMessageHandler(this);
@@ -44,33 +38,20 @@ export class LaunchbarNotificationsComponent implements MVDHosting.ZoweNotificat
   }
 
   handleMessageAddedTest(data: any, index: number): void {
-    console.log(data)
-    console.log(ZoweZLUX.zoweNotificationManager.getCount())
     this.messageCount = ZoweZLUX.zoweNotificationManager.getCount();
-    // this.snackBar.open(data['from'] + ': ' + data['message'], 'Dismiss', {duration: 5000, panelClass: 'myapp-no-padding-dialog'});
     let ref = this.testBar.open(data['from'] + ': ' + data['notification']['message'], 'Dismiss', {duration: 5000, panelClass: 'myapp-no-padding-dialog'});
     ref.onAction().subscribe(() => {
       ZoweZLUX.zoweNotificationManager.removeFromCache(index)
       this.messageCount = ZoweZLUX.zoweNotificationManager.getCount();
-      // this.clicked = true;
-      console.log('The snack-bar action was triggered!');
     });
-    ref.afterDismissed().subscribe(() => {
-      console.log('yeet yeet yott')
-    })
-    console.log(ZoweZLUX.zoweNotificationManager.getAll())
   }
 
   buttonClicked(event: any): void {
-    // let test = new ZoweNotification("test", 1,"org.zowe.zlux.bootstrap")
-    // ZoweZLUX.zoweNotificationManager.push(test)
     ZoweZLUX.zoweNotificationManager.test();
     this.shown = !this.shown
   }
 
   deleteNotification(event: any, item: any) {
-    console.log(event)
-    console.log(item)
     let index = ZoweZLUX.zoweNotificationManager.getCount() - item - 1
     ZoweZLUX.zoweNotificationManager.removeFromCache(index)
     this.messageCount = ZoweZLUX.zoweNotificationManager.getCount();

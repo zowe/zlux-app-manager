@@ -24,14 +24,6 @@ class ClearDispatcher implements MVDHosting.LogoutActionInterface {
 }
 
 class initializeNotificationManager implements MVDHosting.LoginActionInterface {
-  // private pluginManager: MVDHosting.PluginManagerInterface;
-
-  constructor(  
-    // private injector: Injector
-    ) {
-    // this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
-
-  }
   onLogin(username: string, plugins: ZLUX.Plugin[]): boolean {
     ZoweZLUX.pluginManager.loadPlugins('bootstrap').then((res: any) => {
       ZoweZLUX.zoweNotificationManager.setURL(ZoweZLUX.uriBroker.pluginWSUri(res[0], 'adminnotificationdata', ''))

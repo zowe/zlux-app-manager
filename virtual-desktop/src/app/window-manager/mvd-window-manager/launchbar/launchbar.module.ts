@@ -22,7 +22,6 @@ import { LaunchbarWidgetComponent } from './launchbar-widget/launchbar-widget.co
 import { LaunchbarInstanceViewComponent } from './launchbar-instance-view/launchbar-instance-view.component';
 import { LaunchbarNotificationsComponent } from './launchbar-notifications/launchbar-notifications.component';
 import { MatSnackBarModule } from '@angular/material';
-import { SnackBarService } from '../services/snack-bar.service';
 
 @NgModule({
   imports: [
@@ -41,9 +40,6 @@ import { SnackBarService } from '../services/snack-bar.service';
   exports: [
     LaunchbarComponent
   ],
-  providers:[
-    SnackBarService
-  ]
 })
 export class LaunchbarModule { }
 
