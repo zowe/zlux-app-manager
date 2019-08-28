@@ -21,7 +21,6 @@ import { LaunchbarMenuComponent } from './launchbar-menu/launchbar-menu.componen
 import { LaunchbarWidgetComponent } from './launchbar-widget/launchbar-widget.component';
 import { LaunchbarInstanceViewComponent } from './launchbar-instance-view/launchbar-instance-view.component';
 import { LaunchbarNotificationsComponent } from './launchbar-notifications/launchbar-notifications.component';
-// import { ZoweNotificationManager } from '../../../../../../../zlux-platform/base/src/notification-manager/notification-manager'
 import { MatSnackBarModule } from '@angular/material';
 import { SnackBarService } from '../services/snack-bar.service';
 
@@ -44,7 +43,6 @@ import { SnackBarService } from '../services/snack-bar.service';
   ],
   providers:[
     SnackBarService
-    // {provide: MVDHosting.Tokens.ZoweNotificationManagerToken, useExisting: ZoweNotificationManager }
   ]
 })
 export class LaunchbarModule { }

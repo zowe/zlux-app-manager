@@ -12,6 +12,15 @@
     <span> {{messageCount}} </span>
     <button (click)="buttonClicked($event)">Test</button>
     <div class="launchbar-seperator left"></div>
+    <div [hidden]="shown" class='notifications'>
+      <div class="notification" *ngFor="let item of allNotifications; let i = index" [attr.data-index]="i">
+        <div class="notification-container">
+          <div class="message" >{{item.message}}</div>
+          <div class="delete" (click)="deleteNotification($event, i)">X</div>
+        </div>
+      </div>
+    </div>
+
   </div>
   
   <!-- 

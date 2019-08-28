@@ -67,12 +67,9 @@ export class LaunchbarComponent {
    }
   
   getAllItems(): void {
-    console.log("yeet")
-    console.log(this.pluginManager.findPluginDefinition("org.zowe.zlux.bootstrap"))
     this.allItems = [];
     this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
       pluginDefinitions.forEach((p)=> {
-        console.log(p)
         if (p.getBasePlugin().getWebContent() != null) {
           if (p.getIdentifier() === 'org.zowe.zlux.appmanager.app.propview') {
             const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;

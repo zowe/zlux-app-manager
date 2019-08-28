@@ -23,9 +23,6 @@ declare var window: { ZoweZLUX: typeof DSMResources };
 window; /* Suppress TS error */
 let logger = new Logger();
 logger.addDestination(logger.makeDefaultDestination(true,true,true));
-
-console.log("DSMs")
-console.log( PluginManager )
 export class DSMResources {
   static pluginManager = PluginManager
   static uriBroker:ZLUX.UriBroker = new DsmUri();

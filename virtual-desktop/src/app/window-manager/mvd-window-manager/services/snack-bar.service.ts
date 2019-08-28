@@ -18,10 +18,12 @@ export class SnackBarService {
   constructor(private snackBar: MatSnackBar) { }
 
   dismiss() {
+    console.log("yeet")
     this.snackBar.dismiss();
   }
 
   open(message: string, action?: string, config?: MatSnackBarConfig): MatSnackBarRef<SimpleSnackBar> {
+      console.log("yoot")
     return this.snackBar.open(message, action, config);
   }
 }
