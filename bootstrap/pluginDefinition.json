@@ -4,5 +4,16 @@
   "pluginVersion": "0.0.0-zlux.version.replacement",
   "pluginType": "bootstrap",
   "webContent": {},
-  "dataServices": []
+  "dataServices": [
+    {
+      "type": "router",
+      "name": "adminnotificationdata",
+      "initializerLookupMethod": "external",
+      "fileName": "notificationProxy.js",
+      "routerFactory": "adminNotificationWebsocketRouter",
+      "dependenciesIncluded": true,
+      "version": "1.0.0",
+      "httpCaching":  false
+    }
+  ]
 }

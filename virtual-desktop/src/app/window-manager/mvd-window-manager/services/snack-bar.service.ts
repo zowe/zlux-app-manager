@@ -1,5 +1,4 @@
 
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -9,24 +8,23 @@
   
   Copyright Contributors to the Zowe Project.
 */
+import { Injectable } from '@angular/core';
+import { MatSnackBar, MatSnackBarConfig, MatSnackBarRef, SimpleSnackBar } from '@angular/material';
 
-/* 
- * This file loads external, non-component style sheets needed for the desktop.
- * 
- * If a stylesheet is being loaded from an npm module, preface the URL with a
- * tilde (~) to inform the css-loader. 
- */
+@Injectable()
+export class SnackBarService {
 
-@import url('~typeface-roboto/index.css');
-@import url('~bootstrap/dist/css/bootstrap.min.css');
-@import url('~font-awesome/css/font-awesome.min.css');
-@import url('./assets/css/desktop.css');
+  constructor(private snackBar: MatSnackBar) { }
 
-.mat-snack-bar-container {
-  background-color: white;
-  width: 100px;
-  position: absolute;
-  right: 0px;
+  dismiss() {
+    console.log("yeet")
+    this.snackBar.dismiss();
+  }
+
+  open(message: string, action?: string, config?: MatSnackBarConfig): MatSnackBarRef<SimpleSnackBar> {
+      console.log("yoot")
+    return this.snackBar.open(message, action, config);
+  }
 }
 
 /*
@@ -38,4 +36,3 @@
   
   Copyright Contributors to the Zowe Project.
 */
-

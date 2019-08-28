@@ -20,22 +20,30 @@ import { LaunchbarIconComponent } from './launchbar-icon/launchbar-icon.componen
 import { LaunchbarMenuComponent } from './launchbar-menu/launchbar-menu.component';
 import { LaunchbarWidgetComponent } from './launchbar-widget/launchbar-widget.component';
 import { LaunchbarInstanceViewComponent } from './launchbar-instance-view/launchbar-instance-view.component';
+import { LaunchbarNotificationsComponent } from './launchbar-notifications/launchbar-notifications.component';
+import { MatSnackBarModule } from '@angular/material';
+import { SnackBarService } from '../services/snack-bar.service';
 
 @NgModule({
   imports: [
     CommonModule,
-    SharedModule
+    SharedModule,
+    MatSnackBarModule,
   ],
   declarations: [
     LaunchbarComponent,
     LaunchbarIconComponent,
     LaunchbarMenuComponent,
     LaunchbarWidgetComponent,
-    LaunchbarInstanceViewComponent
+    LaunchbarInstanceViewComponent,
+    LaunchbarNotificationsComponent
   ],
   exports: [
     LaunchbarComponent
   ],
+  providers:[
+    SnackBarService
+  ]
 })
 export class LaunchbarModule { }
 

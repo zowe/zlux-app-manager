@@ -1,5 +1,4 @@
 
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -10,25 +9,56 @@
   Copyright Contributors to the Zowe Project.
 */
 
-/* 
- * This file loads external, non-component style sheets needed for the desktop.
- * 
- * If a stylesheet is being loaded from an npm module, preface the URL with a
- * tilde (~) to inform the css-loader. 
- */
 
-@import url('~typeface-roboto/index.css');
-@import url('~bootstrap/dist/css/bootstrap.min.css');
-@import url('~font-awesome/css/font-awesome.min.css');
-@import url('./assets/css/desktop.css');
-
-.mat-snack-bar-container {
-  background-color: white;
-  width: 100px;
+.launchbar-notifications {
+  display: inline-block;
   position: absolute;
-  right: 0px;
+  bottom: 0;
+  right: 0;
+  width: 250px;
+  height: 40px;
+  z-index: 7;
+  color: #eee;
+  padding-left: 10px;
+  padding-top: 0px;
+  text-align: left;
 }
 
+.launchbar-seperator.left {
+  left: 0;
+}
+
+.launchbar-seperator {
+  position: absolute;
+  bottom: 0;
+  height: 60px;
+  width: 5px;
+  background-color: #36617a;
+}
+
+.notifications {
+  width: 250px;
+  height: 300px;
+  margin-top: -347px;
+  background-color: white;
+  margin-left: -190px;
+  overflow: auto;
+}
+
+
+.message {
+  color: black;
+  float: left;
+}
+
+.delete {
+  color: green;
+  float: right;
+}
+
+.notification-container {
+  overflow: hidden;
+}
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -38,4 +68,3 @@
   
   Copyright Contributors to the Zowe Project.
 */
-
