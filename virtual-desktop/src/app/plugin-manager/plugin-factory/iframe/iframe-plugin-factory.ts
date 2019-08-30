@@ -29,8 +29,7 @@ export class IFramePluginFactory extends PluginFactory {
   constructor(
     private injector: Injector,
     private compiler: Compiler,
-    private sanitizer: DomSanitizer,
-    //public windowManager: WindowManagerService
+    private sanitizer: DomSanitizer
   ) {
     super();
     window.addEventListener("blur", (event) => { //Checks if focus is lost from the desktop
