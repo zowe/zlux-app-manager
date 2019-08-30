@@ -61,6 +61,14 @@ rs-com-launchbar-icon {
 }
 
 
+.mat-snack-bar-container {
+  background-color: white;
+  width: 100px;
+  position: absolute;
+  right: 20px;
+}
+
+
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies

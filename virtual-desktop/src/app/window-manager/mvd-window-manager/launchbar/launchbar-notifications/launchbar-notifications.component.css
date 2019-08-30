@@ -8,6 +8,128 @@
   
   Copyright Contributors to the Zowe Project.
 */
+.launchbar-icon {
+  display: inline-block;
+  box-sizing: border-box;
+  position: relative;
+  width: 60px;
+  height: 60px;
+  background-size: 60px 60px;
+  margin-top: 35px;
+  margin-left: 5px;
+  margin-right: 5px;
+  user-select: none;
+  padding: 0;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  background-repeat: no-repeat;
+  background-position-y: 0;
+  background-position-x: center;
+  cursor: pointer;
+  z-index: 7;
+  background-image: url("../../../../../assets/images/launchbar/more-apps.png");
+}
+
+.launch-widget {
+  width: 125px;
+  height: 110px;
+  text-align: center;
+  display: inline-block;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 7;
+}
+
+.icon {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  background: transparent;
+}
+
+.launch-widget-row-settings p {
+  margin-left: 60px;
+  line-height: 50px;
+}
+
+
+.launch-widget-row {
+  list-style: none;
+  height: 60px;
+  margin: 0px 5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.launch-widget-row .icon {
+  width: 50px;
+  height: 50px;
+}
+
+.launch-widget-row p {
+  margin-left: 60px;
+  line-height: 50px;
+}
+
+.launch-widget-popup {
+  width: 335px;
+  height: 350px;
+  position: absolute;
+  bottom: 110px;
+  left: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  background: #dde8f1;
+  padding: 30px;
+  overflow-y: scroll;
+}
+
+.launchbar-separator-hor {
+  color: #36617a;
+}
+
+.caret-up {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+
+  border-bottom: 20px solid #dde8f1;
+}
+
+.caret-down {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+
+  border-top: 20px solid #dde8f1;
+}
+
+.launch-widget-caret {
+  position: absolute;
+}
+
+.launchbar-separator {
+  position: absolute;
+  bottom: 0;
+  height: 60px;
+  width: 5px;
+  background-color: #36617a;
+}
+
+.launchbar-separator.right {
+  right: 0;
+}
+
+.launchbar-separator.left {
+  left: 0;
+}
 
 
 .launchbar-notifications {
@@ -37,17 +159,75 @@
 }
 
 .notifications {
-  width: 250px;
-  height: 300px;
-  margin-top: -347px;
-  background-color: white;
+  width: 335px;
+  height: 350px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  background: #dde8f1;
+  padding: 30px;
+  overflow-y: auto;
+
+
+  /* width: 250px; */
+  /* height: 300px; */
+  margin-top: -400px;
+  /* background-color: white; */
   margin-left: -190px;
-  overflow: auto;
+  /* overflow: auto; */
 }
 
 
+.launchbar-notif-icon {
+  float: left;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #dde8f1;
+  margin-top: -16px;
+  margin-right: 7px;
+  background-size: 32px 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  margin-top: -5px;
+  margin-left: 10px;
+}
+
+.launchbar-count-icon {
+  float: left;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: red;
+  margin-top: -16px;
+  margin-right: 7px;
+  background-size: 32px 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  margin-top: -5px;
+  margin-left: 10px;
+}
+
 .message {
   color: black;
+  /* float: left; */
+}
+
+.title {
+  color: black;
+  /* float: left; */
+}
+.date {
+  color: black;
+  float: left;
+}
+
+.time {
+  color: black;
+  margin-left: 10px;
   float: left;
 }
 
@@ -58,6 +238,88 @@
 
 .notification-container {
   overflow: hidden;
+  float: left;
+  position: relative;
+}
+
+.outer {
+  overflow:hidden;
+  /* width: 300px; */
+}
+
+.icon {
+  /* box-sizing: border-box; */
+  /* margin: 0; */
+  /* padding: 0; */
+  /* position: absolute; */
+  /* background: transparent; */
+  max-width: 25px;
+  max-width: 25px;
+  margin-left: 2px;
+  margin-top: 2px;
+}
+
+.notif-icon {
+  /* box-sizing: border-box; */
+  /* margin: 0; */
+  /* padding: 0; */
+  /* position: absolute; */
+  /* background: transparent; */
+  max-width: 50px;
+  max-width: 50px;
+  margin-left: 2px;
+  margin-top: 2px;
+}
+
+.image {
+  width: 60px;
+  height: 60px;
+  float: left;
+}
+
+.datetime {
+  float: left;
+  width: 150px;
+}
+
+.notificationButton {
+  background: url(../../../../../assets/images/launchbar/notifications/notification.png) no-repeat;
+}
+
+.closeButton {
+  background: url(../../../../../assets/images/window/close-normal.png) no-repeat;
+}
+
+.close-button {
+  left: 12px;
+  background-image: url(../../../../../assets/images/window/close-normal.png) no-repeat;
+  float:right;
+}
+
+.close-button:hover {
+  background-image: url(../../../../../assets/images/window/close-hover.png) no-repeat;
+}
+
+.close-icon:hover {
+  opacity: 0.5;
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  /* text-align: center; */
+  color: white;
+  float: left;
+  margin-top: -12px;
+  margin-left: 2px;
+}
+
+.centered {
+  position: absolute;
+  top: 60%;
+  left: 55%;
+  transform: translate(-50%, -50%);
 }
 /*
   This program and the accompanying materials are

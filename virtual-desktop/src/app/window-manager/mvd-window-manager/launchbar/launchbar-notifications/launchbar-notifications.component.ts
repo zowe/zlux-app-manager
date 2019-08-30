@@ -22,7 +22,10 @@ import { MatSnackBar} from '@angular/material';
 export class LaunchbarNotificationsComponent implements MVDHosting.ZoweNotificationWatcher, OnInit {
   public messageCount: any;
   public shown: boolean;
-
+  public image: string = require('../../../../../assets/images/launchbar/notifications/zowe.png');
+  public notificationImage: string = require('../../../../../assets/images/launchbar/notifications/notification.png');
+  public closeImage: string = require('../../../../../assets/images/window/close-normal.png')
+  public info: any[];
   constructor(private testBar: MatSnackBar) {
     this.messageCount = 0;
     this.shown = true;
@@ -33,11 +36,13 @@ export class LaunchbarNotificationsComponent implements MVDHosting.ZoweNotificat
 
   }
 
-  handleMessageAdded(): void {
-    this.messageCount = ZoweZLUX.zoweNotificationManager.getCount();
-  }
+  // handleMessageAdded(): void {
+  //   this.messageCount = ZoweZLUX.zoweNotificationManager.getCount();
+  // }
 
-  handleMessageAddedTest(data: any, index: number): void {
+  handleMessageAdded(data: any, index: number): void {
+    console.log(this.parseInfo())
+    this.info = this.parseInfo()
     this.messageCount = ZoweZLUX.zoweNotificationManager.getCount();
     let ref = this.testBar.open(data['from'] + ': ' + data['notification']['message'], 'Dismiss', {duration: 5000, panelClass: 'myapp-no-padding-dialog'});
     ref.onAction().subscribe(() => {
@@ -47,7 +52,6 @@ export class LaunchbarNotificationsComponent implements MVDHosting.ZoweNotificat
   }
 
   buttonClicked(event: any): void {
-    ZoweZLUX.zoweNotificationManager.test();
     this.shown = !this.shown
   }
 
@@ -58,7 +62,38 @@ export class LaunchbarNotificationsComponent implements MVDHosting.ZoweNotificat
   }
 
   get allNotifications(): ZoweNotification[] {
+    // console.log(ZoweZLUX.zoweNotificationManager.getAll())
     return ZoweZLUX.zoweNotificationManager.getAll()
+  }
+
+  parseInfo(): any[] {
+    let notifications = ZoweZLUX.zoweNotificationManager.getAll()
+    let info: any[] = [];
+
+    for (let notification of notifications) {
+      let currentDate = new Date();
+      let notificationTime = notification.date.split('T')[1].split('.')[0]
+      let currentTime = currentDate.toUTCString().split(' ')[4]
+
+
+      // This logic is wrong but kinda works, if one minute changes then all the minutes change 
+      // Need to also do logic about if more than a day
+      let hourDifference = parseInt(currentTime.split(':')[0]) - parseInt(notificationTime.split(':')[0])
+      let minuteDifference = parseInt(currentTime.split(':')[1]) - parseInt(notificationTime.split(':')[1])
+      // let secondDifference = parseInt(currentTime.split(':')[2]) - parseInt(notificationTime.split(':')[2])
+      let timeSince: string;
+      if (hourDifference > 0) {
+        timeSince = hourDifference + " hours ago"
+      } else if (minuteDifference > 0) {
+        timeSince = minuteDifference + " minutes ago"
+      } else {
+        timeSince = "Less than a minute ago"
+      }
+      
+      info.push({'title': notification.title, 'message': notification.message, 'timeSince': timeSince})
+    }
+
+    return info
   }
 }
 
