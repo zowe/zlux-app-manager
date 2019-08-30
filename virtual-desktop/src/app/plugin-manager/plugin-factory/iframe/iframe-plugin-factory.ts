@@ -29,15 +29,16 @@ export class IFramePluginFactory extends PluginFactory {
   constructor(
     private injector: Injector,
     private compiler: Compiler,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    //public windowManager: WindowManagerService
   ) {
     super();
     window.addEventListener("blur", (event) => { //Checks if focus is lost from the desktop
       if (iFrameElement != null && document.activeElement.className == "mvd-iframe") //Checks if an IFrame caused it
       {
-        let stringId = iFrameElement.id.replace(/[^0-9\.]+/g, ""); //Extracts the instance ID from the IFrame ID
         const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
-        windowManager.showWindow(parseInt(stringId, 10)); 
+        let stringId = iFrameElement.id.replace(/[^0-9\.]+/g, ""); //Extracts the instance ID from the IFrame ID
+        windowManager.requestWindowFocus(parseInt(stringId, 10));
       }
     }, false);
     window.addEventListener("mouseover", (event) => {
