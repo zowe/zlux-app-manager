@@ -10,9 +10,12 @@
 <div class="launchbar-notifications">
   <!-- <button class="notificationButton" (click)="buttonClicked($event)">Test</button> -->
   <div (click)="buttonClicked($event)" class="launchbar-notif-icon">
-    <img class="icon" [src]="notificationImage">
+    <img [hidden]="!messageCount === 0" class="icon" [src]="notificationImage">
+    <img [hidden]="messageCount === 0" class="icon" [src]="notificationImageExists">
 
-    <!-- <div class="centered"> {{messageCount}} </div> -->
+    <div [hidden]="!single" class="centered-single"> {{messageCount}} </div>
+    <div [hidden]="!double" class="centered-double"> {{messageCount}} </div>
+
   </div>
   <div class="launchbar-seperator left"></div>
   <div [hidden]="shown" class='notifications'>

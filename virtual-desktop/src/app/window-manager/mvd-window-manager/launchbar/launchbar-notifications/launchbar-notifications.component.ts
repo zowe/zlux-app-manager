@@ -13,6 +13,7 @@ import { ZoweNotification } from 'zlux-base/notification-manager/notification'
 import { Component, OnInit } from '@angular/core';
 
 import { MatSnackBar} from '@angular/material';
+// import { flattenStyles } from '@angular/platform-browser/src/dom/dom_renderer';
 
 @Component({
   selector: 'rs-com-launchbar-notifications',
@@ -24,10 +25,16 @@ export class LaunchbarNotificationsComponent implements MVDHosting.ZoweNotificat
   public shown: boolean;
   public image: string = require('../../../../../assets/images/launchbar/notifications/zowe.png');
   public notificationImage: string = require('../../../../../assets/images/launchbar/notifications/notification.png');
+  public notificationImageExists: string = require('../../../../../assets/images/launchbar/notifications/notification-exists.png');
   public closeImage: string = require('../../../../../assets/images/window/close-normal.png')
   public info: any[];
+  public single: boolean;
+  public double: boolean;
+
   constructor(private testBar: MatSnackBar) {
     this.messageCount = 0;
+    this.single = false;
+    this.double = false;
     this.shown = true;
     ZoweZLUX.zoweNotificationManager.addMessageHandler(this);
   }
@@ -63,6 +70,16 @@ export class LaunchbarNotificationsComponent implements MVDHosting.ZoweNotificat
 
   get allNotifications(): ZoweNotification[] {
     // console.log(ZoweZLUX.zoweNotificationManager.getAll())
+    if (this.messageCount >= 10) {
+      this.double = true
+    } else {
+      this.double = false
+    }
+    if (10 > this.messageCount && this.messageCount > 0) {
+      this.single = true;
+    } else {
+      this.single = false;
+    }
     return ZoweZLUX.zoweNotificationManager.getAll()
   }
 
