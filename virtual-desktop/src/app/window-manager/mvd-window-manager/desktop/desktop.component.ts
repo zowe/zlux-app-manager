@@ -83,7 +83,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
         });
         appsWithRecognizers.forEach(appWithRecognizer=> {
           appContents[appWithRecognizer].recognizers.forEach((recognizerObject:ZLUX.RecognizerObject)=> {
-            ZoweZLUX.dispatcher.addRecognizerFromObject(recognizerObject.clause,recognizerObject.id);
+            ZoweZLUX.dispatcher.addRecognizerObject(recognizerObject);
           });
           this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);
         });
