@@ -216,16 +216,24 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
           this.knownLoggerMessageChecks.push(plugin.getIdentifier());
           let languageCode = this.l10nConfigService.getDefaultLocale().languageCode; // Figure out the desktop language
           let messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_${languageCode}.json`);
-          this.http.get(messageLoc).subscribe( // Try to load log messages of language
+          this.http.get(messageLoc).subscribe( // Try to load log messages of desired language
           messages => {
-            resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
+              let messageLocEN = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_en.json`);
+              this.http.get(messageLocEN).subscribe( // Try to load English log messages
+                messagesEN => {
+                  let mergedMessages = { ...messagesEN, ...messages }; // Merge the messages (so English is used as a fallback)
+                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, mergedMessages));
+                },
+                error => { // If English is not found, just return the previously obtained messages.
+                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
+                });
           }, error => {
-            if (error.status = 404) { // If it cannot load log messages
-              messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_en.json`); // Default to English
-              this.http.get(messageLoc).subscribe(
+            if (error.status = 404) { // If log messages are not available in desired language,
+              let messageLocEN = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_en.json`); // Default to English
+              this.http.get(messageLocEN).subscribe( // ...try English.
                 messages => {
                   resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
-                }, error => { // In all other cases, load the logger without messages
+                }, error => { // In all other cases, load the logger without messages.
                   resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null));
                 });
             }
