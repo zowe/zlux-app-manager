@@ -66,6 +66,10 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   showWindow(windowId: MVDWindowManagement.WindowId): void {
   }
 
+  requestWindowFocus(windowId: MVDWindowManagement.WindowId): boolean {
+    return true; //Dummy logic to avoid interface implementation errors for simple window service
+  }
+
   getViewportId(windowId: MVDWindowManagement.WindowId): MVDHosting.ViewportId {
     return this.theViewportId;
   }

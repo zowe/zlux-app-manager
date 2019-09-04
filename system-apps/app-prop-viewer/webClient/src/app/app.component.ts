@@ -23,6 +23,7 @@ export class AppComponent {
   appName:string;
   appVersion:string;
   appType:string;
+  appId: string;
   copyright:string;
   installedApps:string[];
   iconImage:string;
@@ -35,19 +36,44 @@ export class AppComponent {
     this.isPropertyWindow = false;
     this.isViewerWindow = true;
           
-    if (this.launchMetadata != null && this.launchMetadata.isPropertyWindow) {
-      this.appName = this.launchMetadata.appName;
-      this.appVersion = this.launchMetadata.appVersion;
-      this.appType = this.launchMetadata.appType;
-      this.iconImage = this.launchMetadata.image;
-      this.isPropertyWindow = true;
-      this.isViewerWindow = false;
-      this.copyright=this.launchMetadata.copyright;
-    } else if (this.launchMetadata != null && this.launchMetadata.isViewerWindow){
+    if (this.launchMetadata != null && this.launchMetadata.data && this.launchMetadata.data.isPropertyWindow) {
+      this.setInfoFromMessage(this.launchMetadata.data);
+    } else if (this.launchMetadata != null && this.launchMetadata.data && this.launchMetadata.data.isViewerWindow){
       this.isViewerWindow=true;
     }
     
   }
+
+  private setInfoFromMessage(message: any) {
+    this.appName = message.appName;
+    this.appVersion = message.appVersion;
+    this.appId = message.appId;
+    this.appType = message.appType;
+    this.iconImage = message.image;
+    this.isPropertyWindow = true;
+    this.isViewerWindow = false;
+    this.copyright=message.copyright;
+  }
+
+  zluxOnMessage(eventContext: any): Promise<any> {
+    return new Promise((resolve,reject)=> {
+      if (eventContext != null && eventContext.data && eventContext.data.isPropertyWindow) {
+        resolve(this.setInfoFromMessage(eventContext.data));
+      } else {
+        reject('Event context missing or malformed');
+      }
+    });    
+  }
+
+
+  provideZLUXDispatcherCallbacks(): ZLUX.ApplicationCallbacks {
+    return {
+      onMessage: (eventContext: any): Promise<any> => {
+        return this.zluxOnMessage(eventContext);
+      }      
+    }
+  }
+  
 }
 
 /*
