@@ -221,7 +221,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
               let messageLocEN = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_en.json`);
               this.http.get(messageLocEN).subscribe( // Try to load English log messages
                 messagesEN => {
-                  let mergedMessages = { ...messagesEN, ...messages }; // Merge the messages (so English is used as a fallback)
+                  let mergedMessages = Object.assign(messagesEN, messages); // Merge the messages (so English is used as a fallback)
                   resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, mergedMessages));
                 },
                 error => { // If English is not found, just return the previously obtained messages.
