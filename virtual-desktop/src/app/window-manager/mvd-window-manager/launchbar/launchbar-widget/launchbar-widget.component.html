@@ -21,6 +21,27 @@
   -->
 </div>
 
+<div [hidden]="!notificationsVisible" class='notifications'>
+  <div class="notification-item" *ngFor="let item of allNotifications; let i = index" [attr.data-index]="i">
+      <div class="outer-container" (click)="focusApplication(i)">
+          <div class="icon-container">
+            <img class="notification-icon" [src]="info[i].imgSrc">
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">{{item.title}}</div>
+            <div class="notification-message">{{item.message}}</div>
+          </div>
+          <img class="delete-notification" (click)="deleteNotification(i);$event.stopPropagation()" [src]="closeImage">
+          <div class="time-container">
+            <div class="time">{{item.date.split("T")[1].split('.')[0]}}</div>
+            <div class="timeAgo">{{info[i].timeSince}}</div>
+          </div>
+      </div>
+      <hr class="notification-breaker">
+  </div>
+</div>
+<div [hidden]="!notificationsVisible" class="launch-widget-caret caret-down"></div>
+
 <div class="launchbar-clock">
   <div class="launchbar-separator left"></div>
   <span>
@@ -28,6 +49,9 @@
     <br>
     <span>{{date | date:'shortDate'}}</span>
   </span>
+  <div #usericon class="launchbar-tray-icon notification" (click)="toggleNotifications()">
+      <div [hidden]="messageCount == 0"class="launchbar-tray-indicator">{{messageCount}}</div>
+  </div>
   <div #usericon class="launchbar-tray-icon settings" (click)="togglePersonalizationPanel()"></div>
   <div #usericon class="launchbar-tray-icon user" (click)="togglePopup()"></div>
 </div>

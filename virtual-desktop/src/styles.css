@@ -23,10 +23,12 @@
 @import url('./assets/css/desktop.css');
 
 .mat-snack-bar-container {
-  background-color: white;
-  width: 100px;
+  background-color: #dde8f1;
+  width: 320px;
   position: absolute;
   right: 20px;
+  padding: 5px !important;
+  margin-top: 10px !important;
 }
 
 /*

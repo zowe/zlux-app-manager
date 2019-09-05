@@ -80,6 +80,7 @@ export class LaunchbarMenuComponent {
   }
   
   activeToggle(): void {
+    console.log(this.menuItems)
     this.isActive = !this.isActive;
     this.emitState();
   }

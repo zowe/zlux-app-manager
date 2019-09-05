@@ -32,7 +32,7 @@ export class ZoweZLUXResources {
   static dispatcher:Dispatcher = new Dispatcher(logger);
   static logger:Logger = logger;
   static registry:ZLUX.Registry = new Registry();
-  static zoweNotificationManager:ZoweNotificationManager = new ZoweNotificationManager();
+  static notificationManager:ZoweNotificationManager = new ZoweNotificationManager();
   // currently replaced in plugin-manager.module
   static globalization: ZLUX.Globalization = new SimpleGlobalization();
 }
