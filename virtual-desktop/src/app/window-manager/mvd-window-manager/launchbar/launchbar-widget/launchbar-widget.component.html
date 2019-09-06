@@ -24,7 +24,7 @@
 <div [hidden]="!notificationsVisible" class='notifications'>
   <div class="notification-item" *ngFor="let item of allNotifications; let i = index" [attr.data-index]="i">
       <div class="outer-container" (click)="focusApplication(i)">
-          <div class="icon-container">
+          <div class="notification-icon-container">
             <img class="notification-icon" [src]="info[i].imgSrc">
           </div>
           <div class="notification-content">
@@ -33,7 +33,6 @@
           </div>
           <img class="delete-notification" (click)="deleteNotification(i);$event.stopPropagation()" [src]="closeImage">
           <div class="time-container">
-            <!-- <div class="time">{{item.date.split("T")[1].split('.')[0]}}</div> -->
             <div class="time">{{item.date.split("T")[1].split('.')[0]}}</div>
             <div class="timeAgo">{{info[i].timeSince}}</div>
           </div>

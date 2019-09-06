@@ -40,15 +40,15 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatcher, OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
-  date: Date;
-  popupVisible: boolean;
+  private date: Date;
+  private popupVisible: boolean;
   @Output() popupStateChanged = new EventEmitter<boolean>();
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
-  authenticationManager: MVDHosting.AuthenticationManagerInterface;
-  notificationsVisible: boolean;
+  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+  private notificationsVisible: boolean;
   messageCount: number;
-  info: any[];
+  private info: any[];
   @Input() menuItems: LaunchbarItem[];
   public closeImage: string = require('../../../../../assets/images/window/close-normal.png')
   private applicationManager: MVDHosting.ApplicationManagerInterface;
@@ -176,7 +176,6 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       // Need to also do logic about if more than a day
       let hourDifference = parseInt(currentTime.split(':')[0]) - parseInt(notificationTime.split(':')[0])
       let minuteDifference = parseInt(currentTime.split(':')[1]) - parseInt(notificationTime.split(':')[1])
-      // let secondDifference = parseInt(currentTime.split(':')[2]) - parseInt(notificationTime.split(':')[2])
       let timeSince: string;
       if (hourDifference > 0) {
         timeSince = hourDifference + " hours ago"

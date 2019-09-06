@@ -43,8 +43,7 @@ import {MAT_SNACK_BAR_DATA} from '@angular/material';
   exports: [
     LaunchbarComponent
   ],
-  providers: [ { provide: MAT_SNACK_BAR_DATA, useValue: {} }],
-
+  providers: [ { provide: MAT_SNACK_BAR_DATA, useValue: {} }]
 })
 export class LaunchbarModule { }
 

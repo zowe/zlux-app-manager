@@ -54,7 +54,6 @@
 .launchbar-tray-icon.notification {
   background-image: url('../../../../../assets/images/launchbar/notifications/notification.png');
   background-size: 26px 26px;
-  /* margin-right: 18px; */
 }
 
 .launchbar-user:hover {
@@ -122,17 +121,10 @@
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
   background: #dde8f1;
-  /* padding: 10px; */
   overflow-y: auto;
-
-
-  /* width: 250px; */
-  /* height: 300px; */
   margin-top: -440px;
-  /* background-color: white; */
   margin-right: 100px;
   float: right;
-  /* overflow: auto; */
 }
 
 .caret-up {
@@ -150,20 +142,13 @@
   border-left: 20px solid transparent;
   border-right: 20px solid transparent;
   border-top: 20px solid #dde8f1;
-  /* left: 892px; */
   float: right;
   margin-right: 140px;
   margin-top: -90px;
 }
 
-/* .launch-widget-caret { */
-  /* position: absolute; */
-/* } */
-
 .outer-container {
-  /* overflow:hidden; */
   padding: 10px;
-  /* width: 300px; */
 }
 
 .notification-item {
@@ -171,26 +156,18 @@
 }
 
 .notification-item:hover {
-  /* overflow:hidden; */
-  /* width: 300px; */
   background-color: #B1BAC1;
 }
 
-.icon-container {
+.notification-icon-container {
   width: 55px;
   height: 40px;
   display: inline-block;
   vertical-align: top;
-  /* float: left; */
 }
 
 
 .notification-icon {
-  /* box-sizing: border-box; */
-  /* margin: 0; */
-  /* padding: 0; */
-  /* position: absolute; */
-  /* background: transparent; */
   max-width: 40px;
   max-width: 40px;
   margin-left: 2px;
@@ -206,13 +183,10 @@
   color: black;
   font-weight: 600;
   font-size: 16px;
-  /* float: left; */
 }
 
 .notification-message {
   color: black;
-  /* margin-top: 5px; */
-  /* float: left; */
 }
 
 .delete-notification {
@@ -242,9 +216,7 @@
 }
 
 .time-container {
-  /* float: left; */
   display: inline-block;
-  /* width: 100%; */
   margin-left: 55px;
   width: 240px;
   margin-top: 5px;
@@ -252,8 +224,8 @@
 
 .launchbar-tray-indicator {
   float: left;
-  width: 23px;
-  height: 23px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: red;
   margin-top: -13px;
@@ -264,7 +236,7 @@
   cursor: pointer;
   text-align: center;
   vertical-align: middle;
-  line-height: 23px; 
+  line-height: 22px; 
 }
 
 .notification-breaker {
