@@ -8,6 +8,9 @@ exports.adminNotificationWebsocketRouter = function(context) {
     let instance_ids = [];
     const EVERYONE = "Everyone"
     const INDIVIDUAL = "Individual"
+    context.logger.info(context.plugin.server.config.user.dataserviceAuthentication.rbac)
+    // context.logger.info(context.plugin.server.config)
+    context.logger.info("@@@@@@2")
 
     return new Promise(function(resolve, reject) {
       let router = express.Router();  
@@ -17,25 +20,29 @@ exports.adminNotificationWebsocketRouter = function(context) {
       });
       context.addBodyParseMiddleware(router);
       router.post('/write', function(req, res) {
-        if (req.body.recipient === INDIVIDUAL) {
-            let index = client_names.indexOf(req.body.username.toUpperCase())
-            if (index != -1) {
-                clients[index].forEach(function(instance) {
-                    instance.send(JSON.stringify({'from': req.username, 'notification': req.body.notification, "to": req.body.recipient}))
+        if (context.plugin.server.config.user.dataserviceAuthentication.rbac) {
+            if (req.body.recipient === INDIVIDUAL) {
+                let index = client_names.indexOf(req.body.username.toUpperCase())
+                if (index != -1) {
+                    clients[index].forEach(function(instance) {
+                        instance.send(JSON.stringify({'from': req.username, 'notification': req.body.notification, "to": req.body.recipient}))
+                    })
+                    res.status(201).json({"Response" : "Message sent to " + req.body.recipient});
+                } else {
+                    res.status(404).json({"Response" : req.body.username + " is not a valid user or is not online"});
+                }
+            } else if (req.body.recipient === EVERYONE){
+                clients.forEach(function(client) {
+                    client.forEach(function(instance) {
+                        instance.send(JSON.stringify({'from': req.username, 'notification': req.body.notification, "to": req.body.recipient}))
+                    })
                 })
-                res.status(201).json({"Response" : "Message sent to " + req.body.recipient});
+                res.status(201).json({"Response" : "Message sent to Everyone"});
             } else {
-                res.status(404).json({"Response" : req.body.username + " is not a valid user or is not online"});
+                res.status(400).json({"Response": "Message was not sent"})
             }
-        } else if (req.body.recipient === EVERYONE){
-            clients.forEach(function(client) {
-                client.forEach(function(instance) {
-                    instance.send(JSON.stringify({'from': req.username, 'notification': req.body.notification, "to": req.body.recipient}))
-                })
-            })
-            res.status(201).json({"Response" : "Message sent to Everyone"});
         } else {
-            res.status(400).json({"Response": "Message was not sent"})
+            res.status(403).json({"Response": "RBAC is not enabled"})
         }
       });
       router.ws('/',function(ws,req) {
