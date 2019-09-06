@@ -10,21 +10,22 @@
   Copyright Contributors to the Zowe Project.
 */
 
-.launchbar-icon {
+.launchbar-icon-container {
   display: inline-block;
   box-sizing: border-box;
   position: relative;
-  margin-top: -15px;
+  margin-top: 5px;
   margin-left: 5px;
   margin-right: 5px;
-  user-select: none;
+  width: 60px;
+  height: 60px;
   padding: 0;
+  user-select: none;
   -ms-user-select: none;
   -moz-user-select: none;
   -webkit-user-select: none;
   z-index: 7;
 }
-
 
 .launchbar-icon-image.active {
   background-position-y: 0px;

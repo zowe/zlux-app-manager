@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Injector } from '@angular/core';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 
 import { DesktopWindow } from '../shared/desktop-window';
@@ -22,15 +22,36 @@ import { BaseLogger } from 'virtual-desktop-logger';
   templateUrl: 'window-pane.component.html',
   styleUrls: ['window-pane.component.css']
 })
-export class WindowPaneComponent implements OnInit {
+export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterface, MVDHosting.LogoutActionInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
+  public wallpaper: any = { };
+  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 
   constructor(
-    public windowManager: WindowManagerService
+    public windowManager: WindowManagerService,
+    private injector: Injector
   ) {
     this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
+    this.authenticationManager.registerPostLoginAction(this);
+  }
+
+  private replaceWallpaper(url:string) {
+    this.wallpaper.background = `url(${url}) no-repeat center/cover`;
+  }
+
+  onLogout(username: string) {
+    this.wallpaper.background = 'unset';
+    return true;
+  }
+
+  onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
+    let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
+    let desktopUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'ui/themebin', 'wallpaper.jpg');
+    this.replaceWallpaper(desktopUri);
+    return true;
   }
 
   ngOnInit(): void {

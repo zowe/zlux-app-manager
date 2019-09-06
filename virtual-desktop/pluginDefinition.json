@@ -26,6 +26,10 @@
                 "locationType": "relative"
               }
             }
+          },
+          "themebin": {
+            "binary": true,
+            "aggregationPolicy": "override"
           }
         }
       },
