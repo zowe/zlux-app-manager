@@ -8,9 +8,7 @@ exports.adminNotificationWebsocketRouter = function(context) {
     let instance_ids = [];
     const EVERYONE = "Everyone"
     const INDIVIDUAL = "Individual"
-    context.logger.info(context.plugin.server.config.user.dataserviceAuthentication.rbac)
-    // context.logger.info(context.plugin.server.config)
-    context.logger.info("@@@@@@2")
+
 
     return new Promise(function(resolve, reject) {
       let router = express.Router();  
