@@ -1,3 +1,15 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/
+
 const express = require('express');
 const Promise = require('bluebird');
 
@@ -37,7 +49,7 @@ exports.adminNotificationWebsocketRouter = function(context) {
                 })
                 res.status(201).json({"Response" : "Message sent to Everyone"});
             } else {
-                res.status(400).json({"Response": "Message was not sent"})
+                res.status(400).json({"Response": "Message was not sent, recipient arguement missing or not recognized"})
             }
         } else {
             res.status(403).json({"Response": "RBAC is not enabled"})
@@ -70,3 +82,13 @@ exports.adminNotificationWebsocketRouter = function(context) {
       resolve(router);
     });
 };
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/
