@@ -20,7 +20,6 @@ import { LaunchbarIconComponent } from './launchbar-icon/launchbar-icon.componen
 import { LaunchbarMenuComponent } from './launchbar-menu/launchbar-menu.component';
 import { LaunchbarWidgetComponent } from './launchbar-widget/launchbar-widget.component';
 import { LaunchbarInstanceViewComponent } from './launchbar-instance-view/launchbar-instance-view.component';
-// import { LaunchbarNotificationsComponent } from './launchbar-notifications/launchbar-notifications.component';
 import { MatSnackBarModule } from '@angular/material';
 import { SnackbarComponent } from './shared/snackbar/snackbar.component'
 import {MAT_SNACK_BAR_DATA} from '@angular/material';
@@ -38,7 +37,6 @@ import {MAT_SNACK_BAR_DATA} from '@angular/material';
     LaunchbarMenuComponent,
     LaunchbarWidgetComponent,
     LaunchbarInstanceViewComponent,
-    // LaunchbarNotificationsComponent,
     SnackbarComponent
   ],
   entryComponents: [SnackbarComponent],
