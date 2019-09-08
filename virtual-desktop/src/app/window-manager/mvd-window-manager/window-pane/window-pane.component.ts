@@ -36,6 +36,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     this.contextMenuDef = null;
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.authenticationManager.registerPostLoginAction(this);
+    this.authenticationManager.registerPreLogoutAction(this);
   }
 
   private replaceWallpaper(url:string) {
@@ -43,13 +44,13 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
   }
 
   onLogout(username: string) {
-    this.wallpaper.background = 'unset';
+    this.wallpaper.background = '';
     return true;
   }
 
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
     let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
-    let desktopUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'ui/themebin', 'wallpaper.jpg');
+    let desktopUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'ui/themebin', 'wallpaper');
     this.replaceWallpaper(desktopUri);
     return true;
   }
