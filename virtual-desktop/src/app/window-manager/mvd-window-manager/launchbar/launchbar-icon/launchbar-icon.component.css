@@ -14,7 +14,7 @@
   display: inline-block;
   box-sizing: border-box;
   position: relative;
-  margin-top: 5px;
+  margin-top: 4px;
   margin-left: 5px;
   margin-right: 5px;
   width: 60px;
@@ -25,29 +25,11 @@
   -moz-user-select: none;
   -webkit-user-select: none;
   z-index: 7;
+  text-align: center;
 }
 
 .launchbar-icon-image.active {
   background-position-y: 0px;
-}
-
-.launchbar-icon-image {
-  display: inline-block;
-  box-sizing: border-box;
-  position: relative;
-  width: 60px;
-  height: 60px;
-  background-image: url('../../../../../assets/images/launchbar/missing.png');
-  background-size: 60px 60px;
-  user-select: none;
-  -ms-user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  background-repeat: no-repeat;
-  background-position-y: 0;
-  background-position-x: center;
-  cursor: pointer;
-  z-index: 7;
 }
 
 .launchbar-caption {
@@ -55,7 +37,7 @@
   position: absolute;
   width: 60px;
   color: white;
-  background-color: #00000050;
+  background-color: #00000090;
   padding: 2px;
   border-radius: 4px;
   font-size: 8pt;
@@ -66,7 +48,7 @@
 }
 
 .launchbar-icon-marker {
-  margin-bottom: -17px;
+  margin-bottom: -16px;
   padding: 0;
   position: absolute;
   width: 100%;
@@ -89,7 +71,7 @@
 
 
 .launchbar-icon-marker-dot {
-  border-radius: 50%;
+  border-radius: 25%;
   display: inline-block;
   height: 5px;
   width: 5px;
@@ -97,11 +79,19 @@
   background-color: #6de2ff;
 }
 
+.launchbar-icon-marker-blank {
+  background-color: #ffffff00;
+}
+
+
 .launchbar-icon-marker-more {
   display: inline-block;
+  position: absolute;
   height: 5px;
   width: 5px;
+  bottom: 13px;
   margin: 2px;
+  right: 3px;
   color: #6de2ff;
   font-size: 8pt;
 }

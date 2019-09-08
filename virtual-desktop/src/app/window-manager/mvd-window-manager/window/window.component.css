@@ -47,6 +47,7 @@
 .window.maximized {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
+  border-width: 0;
 }
 
 .window.maximized .heading {

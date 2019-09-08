@@ -28,7 +28,7 @@ import { BaseLogger } from '../../../../shared/logger';
 @Component({
   selector: 'rs-com-launchbar-widget',
   templateUrl: 'launchbar-widget.component.html',
-  styleUrls: [ 'launchbar-widget.component.css' ],
+  styleUrls: [ 'launchbar-widget.component.css', '../shared/shared.css' ],
   providers: [LanguageLocaleService]
 })
 export class LaunchbarWidgetComponent implements OnInit {

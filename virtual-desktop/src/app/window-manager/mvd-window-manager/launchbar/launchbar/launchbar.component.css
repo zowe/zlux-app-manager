@@ -25,14 +25,6 @@
   justify-content: flex-end;
 }
 
-.launchbar-large {
-  height: 70px;
-}
-
-.launchbar-small {
-  height: 40px;
-}
-
 .launchbar-container.active {
   z-index: 10000;
 }
@@ -62,11 +54,6 @@
   padding-left: 25px;
   padding-top: 0;
 }
-
-rs-com-launchbar-icon {
-  text-align: center;
-}
-
 
 
 /*
