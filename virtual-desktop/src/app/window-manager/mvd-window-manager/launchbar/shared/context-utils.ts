@@ -70,9 +70,10 @@ function openWindow(item: LaunchbarItem, applicationManager: MVDHosting.Applicat
 
 function openStandalone(item: LaunchbarItem): void {
   const plginType:string = item.plugin.getFramework();
+  //future TODO: initialize cross-window app2app communication??
   if (plginType === 'iframe') {
-    // Still allows IFrames to comprehend URL parameters if address is copy/pasted later
-    window.open(`${location.origin}${(window as any).ZoweZLUX.uriBroker.pluginResourceUri(item.plugin, '')}`);
+    // Still allows IFrames to comprehend URL parameters if address is copy/pasted later. Should not break any app2app possibilities
+    window.open(`${location.origin}${(window as any).ZoweZLUX.uriBroker.pluginResourceUri(item.plugin, item.plugin.getBasePlugin().getWebContent().startingPage)}`);
   } else {
     window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}`);
   }
