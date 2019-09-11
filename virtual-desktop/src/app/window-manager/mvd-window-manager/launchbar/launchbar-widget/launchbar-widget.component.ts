@@ -144,7 +144,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   handleMessageAdded(data: any, index: number): void {
     this.info = this.parseInfo()
     this.messageCount = ZoweZLUX.notificationManager.getCount();
-    let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000})
+    let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: "testtest"})
     ref.onAction().subscribe(() => {
       ZoweZLUX.notificationManager.removeFromCache(index)
       this.info = this.parseInfo()

@@ -22,14 +22,14 @@
 @import url('~font-awesome/css/font-awesome.min.css');
 @import url('./assets/css/desktop.css');
 
-.mat-snack-bar-container {
+/* .testtest {
   background-color: #dde8f1;
   width: 320px;
   position: absolute;
   right: 20px;
   padding: 5px !important;
   margin-top: 10px !important;
-}
+} */
 
 /*
   This program and the accompanying materials are

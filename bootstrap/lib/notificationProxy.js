@@ -39,7 +39,11 @@ exports.adminNotificationWebsocketRouter = function(context) {
                     })
                     res.status(201).json({"Response" : "Message sent to " + req.body.recipient});
                 } else {
-                    res.status(404).json({"Response" : req.body.username + " is not a valid user or is not online"});
+                    if (req.body.username === "") {
+                        res.status(404).json({"Response" : "Recipient input cannot be blank"});
+                    } else {
+                        res.status(404).json({"Response" : req.body.username + " is not a valid user or is not online"});
+                    }
                 }
             } else if (req.body.recipient === EVERYONE){
                 clients.forEach(function(client) {
@@ -49,7 +53,7 @@ exports.adminNotificationWebsocketRouter = function(context) {
                 })
                 res.status(201).json({"Response" : "Message sent to Everyone"});
             } else {
-                res.status(400).json({"Response": "Message was not sent, recipient arguement missing or not recognized"})
+                res.status(400).json({"Response": "Message was not sent"})
             }
         } else {
             res.status(403).json({"Response": "RBAC is not enabled"})
