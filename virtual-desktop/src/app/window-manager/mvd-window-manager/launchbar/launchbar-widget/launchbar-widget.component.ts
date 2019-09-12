@@ -25,7 +25,6 @@ import { Observable } from 'rxjs/Rx';
 import { DesktopComponent } from "../../desktop/desktop.component";
 import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
 import { BaseLogger } from '../../../../shared/logger';
-import { ZoweNotification } from 'zlux-base/notification-manager/notification'
 import { MatSnackBar} from '@angular/material';
 import {SnackbarComponent} from '../shared/snackbar/snackbar.component';
 import { LaunchbarItem } from '../shared/launchbar-item';
@@ -35,7 +34,7 @@ import { WindowManagerService } from '../../shared/window-manager.service';
   selector: 'rs-com-launchbar-widget',
   templateUrl: 'launchbar-widget.component.html',
   styleUrls: [ 'launchbar-widget.component.css' ],
-  providers: [LanguageLocaleService]
+  providers: [LanguageLocaleService],
 })
 export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatcher, OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
@@ -47,12 +46,11 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   @ViewChild('logoutbutton') logoutButton: ElementRef;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   private notificationsVisible: boolean;
-  messageCount: number;
   private info: any[];
   @Input() menuItems: LaunchbarItem[];
   public closeImage: string = require('../../../../../assets/images/window/close-normal.png')
   private applicationManager: MVDHosting.ApplicationManagerInterface;
-
+  public notifications: any[];
   // Convenience widgets for testing the i18n work
   // @ViewChild('languagebutton') languageButton: ElementRef;
   // @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;
@@ -71,7 +69,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     this.date = new Date();
     this.popupVisible = false;
     this.notificationsVisible = false;
-    this.messageCount = 0;
+    this.notifications = [];
     ZoweZLUX.notificationManager.addMessageHandler(this);
   }
 
@@ -90,6 +88,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   }
 
   logout(): void {
+    this.notifications.length = 0
     this.popupVisible = false;
     this.popupStateChanged.emit(this.popupVisible);
     this.authenticationManager.requestLogout();
@@ -106,7 +105,6 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   togglePersonalizationPanel() {
     this.desktopComponent.personalizationPanelToggle();
-    //this.activeToggle();
   }
 
   @HostListener('document:mousedown', ['$event'])
@@ -137,26 +135,24 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     this.languageLocaleService.setLocale('US').subscribe(arg => this.logger.debug(`setLocale, arg=`,arg))
   }
 
-  get allNotifications(): ZoweNotification[] {
-    return ZoweZLUX.notificationManager.getAll()
-  }
-
   handleMessageAdded(data: any, index: number): void {
+    this.notifications.unshift(data)
     this.info = this.parseInfo()
-    this.messageCount = ZoweZLUX.notificationManager.getCount();
-    let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: "testtest"})
+    let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: "org_zowe_zlux_ng2desktop_snackbar"})
     ref.onAction().subscribe(() => {
-      ZoweZLUX.notificationManager.removeFromCache(index)
+      ZoweZLUX.notificationManager.dismissNotification(index)
       this.info = this.parseInfo()
-      this.messageCount = ZoweZLUX.notificationManager.getCount();
     });
   }
 
+  handleMessageRemoved(id: number): void {
+    this.notifications.splice(this.notifications.findIndex(x => x.id === id), 1)
+  }
+
   parseInfo(): any[] {
-    let notifications = ZoweZLUX.notificationManager.getAll()
     let info: any[] = [];
 
-    for (let notification of notifications) {
+    for (let notification of this.notifications) {
       let imgSrc = ""
       for(let item of this.menuItems) {
         if (item.plugin.getBasePlugin().getIdentifier() === notification.plugin) {
@@ -166,9 +162,8 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       if (imgSrc === "") {
         imgSrc =  require('../../../../../assets/images/launchbar/notifications/zowe.png')
       }
-
       let currentDate = new Date();
-      let notificationTime = notification.date.split('T')[1].split('.')[0]
+      let notificationTime = notification.date.toString().split('T')[1].split('.')[0]
       let currentTime = currentDate.toUTCString().split(' ')[4]
 
 
@@ -192,9 +187,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   }
 
   deleteNotification(item: any) {
-    let index = ZoweZLUX.notificationManager.getCount() - item - 1
-    ZoweZLUX.notificationManager.removeFromCache(index)
-    this.messageCount = ZoweZLUX.notificationManager.getCount();
+    ZoweZLUX.notificationManager.dismissNotification(item.id)
     this.info = this.parseInfo();
   }
 

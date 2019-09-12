@@ -18,6 +18,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
 
 class ClearDispatcher implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
+    ZoweZLUX.notificationManager.removeAll()
     ZoweZLUX.dispatcher.clear();
     return true;
   }
@@ -26,7 +27,8 @@ class ClearDispatcher implements MVDHosting.LogoutActionInterface {
 class initializeNotificationManager implements MVDHosting.LoginActionInterface {
   onLogin(username: string, plugins: ZLUX.Plugin[]): boolean {
     ZoweZLUX.pluginManager.loadPlugins('bootstrap').then((res: any) => {
-      ZoweZLUX.notificationManager._setURL(ZoweZLUX.uriBroker.pluginWSUri(res[0], 'adminnotificationdata', ''))
+      ZoweZLUX.notificationManager._setURL(ZoweZLUX.uriBroker.pluginWSUri(res[0], 'adminnotificationdata', ''),
+                                           ZoweZLUX.uriBroker.pluginRESTUri(res[0], 'adminnotificationdata', '') + 'write')
     })
     return true;
   }

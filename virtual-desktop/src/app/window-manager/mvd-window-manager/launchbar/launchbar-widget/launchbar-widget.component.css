@@ -244,7 +244,7 @@
   margin-bottom: 0px;
 }
 
-::ng-deep .testtest {
+::ng-deep .org_zowe_zlux_ng2desktop_snackbar {
   background-color: #dde8f1;
   width: 320px;
   position: absolute;
