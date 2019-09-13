@@ -135,19 +135,17 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     this.languageLocaleService.setLocale('US').subscribe(arg => this.logger.debug(`setLocale, arg=`,arg))
   }
 
-  handleMessageAdded(test: any, data: any, id: number): void {
-    console.log(test)
-    this.notifications.unshift(test)
+  handleMessageAdded(message: any): void {
+    this.notifications.unshift(message)
     this.info = this.parseInfo()
     let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: "org_zowe_zlux_ng2desktop_snackbar"})
     ref.onAction().subscribe(() => {
-      ZoweZLUX.notificationManager.dismissNotification(test.id)
+      ZoweZLUX.notificationManager.dismissNotification(message.id)
       this.info = this.parseInfo()
     });
   }
 
   handleMessageRemoved(id: number): void {
-    console.log(id)
     this.notifications.splice(this.notifications.findIndex(x => x.id === id), 1)
   }
 
