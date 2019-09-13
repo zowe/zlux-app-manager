@@ -12,7 +12,7 @@
 import { Component, Inject } from '@angular/core';
 import {Http} from '@angular/http';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
-
+import { ZoweNotification } from '../../../../../../zlux-platform/base/src/notification-manager/notification'
 const EVERYONE = "Everyone";
 const INDIVIDUAL = "Individual";
 
@@ -49,7 +49,7 @@ export class AdminNotificationComponent {
   }
 
   sendRest(title: string, message: string): void {
-    let notification = ZoweZLUX.notificationManager.createNotification(title, message, 1, "org.zowe.zlux.bootstrap")
+    let notification = new ZoweNotification(title, message, 1, "org.zowe.zlux.bootstrap")
 
     ZoweZLUX.pluginManager.loadPlugins('bootstrap').then((res: any) => {
       if (this.recipient === EVERYONE) {
