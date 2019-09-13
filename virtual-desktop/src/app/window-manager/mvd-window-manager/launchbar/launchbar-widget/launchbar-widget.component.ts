@@ -135,17 +135,19 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     this.languageLocaleService.setLocale('US').subscribe(arg => this.logger.debug(`setLocale, arg=`,arg))
   }
 
-  handleMessageAdded(data: any, index: number): void {
-    this.notifications.unshift(data)
+  handleMessageAdded(test: any, data: any, id: number): void {
+    console.log(test)
+    this.notifications.unshift(test)
     this.info = this.parseInfo()
     let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: "org_zowe_zlux_ng2desktop_snackbar"})
     ref.onAction().subscribe(() => {
-      ZoweZLUX.notificationManager.dismissNotification(index)
+      ZoweZLUX.notificationManager.dismissNotification(test.id)
       this.info = this.parseInfo()
     });
   }
 
   handleMessageRemoved(id: number): void {
+    console.log(id)
     this.notifications.splice(this.notifications.findIndex(x => x.id === id), 1)
   }
 
@@ -155,7 +157,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     for (let notification of this.notifications) {
       let imgSrc = ""
       for(let item of this.menuItems) {
-        if (item.plugin.getBasePlugin().getIdentifier() === notification.plugin) {
+        if (item.plugin.getBasePlugin().getIdentifier() === notification['notification'].plugin) {
           imgSrc = item.image || ""
         }
       }
@@ -163,7 +165,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         imgSrc =  require('../../../../../assets/images/launchbar/notifications/zowe.png')
       }
       let currentDate = new Date();
-      let notificationTime = notification.date.toString().split('T')[1].split('.')[0]
+      let notificationTime = notification['notification'].date.toString().split('T')[1].split('.')[0]
       let currentTime = currentDate.toUTCString().split(' ')[4]
 
 
@@ -180,7 +182,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         timeSince = "Less than a minute ago"
       }
       
-      info.push({'title': notification.title, 'message': notification.message, 'timeSince': timeSince, "imgSrc": imgSrc})
+      info.push({'title': notification['notification'].title, 'message': notification['notification'].message, 'timeSince': timeSince, "imgSrc": imgSrc})
     }
 
     return info

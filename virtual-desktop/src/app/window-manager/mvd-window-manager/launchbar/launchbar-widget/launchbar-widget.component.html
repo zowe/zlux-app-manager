@@ -28,8 +28,8 @@
             <img class="notification-icon" [src]="info[i].imgSrc">
           </div>
           <div class="notification-content">
-            <div class="notification-title">{{item.title}}</div>
-            <div class="notification-message">{{item.message}}</div>
+            <div class="notification-title">{{item['notification'].title}}</div>
+            <div class="notification-message">{{item['notification'].message}}</div>
           </div>
           <img class="delete-notification" (click)="deleteNotification(item);$event.stopPropagation()" [src]="closeImage">
           <!-- Time Does Not Work -->
