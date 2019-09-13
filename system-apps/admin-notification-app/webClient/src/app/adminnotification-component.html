@@ -1,0 +1,52 @@
+
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+<div class="parent col-11" id="AdminNotificationUI">
+  <div class="recipient-label">
+    Send To:
+  </div>
+  <div class="outer-input">
+    <div class="recipient-input-container">
+      <input ibmText class="recipient-input" type="text" placeholder="Enter Recipient" [hidden]="displayText" [(ngModel)]="recipient">
+    </div>
+    <div class="recipient">
+      <ibm-dropdown class="recipient-dropdown" placeholder="Everyone" (selected)="selected($event)">
+        <ibm-dropdown-list [items]="items"></ibm-dropdown-list>
+      </ibm-dropdown>  
+    </div>
+  </div>
+  <div>
+    <div class="notification-info">
+      <div class="notification-label">Notification: </div>
+      <div class="notification-info">
+        <input ibmText #title class="notification-title" type="text" placeholder="Title">
+      </div>
+      <div class="message">
+        <textarea ibmTextArea rows="5" class="message" #message id="message" type="text" placeholder="Message"></textarea>
+      </div>
+      <div class="send-notification">
+        <button class="send-notification-button" (click)="sendRest(title.value, message.value)">Send</button>
+      </div>
+    </div>
+  </div>
+  <div class="response">
+    {{response}}
+  </div>
+</div>
+
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
