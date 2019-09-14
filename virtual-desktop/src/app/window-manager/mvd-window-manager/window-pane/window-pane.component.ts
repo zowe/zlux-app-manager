@@ -12,7 +12,7 @@
 
 import { Component, OnInit, Injector } from '@angular/core';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
-
+import {HttpClient, HttpResponse} from '@angular/common/http';
 import { DesktopWindow } from '../shared/desktop-window';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
@@ -30,7 +30,8 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
 
   constructor(
     public windowManager: WindowManagerService,
-    private injector: Injector
+    private injector: Injector,
+    private http : HttpClient
   ) {
     this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;
@@ -40,7 +41,14 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
   }
 
   private replaceWallpaper(url:string) {
-    this.wallpaper.background = `url(${url}) no-repeat center/cover`;
+    this.http.head(url, {observe: 'response'}).subscribe((result:HttpResponse<any>) => {
+      if (result.status != 204 && result.ok) {
+        this.wallpaper.background = `url(${url}) no-repeat center/cover`;
+      }
+    }, error => {
+      //no wallpaper found
+    });
+
   }
 
   onLogout(username: string) {
