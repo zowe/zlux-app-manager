@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="window-pane">
+<div class="window-pane" [ngStyle]="wallpaper">
   <div *ngFor="let window of windows">
     <rs-com-mvd-window [desktopWindow]="window"></rs-com-mvd-window>
   </div>

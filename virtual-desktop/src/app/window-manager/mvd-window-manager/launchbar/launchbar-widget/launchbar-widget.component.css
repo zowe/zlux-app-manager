@@ -17,11 +17,11 @@
   right: 0;
   width: fit-content;
   min-width: 185px; /* fit-content seems to fail at times with Safari, min-width here as a safety */
-  height: 60px;
+  height: 100%;
   z-index: 7;
   color: #eee;
   padding-left: 18px;
-  padding-top: 11px;
+  padding-top: 16px;
   padding-right: 10px;
   text-align: right;
 }
@@ -62,9 +62,9 @@
 
 .launchbar-user-popup {
   width: 155px;
-  height: 120px;
+  min-height: 120px;
   position: absolute;
-  bottom: 60px;
+  bottom: 70px;
   right: 0;
   border-top-left-radius: 10px;
   background: #dde8f1;
