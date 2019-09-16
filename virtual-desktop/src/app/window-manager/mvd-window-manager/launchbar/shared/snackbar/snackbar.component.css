@@ -28,7 +28,6 @@
 
 .outer-snackbar-container {
     overflow: hidden;
-    float: left;
 }
 
 .snackbar-info {
@@ -62,6 +61,7 @@
     outline:none;
     border: none;
     transition: 0.3s;
+    padding: 5px;
 }
 
 .snackbar-dismiss-button:hover {
