@@ -245,12 +245,9 @@
 }
 
 ::ng-deep .org_zowe_zlux_ng2desktop_snackbar {
-  background-color: #dde8f1;
-  width: 320px;
-  position: absolute;
-  right: 20px;
+  background-color: #dde8f1 !important;
+  color: black !important;
   padding: 5px !important;
-  margin-top: 10px !important;
 }
 
 /*
