@@ -24,7 +24,7 @@ import { FailureModule } from './load-failure/failure.module';
 import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements.ts';
+import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements';
 import { L10nConfigService } from '../i18n/l10n-config.service';
 
 @Injectable()

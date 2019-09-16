@@ -21,6 +21,28 @@
   -->
 </div>
 
+<div [hidden]="!notificationsVisible" class='notifications'>
+  <div class="notification-item" *ngFor="let item of notifications; let i = index" [attr.data-index]="i">
+      <div class="outer-container" (click)="focusApplication(i)">
+          <div class="notification-icon-container">
+            <img class="notification-icon" [src]="info[i].imgSrc">
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">{{item['notification'].title}}</div>
+            <div class="notification-message">{{item['notification'].message}}</div>
+          </div>
+          <img class="delete-notification" (click)="deleteNotification(item);$event.stopPropagation()" [src]="closeImage">
+          <!-- Time Does Not Work -->
+          <!-- <div class="time-container"> -->
+            <!-- <div class="time">{{item.date.split("T")[1].split('.')[0]}}</div> -->
+            <!-- <div class="timeAgo">{{info[i].timeSince}}</div> -->
+          <!-- </div> -->
+      </div>
+      <hr class="notification-breaker">
+  </div>
+</div>
+<div [hidden]="!notificationsVisible" class="launch-widget-caret caret-down"></div>
+
 <div class="launchbar-clock">
   <div class="launchbar-separator left"></div>
   <span>
@@ -28,6 +50,9 @@
     <br>
     <span>{{date | date:'shortDate'}}</span>
   </span>
+  <div #usericon class="launchbar-tray-icon notification" (click)="toggleNotifications()">
+      <div [hidden]="notifications.length == 0"class="launchbar-tray-indicator">{{notifications.length}}</div>
+  </div>
   <div #usericon class="launchbar-tray-icon settings" (click)="togglePersonalizationPanel()"></div>
   <div #usericon class="launchbar-tray-icon user" (click)="togglePopup()"></div>
 </div>

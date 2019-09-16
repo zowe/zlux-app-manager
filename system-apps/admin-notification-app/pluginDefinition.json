@@ -1,0 +1,24 @@
+{
+  "identifier": "org.zowe.zlux.ng2desktop.admin-notification",
+  "apiVersion": "1.0.0",
+  "pluginVersion": "1.0.0",
+  "pluginType": "application",
+  "isSystemPlugin":true,
+  "webContent": {
+    "framework": "angular2",
+    "launchDefinition": {
+      "pluginShortNameKey": "Admin Notification",
+      "pluginShortNameDefault": "Admin Notification",
+      "imageSrc": "assets/icon.png"
+    },
+    "descriptionKey": "notificationDescription",
+    "descriptionDefault": "Admin Notification App",
+    "isSingleWindowApp": true,
+    "defaultWindowStyle": {
+      "width": 400,
+      "height": 400,
+      "x": 0,
+      "y": 0
+    }
+  }
+}

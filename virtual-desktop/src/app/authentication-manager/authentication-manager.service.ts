@@ -16,12 +16,24 @@ import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { BaseLogger } from 'virtual-desktop-logger';
 
-class ClearDispatcher implements MVDHosting.LogoutActionInterface {
+class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
+    ZoweZLUX.notificationManager.removeAll()
     ZoweZLUX.dispatcher.clear();
     return true;
   }
 }
+
+class initializeNotificationManager implements MVDHosting.LoginActionInterface {
+  onLogin(username: string, plugins: ZLUX.Plugin[]): boolean {
+    ZoweZLUX.pluginManager.loadPlugins('bootstrap').then((res: any) => {
+      ZoweZLUX.notificationManager._setURL(ZoweZLUX.uriBroker.pluginWSUri(res[0], 'adminnotificationdata', ''),
+                                           ZoweZLUX.uriBroker.pluginRESTUri(res[0], 'adminnotificationdata', 'write'))
+    })
+    return true;
+  }
+}
+
 
 //5 minutes default. Less if session is shorter than twice this
 const WARNING_BEFORE_SESSION_EXPIRATION_MS = 300000; 
@@ -57,7 +69,8 @@ export class AuthenticationManager {
     this.username = null;
     this.postLoginActions = new Array<MVDHosting.LoginActionInterface>();
     this.preLogoutActions = new Array<MVDHosting.LogoutActionInterface>();
-    this.registerPreLogoutAction(new ClearDispatcher());
+    this.registerPreLogoutAction(new ClearZoweZLUX());
+    this.registerPostLoginAction(new initializeNotificationManager());
     this.loginScreenVisibilityChanged = new EventEmitter();
     this.loginExpirationIdleCheck = new EventEmitter();
   }
