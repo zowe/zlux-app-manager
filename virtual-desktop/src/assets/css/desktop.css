@@ -10,10 +10,17 @@
   Copyright Contributors to the Zowe Project.
 */
 
+html {
+ width: 100%;
+ height: 100%;
+}
+
 body {
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
   line-height: 1.42857143;
+  width:100%;
+  height:100%;
 }
 
 .desktop {

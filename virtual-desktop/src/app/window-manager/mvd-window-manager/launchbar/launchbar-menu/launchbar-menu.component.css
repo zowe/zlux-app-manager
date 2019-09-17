@@ -9,33 +9,17 @@
   
   Copyright Contributors to the Zowe Project.
 */
-
-.launchbar-icon {
-  display: inline-block;
-  box-sizing: border-box;
-  position: relative;
-  width: 60px;
-  height: 60px;
-  background-size: 60px 60px;
-  margin-top: 35px;
+.launchbar-menu-icon {
+  margin-top: 5px;
   margin-left: 5px;
   margin-right: 5px;
-  user-select: none;
   padding: 0;
-  -ms-user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  background-repeat: no-repeat;
-  background-position-y: 0;
-  background-position-x: center;
-  cursor: pointer;
-  z-index: 7;
   background-image: url("../../../../../assets/images/launchbar/more-apps.png");
 }
 
 .launch-widget {
+  height: 100%;
   width: 125px;
-  height: 110px;
   text-align: center;
   display: inline-block;
   position: absolute;
@@ -80,7 +64,7 @@
   width: 335px;
   height: 350px;
   position: absolute;
-  bottom: 110px;
+  bottom: 90px;
   left: 10px;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
@@ -115,24 +99,8 @@
 
 .launch-widget-caret {
   position: absolute;
-  bottom: 90px;
+  bottom: 70px;
   left: 45px;
-}
-
-.launchbar-separator {
-  position: absolute;
-  bottom: 0;
-  height: 60px;
-  width: 5px;
-  background-color: #36617a;
-}
-
-.launchbar-separator.right {
-  right: 0;
-}
-
-.launchbar-separator.left {
-  left: 0;
 }
 
 

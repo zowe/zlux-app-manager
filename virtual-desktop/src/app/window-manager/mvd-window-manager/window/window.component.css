@@ -47,6 +47,7 @@
 .window.maximized {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
+  border-width: 0;
 }
 
 .window.maximized .heading {
@@ -98,6 +99,8 @@
   position: absolute;
   padding-left:83px;
   padding-right:83px;
+  padding-top: 10px;
+  top: 0px;
   left: 0px;
   right: 0px;
   height: 100%;
