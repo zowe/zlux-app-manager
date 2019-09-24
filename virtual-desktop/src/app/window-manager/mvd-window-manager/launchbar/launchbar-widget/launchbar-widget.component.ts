@@ -39,13 +39,13 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatcher, OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
-  private date: Date;
-  private popupVisible: boolean;
+  public date: Date;
+  public popupVisible: boolean;
   @Output() popupStateChanged = new EventEmitter<boolean>();
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
-  private notificationsVisible: boolean;
+  public notificationsVisible: boolean;
   private info: any[];
   @Input() menuItems: LaunchbarItem[];
   public closeImage: string = require('../../../../../assets/images/window/close-normal.png')
