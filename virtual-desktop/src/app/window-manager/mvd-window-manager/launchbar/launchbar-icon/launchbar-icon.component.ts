@@ -16,7 +16,7 @@ import { LaunchbarItem } from '../shared/launchbar-item';
 @Component({
   selector: 'rs-com-launchbar-icon',
   templateUrl: './launchbar-icon.component.html',
-  styleUrls: ['./launchbar-icon.component.css']
+  styleUrls: ['./launchbar-icon.component.css', '../shared/shared.css']
 })
 export class LaunchbarIconComponent {
   @Input() launchbarItem: LaunchbarItem;

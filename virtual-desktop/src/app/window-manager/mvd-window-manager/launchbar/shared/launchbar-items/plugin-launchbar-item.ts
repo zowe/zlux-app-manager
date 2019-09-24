@@ -17,9 +17,7 @@ import * as html2canvas from 'html2canvas';
 
 export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.PluginWatcher {
   public instanceIds: Array<MVDHosting.InstanceId>;
-  public instanceCount: number;
   public windowPreviews: Array<HTMLImageElement>;
-  public windowPreviewsIds: Array<number>;
 
   constructor(
     public readonly plugin: DesktopPluginDefinitionImpl,
@@ -29,9 +27,24 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
 
     this.instanceIds = [];
     this.windowPreviews = [];
-    this.windowPreviewsIds = [];
-    this.instanceCount = 0;
-    ZoweZLUX.dispatcher.registerPluginWatcher(plugin.getBasePlugin(), this);
+    let pluginId = this.plugin.getBasePlugin().getIdentifier();
+    ZoweZLUX.dispatcher.registerPluginWatcher(this.plugin.getBasePlugin(), this);
+    this.windowManager.screenshotRequestEmitter.subscribe((window: {pluginId: string, windowId: number})=> {
+      if (window.pluginId != pluginId) {
+        return;
+      }
+      if (this.instanceIds.length < 2) {
+        return; //performance hack until we get some task viewer that needs this
+      }
+      let index = this.instanceIds.indexOf(window.windowId);
+      if (index != -1) {
+        this.generateSnapshot(index);
+      }
+    });
+  }
+
+  get tooltip(): string {
+    return this.plugin.basePlugin.getWebContent().descriptionDefault;
   }
 
   get label(): string {
@@ -50,71 +63,55 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
     return this.instanceIds;
   }
 
-  generateSnapshot(instanceId: MVDHosting.InstanceId){
-    let index = this.instanceIds.indexOf(instanceId);
+  generateSnapshot(index: number){
     var self = this;
-    if(index != -1){
-      var windowIds = this.windowManager.getWindowIDs(this.plugin);
+    let instanceId = self.instanceIds[index];
+    if (instanceId != -1) {
+      var windowHTML = this.windowManager.getHTML(instanceId);
       var imgPrev = new Image();
-      if (windowIds != null) {
-        var windowHTML = this.windowManager.getHTML(windowIds[index]);
-      }
-      let instanceIndex = self.windowPreviewsIds.indexOf(instanceId);
 
-      if (windowIds != null && windowHTML != -1) {
+      if (windowHTML) {
         html2canvas(windowHTML, {logging:false}).then(function(canvas) {
           imgPrev.src = canvas.toDataURL();
-          if (instanceIndex != -1){
-            self.windowPreviews[instanceIndex] = imgPrev;
+          if (self.instanceIds.length == self.windowPreviews.length){
+            self.windowPreviews[index] = imgPrev;
           } else {
             self.windowPreviews.push(imgPrev);
-            self.windowPreviewsIds.push(instanceId);
           }
         });
-      } else if (instanceIndex == -1) {
+      } else if (self.instanceIds.length == self.windowPreviews.length){
         self.windowPreviews.push(imgPrev);
-        self.windowPreviewsIds.push(instanceId);
       }
     }
   }
 
-  refreshScreenshot(instanceId: MVDHosting.InstanceId){
-    var self = this;
-    let index = this.instanceIds.indexOf(instanceId);
-    if (index != -1) {
-      if (this.windowManager.screenshot == false) {
-        this.generateSnapshot(instanceId);
-        this.windowManager.screenshot = true;
-      }
-      setTimeout(function() { self.refreshScreenshot(instanceId); }, 1000);
-    }
-  }
-
-  destroySnapshot(instanceId: MVDHosting.InstanceId) {
-    let index = this.windowPreviewsIds.indexOf(instanceId);
+  destroySnapshot(index: number) {
     if (index > -1) {
       this.windowPreviews.splice(index, 1);
-      this.windowPreviewsIds.splice(index, 1);
     }
   }
 
   instanceAdded(instanceId: MVDHosting.InstanceId, isEmbedded: boolean|undefined) {
     var self = this;
-    setTimeout(function() { self.generateSnapshot(instanceId); }, 3000);
     if (!isEmbedded) {
       this.instanceIds.push(instanceId);
-      this.instanceCount++;
+      let index = this.instanceIds.length-1;
+      if (this.instanceIds.length != 1) {
+        //skip first for performance
+        setTimeout(function() {
+          self.generateSnapshot(index);
+        }, 3000);
+      } if (this.instanceIds.length == 2) {
+        //go back and init first. slightly worse for performance
+        self.generateSnapshot(0);
+      }
     }
-    setTimeout(function() { self.refreshScreenshot(instanceId); }, 1000);
   }
   instanceRemoved(instanceId: MVDHosting.InstanceId) {
-    this.destroySnapshot(instanceId);
-    for (let i = 0 ; i < this.instanceIds.length; i++) {
-      if (this.instanceIds[i] === instanceId) {
-        this.instanceIds.splice(i,1);
-        this.instanceCount--;
-        return;
-      }
+    let index = this.instanceIds.indexOf(instanceId);
+    if (index != -1) {
+      this.destroySnapshot(index);
+      this.instanceIds.splice(index,1);
     }
   }
 }

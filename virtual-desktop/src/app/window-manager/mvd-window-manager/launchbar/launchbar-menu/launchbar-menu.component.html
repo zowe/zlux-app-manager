@@ -11,7 +11,7 @@
 -->
 
 <div class="launch-widget">
-  <div class="launchbar-icon" (click)="activeToggle()"></div>
+  <div class="mvd-launchbar-icon mvd-launchbar-icon-large launchbar-menu-icon" (click)="activeToggle()"></div>
   <div class="launchbar-separator right"></div>
 </div>
 
@@ -22,7 +22,7 @@
         <p>Preferences</p>
     </div>
     <hr class="launchbar-separator-hor"> -->
-    <div class="launch-widget-row" *ngFor="let item of menuItems" (click)="clicked(item)" (contextmenu)="onRightClick($event, item)">
+    <div class="launch-widget-row" *ngFor="let item of menuItems" (click)="clicked(item)" [title]="item.tooltip" (contextmenu)="onRightClick($event, item)">
       <img class="icon" [src]="item.image">
       <p>{{item.label}}</p>
     </div>

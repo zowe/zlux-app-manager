@@ -73,7 +73,7 @@ export class MvdUri implements ZLUX.UriBroker {
 
     return `${this.serverRootUri(`datasetMetadata/hlq${params}`)}`;
   }
-  datasetMetadataUri(dsn: string, detail?: string | undefined, types?: string | undefined, listMembers?: boolean | undefined, workAreaSize?: number | undefined, includeMigrated?: boolean | undefined, includeUnprintable?: boolean | undefined, resumeName?: string | undefined, resumeCatalogName?: string | undefined): string {
+  datasetMetadataUri(dsn: string, detail?: string | undefined, types?: string | undefined, listMembers?: boolean | undefined, workAreaSize?: number | undefined, includeMigrated?: boolean | undefined, includeUnprintable?: boolean | undefined, resumeName?: string | undefined, resumeCatalogName?: string | undefined, addQualifiers?: string | undefined): string {
     let detailParam = detail ? 'detail=' + detail : '';
     let typesParam = types ? 'types=' + types : '';
     let workAreaSizeParam = workAreaSize ? 'workAreaSize=' + workAreaSize : '';
@@ -82,8 +82,9 @@ export class MvdUri implements ZLUX.UriBroker {
     let includeUnprintableParam = includeUnprintable ? 'includeUnprintable=' + includeUnprintable : '';
     let resumeNameParam = resumeName ? 'resumeName=' + resumeName : '';
     let resumeCatalogNameParam = resumeCatalogName ? 'resumeCatalogName=' + resumeCatalogName : '';
+    let addQualifiersParam = addQualifiers ? 'addQualifiers=' + addQualifiers : '';
 
-    let paramArray = [detailParam, typesParam, workAreaSizeParam, listMembersParam, includeMigratedParam, includeUnprintableParam, resumeNameParam, resumeCatalogNameParam];
+    let paramArray = [detailParam, typesParam, workAreaSizeParam, listMembersParam, includeMigratedParam, includeUnprintableParam, resumeNameParam, resumeCatalogNameParam, addQualifiersParam];
     let params = this.createParamURL(paramArray);
     return `${this.serverRootUri(`datasetMetadata/name/${dsn}${params}`)}`;
   }
