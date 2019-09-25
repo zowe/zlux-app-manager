@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" datatype="plaintext" original="ng2.template" target-language="ch">
     <body>
@@ -10,6 +10,17 @@
         </context-group>
         <note priority="1" from="description">Message when plugin failed to load</note>
         <note priority="1" from="meaning">message</note>
+      </trans-unit><trans-unit id="paginator" datatype="html">
+        <source>of</source><target state="new">of</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/@zlux/widgets/components/paginator/paginator.component.d.ts</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/@zlux/widgets/components/paginator/paginator.component.d.ts</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+        <note priority="1" from="description">of preposition in clause n-m of total</note>
       </trans-unit>
       <trans-unit id="username-label" datatype="html">
         <source>Username</source><target state="new">用户名</target>
@@ -30,7 +41,7 @@
         <note priority="1" from="meaning">label</note>
       </trans-unit>
       <trans-unit id="login-button-title" datatype="html">
-        <source>Login</source><target state="new">登录</target>
+        <source>Log in</source><target state="new">登录</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
           <context context-type="linenumber">37</context>
@@ -39,23 +50,12 @@
         <note priority="1" from="meaning">button title</note>
       </trans-unit>
       <trans-unit id="signout-button-title" datatype="html">
-        <source>Sign Out</source><target state="new">退出</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/window-manager/mvd-window-manager/launchbar/launchbar-widget/launchbar-widget.component.ts</context>
-          <context context-type="linenumber">27</context>
-        </context-group>
+        <source>Log out</source><target state="new">退出</target>
+        
         <note priority="1" from="description">Title of Sign out button</note>
         <note priority="1" from="meaning">signout button</note>
-      </trans-unit>
-      <trans-unit id="apply-button" datatype="html">
-        <source>Apply</source><target state="new">应用</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">../../system-apps/system-settings-preferences/webClient/src/app/language/language.component.ts</context>
-          <context context-type="linenumber">23</context>
-        </context-group>
-        <note priority="1" from="description">Title of Apply button</note>
-        <note priority="1" from="meaning">button title</note>
-      </trans-unit>
+      <context-group purpose="location"><context context-type="sourcefile">src/app/window-manager/mvd-window-manager/launchbar/launchbar-widget/launchbar-widget.component.ts</context><context context-type="linenumber">16</context></context-group></trans-unit>
+      
     </body>
   </file>
 </xliff>
