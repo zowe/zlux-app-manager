@@ -162,25 +162,25 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       if (imgSrc === "") {
         imgSrc =  require('../../../../../assets/images/launchbar/notifications/zowe.png')
       }
-      let currentDate = new Date();
-      let notificationTime = notification['notification'].date.toString().split('T')[1].split('.')[0]
-      let currentTime = currentDate.toUTCString().split(' ')[4]
+//      let currentDate = new Date();
+//      let notificationTime = notification['notification'].date.toString().split('T')[1].split('.')[0]
+//      let currentTime = currentDate.toUTCString().split(' ')[4]
 
 
       // This logic is wrong but kinda works, if one minute changes then all the minutes change 
       // Need to also do logic about if more than a day
-      let hourDifference = parseInt(currentTime.split(':')[0]) - parseInt(notificationTime.split(':')[0])
-      let minuteDifference = parseInt(currentTime.split(':')[1]) - parseInt(notificationTime.split(':')[1])
-      let timeSince: string;
-      if (hourDifference > 0) {
-        timeSince = hourDifference + " hours ago"
-      } else if (minuteDifference > 0) {
-        timeSince = minuteDifference + " minutes ago"
-      } else {
-        timeSince = "Less than a minute ago"
-      }
+//      let hourDifference = parseInt(currentTime.split(':')[0]) - parseInt(notificationTime.split(':')[0])
+//      let minuteDifference = parseInt(currentTime.split(':')[1]) - parseInt(notificationTime.split(':')[1])
+//      let timeSince: string;
+//      if (hourDifference > 0) {
+//        timeSince = hourDifference + " hours ago"
+//      } else if (minuteDifference > 0) {
+//        timeSince = minuteDifference + " minutes ago"
+//      } else {
+//        timeSince = "Less than a minute ago"
+//      }
       
-      info.push({'title': notification['notification'].title, 'message': notification['notification'].message, 'timeSince': timeSince, "imgSrc": imgSrc})
+      info.push({'title': notification['notification'].title, 'message': notification['notification'].message, 'timeSince': 'timeSince', "imgSrc": imgSrc})
     }
 
     return info
