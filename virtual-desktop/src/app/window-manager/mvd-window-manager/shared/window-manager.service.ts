@@ -659,7 +659,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
   }
 
-  spawnContextMenu(windowId: MVDWindowManagement.WindowId, x: number, y: number, items: ContextMenuItem[], isAbsolutePos?: boolean): void {
+  spawnContextMenu(windowId: MVDWindowManagement.WindowId, x: number, y: number, items: ContextMenuItem[], isAbsolutePos?: boolean): boolean {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
       throw new Error('Attempted to spawn context menu for null window');
@@ -669,9 +669,11 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     const newY = isAbsolutePos ? y : windowPos.top + y + WindowManagerService.WINDOW_HEADER_HEIGHT;
     if ((newX >= windowPos.left && newX <= (windowPos.left+windowPos.width))
          && (newY >= windowPos.top && newY <= (windowPos.top+windowPos.height))) {
-      this.contextMenuRequested.next({xPos: newX, yPos: newY, items: items});    
+      this.contextMenuRequested.next({xPos: newX, yPos: newY, items: items});   
+      return true; 
     } else {
       this.logger.warn(`Rejecting context menu due to invalid coord ${newX},${newY} for app at ${windowPos.left},${windowPos.top} w=${windowPos.width}, h=${windowPos.height}`);
+      return false;
     }
   }
 }
