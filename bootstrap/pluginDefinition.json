@@ -4,6 +4,14 @@
   "pluginVersion": "0.0.0-zlux.version.replacement",
   "pluginType": "bootstrap",
   "webContent": {},
+  "configurationData": {
+    "resources": {
+      "plugins": {
+        "locationType": "relative",
+        "aggregationPolicy": "override"
+      }
+    }
+  },
   "dataServices": [
     {
       "type": "router",
