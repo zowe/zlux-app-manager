@@ -25,6 +25,7 @@ export class SimpleComponent implements OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   viewportId: MVDHosting.ViewportId;
   private windowManager: MVDWindowManagement.WindowManagerServiceInterface;
+  public showLogin:boolean = (window as any).ZOWE_SWM_SHOW_LOGIN == 1 ? true : false;
 
   constructor(
     private applicationManager: ApplicationManager,
@@ -40,9 +41,7 @@ export class SimpleComponent implements OnInit {
     let requestedPluginID: string = (window as any)['GIZA_PLUGIN_TO_BE_LOADED'];
 
     if (!requestedPluginID) {
-      // Default back to sample plugin:
-      this.logger.warn("GIZA_PLUGIN_TO_BE_LOADED not set, defaulting to sample plugin!");
-      requestedPluginID = "com.rs.mvd.myplugin";
+      this.logger.severe("Plugin ID not given, cannot continue!");
     }
 
     const pluginID: string = requestedPluginID;
@@ -50,6 +49,16 @@ export class SimpleComponent implements OnInit {
 
     pluginPromise.then(plugin => {
       if (plugin) {
+        let pluginImpl = (plugin as DesktopPluginDefinitionImpl);
+        document.title = pluginImpl.label ? pluginImpl.label : "Zowe App"
+        let imageUrl = pluginImpl.image;
+        if (imageUrl) {
+          let link: any = document.querySelector("link[rel*='icon']") || document.createElement('link');
+          link.type = 'image/x-icon';
+          link.rel = 'shortcut icon';
+          link.href = imageUrl;
+          document.getElementsByTagName('head')[0].appendChild(link);
+        }
         const launchMetadata = {
           singleAppMode: true,
           arguments: this.parseUriArguments()
@@ -57,10 +66,10 @@ export class SimpleComponent implements OnInit {
         this.applicationManager.spawnApplication(plugin as DesktopPluginDefinitionImpl, launchMetadata);
         this.viewportId = this.windowManager.getViewportId(1);
       } else {
-        this.logger.warn("plugin to be loaded not found: "+pluginID);
+        this.logger.severe("Plugin to be loaded not found: "+pluginID);
       }
     })
-      .catch(x => this.logger.warn("plugin promise not returned"));
+      .catch(x => this.logger.severe("plugin promise not returned, cannot continue"));
   }
 
   parseUriArguments(): any {
