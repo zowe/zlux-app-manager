@@ -75,7 +75,7 @@ function openStandalone(item: LaunchbarItem): void {
     // Still allows IFrames to comprehend URL parameters if address is copy/pasted later. Should not break any app2app possibilities
     window.open(`${location.origin}${(window as any).ZoweZLUX.uriBroker.pluginResourceUri(item.plugin, item.plugin.getBasePlugin().getWebContent().startingPage)}`);
   } else {
-    window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}`);
+    window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}&showLogin=1`);
   }
 }
 

@@ -11,14 +11,21 @@
 -->
 
 <div class="degenerate-container">
-  <com-rs-mvd-viewport [viewportId]="viewportId">
+  <rs-com-login *ngIf="showLogin">
+    <com-rs-mvd-viewport [viewportId]="viewportId">
+      <!-- Loading display -->
+      <div class="full-center">
+        <i class="fa fa-spinner fa-spin fa-3x"></i>
+      </div>
+    </com-rs-mvd-viewport>
+  </rs-com-login>
+  <com-rs-mvd-viewport *ngIf="!showLogin" [viewportId]="viewportId">
     <!-- Loading display -->
     <div class="full-center">
       <i class="fa fa-spinner fa-spin fa-3x"></i>
     </div>
   </com-rs-mvd-viewport>
 </div>
-
 <!-- 
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
