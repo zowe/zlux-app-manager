@@ -191,9 +191,11 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
             }
             return fn(...args);
           }
+        } else {
+          //Not a function within ZoweZLUX
         }
       } else {
-        //some function that isnt ZoweZLUX.<blah>
+        //some function that doesnt begin with ZoweZLUX
       }
     }
   }
