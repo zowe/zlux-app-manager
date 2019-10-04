@@ -23,7 +23,11 @@ exports.adminNotificationWebsocketRouter = function(context) {
 
 
     return new Promise(function(resolve, reject) {
-      let router = express.Router();  
+      let router = express.Router();
+      if (!router.ws) {
+        context.wsRouterPatcher(router);
+      }
+
       router.use(function abc(req,res,next) {
         context.logger.info('Saw Websocket request, method='+req.method);
         next();
