@@ -25,7 +25,7 @@ const ComponentLoggerContainer:Map<string,ZLUX.ComponentLogger> = new Map<string
 export class InjectionManager {
   constructor(
     private injector: Injector,
-    private l10nConfigService: L10nConfigService
+    private l10nConfigService: L10nConfigService,
   ) {
 
   }
@@ -35,18 +35,20 @@ export class InjectionManager {
   // injector above in constructor is injector of the AppManager module
   // generateModuleInjector make root injector augmented with addition providers
 
-  generateModuleInjector(pluginDefinition: MVDHosting.DesktopPluginDefinition, launchMetadata: any): Injector {
+  generateModuleInjector(pluginDefinition: MVDHosting.DesktopPluginDefinition, launchMetadata: any, messages?: any): Injector {
     let identifier = pluginDefinition.getIdentifier();
-
-    let logger:ZLUX.ComponentLogger|undefined = ComponentLoggerContainer.get(identifier);
-    if (!logger) {
-      logger = ZoweZLUX.logger.makeComponentLogger(identifier);
-      ComponentLoggerContainer.set(identifier,logger);
-    }
+        
     const l10nPluginConfig: Angular2L10nConfig = {
       defaultLocale: this.l10nConfigService.getDefaultLocale(),
       providers: this.l10nConfigService.getTranslationProviders(pluginDefinition.getBasePlugin())
     };
+
+    let logger:ZLUX.ComponentLogger|undefined = ComponentLoggerContainer.get(identifier);
+    if (!logger) {
+      logger = ZoweZLUX.logger.makeComponentLogger(identifier, messages);
+      ComponentLoggerContainer.set(identifier,logger);
+    }
+    
     return Injector.create([
       {
         provide: Angular2InjectionTokens.LOGGER,

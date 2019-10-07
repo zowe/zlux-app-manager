@@ -16,12 +16,12 @@
   bottom: 0;
   right: 0;
   width: fit-content;
-  min-width: 185px; /* fit-content seems to fail at times with Safari, min-width here as a safety */
-  height: 60px;
+  min-width: 205px; /* fit-content seems to fail at times with Safari, min-width here as a safety */
+  height: 100%;
   z-index: 7;
   color: #eee;
   padding-left: 18px;
-  padding-top: 11px;
+  padding-top: 16px;
   padding-right: 10px;
   text-align: right;
 }
@@ -51,15 +51,20 @@
   background-size: 30px 30px;
 }
 
+.launchbar-tray-icon.notification {
+  background-image: url('../../../../../assets/images/launchbar/notifications/notification.png');
+  background-size: 26px 26px;
+}
+
 .launchbar-user:hover {
   opacity: 0.9;
 }
 
 .launchbar-user-popup {
   width: 155px;
-  height: 120px;
+  min-height: 120px;
   position: absolute;
-  bottom: 60px;
+  bottom: 70px;
   right: 0;
   border-top-left-radius: 10px;
   background: #dde8f1;
@@ -108,6 +113,142 @@
   left: 0;
 }
 
+.notifications {
+  width: 335px;
+  height: 350px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  background: #dde8f1;
+  overflow-y: auto;
+  margin-top: -440px;
+  margin-right: 100px;
+  float: right;
+}
+
+.caret-up {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+
+  border-bottom: 20px solid #dde8f1;
+}
+
+.caret-down {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 20px solid #dde8f1;
+  float: right;
+  margin-right: 140px;
+  margin-top: -90px;
+}
+
+.outer-container {
+  padding: 10px;
+}
+
+.notification-item {
+  transition: 0.3s;
+}
+
+.notification-item:hover {
+  background-color: #B1BAC1;
+}
+
+.notification-icon-container {
+  width: 55px;
+  height: 40px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+
+.notification-icon {
+  max-width: 40px;
+  max-width: 40px;
+  margin-left: 2px;
+  margin-top: 2px;
+}
+
+.notification-content {
+  display: inline-block;
+  width: 210px;
+}
+
+.notification-title {
+  color: black;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.notification-message {
+  color: black;
+}
+
+.delete-notification {
+  display: inline-block;
+  color: black;
+  vertical-align: top;
+  float: right;
+  opacity: .5;
+  transition: 0.3s;
+
+}
+
+.delete-notification:hover {
+  opacity: 1;
+}
+
+.time {
+  color: black;
+  font-size: 12px;
+  float: left;
+}
+
+.timeAgo {
+  color: black;
+  font-size: 12px;
+  float: right;
+}
+
+.time-container {
+  display: inline-block;
+  margin-left: 55px;
+  width: 240px;
+  margin-top: 5px;
+}
+
+.launchbar-tray-indicator {
+  float: left;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: red;
+  margin-top: -13px;
+  margin-left: 17px;
+  background-size: 32px 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 22px; 
+}
+
+.notification-breaker {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+::ng-deep .org_zowe_zlux_ng2desktop_snackbar {
+  background-color: #dde8f1 !important;
+  color: black !important;
+  padding: 5px !important;
+}
 
 /*
   This program and the accompanying materials are

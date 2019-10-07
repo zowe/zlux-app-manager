@@ -36,17 +36,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
    * but I don't know how
    */
   public static readonly WINDOW_HEADER_HEIGHT = 45;
-  public static readonly WINDOW_HEADER_BORDER_WIDTH = 3;
-  public static readonly LAUNCHBAR_HEIGHT = 60;
-  //The icons peek a bit above the launchbar
-  public static readonly LAUNCHBAR_ICON_HEIGHT_FLOAT = 15;
+  public static readonly LAUNCHBAR_HEIGHT = 70;
   private static readonly NEW_WINDOW_POSITION_INCREMENT = WindowManagerService.WINDOW_HEADER_HEIGHT;
   private static readonly MAXIMIZE_WINDOW_HEIGHT_OFFSET = WindowManagerService.WINDOW_HEADER_HEIGHT
-                                                        + WindowManagerService.LAUNCHBAR_HEIGHT
-                                                        + WindowManagerService.LAUNCHBAR_ICON_HEIGHT_FLOAT
-                                                        + (WindowManagerService.WINDOW_HEADER_BORDER_WIDTH * 2)
-                                                        //Padding for a cleaner UI look
-                                                        + 5;
+                                                        + WindowManagerService.LAUNCHBAR_HEIGHT;
 
   private nextId: MVDWindowManagement.WindowId;
   private windowMap: Map<MVDWindowManagement.WindowId, DesktopWindow>;
@@ -54,7 +47,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
-  public screenshot: boolean;
+  private _lastScreenshotPluginId: string = '';  
+  private _lastScreenshotWindowId: number = -1;
   public showPersonalizationPanel: boolean = false;
   /*
    * NOTES:
@@ -70,6 +64,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private viewportManager: MVDHosting.ViewportManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
+  public screenshotRequestEmitter: Subject<{pluginId: string, windowId: MVDWindowManagement.WindowId}>;
 
   constructor(
     private injector: Injector,
@@ -90,13 +85,55 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.lastWindowPositionMap = new Map();
     this.contextMenuRequested = new Subject();
     this.windowDeregisterEmitter = new Subject();
-    this.screenshot = true;
-
+    ZoweZLUX.dispatcher.attachWindowManager({
+      "maximize" : (id: MVDWindowManagement.WindowId) => {
+        this.maximize(id);
+      },
+      "minimize" : (id: MVDWindowManagement.WindowId) => {
+        this.minimize(id);
+      }
+    });
+    this.screenshotRequestEmitter = new Subject();
     this.windowMonitor.windowResized.subscribe(() => {
       Array.from(this.windowMap.values())
         .filter(win => win.windowState.stateType === DesktopWindowStateType.Maximized)
         .forEach(win => this.refreshMaximizedWindowSize(win));
     });
+
+    let tabHandler = (event: KeyboardEvent) => {
+      if(this.focusedWindow != null){
+        if(event.keyCode == 9 || event.which == 9){ // tab
+          let activeViewportID = this.getViewportIdFromDOM(document.activeElement);
+          if(activeViewportID != Number(this.focusedWindow.viewportId)){
+            let focusHTML = this.getHTML(this.focusedWindow.windowId);
+            let focusTabIndex = focusHTML.getAttribute('tabindex');
+            focusHTML.setAttribute('tabindex', '0');
+            focusHTML.focus();
+            focusHTML.setAttribute('tabindex', focusTabIndex);
+          }
+        }
+      }
+    }
+    document.addEventListener('keyup', tabHandler, false);
+    document.addEventListener('keydown', tabHandler, false);
+  }
+
+  private getViewportIdFromDOM(element: any): Number{
+    var parentViewportElement: any;
+    var head = element;
+    const viewportTag: string = 'com-rs-mvd-viewport';
+    const viewportIdAttr: string = 'rs-com-viewport-id';
+    while(head.parentNode !== document){
+      if(head.parentNode.nodeName.toLowerCase() === viewportTag){
+        parentViewportElement = head.parentNode;
+        break;
+      }
+      head = head.parentNode;
+    }
+    if(parentViewportElement === undefined){
+      return -1;
+    }
+    return parentViewportElement.getAttribute(viewportIdAttr);
   }
 
   /* TODO: https://github.com/angular/angular/issues/17725 gets in the way */
@@ -108,8 +145,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     //this is the window viewport size, so you must subtract the header and launchbar from the height.
     desktopWindow.windowState.position = { top: 0,
                                            left: 0,
-                                           width: window.innerWidth
-                                           - (WindowManagerService.WINDOW_HEADER_BORDER_WIDTH * 2),
+                                           width: window.innerWidth,
                                            height: window.innerHeight
                                            - WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET};
   }
@@ -225,7 +261,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       restore: () => this.restore(windowId),
       setTitle: (title) => this.setWindowTitle(windowId, title),
       setPosition: (pos) => this.setPosition(windowId, pos),
-      spawnContextMenu: (xRel, yRel, items) => this.spawnContextMenu(windowId, xRel, yRel, items),
+      spawnContextMenu: (xPos, yPos, items, isAbsolutePos?:boolean) => this.spawnContextMenu(windowId, xPos, yPos, items, isAbsolutePos),
       registerCloseHandler: (handler)=> this.registerCloseHandler(windowId, handler)
     };
   }
@@ -344,7 +380,6 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
           this.maximize(windowId);
         }
       }
-      this.requestWindowFocus(windowId);
     }
   }
 
@@ -452,15 +487,16 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   requestWindowFocus(destination: MVDWindowManagement.WindowId): boolean {
-    if (!this.windowHasFocus(destination) && this.screenshot == true){
-      this.screenshot = false;
-    }
-
     const desktopWindow = this.windowMap.get(destination);
     if (desktopWindow == null) {
       this.logger.warn('Attempted to request focus for null window, ID=${destination}');
       return false;
     }
+    let requestScreenshot = false;
+    if (!this.windowHasFocus(destination) && this._lastScreenshotWindowId != destination){
+      requestScreenshot = true;
+    }
+
     //can't focus an unseen window!
     if (desktopWindow.windowState.stateType === DesktopWindowStateType.Minimized) {
       this.restore(destination);
@@ -468,7 +504,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     this.focusedWindow = desktopWindow;
     desktopWindow.windowState.zIndex = this.topZIndex ++;
-
+    if (requestScreenshot){
+      setTimeout(()=> {
+        this.screenshotRequestEmitter.next({pluginId: this._lastScreenshotPluginId, windowId: this._lastScreenshotWindowId});
+        this._lastScreenshotWindowId = destination;
+        this._lastScreenshotPluginId = desktopWindow.plugin.getIdentifier();
+      },500); //delay a bit for performance perception
+    }
     return true;
   }
 
@@ -617,18 +659,21 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
   }
 
-  spawnContextMenu(windowId: MVDWindowManagement.WindowId, xRelative: number, yRelative: number, items: ContextMenuItem[]): void {
+  spawnContextMenu(windowId: MVDWindowManagement.WindowId, x: number, y: number, items: ContextMenuItem[], isAbsolutePos?: boolean): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
       throw new Error('Attempted to spawn context menu for null window');
     }
-
-    const newX = desktopWindow.windowState.position.left + xRelative;
-    const newY = desktopWindow.windowState.position.top + yRelative + WindowManagerService.WINDOW_HEADER_HEIGHT;
-
-    this.contextMenuRequested.next({xPos: newX, yPos: newY, items: items});
+    const windowPos = desktopWindow.windowState.position;
+    const newX = isAbsolutePos ? x : windowPos.left + x;
+    const newY = isAbsolutePos ? y : windowPos.top + y + WindowManagerService.WINDOW_HEADER_HEIGHT;
+    if ((newX >= windowPos.left && newX <= (windowPos.left+windowPos.width))
+         && (newY >= windowPos.top && newY <= (windowPos.top+windowPos.height))) {
+      this.contextMenuRequested.next({xPos: newX, yPos: newY, items: items});    
+    } else {
+      this.logger.warn(`Rejecting context menu due to invalid coord ${newX},${newY} for app at ${windowPos.left},${windowPos.top} w=${windowPos.width}, h=${windowPos.height}`);
+    }
   }
-
 }
 
 

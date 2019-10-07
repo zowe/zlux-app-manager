@@ -12,7 +12,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, Type, StaticProvider } from '@angular/core';
-import { HttpModule} from '@angular/http';
+import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 // Modules
@@ -34,6 +35,7 @@ export class MvdModuleFactory {
         BrowserModule,
         BrowserAnimationsModule,
         HttpModule,
+        HttpClientModule,
         // Our stuff,
         SharedModule,
         PluginManagerModule,

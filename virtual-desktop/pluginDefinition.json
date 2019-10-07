@@ -1,6 +1,6 @@
 {
   "identifier": "org.zowe.zlux.ng2desktop",
-  "apiVersion": "1.0.0",
+  "apiVersion": "1.1.0",
   "pluginVersion": "0.0.0-zlux.version.replacement",
   "pluginType": "desktop",
   "webContent": {
@@ -26,6 +26,9 @@
                 "locationType": "relative"
               }
             }
+          },
+          "themebin": {
+            "binary": true
           }
         }
       },

@@ -19,11 +19,12 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 import { DesktopComponent } from "../../desktop/desktop.component";
 import { TranslationService } from 'angular-l10n';
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
+import { generateInstanceActions } from '../shared/context-utils';
 
 @Component({
   selector: 'rs-com-launchbar-menu',
   templateUrl: './launchbar-menu.component.html',
-  styleUrls: ['./launchbar-menu.component.css']
+  styleUrls: ['./launchbar-menu.component.css', '../shared/shared.css']
 })
 export class LaunchbarMenuComponent {
   @Input() menuItems: LaunchbarItem[];
@@ -113,11 +114,7 @@ export class LaunchbarMenuComponent {
   }
 
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
-    var menuItems: ContextMenuItem[] =
-      [
-        this.pluginsDataService.pinContext(item),
-        { "text": this.translation.translate('Properties'), "action": () => this.launchPluginPropertyWindow(item.plugin)},
-      ];
+    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     return false;
   }

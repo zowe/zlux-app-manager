@@ -50,7 +50,7 @@
 
   <!-- Window body -->
   <div class="body" (mousedown)="requestFocus()" #windowBody>
-    <com-rs-mvd-viewport [viewportId]="desktopWindow.viewportId">
+    <com-rs-mvd-viewport [viewportId]="desktopWindow.viewportId" [attr.rs-com-viewport-id]="desktopWindow.viewportId">
       <!-- Loading display -->
       <div class="full-center">
         <i class="fa fa-spinner fa-spin fa-3x"></i>
