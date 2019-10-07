@@ -62,6 +62,7 @@
     border: none;
     transition: 0.3s;
     padding: 5px;
+    color: inherit;
 }
 
 .snackbar-dismiss-button:hover {

@@ -51,6 +51,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public closeImage: string = require('../../../../../assets/images/window/close-normal.png')
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   public notifications: any[];
+  private styleClass: string;
   // Convenience widgets for testing the i18n work
   // @ViewChild('languagebutton') languageButton: ElementRef;
   // @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;
@@ -70,6 +71,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     this.popupVisible = false;
     this.notificationsVisible = false;
     this.notifications = [];
+    this.styleClass = 'org_zowe_zlux_ng2desktop_snackbar';
     ZoweZLUX.notificationManager.addMessageHandler(this);
   }
 
@@ -138,7 +140,10 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   handleMessageAdded(message: any): void {
     this.notifications.unshift(message)
     this.info = this.parseInfo()
-    let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: "org_zowe_zlux_ng2desktop_snackbar", verticalPosition: 'top', horizontalPosition: 'end'})
+    if (message.notification.styleClass) {
+      this.styleClass = message.notification.styleClass;
+    }
+    let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: this.styleClass, verticalPosition: 'top', horizontalPosition: 'end'})
     ref.onAction().subscribe(() => {
       ZoweZLUX.notificationManager.dismissNotification(message.id)
       this.info = this.parseInfo()
