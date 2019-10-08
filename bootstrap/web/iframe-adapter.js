@@ -15,22 +15,20 @@
    Can determine what actions to take by knowing if it is or isnt embedded in ZLUX via IFrame.
 */
 
-var responses = [];
+var responses = {};
 var curResponseKey = 0;
+var numUnresolved = 0;
 
 window.addEventListener('message', function(message) {
     if (message.data.key === undefined) return;
-    for(let i = 0; i < responses.length; i++){
-        if(responses[i].key === message.data.key){
-            responses[i].resolve(message.data.value);
-            delete responses[i];
-            curResponseKey--;
-            break;
-        }
+    if(responses[message.data.key]){
+        responses[message.data.key].resolve(message.data.value);
+        delete responses[message.data.key];
+        numUnresolved--;
     }
-    responses = responses.filter(function(elem) {
-        return elem != null;
-    })
+    if(numUnresolved < 1){
+        responses = {};
+    }
 })
 
 function translateFunction(functionString, args){
@@ -45,12 +43,12 @@ function translateFunction(functionString, args){
             function: functionString,
             args: args
         }
-        responses.push({
-            key: key,
-            resolve: function(res) {
+        numUnresolved++;
+        responses[key] = {
+            resolve: function(res){
                 resolve(res);
             }
-        });
+        }
         window.top.postMessage({key, request}, '*');
     })
 }
