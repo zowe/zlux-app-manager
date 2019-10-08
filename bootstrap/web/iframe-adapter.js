@@ -15,35 +15,41 @@
    Can determine what actions to take by knowing if it is or isnt embedded in ZLUX via IFrame.
 */
 
-var IFRAME_NAME_PREFIX = 'mvd_iframe_';
-var INNER_IFRAME_NAME = 'zluxIframe';
-var mvdWindow = window.parent;
 var responses = [];
-var logger = undefined;
+var curResponseKey = 0;
 
 window.addEventListener('message', function(message) {
     if (message.data.key === undefined) return;
-    responses[message.data.key](message.data.value);
-    delete responses[message.key];
+    for(let i = 0; i < responses.length; i++){
+        if(responses[i].key === message.data.key){
+            responses[i].resolve(message.data.value);
+            delete responses[i];
+            curResponseKey--;
+            break;
+        }
+    }
+    responses = responses.filter(function(elem) {
+        return elem != null;
+    })
 })
 
-const requestStructure = {
-    function: 'string',
-    args: 'object'
-}
-
 function translateFunction(functionString, args){
-    if(typeof functionString !== 'string' || !Array.isArray(args)){
-        return undefined;
-    }
     return new Promise((resolve, reject) => {
-        const key = responses.length;
+        if(typeof functionString !== 'string' || !Array.isArray(args)){
+            reject({
+                error: "functionString must be of type string, args must be an array of type object"
+            })
+        }
+        const key = curResponseKey++;
         const request = {
             function: functionString,
             args: args
         }
-        responses.push((res) => {
-            resolve(res);
+        responses.push({
+            key: key,
+            resolve: function(res) {
+                resolve(res);
+            }
         });
         window.top.postMessage({key, request}, '*');
     })
