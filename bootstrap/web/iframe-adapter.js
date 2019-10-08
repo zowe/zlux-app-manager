@@ -19,7 +19,6 @@ var IFRAME_NAME_PREFIX = 'mvd_iframe_';
 var INNER_IFRAME_NAME = 'zluxIframe';
 var mvdWindow = window.parent;
 var responses = [];
-var notifications = [];
 var logger = undefined;
 
 window.addEventListener('message', function(message) {
@@ -33,28 +32,20 @@ const requestStructure = {
     args: 'object'
 }
 
-function makeRequest(request){
-    return new Promise((resolve, reject) => {
-        const key = responses.length;
-        responses.push((res) => {
-            resolve(res);
-        });
-        window.top.postMessage({key, request}, '*');
-    })
-}
-
 function translateFunction(functionString, args){
     if(typeof functionString !== 'string' || !Array.isArray(args)){
         return undefined;
     }
     return new Promise((resolve, reject) => {
-        makeRequest({
+        const key = responses.length;
+        const request = {
             function: functionString,
             args: args
-        }).then((res) => {
-            console.log('iframe-adapter translateFunctionCall() res: ', res);
+        }
+        responses.push((res) => {
             resolve(res);
-        })
+        });
+        window.top.postMessage({key, request}, '*');
     })
 }
 
@@ -66,29 +57,28 @@ window.addEventListener("load", function () {
 var ZoweZLUX = {
     notificationManager: {
         notify: function(notification){
-            translateFunction('ZoweZLUX.notificationManager.notify', [notification]).then(res => { return res })
+            return translateFunction('ZoweZLUX.notificationManager.notify', [notification])
         },
         serverNotify: function(message){
-            translateFunction('ZoweZLUX.notificationManager.serverNotify', [message]).then(res => { return res })
+            return translateFunction('ZoweZLUX.notificationManager.serverNotify', [message])
         },
         dismissNotification: function(id){
-            translateFunction('ZoweZLUX.notificationManager.dismissNotification', [id])
+            return translateFunction('ZoweZLUX.notificationManager.dismissNotification', [id])
         },
         removeAll: function(){
-            translateFunction('ZoweZLUX.notificationManager.removeAll', [])
+            return translateFunction('ZoweZLUX.notificationManager.removeAll', [])
         },
         getCount: function(){
-            translateFunction('ZoweZLUX.notificationManager.getCount', []).then(res => { return res })
+            return translateFunction('ZoweZLUX.notificationManager.getCount', [])
         },
         addMessageHandler: function(object){
-            translateFunction('ZoweZLUX.notificationManager.addMessageHandler', [object])
+            return translateFunction('ZoweZLUX.notificationManager.addMessageHandler', [object])
         },
         removeMessageHandler: function(object){
-            translateFunction('ZoweZLUX.notificationManager.removeMessageHandler', [object])
+            return translateFunction('ZoweZLUX.notificationManager.removeMessageHandler', [object])
         },
         createNotification: function(title, message, type, plugin){
-            translateFunction('ZoweZLUX.notificationManager.createNotification', [title, message, type, plugin])
-                .then((res) => { return res })
+            return translateFunction('ZoweZLUX.notificationManager.createNotification', [title, message, type, plugin])
         }
     }
 }
