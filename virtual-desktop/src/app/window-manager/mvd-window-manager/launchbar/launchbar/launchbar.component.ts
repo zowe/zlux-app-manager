@@ -86,6 +86,7 @@ export class LaunchbarComponent {
     if (this.authenticationManager.getUsername() != null) {
       this.loggedIn = true;
     } else {
+      this.allItems = [];
       this.loggedIn = false;
       this.helperLoggedIn = false;
     }

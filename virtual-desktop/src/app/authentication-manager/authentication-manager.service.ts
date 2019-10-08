@@ -15,6 +15,7 @@ import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
@@ -60,10 +61,12 @@ export class AuthenticationManager {
   private expirations: Map<string,number>;
   private expirationWarning: any;
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
-  
+
   constructor(
     public http: Http,
-    private injector: Injector
+    private injector: Injector,
+    private pluginManager: PluginManager
+
   ) {
     this.log = BaseLogger.makeSublogger("auth");
     this.username = null;
@@ -148,6 +151,7 @@ export class AuthenticationManager {
   }
 
   private performPostLoginActions(): Observable<any> {
+    this.pluginManager.loadApplicationPluginDefinitionsMap();
     return new Observable((observer)=> {      
       ZoweZLUX.pluginManager.loadPlugins(ZLUX.PluginType.Application).then((plugins:ZLUX.Plugin[])=> {
         if (this.username != null) {
@@ -165,6 +169,8 @@ export class AuthenticationManager {
   }
 
   private performPreLogoutActions() {
+    this.pluginManager.clearApplicationPluginDefinitions()
+    ZoweZLUX.pluginManager.clearPlugins()
     for (let i = 0; i < this.preLogoutActions.length; i++) {
       let success = this.preLogoutActions[i].onLogout(this.username);
       this.log.debug(`LogoutAction ${i}=${success}`);

@@ -25,20 +25,26 @@ export class PluginManager implements MVDHosting.PluginManagerInterface {
     this.loadApplicationPluginDefinitionsMap();
   }
 
+  clearApplicationPluginDefinitions(): void {
+    this._pluginDefinitions.clear();
+  }
+
   loadApplicationPluginDefinitions(): Promise<MVDHosting.DesktopPluginDefinition[]> {
     if (this._pluginDefinitions != null) {
-      return Promise.resolve(Array.from(this._pluginDefinitions.values()));
+      if (this._pluginDefinitions.size != 0) {
+        return Promise.resolve(Array.from(this._pluginDefinitions.values()));
+      }
     }
-
     return ZoweZLUX.pluginManager.loadPlugins('application')
       .then((plugins: ZLUX.Plugin[]) => plugins.map(plugin => new DesktopPluginDefinitionImpl(plugin)));
   }
 
   loadApplicationPluginDefinitionsMap(): Promise<Map<string, MVDHosting.DesktopPluginDefinition>> {
     if (this._pluginDefinitions != null) {
-      return Promise.resolve(this._pluginDefinitions);
+      if (this._pluginDefinitions.size != 0) {
+        return Promise.resolve(this._pluginDefinitions);
+      }
     }
-
     return this.loadApplicationPluginDefinitions()
       .then((plugins: MVDHosting.DesktopPluginDefinition[]) => {
         const map = new Map();
