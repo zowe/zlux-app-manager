@@ -89,7 +89,8 @@ export class MvdUri implements ZLUX.UriBroker {
     return `${this.serverRootUri(`datasetMetadata/name/${dsn}${params}`)}`;
   }
   pluginRootUri(pluginDefinition: ZLUX.Plugin): string {
-    return `${this.serverRootUri(`ZLUX/plugins/${pluginDefinition.getIdentifier()}/`)}`;
+    let identifier = (pluginDefinition as any).identifier || pluginDefinition.getIdentifier();
+    return `${this.serverRootUri(`ZLUX/plugins/${identifier}/`)}`;
     //return `/ZLUX/plugins/${pluginDefinition.getIdentifier()}/`;
   }
 
@@ -145,8 +146,9 @@ export class MvdUri implements ZLUX.UriBroker {
    */
   pluginConfigForScopeUri(pluginDefinition: ZLUX.Plugin, scope: string, resourcePath: string, resourceName?: string): string {
     let name = resourceName ? '?name=' + resourceName : '';
+    let identifier = (pluginDefinition as any).identifier || pluginDefinition.getIdentifier();
     return `${this.serverRootUri(`ZLUX/plugins/org.zowe.configjs/services/data/_current`
-       + `/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`)}`;
+       + `/${identifier}/${scope}/${resourcePath}${name}`)}`;
     // return `/ZLUX/plugins/org.zowe.configjs/services/data/${pluginDefinition.getIdentifier()}/${scope}/${resourcePath}${name}`;
   }
 
