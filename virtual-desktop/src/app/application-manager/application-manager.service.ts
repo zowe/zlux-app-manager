@@ -90,18 +90,11 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         if(!message.data.request.function){
           return;
         }
-        console.log('window: ', (window.top as any));
         res = this.translateFunction(message);
-        // let reqFn = this.getAttrib(Object.assign({}, ZoweZLUX), message.data.request.function);
-        // console.log(`Type of ${message.data.request.function}: `, typeof reqFn);
-        // if(typeof reqFn === 'function'){
-        //   res = this.translateFunction(reqFn, message);//this.translateFunction(reqFn, reqArgs, message.data.request.function, message.source)
-        // } else {
-        //   res = {error: `Could not find requested function ${message.data.request.function}`}
-        // }
         message.source.postMessage({
           key: message.data.key,
-          value: res
+          value: res,
+          originCall: message.data.request.function
         }, '*');
         return;
       }
@@ -193,9 +186,11 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
           }
         } else {
           //Not a function within ZoweZLUX
+          return undefined;
         }
       } else {
         //some function that doesnt begin with ZoweZLUX
+        return undefined;
       }
     }
   }
