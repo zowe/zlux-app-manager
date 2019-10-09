@@ -16,7 +16,7 @@ import { DesktopPluginDefinitionImpl } from './desktop-plugin-definition';
 import { PluginLoader } from './plugin-loader';
 
 @Injectable()
-export class PluginManager implements MVDHosting.PluginManagerInterface {
+export class PluginManager implements MVDHosting.PluginManagerInterface, MVDHosting.LoginActionInterface, MVDHosting.LogoutActionInterface {
   private _pluginDefinitions: Map<string, MVDHosting.DesktopPluginDefinition>;
 
   constructor(
@@ -25,8 +25,15 @@ export class PluginManager implements MVDHosting.PluginManagerInterface {
     this.loadApplicationPluginDefinitionsMap();
   }
 
-  clearApplicationPluginDefinitions(): void {
+  onLogin(): boolean {
     this._pluginDefinitions.clear();
+    this.loadApplicationPluginDefinitionsMap();
+    return true;
+  }
+
+  onLogout(): boolean {
+    this._pluginDefinitions.clear();
+    return true;
   }
 
   loadApplicationPluginDefinitions(): Promise<MVDHosting.DesktopPluginDefinition[]> {

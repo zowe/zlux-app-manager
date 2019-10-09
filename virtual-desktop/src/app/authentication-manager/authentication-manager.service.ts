@@ -73,7 +73,9 @@ export class AuthenticationManager {
     this.postLoginActions = new Array<MVDHosting.LoginActionInterface>();
     this.preLogoutActions = new Array<MVDHosting.LogoutActionInterface>();
     this.registerPreLogoutAction(new ClearZoweZLUX());
+    this.registerPreLogoutAction(this.pluginManager)
     this.registerPostLoginAction(new initializeNotificationManager());
+    this.registerPostLoginAction(this.pluginManager);
     this.loginScreenVisibilityChanged = new EventEmitter();
     this.loginExpirationIdleCheck = new EventEmitter();
   }
@@ -151,7 +153,6 @@ export class AuthenticationManager {
   }
 
   private performPostLoginActions(): Observable<any> {
-    this.pluginManager.loadApplicationPluginDefinitionsMap();
     return new Observable((observer)=> {      
       ZoweZLUX.pluginManager.loadPlugins(ZLUX.PluginType.Application).then((plugins:ZLUX.Plugin[])=> {
         if (this.username != null) {
@@ -169,7 +170,6 @@ export class AuthenticationManager {
   }
 
   private performPreLogoutActions() {
-    this.pluginManager.clearApplicationPluginDefinitions()
     ZoweZLUX.pluginManager.clearPlugins()
     for (let i = 0; i < this.preLogoutActions.length; i++) {
       let success = this.preLogoutActions[i].onLogout(this.username);
