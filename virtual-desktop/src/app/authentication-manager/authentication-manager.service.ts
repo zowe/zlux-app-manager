@@ -170,11 +170,11 @@ export class AuthenticationManager {
   }
 
   private performPreLogoutActions() {
-    ZoweZLUX.pluginManager.clearPlugins()
     for (let i = 0; i < this.preLogoutActions.length; i++) {
       let success = this.preLogoutActions[i].onLogout(this.username);
       this.log.debug(`LogoutAction ${i}=${success}`);
     }
+    ZoweZLUX.pluginManager.pluginsById.clear()
   }  
 
   private setSessionTimeoutWatcher(categories: any|undefined) {
