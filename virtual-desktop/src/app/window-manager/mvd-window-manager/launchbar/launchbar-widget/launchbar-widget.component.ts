@@ -138,7 +138,11 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   handleMessageAdded(message: any): void {
     this.notifications.unshift(message)
     this.info = this.parseInfo()
-    let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: "org_zowe_zlux_ng2desktop_snackbar", verticalPosition: 'top', horizontalPosition: 'end'})
+    let styleClass = "org_zowe_zlux_ng2desktop_snackbar";
+    if (message.notification.styleClass) {
+      styleClass = message.notification.styleClass;
+    }
+    let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: styleClass, verticalPosition: 'top', horizontalPosition: 'end'})
     ref.onAction().subscribe(() => {
       ZoweZLUX.notificationManager.dismissNotification(message.id)
       this.info = this.parseInfo()
