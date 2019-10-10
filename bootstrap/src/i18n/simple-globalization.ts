@@ -21,4 +21,13 @@ export class SimpleGlobalization implements ZLUX.Globalization {
       return 'US';
     }
   }
+
+  setLanguage(language: string): void {
+    return;
+  }
+
+  setLocale(locale: string): void{
+    return;
+  }
+  
 }
