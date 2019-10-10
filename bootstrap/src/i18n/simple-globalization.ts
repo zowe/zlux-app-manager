@@ -22,12 +22,12 @@ export class SimpleGlobalization implements ZLUX.Globalization {
     }
   }
 
-  setLanguage(language: string): void {
-    return;
+  setLanguage(language: string): any {
+    return language;
   }
 
-  setLocale(locale: string): void{
-    return;
+  setLocale(locale: string): any{
+    return locale;
   }
   
 }
