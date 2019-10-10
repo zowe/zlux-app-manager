@@ -190,6 +190,12 @@ var ZoweZLUX = {
         },
         getLocale: function(){
             return translateFunction('ZoweZLUX.globalization.getLocale', [])
+        },
+        setLanguage: function(language){
+            return translateFunction('ZoweZLUX.globalization.setLanguage', [language]);
+        },
+        setLocale: function(locale){
+            return translateFunction('ZoweZLUX.globalization.setLocale', [locale])
         }
     }
 }
