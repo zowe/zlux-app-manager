@@ -40,7 +40,6 @@ export class LaunchbarComponent {
   newPosition: number;
   loggedIn: boolean;
   helperLoggedIn: boolean;
-  private pluginManager: MVDHosting.PluginManagerInterface;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   propertyWindowPluginDef: DesktopPluginDefinitionImpl;
@@ -52,7 +51,6 @@ export class LaunchbarComponent {
     private translation: TranslationService
   ) {
      // Workaround for AoT problem with namespaces (see angular/angular#15613)
-     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
      this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
      this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
      this.allItems = [];
@@ -65,17 +63,17 @@ export class LaunchbarComponent {
   
   getAllItems(): void {
     this.allItems = [];
-    this.pluginManager.loadApplicationPluginDefinitions().then(pluginDefinitions => {
-      pluginDefinitions.forEach((p)=> {
-        if (p.getBasePlugin().getWebContent() != null) {
-          if (p.getIdentifier() === 'org.zowe.zlux.appmanager.app.propview') {
+    ZoweZLUX.pluginManager.loadPlugins('application').then((plugins: Plugin[]) => {
+      plugins.forEach((p: any)=> {
+        if (p.webContent != null) {
+          if (p.identifier === 'org.zowe.zlux.appmanager.app.propview') {
             const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;
             this.propertyWindowPluginDef = pluginImpl;
-          } else if (p.getIdentifier() === 'org.zowe.zlux.ng2desktop.settings') { 
+          } else if (p.identifier === 'org.zowe.zlux.ng2desktop.settings') { 
             // UI decision made to not display Settings application with the main application menu.
             // The Settings apps will be accessible via their own dedicated panel, and need not hog the menu.
           } else {
-            this.allItems.push(new PluginLaunchbarItem(p as DesktopPluginDefinitionImpl, this.windowManager));
+            this.allItems.push(new PluginLaunchbarItem(new DesktopPluginDefinitionImpl(p), this.windowManager));
           }
         }
       })
@@ -86,6 +84,7 @@ export class LaunchbarComponent {
     if (this.authenticationManager.getUsername() != null) {
       this.loggedIn = true;
     } else {
+      this.allItems = [];
       this.loggedIn = false;
       this.helperLoggedIn = false;
     }
