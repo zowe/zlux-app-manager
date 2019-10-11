@@ -22,7 +22,6 @@ var numUnresolved = 0;
 window.addEventListener('message', function(message) {
     if (message.data.key === undefined) return;
     if(responses[message.data.key]){
-        //console.log('Found response for ' + message.data.originCall + ' with key ' + message.data.key + ' and value ', message.data.value);
         responses[message.data.key].resolve(message.data.value);
         delete responses[message.data.key];
         numUnresolved--;
@@ -50,7 +49,6 @@ function translateFunction(functionString, args){
                 resolve(res);
             }
         }
-        console.log('translating: ' + functionString + ' with key ' + key + ' and args: ', args);
         window.top.postMessage({key, request}, '*');
     })
 }
