@@ -90,24 +90,13 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         if(!message.data.request.function){
           return;
         }
-        res = this.translateFunction(message);
-        if(res instanceof Promise){
-          res.then(newRes => { 
-            message.source.postMessage({
-              key: message.data.key,
-              value: newRes,
-              originCall: message.data.request.function
-            }, '*');
-          })
-          return;
-        } else {
-          message.source.postMessage({
-            key: message.data.key,
-            value: res,
-            originCall: message.data.request.function
-          }, '*');
-          return;
-        }
+        res = this.resolveAllPromises(this.translateFunction(message));
+        message.source.postMessage({
+          key: message.data.key,
+          value: res,
+          originCall: message.data.request.function
+        }, '*');
+        return;
       }
     });
     (window as any).ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
@@ -132,6 +121,16 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
          }
        }
     });
+  }
+
+  private resolveAllPromises(p: any){
+    if(p instanceof Promise){
+      p.then(res => {
+        this.resolveAllPromises(res);
+      })
+    } else {
+      return p;
+    }
   }
 
   private getAttrib(object: object, path: string){
