@@ -19,8 +19,9 @@ import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material';
   styleUrls: [ 'snackbar.component.css' ]
 })
 export class SnackbarComponent implements AfterViewInit {
-  private showThreeDots: boolean = false;
+  public showThreeDots: boolean = false;
   @ViewChild('snackbarContainer') snackbarContainer: ElementRef;
+  
   constructor(public snackBarRef: MatSnackBarRef<SnackbarComponent>,
     @Inject(MAT_SNACK_BAR_DATA) public data: any) {
       if (this.showThreeDots) {
