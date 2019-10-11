@@ -90,7 +90,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         if(!message.data.request.function){
           return;
         }
-        res = this.resolveAllPromises(this.translateFunction(message));
+        res = this.resolvePromisesRecursively(this.translateFunction(message));
         message.source.postMessage({
           key: message.data.key,
           value: res,
@@ -123,10 +123,10 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     });
   }
 
-  private resolveAllPromises(p: any){
+  private resolvePromisesRecursively(p: any){
     if(p instanceof Promise){
       p.then(res => {
-        this.resolveAllPromises(res);
+        this.resolvePromisesRecursively(res);
       })
     } else {
       return p;
