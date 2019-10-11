@@ -24,6 +24,26 @@
 
 .snackbar-container {
     display: inline-block;
+    margin-right: 50px;
+}
+
+.snackbar-data-message {
+    width: 100%;
+    max-width: 400px;
+    max-height: 20px;
+    padding-right: 10px;
+    white-space: nowrap;
+}
+
+.snackbar-data-three-dots {
+    width: 40px;
+    float: right;
+    padding-left: 5px;
+    position: relative;
+    margin-top: -20px;
+    margin-right: -10px;
+    font-size: inherit;
+    background-color: #dde8f1;
 }
 
 .outer-snackbar-container {
@@ -31,10 +51,13 @@
 }
 
 .snackbar-info {
-    width: 180px;
+    width: fit-content;
+    max-width: 440px;
+    min-width: 170px;
     display: inline-block;
     vertical-align: top;
     margin: 5px;
+    position: relative;
 }
 
 .snackbar-dismiss {
@@ -50,6 +73,10 @@
     margin: auto;
     border-width: 1px;
     border-color: #8080808f;
+}
+
+.snackbar-dismiss.text-left {
+    background-color: #dde8f1;
 }
 
 .snackbar-dismiss-button {

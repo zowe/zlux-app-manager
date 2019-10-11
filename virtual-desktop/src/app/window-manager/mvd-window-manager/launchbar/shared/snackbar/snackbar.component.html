@@ -12,11 +12,12 @@
 
 <div class="flex">
   <div class="outer-snackbar-container">
-      <div class="snackbar-container">
+      <div class="snackbar-container" #snackbarContainer>
           <img class="snackbar-icon" src={{data.imgSrc}}>
           <div class="snackbar-info">
               <div class="snackbar-title">{{data.title}}</div>
-              <div class="snackbar-data">{{data.message}}</div>
+              <div class="snackbar-data-message">{{data.message}}</div>
+              <div class="snackbar-data-three-dots" *ngIf="showThreeDots"> (...) </div>
           </div>
       </div>
       <div class="snackbar-dismiss text-left">

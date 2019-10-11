@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material';
 
 @Component({
@@ -18,11 +18,27 @@ import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material';
   templateUrl: './snackbar.component.html',
   styleUrls: [ 'snackbar.component.css' ]
 })
-export class SnackbarComponent {
-  constructor(
-    public snackBarRef: MatSnackBarRef<SnackbarComponent>,
-    @Inject(MAT_SNACK_BAR_DATA) public data: any
-  ) {  }
+export class SnackbarComponent implements AfterViewInit {
+  private showThreeDots: boolean = false;
+  @ViewChild('snackbarContainer') snackbarContainer: ElementRef;
+  constructor(public snackBarRef: MatSnackBarRef<SnackbarComponent>,
+    @Inject(MAT_SNACK_BAR_DATA) public data: any) {
+      if (this.showThreeDots) {
+        // Avoid value never used compilation error
+      }
+      
+  }
+
+  ngAfterViewInit() {
+    this.snackBarRef.afterOpened().subscribe(action => {
+      let element = (<HTMLImageElement>document.getElementsByClassName('snackbar-container')[0]);
+      let width = element.clientWidth;
+      if (width && width > 450) {
+        this.showThreeDots = true;
+      }
+    });
+  }
+
 
 }
 
