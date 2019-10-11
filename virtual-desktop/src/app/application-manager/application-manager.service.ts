@@ -90,7 +90,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         if(!message.data.request.function){
           return;
         }
-        res = this.translateFunction(message);
+        res = this.resolvePromisesRecursively(this.translateFunction(message));
         message.source.postMessage({
           key: message.data.key,
           value: res,
@@ -123,6 +123,16 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     });
   }
 
+  private resolvePromisesRecursively(p: any){
+    if(p instanceof Promise){
+      p.then(res => {
+        this.resolvePromisesRecursively(res);
+      })
+    } else {
+      return p;
+    }
+  }
+
   private getAttrib(object: object, path: string){
     if(object === undefined || path === undefined || 
       typeof path !== 'string' || typeof object !== 'object') return undefined;
@@ -144,6 +154,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     let source: any = message.source;
     let split: Array<string> = fnString.split('.');
     let fn: Function;
+    let fnRet: any;
     if(split.length > 0){
       if(split[0] === 'ZoweZLUX'){
         split.shift();
@@ -175,15 +186,16 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
               return undefined;
           }
           if(args.length === 0){
-            return fn();
+            fnRet = fn();
           } else {
             for(let i = 0; i < args.length; i++){
               if(args[i] == 'this'){
                 args[i] = source;
               }
             }
-            return fn(...args);
+            fnRet = fn(...args);
           }
+          return fnRet;
         } else {
           //Not a function within ZoweZLUX
           return undefined;

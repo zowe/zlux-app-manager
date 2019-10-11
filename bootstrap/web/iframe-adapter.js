@@ -185,6 +185,17 @@ var ZoweZLUX = {
         }
     },
     globalization: {
-
+        getLanguage: function(){
+            return translateFunction('ZoweZLUX.globalization.getLanguage', [])
+        },
+        getLocale: function(){
+            return translateFunction('ZoweZLUX.globalization.getLocale', [])
+        },
+        setLanguage: function(language){
+            return translateFunction('ZoweZLUX.globalization.setLanguage', [language]);
+        },
+        setLocale: function(locale){
+            return translateFunction('ZoweZLUX.globalization.setLocale', [locale])
+        }
     }
 }
