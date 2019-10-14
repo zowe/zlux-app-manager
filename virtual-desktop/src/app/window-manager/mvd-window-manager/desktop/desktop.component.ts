@@ -102,7 +102,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
         appsWithActions.forEach(appWithAction=> {
           appContents[appWithAction].actions.forEach((actionObject:any)=> {
             if (this.isValidAction(actionObject)) {
-              ZoweZLUX.dispatcher.registerAction(ZoweZLUX.dispatcher.makeActionFromObject(actionObject));
+              ZoweZLUX.dispatcher.registerAbstractAction(ZoweZLUX.dispatcher.makeActionFromObject(actionObject));
             }
           });
           this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);
