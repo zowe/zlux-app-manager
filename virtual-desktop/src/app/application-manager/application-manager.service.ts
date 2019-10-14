@@ -83,19 +83,19 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         this.logger.warn(`No iframe identified as source of message`);
         return true;
       } else {
-        let res;
         if(!message.data || message.data.key === undefined){
           return;
         }
         if(!message.data.request.function){
           return;
         }
-        res = this.resolvePromisesRecursively(this.translateFunction(message));
-        message.source.postMessage({
-          key: message.data.key,
-          value: res,
-          originCall: message.data.request.function
-        }, '*');
+        this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
+          message.source.postMessage({
+            key: message.data.key,
+            value: res,
+            originCall: message.data.request.function
+          }, '*');
+        });
         return;
       }
     });
@@ -125,11 +125,11 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
   private resolvePromisesRecursively(p: any){
     if(p instanceof Promise){
-      p.then(res => {
+      return p.then(res => {
         this.resolvePromisesRecursively(res);
       })
     } else {
-      return p;
+      return Promise.resolve(p);
     }
   }
 
