@@ -18,10 +18,11 @@ import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material';
   templateUrl: './snackbar.component.html',
   styleUrls: [ 'snackbar.component.css' ]
 })
+const SNACKBAR_WRAP_LENGTH = 450;
 export class SnackbarComponent implements AfterViewInit {
   public showThreeDots: boolean = false;
   @ViewChild('snackbarContainer') snackbarContainer: ElementRef;
-  
+
   constructor(public snackBarRef: MatSnackBarRef<SnackbarComponent>,
     @Inject(MAT_SNACK_BAR_DATA) public data: any) {
       if (this.showThreeDots) {
@@ -34,7 +35,7 @@ export class SnackbarComponent implements AfterViewInit {
     this.snackBarRef.afterOpened().subscribe(action => {
       let element = (<HTMLImageElement>document.getElementsByClassName('snackbar-container')[0]);
       let width = element.clientWidth;
-      if (width && width > 450) {
+      if (width && width > SNACKBAR_WRAP_LENGTH) {
         this.showThreeDots = true;
       }
     });
