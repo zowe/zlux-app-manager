@@ -13,12 +13,13 @@
 import { Component, Inject, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material';
 
+const SNACKBAR_WRAP_LENGTH = 450;
+
 @Component({
   selector: 'app-snackbar',
   templateUrl: './snackbar.component.html',
   styleUrls: [ 'snackbar.component.css' ]
 })
-const SNACKBAR_WRAP_LENGTH = 450;
 export class SnackbarComponent implements AfterViewInit {
   public showThreeDots: boolean = false;
   @ViewChild('snackbarContainer') snackbarContainer: ElementRef;
