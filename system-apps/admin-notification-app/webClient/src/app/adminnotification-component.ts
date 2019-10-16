@@ -15,7 +15,7 @@ import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 import { ZoweNotification } from '../../../../../../zlux-platform/base/src/notification-manager/notification'
 const EVERYONE = "Everyone";
 const INDIVIDUAL = "Individual";
-
+const ALL_ACTIVE_USERS = "All Active Users"
 @Component({
   selector: 'adminnotification',
   templateUrl: 'adminnotification-component.html',
@@ -32,15 +32,15 @@ export class AdminNotificationComponent {
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefinition: ZLUX.ContainerPluginDefinition,
     ) {
     this.response = "";
-    this.items = [{content: EVERYONE}, {content: INDIVIDUAL}]
+    this.items = [{content: ALL_ACTIVE_USERS}, {content: INDIVIDUAL}]
     this.recipient = EVERYONE
     this.displayText = true;
   }
 
   selected(e: any): void {
     this.recipient = e.item.content
-    if (e.item.content === EVERYONE) {
-      this.recipient = e.item.content
+    if (e.item.content === ALL_ACTIVE_USERS) {
+      this.recipient = EVERYONE
       this.displayText = true;
     } else if (e.item.content === INDIVIDUAL) {
       this.recipient = ""
@@ -50,17 +50,22 @@ export class AdminNotificationComponent {
 
   sendRest(title: string, message: string): void {
     let notification = new ZoweNotification(title, message, 1, "org.zowe.zlux.bootstrap")
+    let element = (<HTMLImageElement>document.getElementsByClassName('response')[0]);
+    let titleElement = (<HTMLInputElement>document.getElementsByClassName('notification-title')[0]);
+    let messageElement = (<HTMLInputElement>document.getElementsByClassName('notification-message')[0]);
+
 
     ZoweZLUX.pluginManager.loadPlugins('bootstrap').then((res: any) => {
       if (this.recipient === EVERYONE) {
         ZoweZLUX.notificationManager.serverNotify({"notification": notification, "recipient": EVERYONE})
         .then(
           (res: any) => {
-            let element = (<HTMLImageElement>document.getElementsByClassName('response')[0]);
             if (res.ok) {
               element.style.color = 'black'
+              titleElement.value = ""
+              messageElement.value = ""
             } else {
-              element.style.color = 'red'
+              element.style.color = '#b70000'
             }
             res.json().then((json: any) => this.response = "Server Response: " + json.Response)
           },
@@ -71,11 +76,12 @@ export class AdminNotificationComponent {
         ZoweZLUX.notificationManager.serverNotify({"username": this.recipient, "notification": notification, "recipient": INDIVIDUAL})
         .then(
           (res: any) => {
-            let element = (<HTMLImageElement>document.getElementsByClassName('response')[0]);
             if (res.ok) {
               element.style.color = 'black'
+              titleElement.value = ""
+              messageElement.value = ""
             } else {
-              element.style.color = 'red'
+              element.style.color = '#b70000'
             }
             res.json().then((json: any) => this.response = "Server Response: " + json.Response)
           },

@@ -14,10 +14,10 @@
   </div>
   <div class="outer-input">
     <div class="recipient-input-container">
-      <input ibmText class="recipient-input" type="text" placeholder="Enter Recipient" [hidden]="displayText" [(ngModel)]="recipient">
+      <input ibmText class="recipient-input" type="text" placeholder="Enter TSO ID" [hidden]="displayText" [(ngModel)]="recipient">
     </div>
     <div class="recipient">
-      <ibm-dropdown class="recipient-dropdown" placeholder="Everyone" (selected)="selected($event)">
+      <ibm-dropdown class="recipient-dropdown" placeholder="All Active Users" (selected)="selected($event)">
         <ibm-dropdown-list [items]="items"></ibm-dropdown-list>
       </ibm-dropdown>  
     </div>
@@ -29,7 +29,7 @@
         <input ibmText #title class="notification-title" type="text" placeholder="Title">
       </div>
       <div class="message">
-        <textarea ibmTextArea rows="5" class="message" #message id="message" type="text" placeholder="Message"></textarea>
+        <textarea ibmTextArea rows="5" class="notification-message" #message id="message" type="text" placeholder="Message"></textarea>
       </div>
       <div class="send-notification">
         <button class="send-notification-button" (click)="sendRest(title.value, message.value)">Send</button>
