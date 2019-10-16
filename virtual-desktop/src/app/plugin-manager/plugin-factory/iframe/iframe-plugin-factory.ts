@@ -24,6 +24,10 @@ var dragOn = false;
 var mouseDown = false;
 let iFrameElement: HTMLElement;
 
+@NgModule({
+  declarations: [IFramePluginComponent]
+})
+
 @Injectable()
 export class IFramePluginFactory extends PluginFactory {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
