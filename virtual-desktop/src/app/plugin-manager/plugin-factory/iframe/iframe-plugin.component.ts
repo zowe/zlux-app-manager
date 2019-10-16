@@ -7,45 +7,40 @@
   
   Copyright Contributors to the Zowe Project.
 */
-import { AfterViewInit, Inject, Component, Optional } from '@angular/core';
+import { Inject, Component } from '@angular/core';
 import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents } from '../../../../pluginlib/inject-resources';
 
 @Component({
     templateUrl: './iframe-plugin.component.html'
 })
 
-export class IFramePluginComponent implements AfterViewInit {
 
-  private mainWindowId: MVDWindowManagement.WindowId | null;
-  private windowActions: Angular2PluginWindowActions | null;
-  private windowEvents: Angular2PluginWindowEvents | null;
+export class IFramePluginComponent {
+
+  private windowActions:  Angular2PluginWindowActions;
+  private windowEvents: Angular2PluginWindowEvents;
   private viewportEvents: Angular2PluginViewportEvents;
 
   constructor(
-    @Optional() @Inject(Angular2InjectionTokens.MAIN_WINDOW_ID) mainWindowId: MVDWindowManagement.WindowId | null,
-    @Optional() @Inject(Angular2InjectionTokens.MAIN_WINDOW_ID) windowActions: Angular2PluginWindowActions | null,
-    @Optional() @Inject(Angular2InjectionTokens.MAIN_WINDOW_ID) windowEvents: Angular2PluginWindowEvents | null,
+    @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) windowActions: Angular2PluginWindowActions,
+    @Inject(Angular2InjectionTokens.WINDOW_EVENTS) windowEvents: Angular2PluginWindowEvents,
     @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) viewportEvents: Angular2PluginViewportEvents,
   ){
     addEventListener('message', this.postMessageListener.bind(this));
-    this.mainWindowId = mainWindowId;
+    //the following 2 lines are to temporarily suppress typescript warnings
+    //i miss good ol gcc that lets you compile literally anything :(
+    this.viewportEvents;
+    this.windowEvents;
     this.windowActions = windowActions;
     this.windowEvents = windowEvents;
     this.viewportEvents = viewportEvents;
-  }
-
-  ngAfterViewInit(): void {
-      this.mainWindowId;
-      this.windowActions;
-      this.windowEvents;
-      this.viewportEvents;
   }
 
   postMessageListener(message: any): void {
     if(!message.data.request || !message.data.request.function || message.data.key === undefined){
       return;
     }
-    console.log('postMessageListener() - received translation request for: ', message.data.request.function)
+    //console.log('postMessageListener() - received translation request for: ', message.data.request.function, '\n Message: ', message)
     this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
       message.source.postMessage({
         key: message.data.key,
@@ -88,55 +83,49 @@ export class IFramePluginComponent implements AfterViewInit {
     let split: Array<string> = fnString.split('.');
     let fn: Function;
     let fnRet: any;
-    console.log('(backend) translateFunction() - translating: ', fnString);
+    //console.log('(backend) translateFunction() - translating: ', fnString);
     if(split.length > 0){
-      if(split[0] === 'ZoweZLUX'){
-        split.shift();
-        fn = (this.getAttrib(Object.assign({}, ZoweZLUX), split.join('.')) as Function);
-        if(typeof fn === 'function'){
-          switch(split[0]){
-            case 'pluginManager':
-              fn = fn.bind(ZoweZLUX.pluginManager);
-              break;
-            case 'uriBroker':
-              fn = fn.bind(ZoweZLUX.uriBroker);
-              break;
-            case 'dispatcher':
-              fn = fn.bind(ZoweZLUX.dispatcher);
-              break;
-            case 'logger':
-              fn = fn.bind(ZoweZLUX.logger);
-              break;
-            case 'registry':
-              fn = fn.bind(ZoweZLUX.registry);
-              break;
-            case 'notificationManager':
-              fn = fn.bind(ZoweZLUX.notificationManager);
-              break;
-            case 'globalization':
-              fn = fn.bind(ZoweZLUX.globalization);
-              break;
-            default:
-              return undefined;
-          }
-          if(args.length === 0){
-            fnRet = fn();
-          } else {
-            for(let i = 0; i < args.length; i++){
-              if(args[i] == 'this'){
-                args[i] = source;
+      switch(split[0]){
+        case 'ZoweZLUX':
+            split.shift();
+            fn = (this.getAttrib(Object.assign({}, ZoweZLUX), split.join('.')) as Function);
+            if(typeof fn === 'function'){
+              fn = fn.bind((window as any).ZoweZLUX[split[0]]);
+              if(args.length === 0){
+                fnRet = fn();
+              } else {
+                for(let i = 0; i < args.length; i++){
+                  if(args[i] == 'this'){
+                    args[i] = source;
+                  }
+                }
+                fnRet = fn(...args);
               }
+              return fnRet;
+            } else {
+              return undefined;
             }
-            fnRet = fn(...args);
+        case 'windowActions':
+          split.shift();
+          fn = (this.getAttrib(Object.assign({}, this.windowActions), split.join('.')) as Function);
+          if(typeof fn === 'function'){
+            fn = fn.bind(this.windowActions);
+            if(args.length === 0){
+              fnRet = fn();
+            } else {
+              for(let i = 0; i < args.length; i++){
+                if(args[i] == 'this'){
+                  args[i] = source;
+                }
+              }
+              fnRet = fn(...args);
+            }
+            return fnRet;
+          } else {
+            return undefined;
           }
-          return fnRet;
-        } else {
-          //Not a function within ZoweZLUX
+        default:
           return undefined;
-        }
-      } else {
-        //some function that doesnt begin with ZoweZLUX
-        return undefined;
       }
     }
   }

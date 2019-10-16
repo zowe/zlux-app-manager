@@ -18,7 +18,7 @@ import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { IFRAME_NAME_PREFIX } from '../../../shared/named-elements';
-//import { IFramePluginComponent } from '../iframe/iframe-plugin.component'
+import { IFramePluginComponent } from '../iframe/iframe-plugin.component'
 
 var dragOn = false;
 var mouseDown = false;
@@ -66,7 +66,7 @@ export class IFramePluginFactory extends PluginFactory {
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
     this.logger.info(`Loading iframe, URI=${startingPageUri}`);
     const theIframeId = IFRAME_NAME_PREFIX + (instanceId); //Syncs the IFrame ID with its instance ID counterpart
-    return class IFrameComponentClass{
+    return class IFrameComponentClass extends IFramePluginComponent {
       startingPage: SafeResourceUrl = safeStartingPageUri;
       iframeId:string = theIframeId;
       iFrameMouseOver(event: any) {
