@@ -9,6 +9,7 @@
 */
 import { Inject, Component } from '@angular/core';
 import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents } from '../../../../pluginlib/inject-resources';
+import { SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
     templateUrl: './iframe-plugin.component.html'
@@ -20,6 +21,8 @@ export class IFramePluginComponent {
   private windowActions:  Angular2PluginWindowActions;
   private windowEvents: Angular2PluginWindowEvents;
   private viewportEvents: Angular2PluginViewportEvents;
+  startingPage: SafeResourceUrl;
+  iframeId: string;
 
   constructor(
     @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) windowActions: Angular2PluginWindowActions,
@@ -27,10 +30,13 @@ export class IFramePluginComponent {
     @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) viewportEvents: Angular2PluginViewportEvents,
   ){
     addEventListener('message', this.postMessageListener.bind(this));
-    //the following 2 lines are to temporarily suppress typescript warnings
+    //the following 5 lines are to temporarily suppress typescript warnings
     //i miss good ol gcc that lets you compile literally anything :(
     this.viewportEvents;
     this.windowEvents;
+    this.startingPage;
+    this.iframeId;
+    this.iFrameMouseOver;
     this.windowActions = windowActions;
     this.windowEvents = windowEvents;
     this.viewportEvents = viewportEvents;
@@ -50,6 +56,8 @@ export class IFramePluginComponent {
     });
     return;
   }
+
+  iFrameMouseOver(event: any){}
 
   private resolvePromisesRecursively(p: any){
     if(p instanceof Promise){
