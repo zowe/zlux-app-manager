@@ -16,7 +16,7 @@
   bottom: 0;
   right: 0;
   width: fit-content;
-  min-width: 205px; /* fit-content seems to fail at times with Safari, min-width here as a safety */
+  min-width: 210px; /* fit-content seems to fail at times with Safari, min-width here as a safety */
   height: 100%;
   z-index: 7;
   color: #eee;
@@ -250,6 +250,12 @@
   padding: 5px !important;
 }
 
+.no-notifications {
+  font-size: x-large;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 13;
+}
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
