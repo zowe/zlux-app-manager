@@ -16,6 +16,7 @@
 */
 
 var responses = {};
+var these = {};
 var curResponseKey = 0;
 var numUnresolved = 0;
 
@@ -39,6 +40,12 @@ function translateFunction(functionString, args){
             })
         }
         const key = curResponseKey++;
+        for(let i = 0; i < args.length; i++){
+            if(Object.prototype.toString.call(args[i]) === '[object Window]'){
+                these[key] = args[i];
+                args[i] = `this:${key}`
+            }
+        }
         const request = {
             function: functionString,
             args: args
@@ -52,11 +59,6 @@ function translateFunction(functionString, args){
         window.top.postMessage({key, request}, '*');
     })
 }
-
-window.addEventListener("load", function () {
-    console.log('Loading iframe adapter instance');
-    this.window.top.postMessage('iframeload', '*');
-  }, false);
 
 var ZoweZLUX = {
     pluginManager: {
@@ -192,10 +194,22 @@ var ZoweZLUX = {
             return translateFunction('ZoweZLUX.globalization.getLocale', [])
         },
         setLanguage: function(language){
-            return translateFunction('ZoweZLUX.globalization.setLanguage', [language]);
+            return translateFunction('ZoweZLUX.globalization.setLanguage', [language])
         },
         setLocale: function(locale){
             return translateFunction('ZoweZLUX.globalization.setLocale', [locale])
         }
+    }
+}
+
+var windowActions = {
+    setTitle: function(title){
+        return translateFunction('windowActions.setTitle', [title])
+    },
+    setPosition: function(pos){
+        return translateFunction('windowActions.setPosition', [pos])
+    },
+    spawnContextMenu: function(xPos, yPos, items, isAbsolutePos){
+        return translateFunction('windowActions.spawnContextMenu', [xPos, yPos, items, isAbsolutePos])
     }
 }
