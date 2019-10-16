@@ -56,6 +56,12 @@ export class AdminNotificationComponent {
         ZoweZLUX.notificationManager.serverNotify({"notification": notification, "recipient": EVERYONE})
         .then(
           (res: any) => {
+            let element = (<HTMLImageElement>document.getElementsByClassName('response')[0]);
+            if (res.ok) {
+              element.style.color = 'black'
+            } else {
+              element.style.color = 'red'
+            }
             res.json().then((json: any) => this.response = "Server Response: " + json.Response)
           },
           (error: any) => {
@@ -65,6 +71,12 @@ export class AdminNotificationComponent {
         ZoweZLUX.notificationManager.serverNotify({"username": this.recipient, "notification": notification, "recipient": INDIVIDUAL})
         .then(
           (res: any) => {
+            let element = (<HTMLImageElement>document.getElementsByClassName('response')[0]);
+            if (res.ok) {
+              element.style.color = 'black'
+            } else {
+              element.style.color = 'red'
+            }
             res.json().then((json: any) => this.response = "Server Response: " + json.Response)
           },
           (error: any) => {
