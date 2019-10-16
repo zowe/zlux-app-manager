@@ -186,6 +186,7 @@
 }
 
 .notification-message {
+  word-break: break-word;
   color: black;
 }
 
