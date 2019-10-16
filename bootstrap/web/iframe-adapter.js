@@ -16,14 +16,22 @@
 */
 
 var responses = {};
-var these = {};
 var curResponseKey = 0;
 var numUnresolved = 0;
+window.top.iframeAdapter = {};
+let ifAdapter = window.top.iframeAdapter;
+ifAdapter.thisInstances = {};
+ifAdapter.contextMenuObjects = {};
 
 window.addEventListener('message', function(message) {
     if (message.data.key === undefined) return;
     if(responses[message.data.key]){
         responses[message.data.key].resolve(message.data.value);
+        if(ifAdapter.thisInstances[message.data.key]){
+            delete ifAdapter.thisInstances[message.data.key];
+        } else if(ifAdapter.contextMenuObjects[message.data.key]){
+            delete ifAdapter.contextMenuObjects[message.data.key];
+        }
         delete responses[message.data.key];
         numUnresolved--;
     }
@@ -42,8 +50,14 @@ function translateFunction(functionString, args){
         const key = curResponseKey++;
         for(let i = 0; i < args.length; i++){
             if(Object.prototype.toString.call(args[i]) === '[object Window]'){
-                these[key] = args[i];
-                args[i] = `this:${key}`
+                window.top.iframeAdapter.thisInstances[key] = args[i];
+                args[i] = `this`
+            }
+        }
+        if(functionString === 'windowActions.spawnContextMenu'){
+            if(args[2] && Array.isArray(args[2])){
+                ifAdapter.contextMenuObjects[key] = args[2];
+                args[2] = 'contextMenuItems'
             }
         }
         const request = {
