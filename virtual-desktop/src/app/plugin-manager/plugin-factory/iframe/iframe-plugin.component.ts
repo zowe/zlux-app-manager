@@ -96,7 +96,12 @@ export class IFramePluginComponent {
               } else {
                 for(let i = 0; i < args.length; i++){
                   if(args[i] == 'this'){
-                    args[i] = source;
+                    if((window as any).iframeAdapter.thisInstances[message.data.key]){
+                      args[i] = (window as any).iframeAdapter.thisInstances[message.data.key];
+                    } else {
+                      console.log('Could not find \'this\' for requesting application, setting to iFrame adapter.')
+                      args[i] = source;
+                    }
                   }
                 }
                 fnRet = fn(...args);
@@ -115,7 +120,19 @@ export class IFramePluginComponent {
             } else {
               for(let i = 0; i < args.length; i++){
                 if(args[i] == 'this'){
-                  args[i] = source;
+                  if((window as any).iframeAdapter.thisInstances[message.data.key]){
+                    args[i] = (window as any).iframeAdapter.thisInstances[message.data.key];
+                  } else {
+                    console.log('Could not find \'this\' for requesting application, setting to iFrame adapter.')
+                    args[i] = source;
+                  }
+                } else if(args[i] === 'contextMenuItems'){
+                  if((window as any).iframeAdapter.contextMenuObjects[message.data.key]){
+                    args[i] = (window as any).iframeAdapter.contextMenuObjects[message.data.key];
+                  } else {
+                    console.log('Could not find \'this\' for requesting application, setting to undefined.')
+                    args[i] = undefined;
+                  }
                 }
               }
               fnRet = fn(...args);
