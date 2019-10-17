@@ -33,7 +33,6 @@
             <div class="notification-message">{{item['notification'].message}}</div>
           </div>
           <img class="delete-notification" (click)="deleteNotification(item);$event.stopPropagation()" [src]="closeImage">
-          <!-- Time Does Not Work -->
           <div class="time-container">
             <div class="time">{{item.recievedDate.toLocaleTimeString()}}</div>
             <div class="timeAgo">{{timeSince[i]}}</div>

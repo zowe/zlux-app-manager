@@ -146,7 +146,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     let recievedDate = new Date(message.notification.date);
     message.recievedDate = recievedDate;
     this.notifications.unshift(message)
-    this.info = this.parseInfo()
+    this.info = this.parsePluginInfo()
     let styleClass = "org_zowe_zlux_ng2desktop_snackbar";
     if (message.notification.styleClass) {
       styleClass = message.notification.styleClass;
@@ -154,7 +154,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: styleClass, verticalPosition: 'top', horizontalPosition: 'end'})
     ref.onAction().subscribe(() => {
       ZoweZLUX.notificationManager.dismissNotification(message.id)
-      this.info = this.parseInfo()
+      this.info = this.parsePluginInfo()
     });
   }
 
@@ -185,7 +185,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     return times
   }
 
-  parseInfo(): any[] {
+  parsePluginInfo(): any[] {
     let info: any[] = [];
 
     for (let notification of this.notifications) {
@@ -208,7 +208,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   deleteNotification(item: any) {
     ZoweZLUX.notificationManager.dismissNotification(item.id)
-    this.info = this.parseInfo();
+    this.info = this.parsePluginInfo();
   }
 
   focusApplication(i: any) {
