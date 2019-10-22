@@ -15,6 +15,7 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { PluginFactory } from '../plugin-factory';
 //import { DesktopPluginDefinition } from '../../shared/desktop-plugin-definition';
+//import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents } from '../../../../pluginlib/inject-resources';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { IFRAME_NAME_PREFIX } from '../../../shared/named-elements';
@@ -25,7 +26,7 @@ var mouseDown = false;
 let iFrameElement: HTMLElement;
 
 @NgModule({
-  declarations: [IFramePluginComponent]
+  declarations: [IFramePluginComponent],
 })
 
 @Injectable()
@@ -70,7 +71,7 @@ export class IFramePluginFactory extends PluginFactory {
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
     this.logger.info(`Loading iframe, URI=${startingPageUri}`);
     const theIframeId = IFRAME_NAME_PREFIX + (instanceId); //Syncs the IFrame ID with its instance ID counterpart
-    return class IFrameComponentClass extends IFramePluginComponent {
+    class IFrameComponentClass extends IFramePluginComponent {
       startingPage: SafeResourceUrl = safeStartingPageUri;
       iframeId:string = theIframeId;
       iFrameMouseOver(event: any) {
@@ -83,6 +84,7 @@ export class IFramePluginFactory extends PluginFactory {
         }
       }
     };
+    return IFrameComponentClass;
   }
 
   loadComponentFactories(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<void> {

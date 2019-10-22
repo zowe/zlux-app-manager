@@ -7,7 +7,7 @@
   
   Copyright Contributors to the Zowe Project.
 */
-import { Inject, Component } from '@angular/core';
+import { Injectable, Inject, Component, Optional } from '@angular/core';
 import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents } from '../../../../pluginlib/inject-resources';
 import { SafeResourceUrl } from '@angular/platform-browser';
 
@@ -15,49 +15,49 @@ import { SafeResourceUrl } from '@angular/platform-browser';
     templateUrl: './iframe-plugin.component.html'
 })
 
-
+@Injectable()
 export class IFramePluginComponent {
-
-  private windowActions:  Angular2PluginWindowActions;
-  private windowEvents: Angular2PluginWindowEvents;
-  private viewportEvents: Angular2PluginViewportEvents;
   startingPage: SafeResourceUrl;
   iframeId: string;
+  instanceId: number = -1;
 
   constructor(
-    @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) windowActions: Angular2PluginWindowActions,
-    @Inject(Angular2InjectionTokens.WINDOW_EVENTS) windowEvents: Angular2PluginWindowEvents,
-    @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) viewportEvents: Angular2PluginViewportEvents,
+    @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
+    @Optional() @Inject(Angular2InjectionTokens.WINDOW_EVENTS) private windowEvents: Angular2PluginWindowEvents,
+    @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) private viewportEvents: Angular2PluginViewportEvents
   ){
-    addEventListener('message', this.postMessageListener.bind(this));
-    //the following 5 lines are to temporarily suppress typescript warnings
-    //i miss good ol gcc that lets you compile literally anything :(
-    this.viewportEvents;
-    this.windowEvents;
-    this.startingPage;
-    this.iframeId;
+    addEventListener("message", this.postMessageListener.bind(this));
     this.iFrameMouseOver;
-    this.windowActions = windowActions;
-    this.windowEvents = windowEvents;
-    this.viewportEvents = viewportEvents;
+    this.windowEvents.minimized.subscribe((res) => {
+      console.log('Minimized')
+    })
+    this.viewportEvents;
   }
-
-  postMessageListener(message: any): void {
-    if(!message.data.request || !message.data.request.function || message.data.key === undefined){
+  
+  private postMessageListener(message: any): void {
+    if(!message.data.request || !message.data.request.function || message.data.key === undefined
+        || message.data.request.instanceId === undefined){
       return;
     }
-    //console.log('postMessageListener() - received translation request for: ', message.data.request.function, '\n Message: ', message)
-    this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
-      message.source.postMessage({
-        key: message.data.key,
-        value: res,
-        originCall: message.data.request.function
-      }, '*');
-    });
+    let fnString: string = message.data.request.function;
+    let split: Array<string> = fnString.split('.');
+    if(split[0] === 'registerAdapterInstance' && this.instanceId == -1){
+      this.instanceId = message.data.request.instanceId;
+      //console.log('registering iframe adapter instance with instance id: ', this.instanceId)
+      return;
+    }
+    if(message.data.request.instanceId === this.instanceId && split[0] === 'windowActions'){
+      this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
+        message.source.postMessage({
+          key: message.data.key,
+          value: res,
+          originCall: message.data.request.function,
+          instanceId: message.data.request.instanceId
+        }, '*');
+      });
+    }
     return;
   }
-
-  iFrameMouseOver(event: any){}
 
   private resolvePromisesRecursively(p: any){
     if(p instanceof Promise){
@@ -87,37 +87,11 @@ export class IFramePluginComponent {
   private translateFunction(message: any){
     let args = message.data.request.args || [];
     let fnString: string = message.data.request.function;
-    let source: any = message.source;
     let split: Array<string> = fnString.split('.');
     let fn: Function;
     let fnRet: any;
-    //console.log('(backend) translateFunction() - translating: ', fnString);
     if(split.length > 0){
       switch(split[0]){
-        case 'ZoweZLUX':
-            split.shift();
-            fn = (this.getAttrib(Object.assign({}, ZoweZLUX), split.join('.')) as Function);
-            if(typeof fn === 'function'){
-              fn = fn.bind((window as any).ZoweZLUX[split[0]]);
-              if(args.length === 0){
-                fnRet = fn();
-              } else {
-                for(let i = 0; i < args.length; i++){
-                  if(args[i] == 'this'){
-                    if((window as any).iframeAdapter.thisInstances[message.data.key]){
-                      args[i] = (window as any).iframeAdapter.thisInstances[message.data.key];
-                    } else {
-                      console.log('Could not find \'this\' for requesting application, setting to iFrame adapter.')
-                      args[i] = source;
-                    }
-                  }
-                }
-                fnRet = fn(...args);
-              }
-              return fnRet;
-            } else {
-              return undefined;
-            }
         case 'windowActions':
           split.shift();
           fn = (this.getAttrib(Object.assign({}, this.windowActions), split.join('.')) as Function);
@@ -126,23 +100,6 @@ export class IFramePluginComponent {
             if(args.length === 0){
               fnRet = fn();
             } else {
-              for(let i = 0; i < args.length; i++){
-                if(args[i] == 'this'){
-                  if((window as any).iframeAdapter.thisInstances[message.data.key]){
-                    args[i] = (window as any).iframeAdapter.thisInstances[message.data.key];
-                  } else {
-                    console.log('Could not find \'this\' for requesting application, setting to iFrame adapter.')
-                    args[i] = source;
-                  }
-                } else if(args[i] === 'contextMenuItems'){
-                  if((window as any).iframeAdapter.contextMenuObjects[message.data.key]){
-                    args[i] = (window as any).iframeAdapter.contextMenuObjects[message.data.key];
-                  } else {
-                    console.log('Could not find \'this\' for requesting application, setting to undefined.')
-                    args[i] = undefined;
-                  }
-                }
-              }
               fnRet = fn(...args);
             }
             return fnRet;
@@ -154,4 +111,6 @@ export class IFramePluginComponent {
       }
     }
   }
+
+  iFrameMouseOver(event: any){}
 }
