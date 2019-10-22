@@ -16,29 +16,51 @@
 */
 
 var responses = {};
+var these = {}; //contains this'
 var curResponseKey = 0;
 var numUnresolved = 0;
-window.top.iframeAdapter = {};
-let ifAdapter = window.top.iframeAdapter;
-ifAdapter.thisInstances = {};
-ifAdapter.contextMenuObjects = {};
+var instanceId = -1;
 
-window.addEventListener('message', function(message) {
-    if (message.data.key === undefined) return;
-    if(responses[message.data.key]){
-        responses[message.data.key].resolve(message.data.value);
-        if(ifAdapter.thisInstances[message.data.key]){
-            delete ifAdapter.thisInstances[message.data.key];
-        } else if(ifAdapter.contextMenuObjects[message.data.key]){
-            delete ifAdapter.contextMenuObjects[message.data.key];
+let messageHandler = function(message) {
+    if(message.data.dispatchData){
+        if(instanceId === -1 && message.data.dispatchData.instanceId !== undefined){
+            instanceId = message.data.dispatchData.instanceId;
+            translateFunction('registerAdapterInstance', []);
         }
-        delete responses[message.data.key];
+    }
+    if(message.data.key === undefined || message.data.instanceId != instanceId) return;
+    let key = message.data.key
+    if(responses[key]){
+        responses[key].resolve(message.data.value);
+        delete responses[key];
         numUnresolved--;
+    } else {
+        switch(message.data.originCall){
+            case 'handleMessageAdded':
+                these[message.data.instanceId].handleMessageAdded(message.data.notification);
+                return;
+            case 'handleMessageRemoved':
+                these[message.data.instanceId].handleMessageRemoved(message.data.notificationId);
+                return;
+            default:
+                return;
+        }
     }
     if(numUnresolved < 1){
         responses = {};
     }
-})
+}
+
+window.addEventListener("load", function () {
+    console.log('iFrame Adapter has loaded!');
+    window.top.postMessage('iframeload', '*');
+});
+
+window.addEventListener("unload", function () {
+    this.removeEventListener('message', messageHandler)
+});
+
+window.addEventListener('message', messageHandler);
 
 function translateFunction(functionString, args){
     return new Promise((resolve, reject) => {
@@ -48,21 +70,22 @@ function translateFunction(functionString, args){
             })
         }
         const key = curResponseKey++;
-        for(let i = 0; i < args.length; i++){
-            if(Object.prototype.toString.call(args[i]) === '[object Window]'){
-                window.top.iframeAdapter.thisInstances[key] = args[i];
-                args[i] = `this`
-            }
-        }
-        if(functionString === 'windowActions.spawnContextMenu'){
-            if(args[2] && Array.isArray(args[2])){
-                ifAdapter.contextMenuObjects[key] = args[2];
-                args[2] = 'contextMenuItems'
-            }
+        switch(functionString){
+            case 'ZoweZLUX.notificationManager.addMessageHandler':
+                if(args.length === 1){
+                    these[instanceId] = args[0];
+                    args[0] = 'this'
+                }
+                break;
+            case 'windowActions.spawnContextMenu':
+                break;
+            default:
+                break;
         }
         const request = {
             function: functionString,
-            args: args
+            args: args,
+            instanceId: instanceId
         }
         numUnresolved++;
         responses[key] = {
