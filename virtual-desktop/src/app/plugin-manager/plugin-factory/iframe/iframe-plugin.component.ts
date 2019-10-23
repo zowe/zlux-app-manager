@@ -86,6 +86,7 @@ export class IFramePluginComponent {
 
   private translateFunction(message: any){
     let args = message.data.request.args || [];
+    let source: any = message.source;
     let fnString: string = message.data.request.function;
     let split: Array<string> = fnString.split('.');
     let fn: Function;
@@ -100,6 +101,9 @@ export class IFramePluginComponent {
             if(args.length === 0){
               fnRet = fn();
             } else {
+              if(fnString == 'windowActions.spawnContextMenu' && Array.isArray(args[2])){
+                args[2] = this.addActionsToContextMenu(message.data.key, source, args[2])
+              }
               fnRet = fn(...args);
             }
             return fnRet;
@@ -110,6 +114,21 @@ export class IFramePluginComponent {
           return undefined;
       }
     }
+  }
+
+  private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>){
+    let copy = JSON.parse(JSON.stringify(itemsArray));
+    for(let i = 0; i < copy.length; i++){
+      copy[i].action = () => {
+        source.postMessage({
+          key: key,
+          originCall: 'windowActions.spawnContextMenu',
+          instanceId: this.instanceId,
+          contextMenuItemIndex: i
+        }, '*')
+      }
+    }
+    return copy;
   }
 
   iFrameMouseOver(event: any){}
