@@ -141,68 +141,68 @@ function removeActionsFromContextMenu(itemsArray){
 
 var ZoweZLUX = {
     pluginManager: {
-        getPlugin: function(id){
+        getPlugin(id){
             return translateFunction('ZoweZLUX.pluginManager.getPlugin', [id])
         },
-        loadPlugins: function(pluginType){
+        loadPlugins(pluginType){
 
         },
-        setDesktopPlugin: function(plugin){
+        setDesktopPlugin(plugin){
 
         },
-        includeScript: function(scriptUrl){
+        includeScript(scriptUrl){
 
         },
-        getDesktopPlugin: function(){
+        getDesktopPlugin(){
 
         }
     },
     uriBroker: {
-        desktopRootUri: function(){
+        desktopRootUri(){
             return translateFunction('ZoewZLUX.uriBroker.desktopRootUri', [])
         },
-        datasetMetadataHlqUri: function(updateCache, types, workAreaSize, resumeName, resumeCatalogName){
+        datasetMetadataHlqUri(updateCache, types, workAreaSize, resumeName, resumeCatalogName){
 
         },
-        datasetMetadataUri: function(dsn, detail, types, listMembers, workAreaSize, includeMigrated, includeUnprintable,
+        datasetMetadataUri(dsn, detail, types, listMembers, workAreaSize, includeMigrated, includeUnprintable,
                                     resumeName, resumeCatalogName, addQualifiers){
             
         },
-        datasetContentsUri: function(dsn){
+        datasetContentsUri(dsn){
 
         },
-        VSAMdatasetContentsUri: function(dsn, closeAfter){
+        VSAMdatasetContentsUri(dsn, closeAfter){
 
         },
-        unixFileUri: function(route, absPath, sourceEncodingOrOptions,
+        unixFileUri(route, absPath, sourceEncodingOrOptions,
                             targetEncoding, newName, forceOverwrite, sessionID, lastChunk, responseType){
 
         },
-        omvsSegmentUri: function(){
+        omvsSegmentUri(){
 
         },
-        rasUri: function(uri){
+        rasUri(uri){
 
         },
-        serverRootUri: function(uri){
+        serverRootUri(uri){
 
         },
-        pluginResourceUri: function(pluginDefinition, relativePath){
+        pluginResourceUri(pluginDefinition, relativePath){
 
         },
-        pluginListUri: function(pluginType){
+        pluginListUri(pluginType){
 
         },
-        pluginConfigForScopeUri: function(pluginDefinition, scope, resourcePath, resourceName){
+        pluginConfigForScopeUri(pluginDefinition, scope, resourcePath, resourceName){
 
         },
-        pluginConfigUri: function(pluginDefinition, resourcePath, resourceName){
+        pluginConfigUri(pluginDefinition, resourcePath, resourceName){
             return translateFunction('ZoweZLUX.uriBroker.pluginConfigUri', [pluginDefinition, resourcePath, resourceName])
         },
-        pluginWSUri: function(pluginDefinition, serviceName, relativePath, version){
+        pluginWSUri(pluginDefinition, serviceName, relativePath, version){
 
         },
-        pluginRESTUri: function(pluginDefinition, serviceName, relativePath, version){
+        pluginRESTUri(pluginDefinition, serviceName, relativePath, version){
             return translateFunction('ZoweZLUX.uriBroker.pluginRESTUri', [pluginDefinition, serviceName, relativePath, version])
         }
     },
@@ -226,10 +226,10 @@ var ZoweZLUX = {
                 System: 3
             }
         },
-        makeAction: function(id, defaultName, targetMode, type, targetPluginID, primaryArg){
+        makeAction(id, defaultName, targetMode, type, targetPluginID, primaryArg){
             return translateFunction('ZoweZLUX.dispatcher.makeAction', [id, defaultName, targetMode, type, targetPluginID, primaryArg])
         },
-        invokeAction: function(action, eventContext, targetId){
+        invokeAction(action, eventContext, targetId){
             return translateFunction('ZoweZLUX.dispatcher.invokeAction', [action, eventContext, targetId])
         }
     },
@@ -240,67 +240,70 @@ var ZoweZLUX = {
 
     },
     notificationManager: {
-        notify: function(notification){
+        notify(notification){
             return translateFunction('ZoweZLUX.notificationManager.notify', [notification])
         },
-        serverNotify: function(message){
+        serverNotify(message){
             return translateFunction('ZoweZLUX.notificationManager.serverNotify', [message])
         },
-        dismissNotification: function(id){
+        dismissNotification(id){
             return translateFunction('ZoweZLUX.notificationManager.dismissNotification', [id])
         },
-        removeAll: function(){
+        removeAll(){
             return translateFunction('ZoweZLUX.notificationManager.removeAll', [])
         },
-        getCount: function(){
+        getCount(){
             return translateFunction('ZoweZLUX.notificationManager.getCount', [])
         },
-        addMessageHandler: function(object){
+        addMessageHandler(object){
             return translateFunction('ZoweZLUX.notificationManager.addMessageHandler', [object])
         },
-        removeMessageHandler: function(object){
+        removeMessageHandler(object){
             return translateFunction('ZoweZLUX.notificationManager.removeMessageHandler', [object])
         },
-        createNotification: function(title, message, type, plugin){
+        createNotification(title, message, type, plugin){
             return translateFunction('ZoweZLUX.notificationManager.createNotification', [title, message, type, plugin])
         }
     },
     globalization: {
-        getLanguage: function(){
+        getLanguage(){
             return translateFunction('ZoweZLUX.globalization.getLanguage', [])
         },
-        getLocale: function(){
+        getLocale(){
             return translateFunction('ZoweZLUX.globalization.getLocale', [])
         },
-        setLanguage: function(language){
+        setLanguage(language){
             return translateFunction('ZoweZLUX.globalization.setLanguage', [language])
         },
-        setLocale: function(locale){
+        setLocale(locale){
             return translateFunction('ZoweZLUX.globalization.setLocale', [locale])
         }
     }
 }
 
 var windowActions = {
-    close: function(){
+    close(){
         return translateFunction('windowActions.close', [])
     },
-    minimize: function(){
+    minimize(){
         return translateFunction('windowActions.minimize', [])
     },
-    maximize: function(){
+    maximize(){
         return translateFunction('windowActions.maximize', [])
     },
-    restore: function(){
+    restore(){
         return translateFunction('windowActions.restore', [])
     },
-    setTitle: function(title){
+    setTitle(title){
         return translateFunction('windowActions.setTitle', [title])
     },
-    setPosition: function(pos){
+    setPosition(pos){
         return translateFunction('windowActions.setPosition', [pos])
     },
-    spawnContextMenu: function(xPos, yPos, items, isAbsolutePos){
+    spawnContextMenu(xPos, yPos, items, isAbsolutePos){
         return translateFunction('windowActions.spawnContextMenu', [xPos, yPos, items, isAbsolutePos])
+    },
+    registerCloseHandler(handler){
+        return translateFunction('windowActions.registerCloseHandler', [handler])
     }
 }
