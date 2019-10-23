@@ -17,6 +17,7 @@
 
 var responses = {};
 var these = {}; //contains this'
+var contextMenuActions = {};
 var curResponseKey = 0;
 var numUnresolved = 0;
 var instanceId = -1;
@@ -41,6 +42,12 @@ let messageHandler = function(message) {
                 return;
             case 'handleMessageRemoved':
                 these[message.data.instanceId].handleMessageRemoved(message.data.notificationId);
+                return;
+            case 'windowActions.spawnContextMenu':
+                if(message.data.contextMenuItemIndex !== undefined){
+                    contextMenuActions[key][message.data.contextMenuItemIndex].action();
+                    delete contextMenuActions[key];
+                }
                 return;
             default:
                 return;
@@ -78,6 +85,10 @@ function translateFunction(functionString, args){
                 }
                 break;
             case 'windowActions.spawnContextMenu':
+                if(args.length > 0 && Array.isArray(args[2])){
+                    contextMenuActions[key] = args[2];
+                    args[2] = removeActionsFromContextMenu(args[2]);
+                }
                 break;
             default:
                 break;
@@ -95,6 +106,17 @@ function translateFunction(functionString, args){
         }
         window.top.postMessage({key, request}, '*');
     })
+}
+
+function removeActionsFromContextMenu(itemsArray){
+    let copy = JSON.parse(JSON.stringify(itemsArray));
+    for(let i = 0; i < copy.length; i++){
+        if(copy[i].children){
+            copy[i].children = removeActionsFromContextMenu(copy[i].children)
+        }
+        copy[i].action = {}
+    }
+    return copy;
 }
 
 var ZoweZLUX = {
