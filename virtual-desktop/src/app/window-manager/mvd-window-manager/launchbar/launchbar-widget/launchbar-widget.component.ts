@@ -44,6 +44,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   @Output() popupStateChanged = new EventEmitter<boolean>();
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
+  @ViewChild('notificationicon') notificationIcon: ElementRef;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public notificationsVisible: boolean;
   private info: any[];
@@ -120,6 +121,12 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       this.popupVisible = false;
       this.popupStateChanged.emit(this.popupVisible);
     }
+
+    if(this.notificationsVisible && event 
+      && !this.notificationIcon.nativeElement.contains(event.target)
+      && this.logoutButton.nativeElement !== event.target) {
+        this.notificationsVisible = false;
+    }
   }
 
   setLanguage(value: string): void {
@@ -136,8 +143,10 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   }
 
   handleMessageAdded(message: any): void {
+    let recievedDate = new Date(message.notification.date);
+    message.recievedDate = recievedDate;
     this.notifications.unshift(message)
-    this.info = this.parseInfo()
+    this.info = this.parsePluginInfo()
     let styleClass = "org_zowe_zlux_ng2desktop_snackbar";
     if (message.notification.styleClass) {
       styleClass = message.notification.styleClass;
@@ -145,7 +154,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: styleClass, verticalPosition: 'top', horizontalPosition: 'end'})
     ref.onAction().subscribe(() => {
       ZoweZLUX.notificationManager.dismissNotification(message.id)
-      this.info = this.parseInfo()
+      this.info = this.parsePluginInfo()
     });
   }
 
@@ -153,7 +162,30 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     this.notifications.splice(this.notifications.findIndex(x => x.id === id), 1)
   }
 
-  parseInfo(): any[] {
+  get timeSince() {
+    let times = []
+    for (let notification of this.notifications) {
+      let currentDate = new Date();
+      var seconds = Math.floor((currentDate.getTime() - notification.recievedDate.getTime())/1000);
+
+      var h = Math.floor(seconds / 3600);
+      var m = Math.floor(seconds % 3600 / 60);
+  
+      var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
+      var mDisplay = m > 0 ? m + (m == 1 ? " minute " : " minutes ") : "";
+
+      if (h > 0) {
+        times.push(hDisplay + " ago")
+      } else if (m > 0) {
+        times.push(mDisplay + " ago");
+      } else {
+        times.push("Less than a minute ago")
+      }
+    }
+    return times
+  }
+
+  parsePluginInfo(): any[] {
     let info: any[] = [];
 
     for (let notification of this.notifications) {
@@ -166,25 +198,9 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       if (imgSrc === "") {
         imgSrc =  require('../../../../../assets/images/launchbar/notifications/zowe.png')
       }
-//      let currentDate = new Date();
-//      let notificationTime = notification['notification'].date.toString().split('T')[1].split('.')[0]
-//      let currentTime = currentDate.toUTCString().split(' ')[4]
 
-
-      // This logic is wrong but kinda works, if one minute changes then all the minutes change 
-      // Need to also do logic about if more than a day
-//      let hourDifference = parseInt(currentTime.split(':')[0]) - parseInt(notificationTime.split(':')[0])
-//      let minuteDifference = parseInt(currentTime.split(':')[1]) - parseInt(notificationTime.split(':')[1])
-//      let timeSince: string;
-//      if (hourDifference > 0) {
-//        timeSince = hourDifference + " hours ago"
-//      } else if (minuteDifference > 0) {
-//        timeSince = minuteDifference + " minutes ago"
-//      } else {
-//        timeSince = "Less than a minute ago"
-//      }
-      
-      info.push({'title': notification['notification'].title, 'message': notification['notification'].message, 'timeSince': 'timeSince', "imgSrc": imgSrc})
+     
+      info.push({'title': notification['notification'].title, 'message': notification['notification'].message, "imgSrc": imgSrc})
     }
 
     return info
@@ -192,11 +208,11 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   deleteNotification(item: any) {
     ZoweZLUX.notificationManager.dismissNotification(item.id)
-    this.info = this.parseInfo();
+    this.info = this.parsePluginInfo();
   }
 
-  focusApplication(item: any) {
-    let pluginId = ZoweZLUX.notificationManager.getAll()[item].plugin
+  focusApplication(i: any) {
+    let pluginId = this.notifications[i].notification.plugin
 
     for(let item of this.menuItems) {
       if (item.plugin.getBasePlugin().getIdentifier() === pluginId) {
