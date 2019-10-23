@@ -20,6 +20,7 @@ export class IFramePluginComponent {
   startingPage: SafeResourceUrl;
   iframeId: string;
   instanceId: number = -1;
+  frameSource: any;
 
   constructor(
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
@@ -28,10 +29,15 @@ export class IFramePluginComponent {
   ){
     addEventListener("message", this.postMessageListener.bind(this));
     this.iFrameMouseOver;
-    this.windowEvents.minimized.subscribe((res) => {
-      console.log('Minimized')
-    })
     this.viewportEvents;
+  }
+
+  private postWindowEvent(originCall: string){
+    this.frameSource.postMessage({
+      key: -1,
+      originCall: originCall,
+      instanceId: this.instanceId
+    }, '*')
   }
   
   private postMessageListener(message: any): void {
@@ -43,10 +49,28 @@ export class IFramePluginComponent {
     let split: Array<string> = fnString.split('.');
     if(split[0] === 'registerAdapterInstance' && this.instanceId == -1){
       this.instanceId = message.data.request.instanceId;
-      //console.log('registering iframe adapter instance with instance id: ', this.instanceId)
+      this.frameSource = message.source;
+      this.windowEvents.minimized.subscribe(() => {
+        this.postWindowEvent('windowEvents.minimized');
+      });
+      this.windowEvents.maximized.subscribe(() => {
+        this.postWindowEvent('windowEvents.maximized');
+      });
+      this.windowEvents.restored.subscribe(() => {
+        this.postWindowEvent('windowEvents.restored');
+      });
+      this.windowEvents.moved.subscribe(() => {
+        this.postWindowEvent('windowEvents.moved');
+      });
+      this.windowEvents.resized.subscribe(() => {
+        this.postWindowEvent('windowEvents.resized');
+      });
+      this.windowEvents.titleChanged.subscribe(() => {
+        this.postWindowEvent('windowEvents.titleChanged');
+      });
       return;
     }
-    if(message.data.request.instanceId === this.instanceId && split[0] === 'windowActions'){
+    if(message.data.request.instanceId === this.instanceId && split[0] !== 'ZoweZLUX'){
       this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
         message.source.postMessage({
           key: message.data.key,
