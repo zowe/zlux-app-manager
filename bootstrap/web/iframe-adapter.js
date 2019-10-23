@@ -49,6 +49,26 @@ let messageHandler = function(message) {
                     delete contextMenuActions[key];
                 }
                 return;
+            //The following cases should be implemented by the user,
+            //therefore users will need an eventListener for "message" events
+            case 'windowEvents.minimized':
+                console.log('minimized')
+                return;
+            case 'windowEvents.maximized':
+                console.log('maximized')
+                return;
+            case 'windowEvents.restored':
+                console.log('restored')
+                return;
+            case 'windowEvents.moved':
+                console.log('moved')
+                return;
+            case 'windowEvents.resized':
+                console.log('resized')
+                return;
+            case 'windowEvents.titleChanged':
+                console.log('titleChanged')
+                return;
             default:
                 return;
         }
@@ -262,6 +282,18 @@ var ZoweZLUX = {
 }
 
 var windowActions = {
+    close: function(){
+        return translateFunction('windowActions.close', [])
+    },
+    minimize: function(){
+        return translateFunction('windowActions.minimize', [])
+    },
+    maximize: function(){
+        return translateFunction('windowActions.maximize', [])
+    },
+    restore: function(){
+        return translateFunction('windowActions.restore', [])
+    },
     setTitle: function(title){
         return translateFunction('windowActions.setTitle', [title])
     },
