@@ -31,28 +31,31 @@ let messageHandler = function(message) {
         }
     }
     if(message.data.key === undefined || message.data.instanceId != instanceId) return;
-    let key = message.data.key
+    let data = message.data;
+    let key = data.key
     if(responses[key]){
-        responses[key].resolve(message.data.value);
+        responses[key].resolve(data.value);
         delete responses[key];
         numUnresolved--;
     } else {
-        switch(message.data.originCall){
+        switch(data.originCall){
             case 'handleMessageAdded':
-                these[message.data.instanceId].handleMessageAdded(message.data.notification);
+                these[data.instanceId].handleMessageAdded(data.notification);
                 return;
             case 'handleMessageRemoved':
-                these[message.data.instanceId].handleMessageRemoved(message.data.notificationId);
+                these[data.instanceId].handleMessageRemoved(data.notificationId);
                 return;
             case 'windowActions.spawnContextMenu':
-                if(message.data.contextMenuItemIndex !== undefined){
-                    contextMenuActions[key][message.data.contextMenuItemIndex].action();
+                if(data.contextMenuItemIndex !== undefined){
+                    contextMenuActions[key][data.contextMenuItemIndex].action();
                     delete contextMenuActions[key];
                 }
                 return;
             case 'viewportEvents.callCloseHandler':
-                closeHandlers[message.data.key]();
-                translateFunction('resolveCloseHandler', [message.data.key])
+                closeHandlers[key]().then((res) => {
+                    delete closeHandlers[key]
+                    translateFunction('resolveCloseHandler', [key])
+                })
                 return;
             //The following cases should be implemented by the user,
             //therefore users will need an eventListener for "message" events
@@ -104,9 +107,9 @@ function translateFunction(functionString, args){
         const key = curResponseKey++;
         switch(functionString){
             case 'ZoweZLUX.notificationManager.addMessageHandler':
-                if(args.length === 1){
+                if(args[0] !== undefined){
                     these[instanceId] = args[0];
-                    args[0] = 'this'
+                    args[0] = {}
                 }
                 break;
             case 'windowActions.spawnContextMenu':
@@ -116,7 +119,7 @@ function translateFunction(functionString, args){
                 }
                 break;
             case 'viewportEvents.registerCloseHandler':
-                if(args.length === 1){
+                if(args[0] !== undefined){
                     closeHandlers[key] = args[0];
                     args[0] = {};
                 }
