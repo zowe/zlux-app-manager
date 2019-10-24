@@ -74,29 +74,10 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
                 this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);
                 return ZoweZLUX.dispatcher.iframeLoaded(instance, pluginId);
               }
-              return undefined;
             }
-            return undefined;
           }
-          return undefined;
         });
         this.logger.warn(`No iframe identified as source of message`);
-        return true;
-      } else {
-        if(!message.data || message.data.key === undefined){
-          return;
-        }
-        if(!message.data.request.function){
-          return;
-        }
-        this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
-          message.source.postMessage({
-            key: message.data.key,
-            value: res,
-            originCall: message.data.request.function
-          }, '*');
-        });
-        return;
       }
     });
     (window as any).ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
@@ -121,90 +102,6 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
          }
        }
     });
-  }
-
-  private resolvePromisesRecursively(p: any){
-    if(p instanceof Promise){
-      return p.then(res => {
-        this.resolvePromisesRecursively(res);
-      })
-    } else {
-      return Promise.resolve(p);
-    }
-  }
-
-  private getAttrib(object: object, path: string){
-    if(object === undefined || path === undefined || 
-      typeof path !== 'string' || typeof object !== 'object') return undefined;
-    let objCopy: object = Object.assign({}, object);
-    try{
-      let props = (path || '').split('.');
-      for(let i = 0; i < props.length; i++){
-        objCopy = (objCopy as any)[props[i]];
-      }
-    }catch(e){
-      return undefined;
-    }
-    return (objCopy === undefined) ? undefined : objCopy;
-  }
-
-  private translateFunction(message: any){
-    let args = message.data.request.args || [];
-    let fnString: string = message.data.request.function;
-    let source: any = message.source;
-    let split: Array<string> = fnString.split('.');
-    let fn: Function;
-    let fnRet: any;
-    if(split.length > 0){
-      if(split[0] === 'ZoweZLUX'){
-        split.shift();
-        fn = (this.getAttrib(Object.assign({}, ZoweZLUX), split.join('.')) as Function);
-        if(typeof fn === 'function'){
-          switch(split[0]){
-            case 'pluginManager':
-              fn = fn.bind(ZoweZLUX.pluginManager);
-              break;
-            case 'uriBroker':
-              fn = fn.bind(ZoweZLUX.uriBroker);
-              break;
-            case 'dispatcher':
-              fn = fn.bind(ZoweZLUX.dispatcher);
-              break;
-            case 'logger':
-              fn = fn.bind(ZoweZLUX.logger);
-              break;
-            case 'registry':
-              fn = fn.bind(ZoweZLUX.registry);
-              break;
-            case 'notificationManager':
-              fn = fn.bind(ZoweZLUX.notificationManager);
-              break;
-            case 'globalization':
-              fn = fn.bind(ZoweZLUX.globalization);
-              break;
-            default:
-              return undefined;
-          }
-          if(args.length === 0){
-            fnRet = fn();
-          } else {
-            for(let i = 0; i < args.length; i++){
-              if(args[i] == 'this'){
-                args[i] = source;
-              }
-            }
-            fnRet = fn(...args);
-          }
-          return fnRet;
-        } else {
-          //Not a function within ZoweZLUX
-          return undefined;
-        }
-      } else {
-        //some function that doesnt begin with ZoweZLUX
-        return undefined;
-      }
-    }
   }
 
   private generateInstanceId(): MVDHosting.InstanceId {

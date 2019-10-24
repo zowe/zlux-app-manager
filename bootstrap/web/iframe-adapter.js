@@ -16,20 +16,86 @@
 */
 
 var responses = {};
+var these = {}; //contains this'
+var contextMenuActions = {};
+var closeHandlers = {};
 var curResponseKey = 0;
 var numUnresolved = 0;
+var instanceId = -1;
 
-window.addEventListener('message', function(message) {
-    if (message.data.key === undefined) return;
-    if(responses[message.data.key]){
-        responses[message.data.key].resolve(message.data.value);
-        delete responses[message.data.key];
+let messageHandler = function(message) {
+    if(message.data.dispatchData){
+        if(instanceId === -1 && message.data.dispatchData.instanceId !== undefined){
+            instanceId = message.data.dispatchData.instanceId;
+            translateFunction('registerAdapterInstance', []);
+        }
+    }
+    if(message.data.key === undefined || message.data.instanceId != instanceId) return;
+    let data = message.data;
+    let key = data.key
+    if(responses[key]){
+        responses[key].resolve(data.value);
+        delete responses[key];
         numUnresolved--;
+    } else {
+        switch(data.originCall){
+            case 'handleMessageAdded':
+                these[data.instanceId].handleMessageAdded(data.notification);
+                return;
+            case 'handleMessageRemoved':
+                these[data.instanceId].handleMessageRemoved(data.notificationId);
+                return;
+            case 'windowActions.spawnContextMenu':
+                if(data.contextMenuItemIndex !== undefined){
+                    contextMenuActions[key][data.contextMenuItemIndex].action();
+                    delete contextMenuActions[key];
+                }
+                return;
+            case 'viewportEvents.callCloseHandler':
+                closeHandlers[key]().then((res) => {
+                    delete closeHandlers[key]
+                    translateFunction('resolveCloseHandler', [key])
+                })
+                return;
+            //The following cases should be implemented by the user,
+            //therefore users will need an eventListener for "message" events
+            case 'windowEvents.minimized':
+                console.log('minimized')
+                return;
+            case 'windowEvents.maximized':
+                console.log('maximized')
+                return;
+            case 'windowEvents.restored':
+                console.log('restored')
+                return;
+            case 'windowEvents.moved':
+                console.log('moved')
+                return;
+            case 'windowEvents.resized':
+                console.log('resized')
+                return;
+            case 'windowEvents.titleChanged':
+                console.log('titleChanged')
+                return;
+            default:
+                return;
+        }
     }
     if(numUnresolved < 1){
         responses = {};
     }
-})
+}
+
+window.addEventListener("load", function () {
+    console.log('iFrame Adapter has loaded!');
+    window.top.postMessage('iframeload', '*');
+});
+
+window.addEventListener("unload", function () {
+    this.removeEventListener('message', messageHandler)
+});
+
+window.addEventListener('message', messageHandler);
 
 function translateFunction(functionString, args){
     return new Promise((resolve, reject) => {
@@ -39,9 +105,32 @@ function translateFunction(functionString, args){
             })
         }
         const key = curResponseKey++;
+        switch(functionString){
+            case 'ZoweZLUX.notificationManager.addMessageHandler':
+                if(args[0] !== undefined){
+                    these[instanceId] = args[0];
+                    args[0] = {}
+                }
+                break;
+            case 'windowActions.spawnContextMenu':
+                if(args.length > 0 && Array.isArray(args[2])){
+                    contextMenuActions[key] = args[2];
+                    args[2] = removeActionsFromContextMenu(args[2]);
+                }
+                break;
+            case 'viewportEvents.registerCloseHandler':
+                if(args[0] !== undefined){
+                    closeHandlers[key] = args[0];
+                    args[0] = {};
+                }
+                break;
+            default:
+                break;
+        }
         const request = {
             function: functionString,
-            args: args
+            args: args,
+            instanceId: instanceId
         }
         numUnresolved++;
         responses[key] = {
@@ -53,75 +142,82 @@ function translateFunction(functionString, args){
     })
 }
 
-window.addEventListener("load", function () {
-    console.log('Loading iframe adapter instance');
-    this.window.top.postMessage('iframeload', '*');
-  }, false);
+function removeActionsFromContextMenu(itemsArray){
+    //TODO: change implementation once children actions are fixed
+    let copy = JSON.parse(JSON.stringify(itemsArray));
+    for(let i = 0; i < copy.length; i++){
+        if(copy[i].children){
+            copy[i].children = removeActionsFromContextMenu(copy[i].children)
+        }
+        copy[i].action = {}
+    }
+    return copy;
+}
 
 var ZoweZLUX = {
     pluginManager: {
-        getPlugin: function(id){
+        getPlugin(id){
             return translateFunction('ZoweZLUX.pluginManager.getPlugin', [id])
         },
-        loadPlugins: function(pluginType){
+        loadPlugins(pluginType){
 
         },
-        setDesktopPlugin: function(plugin){
+        setDesktopPlugin(plugin){
 
         },
-        includeScript: function(scriptUrl){
+        includeScript(scriptUrl){
 
         },
-        getDesktopPlugin: function(){
+        getDesktopPlugin(){
 
         }
     },
     uriBroker: {
-        desktopRootUri: function(){
-            return translateFunction('ZoewZLUX.uriBroker.desktopRootUri', [])
+        desktopRootUri(){
+            return translateFunction('ZoweZLUX.uriBroker.desktopRootUri', [])
         },
-        datasetMetadataHlqUri: function(updateCache, types, workAreaSize, resumeName, resumeCatalogName){
+        datasetMetadataHlqUri(updateCache, types, workAreaSize, resumeName, resumeCatalogName){
 
         },
-        datasetMetadataUri: function(dsn, detail, types, listMembers, workAreaSize, includeMigrated, includeUnprintable,
+        datasetMetadataUri(dsn, detail, types, listMembers, workAreaSize, includeMigrated, includeUnprintable,
                                     resumeName, resumeCatalogName, addQualifiers){
             
         },
-        datasetContentsUri: function(dsn){
+        datasetContentsUri(dsn){
 
         },
-        VSAMdatasetContentsUri: function(dsn, closeAfter){
+        VSAMdatasetContentsUri(dsn, closeAfter){
 
         },
-        unixFileUri: function(route, absPath, sourceEncodingOrOptions,
+        unixFileUri(route, absPath, sourceEncodingOrOptions,
                             targetEncoding, newName, forceOverwrite, sessionID, lastChunk, responseType){
 
         },
-        omvsSegmentUri: function(){
+        omvsSegmentUri(){
 
         },
-        rasUri: function(uri){
+        rasUri(uri){
 
         },
-        serverRootUri: function(uri){
+        serverRootUri(uri){
 
         },
-        pluginResourceUri: function(pluginDefinition, relativePath){
+        pluginResourceUri(pluginDefinition, relativePath){
 
         },
-        pluginListUri: function(pluginType){
+        pluginListUri(pluginType){
 
         },
-        pluginConfigForScopeUri: function(pluginDefinition, scope, resourcePath, resourceName){
+        pluginConfigForScopeUri(pluginDefinition, scope, resourcePath, resourceName){
 
         },
-        pluginConfigUri: function(pluginDefinition, resourcePath, resourceName){
+        pluginConfigUri(pluginDefinition, resourcePath, resourceName){
             return translateFunction('ZoweZLUX.uriBroker.pluginConfigUri', [pluginDefinition, resourcePath, resourceName])
         },
-        pluginWSUri: function(pluginDefinition, serviceName, relativePath, version){
+        pluginWSUri(pluginDefinition, serviceName, relativePath, version){
 
         },
-        pluginRESTUri: function(pluginDefinition, serviceName, relativePath, version){
+        pluginRESTUri(pluginDefinition, serviceName, relativePath, version){
             return translateFunction('ZoweZLUX.uriBroker.pluginRESTUri', [pluginDefinition, serviceName, relativePath, version])
         }
     },
@@ -145,10 +241,10 @@ var ZoweZLUX = {
                 System: 3
             }
         },
-        makeAction: function(id, defaultName, targetMode, type, targetPluginID, primaryArg){
+        makeAction(id, defaultName, targetMode, type, targetPluginID, primaryArg){
             return translateFunction('ZoweZLUX.dispatcher.makeAction', [id, defaultName, targetMode, type, targetPluginID, primaryArg])
         },
-        invokeAction: function(action, eventContext, targetId){
+        invokeAction(action, eventContext, targetId){
             return translateFunction('ZoweZLUX.dispatcher.invokeAction', [action, eventContext, targetId])
         }
     },
@@ -159,43 +255,73 @@ var ZoweZLUX = {
 
     },
     notificationManager: {
-        notify: function(notification){
+        notify(notification){
             return translateFunction('ZoweZLUX.notificationManager.notify', [notification])
         },
-        serverNotify: function(message){
+        serverNotify(message){
             return translateFunction('ZoweZLUX.notificationManager.serverNotify', [message])
         },
-        dismissNotification: function(id){
+        dismissNotification(id){
             return translateFunction('ZoweZLUX.notificationManager.dismissNotification', [id])
         },
-        removeAll: function(){
+        removeAll(){
             return translateFunction('ZoweZLUX.notificationManager.removeAll', [])
         },
-        getCount: function(){
+        getCount(){
             return translateFunction('ZoweZLUX.notificationManager.getCount', [])
         },
-        addMessageHandler: function(object){
+        addMessageHandler(object){
             return translateFunction('ZoweZLUX.notificationManager.addMessageHandler', [object])
         },
-        removeMessageHandler: function(object){
+        removeMessageHandler(object){
             return translateFunction('ZoweZLUX.notificationManager.removeMessageHandler', [object])
         },
-        createNotification: function(title, message, type, plugin){
+        createNotification(title, message, type, plugin){
             return translateFunction('ZoweZLUX.notificationManager.createNotification', [title, message, type, plugin])
         }
     },
     globalization: {
-        getLanguage: function(){
+        getLanguage(){
             return translateFunction('ZoweZLUX.globalization.getLanguage', [])
         },
-        getLocale: function(){
+        getLocale(){
             return translateFunction('ZoweZLUX.globalization.getLocale', [])
         },
-        setLanguage: function(language){
-            return translateFunction('ZoweZLUX.globalization.setLanguage', [language]);
+        setLanguage(language){
+            return translateFunction('ZoweZLUX.globalization.setLanguage', [language])
         },
-        setLocale: function(locale){
+        setLocale(locale){
             return translateFunction('ZoweZLUX.globalization.setLocale', [locale])
         }
+    }
+}
+
+var windowActions = {
+    close(){
+        return translateFunction('windowActions.close', [])
+    },
+    minimize(){
+        return translateFunction('windowActions.minimize', [])
+    },
+    maximize(){
+        return translateFunction('windowActions.maximize', [])
+    },
+    restore(){
+        return translateFunction('windowActions.restore', [])
+    },
+    setTitle(title){
+        return translateFunction('windowActions.setTitle', [title])
+    },
+    setPosition(pos){
+        return translateFunction('windowActions.setPosition', [pos])
+    },
+    spawnContextMenu(xPos, yPos, items, isAbsolutePos){
+        return translateFunction('windowActions.spawnContextMenu', [xPos, yPos, items, isAbsolutePos])
+    },
+}
+
+var viewportEvents = {
+    registerCloseHandler(handler){
+        return translateFunction('viewportEvents.registerCloseHandler', [handler])
     }
 }
