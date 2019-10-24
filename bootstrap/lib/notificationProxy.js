@@ -38,10 +38,16 @@ exports.adminNotificationWebsocketRouter = function(context) {
             if (req.body.recipient === INDIVIDUAL) {
                 let index = client_names.indexOf(req.body.username.toUpperCase())
                 if (index != -1) {
+                    let sent = false;
                     clients[index].forEach(function(instance) {
                         instance.send(JSON.stringify({'from': req.username, 'notification': req.body.notification, "to": req.body.recipient}))
+                        sent = true;
                     })
-                    res.status(201).json({"Response" : "Message sent to " + req.body.recipient});
+                    if (sent) {
+                        res.status(201).json({"Response" : "Message sent to " + req.body.recipient});
+                    } else {
+                        res.status(500).json({"Response" : "Server error"});
+                    }
                 } else {
                     if (req.body.username === "") {
                         res.status(404).json({"Response" : "Recipient input cannot be blank"});
