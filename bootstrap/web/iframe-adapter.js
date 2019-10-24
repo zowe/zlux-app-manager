@@ -173,7 +173,7 @@ var ZoweZLUX = {
     },
     uriBroker: {
         desktopRootUri(){
-            return translateFunction('ZoewZLUX.uriBroker.desktopRootUri', [])
+            return translateFunction('ZoweZLUX.uriBroker.desktopRootUri', [])
         },
         datasetMetadataHlqUri(updateCache, types, workAreaSize, resumeName, resumeCatalogName){
 
