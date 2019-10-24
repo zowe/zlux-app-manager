@@ -18,6 +18,7 @@
 var responses = {};
 var these = {}; //contains this'
 var contextMenuActions = {};
+var closeHandlers = {};
 var curResponseKey = 0;
 var numUnresolved = 0;
 var instanceId = -1;
@@ -48,6 +49,10 @@ let messageHandler = function(message) {
                     contextMenuActions[key][message.data.contextMenuItemIndex].action();
                     delete contextMenuActions[key];
                 }
+                return;
+            case 'viewportEvents.callCloseHandler':
+                closeHandlers[message.data.key]();
+                translateFunction('resolveCloseHandler', [message.data.key])
                 return;
             //The following cases should be implemented by the user,
             //therefore users will need an eventListener for "message" events
@@ -108,6 +113,12 @@ function translateFunction(functionString, args){
                 if(args.length > 0 && Array.isArray(args[2])){
                     contextMenuActions[key] = args[2];
                     args[2] = removeActionsFromContextMenu(args[2]);
+                }
+                break;
+            case 'viewportEvents.registerCloseHandler':
+                if(args.length === 1){
+                    closeHandlers[key] = args[0];
+                    args[0] = {};
                 }
                 break;
             default:
@@ -303,7 +314,10 @@ var windowActions = {
     spawnContextMenu(xPos, yPos, items, isAbsolutePos){
         return translateFunction('windowActions.spawnContextMenu', [xPos, yPos, items, isAbsolutePos])
     },
+}
+
+var viewportEvents = {
     registerCloseHandler(handler){
-        return translateFunction('windowActions.registerCloseHandler', [handler])
+        return translateFunction('viewportEvents.registerCloseHandler', [handler])
     }
 }

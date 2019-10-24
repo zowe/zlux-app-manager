@@ -21,6 +21,7 @@ export class IFramePluginComponent {
   iframeId: string;
   instanceId: number = -1;
   frameSource: any;
+  responses: any = {};
 
   constructor(
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
@@ -29,7 +30,6 @@ export class IFramePluginComponent {
   ){
     addEventListener("message", this.postMessageListener.bind(this));
     this.iFrameMouseOver;
-    this.viewportEvents;
   }
 
   private postWindowEvent(originCall: string){
@@ -134,6 +134,45 @@ export class IFramePluginComponent {
           } else {
             return undefined;
           }
+        case 'viewportEvents':
+            split.shift();
+            fn = (this.getAttrib(Object.assign({}, this.viewportEvents), split.join('.')) as Function);
+            if(typeof fn === 'function'){
+              fn = fn.bind(this.viewportEvents);
+              if(args.length === 0){
+                fnRet = fn();
+              } else {
+                if(fnString === 'viewportEvents.registerCloseHandler' && args.length === 1){
+                  let instance = this.instanceId;
+                  let that = this;
+                  args[0] = function(): Promise<void>{
+                    return new Promise(function(resolve: any, reject: any){
+                      console.log('close handler called from inside promise');
+                      that.responses[message.data.key] = {
+                        resolve: function(){
+                          resolve();
+                        }
+                      }
+                      //console.log('Setting response with key: ', message.data.key, ' Responses: ', this.responses)
+                      source.postMessage({
+                        key: message.data.key,
+                        originCall: 'viewportEvents.callCloseHandler',
+                        instanceId: instance
+                      }, '*')
+                    }.bind(this))
+                  }
+                }
+                fnRet = fn(...args);
+              }
+              return fnRet;
+            } else {
+              return undefined;
+            }
+        case 'resolveCloseHandler':
+          if(this.responses[args[0]]){
+            this.responses[args[0]].resolve();
+          }
+          return undefined;
         default:
           return undefined;
       }
