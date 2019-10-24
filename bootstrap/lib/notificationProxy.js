@@ -20,9 +20,10 @@ exports.adminNotificationWebsocketRouter = function(context) {
     let instance_ids = [];
     const EVERYONE = "Everyone"
     const INDIVIDUAL = "Individual"
-
+    context.logger.info("Yeet One")
 
     return new Promise(function(resolve, reject) {
+      context.logger.info("Yeet Two")
       let router = express.Router();
       if (!router.ws) {
         context.wsRouterPatcher(router);
@@ -34,6 +35,7 @@ exports.adminNotificationWebsocketRouter = function(context) {
       });
       context.addBodyParseMiddleware(router);
       router.post('/write', function(req, res) {
+        context.logger.info("Yeet Four")
         if (context.plugin.server.config.user.dataserviceAuthentication.rbac) {
             if (req.body.recipient === INDIVIDUAL) {
                 let index = client_names.indexOf(req.body.username.toUpperCase())
@@ -76,6 +78,7 @@ exports.adminNotificationWebsocketRouter = function(context) {
         }
       });
       router.ws('/',function(ws,req) {
+        context.logger.info("Yeet Three")
         let id = req.cookies["connect.sid." + req.headers['host'].split(":")[1]]
         let symbols = Object.getOwnPropertySymbols(req.client)
         let asyncId = req.client[symbols[1]]
@@ -91,6 +94,7 @@ exports.adminNotificationWebsocketRouter = function(context) {
             instance_ids[index].push(asyncId)
         }
         ws.on('close', ()=> {
+            context.logger.info("Yeet Five")
             let id_index = client_ids.indexOf(req.cookies["connect.sid." + req.headers['host'].split(":")[1]])
             let symbols_close = Object.getOwnPropertySymbols(req.client)
             let asyncId_close = req.client[symbols_close[1]]
