@@ -22,6 +22,7 @@ export class IFramePluginComponent {
   instanceId: number = -1;
   frameSource: any;
   responses: any = {};
+  DEFAULT_CLOSE_TIMEOUT: number = 5000;
 
   constructor(
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
@@ -29,6 +30,7 @@ export class IFramePluginComponent {
     @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) private viewportEvents: Angular2PluginViewportEvents
   ){
     addEventListener("message", this.postMessageListener.bind(this));
+    //The following references are to suppress typescript warnings
     this.iFrameMouseOver;
   }
 
@@ -149,7 +151,6 @@ export class IFramePluginComponent {
   private viewportEventsHandler(fnSplit: Array<string>, args: Array<any>, message: any){
     let fn: Function;
     let fnString: string = message.data.request.function;
-    let DEFAULT_CLOSE_TIMEOUT: number = 5000;
     fn = (this.getAttrib(Object.assign({}, this.viewportEvents), fnSplit.join('.')) as Function);
     if(typeof fn === 'function'){
       fn = fn.bind(this.viewportEvents);
@@ -170,7 +171,7 @@ export class IFramePluginComponent {
             }, '*')
             setTimeout(() => {
               resolve();
-            }, DEFAULT_CLOSE_TIMEOUT)
+            }, that.DEFAULT_CLOSE_TIMEOUT)
           }.bind(this))
         }
         return fn(...args);
@@ -238,8 +239,8 @@ export class IFramePluginComponent {
           split.shift();
           return this.windowActionsHandler(split, args, message);
         case 'viewportEvents':
-            split.shift();
-            return this.viewportEventsHandler(split, args, message);
+          split.shift();
+          return this.viewportEventsHandler(split, args, message);
         case 'resolveCloseHandler':
           if(this.responses[args[0]]){
             this.responses[args[0]].resolve();
