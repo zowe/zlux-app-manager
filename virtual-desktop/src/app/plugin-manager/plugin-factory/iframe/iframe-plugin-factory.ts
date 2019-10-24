@@ -14,8 +14,6 @@ import { Compiler, Component, Injectable, NgModule, Type, Injector } from '@angu
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { PluginFactory } from '../plugin-factory';
-//import { DesktopPluginDefinition } from '../../shared/desktop-plugin-definition';
-//import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents } from '../../../../pluginlib/inject-resources';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { IFRAME_NAME_PREFIX } from '../../../shared/named-elements';
