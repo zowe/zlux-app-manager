@@ -143,6 +143,7 @@ function translateFunction(functionString, args){
 }
 
 function removeActionsFromContextMenu(itemsArray){
+    //TODO: change implementation once children actions are fixed
     let copy = JSON.parse(JSON.stringify(itemsArray));
     for(let i = 0; i < copy.length; i++){
         if(copy[i].children){
