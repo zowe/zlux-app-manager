@@ -56,12 +56,18 @@ exports.adminNotificationWebsocketRouter = function(context) {
                     }
                 }
             } else if (req.body.recipient === EVERYONE){
+                let sent = false;
                 clients.forEach(function(client) {
                     client.forEach(function(instance) {
+                        sent = true;
                         instance.send(JSON.stringify({'from': req.username, 'notification': req.body.notification, "to": req.body.recipient}))
                     })
                 })
-                res.status(201).json({"Response" : "Message sent to Everyone"});
+                if (sent) {
+                    res.status(201).json({"Response" : "Message sent to " + req.body.recipient});
+                } else {
+                    res.status(500).json({"Response" : "Server error"});
+                }
             } else {
                 res.status(400).json({"Response": "Message was not sent"})
             }
