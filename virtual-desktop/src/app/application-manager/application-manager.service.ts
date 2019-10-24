@@ -72,31 +72,12 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
               if (appInstance) {
                 const pluginId = appInstance.plugin.getIdentifier();
                 this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);
-                ZoweZLUX.dispatcher.iframeLoaded(instance, pluginId);
+                return ZoweZLUX.dispatcher.iframeLoaded(instance, pluginId);
               }
             }
           }
         });
         this.logger.warn(`No iframe identified as source of message`);
-      } else {
-        if(!message.data.request || !message.data.request.function 
-            || message.data.key === undefined || message.data.request.instanceId === undefined){
-          return;
-        }
-        let fnString: string = message.data.request.function;
-        let split: Array<string> = fnString.split('.');
-        if(split[0] !== 'ZoweZLUX'){
-          return;
-        }
-        this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
-          message.source.postMessage({
-            key: message.data.key,
-            value: res,
-            originCall: message.data.request.function,
-            instanceId: message.data.request.instanceId
-          }, '*');
-        });
-        return;
       }
     });
     (window as any).ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
@@ -121,85 +102,6 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
          }
        }
     });
-  }
-
-  private resolvePromisesRecursively(p: any){
-    if(p instanceof Promise){
-      return p.then(res => {
-        this.resolvePromisesRecursively(res);
-      })
-    } else {
-      return Promise.resolve(p);
-    }
-  }
-
-  private getAttrib(object: object, path: string){
-    if(object === undefined || path === undefined || 
-      typeof path !== 'string' || typeof object !== 'object') return undefined;
-    let objCopy: object = Object.assign({}, object);
-    try{
-      let props = (path || '').split('.');
-      for(let i = 0; i < props.length; i++){
-        objCopy = (objCopy as any)[props[i]];
-      }
-    }catch(e){
-      return undefined;
-    }
-    return (objCopy === undefined) ? undefined : objCopy;
-  }
-
-  private translateFunction(message: any){
-    let args = message.data.request.args || [];
-    let fnString: string = message.data.request.function;
-    let source: any = message.source;
-    let split: Array<string> = fnString.split('.');
-    let fn: Function;
-    let fnRet: any;
-    let instanceId: number = message.data.request.instanceId;
-    let topHMA = function(key: any, notification: any){
-      source.postMessage({
-        key: key,
-        originCall: 'handleMessageAdded',
-        notification: notification,
-        instanceId: instanceId
-      }, '*')
-    }
-    let topHMR = function(key: any, notificationId: any){
-      source.postMessage({
-        key: key,
-        originCall: 'handleMessageRemoved',
-        notificationId: notificationId,
-        instanceId: instanceId
-      }, '*')
-    }
-    if(split.length > 0){
-      switch(split[0]){
-        case 'ZoweZLUX':
-            split.shift();
-            fn = (this.getAttrib(Object.assign({}, ZoweZLUX), split.join('.')) as Function);
-            if(typeof fn === 'function'){
-              fn = fn.bind((window as any).ZoweZLUX[split[0]]);
-              if(args.length === 0){
-                fnRet = fn();
-              } else {
-                if(fnString === 'ZoweZLUX.notificationManager.addMessageHandler' && args[0] == 'this'){
-                  args[0] = {
-                    handleMessageAdded(notification: any){
-                      topHMA(message.data.key, notification);
-                    },
-                    handleMessageRemoved(id: any){
-                      topHMR(message.data.key, id);
-                    }
-                  }
-                }
-                fnRet = fn(...args);
-              }
-              return fnRet;
-            } else {
-              return undefined;
-            }
-      }
-    }
   }
 
   private generateInstanceId(): MVDHosting.InstanceId {

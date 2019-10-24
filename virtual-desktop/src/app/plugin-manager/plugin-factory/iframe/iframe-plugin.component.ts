@@ -45,10 +45,12 @@ export class IFramePluginComponent {
         || message.data.request.instanceId === undefined){
       return;
     }
-    let fnString: string = message.data.request.function;
+    let data: any = message.data;
+    let key: number = message.data.key;
+    let fnString: string = data.request.function;
     let split: Array<string> = fnString.split('.');
     if(split[0] === 'registerAdapterInstance' && this.instanceId == -1){
-      this.instanceId = message.data.request.instanceId;
+      this.instanceId = data.request.instanceId;
       this.frameSource = message.source;
       this.windowEvents.minimized.subscribe(() => {
         this.postWindowEvent('windowEvents.minimized');
@@ -70,13 +72,13 @@ export class IFramePluginComponent {
       });
       return;
     }
-    if(message.data.request.instanceId === this.instanceId && split[0] !== 'ZoweZLUX'){
+    if(data.request.instanceId === this.instanceId){
       this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
         message.source.postMessage({
-          key: message.data.key,
+          key: key,
           value: res,
-          originCall: message.data.request.function,
-          instanceId: message.data.request.instanceId
+          originCall: data.request.function,
+          instanceId: data.request.instanceId
         }, '*');
       });
     }
@@ -108,77 +110,6 @@ export class IFramePluginComponent {
     return (objCopy === undefined) ? undefined : objCopy;
   }
 
-  private translateFunction(message: any){
-    let args = message.data.request.args || [];
-    let source: any = message.source;
-    let fnString: string = message.data.request.function;
-    let split: Array<string> = fnString.split('.');
-    let fn: Function;
-    let fnRet: any;
-    if(split.length > 0){
-      switch(split[0]){
-        case 'windowActions':
-          split.shift();
-          fn = (this.getAttrib(Object.assign({}, this.windowActions), split.join('.')) as Function);
-          if(typeof fn === 'function'){
-            fn = fn.bind(this.windowActions);
-            if(args.length === 0){
-              fnRet = fn();
-            } else {
-              if(fnString == 'windowActions.spawnContextMenu' && Array.isArray(args[2])){
-                args[2] = this.addActionsToContextMenu(message.data.key, source, args[2])
-              }
-              fnRet = fn(...args);
-            }
-            return fnRet;
-          } else {
-            return undefined;
-          }
-        case 'viewportEvents':
-            split.shift();
-            fn = (this.getAttrib(Object.assign({}, this.viewportEvents), split.join('.')) as Function);
-            if(typeof fn === 'function'){
-              fn = fn.bind(this.viewportEvents);
-              if(args.length === 0){
-                fnRet = fn();
-              } else {
-                if(fnString === 'viewportEvents.registerCloseHandler' && args.length === 1){
-                  let instance = this.instanceId;
-                  let that = this;
-                  args[0] = function(): Promise<void>{
-                    return new Promise(function(resolve: any, reject: any){
-                      console.log('close handler called from inside promise');
-                      that.responses[message.data.key] = {
-                        resolve: function(){
-                          resolve();
-                        }
-                      }
-                      //console.log('Setting response with key: ', message.data.key, ' Responses: ', this.responses)
-                      source.postMessage({
-                        key: message.data.key,
-                        originCall: 'viewportEvents.callCloseHandler',
-                        instanceId: instance
-                      }, '*')
-                    }.bind(this))
-                  }
-                }
-                fnRet = fn(...args);
-              }
-              return fnRet;
-            } else {
-              return undefined;
-            }
-        case 'resolveCloseHandler':
-          if(this.responses[args[0]]){
-            this.responses[args[0]].resolve();
-          }
-          return undefined;
-        default:
-          return undefined;
-      }
-    }
-  }
-
   private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>){
     let copy = JSON.parse(JSON.stringify(itemsArray));
     for(let i = 0; i < copy.length; i++){
@@ -192,6 +123,132 @@ export class IFramePluginComponent {
       }
     }
     return copy;
+  }
+
+  private windowActionsHandler(fnSplit: Array<string>, args: Array<any>, message: any){
+    let fn: Function;
+    let fnRet: any;
+    let fnString: string = message.data.request.function;
+    fn = (this.getAttrib(Object.assign({}, this.windowActions), fnSplit.join('.')) as Function);
+    if(typeof fn === 'function'){
+      fn = fn.bind(this.windowActions);
+      if(args.length === 0){
+        fnRet = fn();
+      } else {
+        if(fnString == 'windowActions.spawnContextMenu' && Array.isArray(args[2])){
+          args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2])
+        }
+        fnRet = fn(...args);
+      }
+      return fnRet;
+    } else {
+      return undefined;
+    }
+  }
+
+  private viewportEventsHandler(fnSplit: Array<string>, args: Array<any>, message: any){
+    let fn: Function;
+    let fnString: string = message.data.request.function;
+    let DEFAULT_CLOSE_TIMEOUT: number = 5000;
+    fn = (this.getAttrib(Object.assign({}, this.viewportEvents), fnSplit.join('.')) as Function);
+    if(typeof fn === 'function'){
+      fn = fn.bind(this.viewportEvents);
+      if(fnString === 'viewportEvents.registerCloseHandler' && args.length === 1){
+        let that = this;
+        args[0] = function(): Promise<void>{
+          return new Promise(function(resolve: any, reject: any){
+            console.log('close handler called from inside promise');
+            that.responses[message.data.key] = {
+              resolve: function(){
+                resolve();
+              }
+            }
+            message.source.postMessage({
+              key: message.data.key,
+              originCall: 'viewportEvents.callCloseHandler',
+              instanceId: that.instanceId
+            }, '*')
+            setTimeout(() => {
+              resolve();
+            }, DEFAULT_CLOSE_TIMEOUT)
+          }.bind(this))
+        }
+        return fn(...args);
+      }
+      return undefined;
+    }
+    return undefined;
+  }
+
+  private zoweZLUXHandler(split: Array<string>, args: Array<any>, message: any){
+    let fn: Function;
+    let fnRet: any;
+    let fnString: string = message.data.request.function;
+    let instanceId: number = message.data.request.instanceId;
+    let fakeHMA = function(key: any, notification: any){
+      message.source.postMessage({
+        key: key,
+        originCall: 'handleMessageAdded',
+        notification: notification,
+        instanceId: instanceId
+      }, '*')
+    }
+    let fakeHMR = function(key: any, notificationId: any){
+      message.source.postMessage({
+        key: key,
+        originCall: 'handleMessageRemoved',
+        notificationId: notificationId,
+        instanceId: instanceId
+      }, '*')
+    }
+    fn = (this.getAttrib(Object.assign({}, ZoweZLUX), split.join('.')) as Function);
+    if(typeof fn === 'function'){
+      fn = fn.bind((window as any).ZoweZLUX[split[0]]);
+      if(args.length === 0){
+        fnRet = fn();
+      } else {
+        if(fnString === 'ZoweZLUX.notificationManager.addMessageHandler'){
+          args[0] = {
+            handleMessageAdded(notification: any){
+              fakeHMA(message.data.key, notification);
+            },
+            handleMessageRemoved(id: any){
+              fakeHMR(message.data.key, id);
+            }
+          }
+        }
+        fnRet = fn(...args);
+      }
+      return fnRet;
+    } else {
+      return undefined;
+    }
+  }
+
+  private translateFunction(message: any){
+    let args = message.data.request.args || [];
+    let fnString: string = message.data.request.function;
+    let split: Array<string> = fnString.split('.');
+    if(split.length > 0){
+      switch(split[0]){
+        case 'ZoweZLUX':
+          split.shift();
+          return this.zoweZLUXHandler(split, args, message);
+        case 'windowActions':
+          split.shift();
+          return this.windowActionsHandler(split, args, message);
+        case 'viewportEvents':
+            split.shift();
+            return this.viewportEventsHandler(split, args, message);
+        case 'resolveCloseHandler':
+          if(this.responses[args[0]]){
+            this.responses[args[0]].resolve();
+          }
+          return undefined;
+        default:
+          return undefined;
+      }
+    }
   }
 
   iFrameMouseOver(event: any){}
