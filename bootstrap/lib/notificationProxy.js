@@ -21,7 +21,6 @@ exports.adminNotificationWebsocketRouter = function(context) {
     const EVERYONE = "Everyone"
     const INDIVIDUAL = "Individual"
 
-
     return new Promise(function(resolve, reject) {
       let router = express.Router();
       if (!router.ws) {
@@ -38,10 +37,16 @@ exports.adminNotificationWebsocketRouter = function(context) {
             if (req.body.recipient === INDIVIDUAL) {
                 let index = client_names.indexOf(req.body.username.toUpperCase())
                 if (index != -1) {
+                    let sent = false;
                     clients[index].forEach(function(instance) {
                         instance.send(JSON.stringify({'from': req.username, 'notification': req.body.notification, "to": req.body.recipient}))
+                        sent = true;
                     })
-                    res.status(201).json({"Response" : "Message sent to " + req.body.recipient});
+                    if (sent) {
+                        res.status(201).json({"Response" : "Message sent to " + req.body.recipient});
+                    } else {
+                        res.status(500).json({"Response" : "Server error"});
+                    }
                 } else {
                     if (req.body.username === "") {
                         res.status(404).json({"Response" : "Recipient input cannot be blank"});
@@ -50,12 +55,18 @@ exports.adminNotificationWebsocketRouter = function(context) {
                     }
                 }
             } else if (req.body.recipient === EVERYONE){
+                let sent = false;
                 clients.forEach(function(client) {
                     client.forEach(function(instance) {
+                        sent = true;
                         instance.send(JSON.stringify({'from': req.username, 'notification': req.body.notification, "to": req.body.recipient}))
                     })
                 })
-                res.status(201).json({"Response" : "Message sent to Everyone"});
+                if (sent) {
+                    res.status(201).json({"Response" : "Message sent to " + req.body.recipient});
+                } else {
+                    res.status(500).json({"Response" : "Server error"});
+                }
             } else {
                 res.status(400).json({"Response": "Message was not sent"})
             }
