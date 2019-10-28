@@ -69,7 +69,7 @@ let messageHandler = function(message) {
                 console.log('restored')
                 return;
             case 'windowEvents.moved':
-                console.log('moved')
+                //console.log('moved')
                 return;
             case 'windowEvents.resized':
                 console.log('resized')
@@ -152,6 +152,14 @@ function removeActionsFromContextMenu(itemsArray){
         copy[i].action = {}
     }
     return copy;
+}
+
+function getPluginDef(){
+    return translateFunction('getPluginDefinition', []);
+}
+
+function getLaunchMetadata(){
+    return translateFunction('getLaunchMetadata', []);
 }
 
 var ZoweZLUX = {
@@ -324,4 +332,22 @@ var viewportEvents = {
     registerCloseHandler(handler){
         return translateFunction('viewportEvents.registerCloseHandler', [handler])
     }
+}
+
+var logger = {
+    log(minimumLevel, ...loggableItems){
+        return translateFunction('log.log', [minimumLevel, ...loggableItems]);
+    },
+    info(...loggableItems){
+        return translateFunction('log.info', [...loggableItems])
+    },
+    warn(...loggableItems){
+        return translateFunction('log.warn', [...loggableItems])
+    },
+    severe(...loggableItems){
+        return translateFunction('log.severe', [...loggableItems])
+    },
+    debug(...loggableItems){
+        return translateFunction('log.debug', [...loggableItems])
+    },
 }

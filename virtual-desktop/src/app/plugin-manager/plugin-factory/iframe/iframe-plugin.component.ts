@@ -27,7 +27,10 @@ export class IFramePluginComponent {
   constructor(
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_EVENTS) private windowEvents: Angular2PluginWindowEvents,
-    @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) private viewportEvents: Angular2PluginViewportEvents
+    @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) private viewportEvents: Angular2PluginViewportEvents,
+    @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefintion: ZLUX.ContainerPluginDefinition,
+    @Inject(Angular2InjectionTokens.LOGGER) private log: ZLUX.ComponentLogger,
+    @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any
   ){
     addEventListener("message", this.postMessageListener.bind(this));
     //The following references are to suppress typescript warnings
@@ -158,7 +161,6 @@ export class IFramePluginComponent {
         let that = this;
         args[0] = function(): Promise<void>{
           return new Promise(function(resolve: any, reject: any){
-            console.log('close handler called from inside promise');
             that.responses[message.data.key] = {
               resolve: function(){
                 resolve();
@@ -226,6 +228,22 @@ export class IFramePluginComponent {
     }
   }
 
+  private logHandler(fnSplit: Array<string>, args: Array<any>){
+    let fn: Function;
+    if(fnSplit.length === 1){
+      fn = (this.log as any)[fnSplit[0]];
+      if(typeof fn === 'function'){
+        fn = fn.bind(this.log);
+        return fn(...args);
+      } else {
+        return undefined;
+      }
+    }
+    return undefined;
+  }
+
+
+
   private translateFunction(message: any){
     let args = message.data.request.args || [];
     let fnString: string = message.data.request.function;
@@ -246,6 +264,17 @@ export class IFramePluginComponent {
             this.responses[args[0]].resolve();
           }
           return undefined;
+        case 'getPluginDefinition':
+          try{
+            return JSON.parse(JSON.stringify(this.pluginDefintion))
+          }catch (e){
+            return undefined;
+          }
+        case 'getLaunchMetadata':
+          return this.launchMetadata;
+        case 'log':
+          split.shift();
+          return this.logHandler(split, args);
         default:
           return undefined;
       }
