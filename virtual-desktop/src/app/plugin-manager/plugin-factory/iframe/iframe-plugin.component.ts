@@ -29,7 +29,6 @@ export class IFramePluginComponent {
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_EVENTS) private windowEvents: Angular2PluginWindowEvents,
     @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) private viewportEvents: Angular2PluginViewportEvents,
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefintion: ZLUX.ContainerPluginDefinition,
-    @Inject(Angular2InjectionTokens.LOGGER) private log: ZLUX.ComponentLogger,
     @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any
   ){
     addEventListener("message", this.postMessageListener.bind(this));
@@ -116,18 +115,22 @@ export class IFramePluginComponent {
   }
 
   private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>){
-    let copy = JSON.parse(JSON.stringify(itemsArray));
-    for(let i = 0; i < copy.length; i++){
-      copy[i].action = () => {
-        source.postMessage({
-          key: key,
-          originCall: 'windowActions.spawnContextMenu',
-          instanceId: this.instanceId,
-          contextMenuItemIndex: i
-        }, '*')
+    try{
+      let copy = JSON.parse(JSON.stringify(itemsArray));
+      for(let i = 0; i < copy.length; i++){
+        copy[i].action = () => {
+          source.postMessage({
+            key: key,
+            originCall: 'windowActions.spawnContextMenu',
+            instanceId: this.instanceId,
+            contextMenuItemIndex: i
+          }, '*')
+        }
       }
+      return copy;
+    }catch(e){
+      return undefined;
     }
-    return copy;
   }
 
   private windowActionsHandler(fnSplit: Array<string>, args: Array<any>, message: any){
@@ -228,22 +231,6 @@ export class IFramePluginComponent {
     }
   }
 
-  private logHandler(fnSplit: Array<string>, args: Array<any>){
-    let fn: Function;
-    if(fnSplit.length === 1){
-      fn = (this.log as any)[fnSplit[0]];
-      if(typeof fn === 'function'){
-        fn = fn.bind(this.log);
-        return fn(...args);
-      } else {
-        return undefined;
-      }
-    }
-    return undefined;
-  }
-
-
-
   private translateFunction(message: any){
     let args = message.data.request.args || [];
     let fnString: string = message.data.request.function;
@@ -272,9 +259,6 @@ export class IFramePluginComponent {
           }
         case 'getLaunchMetadata':
           return this.launchMetadata;
-        case 'log':
-          split.shift();
-          return this.logHandler(split, args);
         default:
           return undefined;
       }
