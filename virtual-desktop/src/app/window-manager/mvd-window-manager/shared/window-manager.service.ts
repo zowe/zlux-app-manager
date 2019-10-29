@@ -434,6 +434,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
           this.applicationManager.killApplication(desktopWindow.plugin, appId);
         }
         this.destroyWindow(windowId);
+        this.setDesktopTitle();
       }).catch((info:any)=> {
         this.logger.warn(`Window could not be closed because of viewport. Details=`,info);
         return;
@@ -454,6 +455,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     windows.forEach((window: DesktopWindow)=> {
       this.closeWindow(window.windowId);
     });
+    this.setDesktopTitle();
   }
 
   registerCloseHandler(windowId: MVDWindowManagement.WindowId, handler: () => Promise<void>): void {
@@ -484,6 +486,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
 
     desktopWindow.windowTitle = title;
+    this.setDesktopTitle(desktopWindow.windowTitle);
   }
 
   requestWindowFocus(destination: MVDWindowManagement.WindowId): boolean {
@@ -511,6 +514,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         this._lastScreenshotPluginId = desktopWindow.plugin.getIdentifier();
       },500); //delay a bit for performance perception
     }
+    this.setDesktopTitle(desktopWindow.windowTitle);
     return true;
   }
 
@@ -675,6 +679,17 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       this.logger.warn(`Rejecting context menu due to invalid coord ${newX},${newY} for app at ${windowPos.left},${windowPos.top} w=${windowPos.width}, h=${windowPos.height}`);
       return false;
     }
+  }
+
+  setDesktopTitle(title?:String) {
+    const defaultTitle = 'Zowe Desktop';
+    // TODO: Abstract app count to new function
+    /* const appCount = this.runningPluginMap.size;*/
+    let newTitle = defaultTitle;
+    if(title) {
+      newTitle=[defaultTitle, /*appCount + ' Apps',*/ title].join(' | ');
+    }
+    document.title = newTitle;
   }
 }
 
