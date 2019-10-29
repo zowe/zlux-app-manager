@@ -14,7 +14,6 @@
    With ZLUX, there's a global called ZoweZLUX which holds useful tools. So, a site
    Can determine what actions to take by knowing if it is or isnt embedded in ZLUX via IFrame.
 */
-
 var responses = {};
 var these = {}; //contains this'
 var contextMenuActions = {};
@@ -22,6 +21,10 @@ var closeHandlers = {};
 var curResponseKey = 0;
 var numUnresolved = 0;
 var instanceId = -1;
+var parentLogger = new exports.Logger()
+if(parentLogger){
+    parentLogger.addDestination(parentLogger.makeDefaultDestination(true, true, true))
+}
 
 let messageHandler = function(message) {
     if(message.data.dispatchData){
@@ -96,6 +99,7 @@ window.addEventListener("unload", function () {
 });
 
 window.addEventListener('message', messageHandler);
+
 
 function translateFunction(functionString, args){
     return new Promise((resolve, reject) => {
@@ -257,7 +261,12 @@ var ZoweZLUX = {
         }
     },
     logger: {
-
+        makeComponentLogger(componentName, messages){
+            return parentLogger.makeComponentLogger(componentName, messages);
+        },
+        setLogLevelForComponentName(componentName, level){
+            return parentLogger.setLogLevelForComponentName(componentName, level);
+        }
     },
     registry: {
 
@@ -332,22 +341,4 @@ var viewportEvents = {
     registerCloseHandler(handler){
         return translateFunction('viewportEvents.registerCloseHandler', [handler])
     }
-}
-
-var logger = {
-    log(minimumLevel, ...loggableItems){
-        return translateFunction('log.log', [minimumLevel, ...loggableItems]);
-    },
-    info(...loggableItems){
-        return translateFunction('log.info', [...loggableItems])
-    },
-    warn(...loggableItems){
-        return translateFunction('log.warn', [...loggableItems])
-    },
-    severe(...loggableItems){
-        return translateFunction('log.severe', [...loggableItems])
-    },
-    debug(...loggableItems){
-        return translateFunction('log.debug', [...loggableItems])
-    },
 }
