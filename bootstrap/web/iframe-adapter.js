@@ -23,7 +23,10 @@ var numUnresolved = 0;
 var instanceId = -1;
 var parentLogger = new exports.Logger()
 if(parentLogger){
+    console.log('setting logger')
     parentLogger.addDestination(parentLogger.makeDefaultDestination(true, true, true))
+} else {
+    console.log('logger object did not exist.  Exports=', exports)
 }
 
 let messageHandler = function(message) {
