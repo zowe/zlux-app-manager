@@ -30,7 +30,7 @@ function initLogger(maxRetries, timeout){
     if(typeof getLogger.retries === 'undefined'){
         getLogger.retries = 0;
     }
-    if(exports.Logger){
+    if(exports && exports.Logger){
         console.log('Initialized Logger')
         parentLogger = new exports.Logger();
         parentLogger.addDestination(parentLogger.makeDefaultDestination(true, true, true))
