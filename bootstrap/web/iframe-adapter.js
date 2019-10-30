@@ -21,10 +21,34 @@ var closeHandlers = {};
 var curResponseKey = 0;
 var numUnresolved = 0;
 var instanceId = -1;
-var parentLogger = new exports.Logger()
-if(parentLogger){
-    parentLogger.addDestination(parentLogger.makeDefaultDestination(true, true, true))
+var DEFAULT_GET_LOGGER_TIMEOUT = 3000;
+var parentLogger = null;
+
+// This function uses setTimeout due to the fact that the Logger class must be included in the html script, and therefore 
+// is not guaranteed to load before this script
+function initLogger(maxRetries, timeout){
+    if(typeof getLogger.retries === 'undefined'){
+        getLogger.retries = 0;
+    }
+    if(exports.Logger){
+        console.log('Initialized Logger')
+        parentLogger = new exports.Logger();
+        parentLogger.addDestination(parentLogger.makeDefaultDestination(true, true, true))
+        return;
+    }
+    setTimeout(() => {
+        if(getLogger.retries > maxRetries){
+            console.log('Unable to initialize Logger')
+            return;
+        }
+        if(exports === {} || exports.Logger === undefined){
+            getLogger.retries++;
+            getLogger(maxRetries, timeout);
+        }
+    }, timeout);
 }
+
+initLogger(5, DEFAULT_GET_LOGGER_TIMEOUT);
 
 let messageHandler = function(message) {
     if(message.data.dispatchData){
