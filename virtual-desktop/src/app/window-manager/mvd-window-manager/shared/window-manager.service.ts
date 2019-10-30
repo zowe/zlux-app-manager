@@ -27,6 +27,7 @@ import { ContextMenuItem, Angular2PluginWindowActions,
 } from 'pluginlib/inject-resources';
 
 type PluginIdentifier = string;
+const DEFAULT_DESKTOP_TITLE = 'Zowe';
 
 @Injectable()
 export class WindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
@@ -682,12 +683,11 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   setDesktopTitle(title?:String) {
-    const defaultTitle = 'Zowe Desktop';
     // TODO: Abstract app count to new function
     /* const appCount = this.runningPluginMap.size;*/
-    let newTitle = defaultTitle;
+    let newTitle = DEFAULT_DESKTOP_TITLE;
     if(title) {
-      newTitle=[defaultTitle, /*appCount + ' Apps',*/ title].join(' | ');
+      newTitle=[DEFAULT_DESKTOP_TITLE, /*appCount + ' Apps',*/ title].join(' | ');
     }
     document.title = newTitle;
   }
