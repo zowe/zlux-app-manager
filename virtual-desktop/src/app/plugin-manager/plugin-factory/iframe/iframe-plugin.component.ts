@@ -72,8 +72,10 @@ export class IFramePluginComponent {
             pluginDef: {},
             launchMetadata: this.launchMetadata
           },
-          instanceId: this.instanceId
-        }, '*')
+          instanceId: this.instanceId,
+          error: 'Unable to parse plugin definition'
+        }, '*');
+        console.warn('Unable to parse plugin defintion');
       }
       this.windowEvents.minimized.subscribe(() => {
         this.postWindowEvent('windowEvents.minimized');
