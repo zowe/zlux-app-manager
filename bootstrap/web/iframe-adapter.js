@@ -30,6 +30,8 @@ let messageHandler = function(message) {
         if(instanceId === -1 && data.dispatchData.instanceId !== undefined){
             instanceId = data.dispatchData.instanceId;
             translateFunction('registerAdapterInstance', []);
+        } else if(instanceId !== -1 && data.dispatchData.instanceId !== instanceId){
+            console.warn('Desktop attempted to change instanceId for iframe instance=', instanceId);
         }
     }
     if(data.key === undefined || data.instanceId != instanceId) return;
@@ -300,8 +302,8 @@ var ZoweZLUX = {
 }
 
 ZoweZLUX.logger = new exports.Logger();
-ZoweZLUX.logger.addDestination(ZoweZLUX.logger.makeDefaultDestination(true, true, true))
-var exports = (_tempExports) ? _tempExports : exports;
+ZoweZLUX.logger.addDestination(ZoweZLUX.logger.makeDefaultDestination(true, true, true, true, true))
+var exports = (ZoweZLUX_tempExports) ? ZoweZLUX_tempExports : exports;
 
 var windowActions = {
     close(){
