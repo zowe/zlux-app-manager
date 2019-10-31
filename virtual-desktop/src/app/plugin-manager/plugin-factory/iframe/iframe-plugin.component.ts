@@ -56,6 +56,25 @@ export class IFramePluginComponent {
     if(split[0] === 'registerAdapterInstance' && this.instanceId == -1){
       this.instanceId = data.request.instanceId;
       this.frameSource = message.source;
+      try{
+        this.frameSource.postMessage({
+          key: -1,
+          constructorData: {
+            pluginDef: JSON.parse(JSON.stringify(this.pluginDefintion)),
+            launchMetadata: this.launchMetadata
+          },
+          instanceId: this.instanceId
+        }, '*')
+      }catch(e){
+        this.frameSource.postMessage({
+          key: -1,
+          constructorData: {
+            pluginDef: {},
+            launchMetadata: this.launchMetadata
+          },
+          instanceId: this.instanceId
+        }, '*')
+      }
       this.windowEvents.minimized.subscribe(() => {
         this.postWindowEvent('windowEvents.minimized');
       });
@@ -251,14 +270,6 @@ export class IFramePluginComponent {
             this.responses[args[0]].resolve();
           }
           return undefined;
-        case 'getPluginDefinition':
-          try{
-            return JSON.parse(JSON.stringify(this.pluginDefintion))
-          }catch (e){
-            return undefined;
-          }
-        case 'getLaunchMetadata':
-          return this.launchMetadata;
         default:
           return undefined;
       }
