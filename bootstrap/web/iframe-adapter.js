@@ -18,47 +18,25 @@ var responses = {};
 var these = {}; //contains this'
 var contextMenuActions = {};
 var closeHandlers = {};
+var pluginDef = undefined;
+var launchMetadata = undefined;
 var curResponseKey = 0;
 var numUnresolved = 0;
 var instanceId = -1;
-var DEFAULT_GET_LOGGER_TIMEOUT = 3000;
-var parentLogger = null;
-
-// This function uses setTimeout due to the fact that the Logger class must be included in the html script, and therefore 
-// is not guaranteed to load before this script
-function initLogger(maxRetries, timeout){
-    if(typeof getLogger.retries === 'undefined'){
-        getLogger.retries = 0;
-    }
-    if(exports && exports.Logger){
-        console.log('Initialized Logger')
-        parentLogger = new exports.Logger();
-        parentLogger.addDestination(parentLogger.makeDefaultDestination(true, true, true))
-        return;
-    }
-    setTimeout(() => {
-        if(getLogger.retries > maxRetries){
-            console.log('Unable to initialize Logger')
-            return;
-        }
-        if(exports === {} || exports.Logger === undefined){
-            getLogger.retries++;
-            getLogger(maxRetries, timeout);
-        }
-    }, timeout);
-}
-
-initLogger(5, DEFAULT_GET_LOGGER_TIMEOUT);
 
 let messageHandler = function(message) {
-    if(message.data.dispatchData){
-        if(instanceId === -1 && message.data.dispatchData.instanceId !== undefined){
-            instanceId = message.data.dispatchData.instanceId;
+    let data = message.data;
+    if(data.dispatchData){
+        if(instanceId === -1 && data.dispatchData.instanceId !== undefined){
+            instanceId = data.dispatchData.instanceId;
             translateFunction('registerAdapterInstance', []);
         }
     }
-    if(message.data.key === undefined || message.data.instanceId != instanceId) return;
-    let data = message.data;
+    if(data.key === undefined || data.instanceId != instanceId) return;
+    if(data.constructorData){
+        pluginDef = data.constructorData.pluginDef;
+        launchMetadata = data.constructorData.launchMetadata;
+    }
     let key = data.key
     if(responses[key]){
         responses[key].resolve(data.value);
@@ -113,6 +91,8 @@ let messageHandler = function(message) {
     }
 }
 
+window.addEventListener('message', messageHandler);
+
 window.addEventListener("load", function () {
     console.log('iFrame Adapter has loaded!');
     window.top.postMessage('iframeload', '*');
@@ -121,8 +101,6 @@ window.addEventListener("load", function () {
 window.addEventListener("unload", function () {
     this.removeEventListener('message', messageHandler)
 });
-
-window.addEventListener('message', messageHandler);
 
 
 function translateFunction(functionString, args){
@@ -180,14 +158,6 @@ function removeActionsFromContextMenu(itemsArray){
         copy[i].action = {}
     }
     return copy;
-}
-
-function getPluginDef(){
-    return translateFunction('getPluginDefinition', []);
-}
-
-function getLaunchMetadata(){
-    return translateFunction('getLaunchMetadata', []);
 }
 
 var ZoweZLUX = {
@@ -284,14 +254,6 @@ var ZoweZLUX = {
             return translateFunction('ZoweZLUX.dispatcher.invokeAction', [action, eventContext, targetId])
         }
     },
-    logger: {
-        makeComponentLogger(componentName, messages){
-            return parentLogger.makeComponentLogger(componentName, messages);
-        },
-        setLogLevelForComponentName(componentName, level){
-            return parentLogger.setLogLevelForComponentName(componentName, level);
-        }
-    },
     registry: {
 
     },
@@ -336,6 +298,10 @@ var ZoweZLUX = {
         }
     }
 }
+
+ZoweZLUX.logger = new exports.Logger();
+ZoweZLUX.logger.addDestination(ZoweZLUX.logger.makeDefaultDestination(true, true, true))
+var exports = (_tempExports) ? _tempExports : exports;
 
 var windowActions = {
     close(){
