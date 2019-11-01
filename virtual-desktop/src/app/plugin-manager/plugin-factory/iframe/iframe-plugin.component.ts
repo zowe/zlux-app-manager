@@ -10,6 +10,7 @@
 import { Injectable, Inject, Component, Optional } from '@angular/core';
 import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents } from '../../../../pluginlib/inject-resources';
 import { SafeResourceUrl } from '@angular/platform-browser';
+import { BaseLogger } from '../../../../app/shared/logger'
 
 @Component({
     templateUrl: './iframe-plugin.component.html'
@@ -17,6 +18,7 @@ import { SafeResourceUrl } from '@angular/platform-browser';
 
 @Injectable()
 export class IFramePluginComponent {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   startingPage: SafeResourceUrl;
   iframeId: string;
   instanceId: number = -1;
@@ -75,7 +77,7 @@ export class IFramePluginComponent {
           instanceId: this.instanceId,
           error: 'Unable to parse plugin definition'
         }, '*');
-        console.warn('Unable to parse plugin defintion');
+        this.logger.warn('Unable to parse plugin defintion');
       }
       this.windowEvents.minimized.subscribe(() => {
         this.postWindowEvent('windowEvents.minimized');
