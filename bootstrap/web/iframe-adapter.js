@@ -30,8 +30,9 @@ let messageHandler = function(message) {
         if(instanceId === -1 && data.dispatchData.instanceId !== undefined){
             instanceId = data.dispatchData.instanceId;
             translateFunction('registerAdapterInstance', []);
-        } else if(instanceId !== -1 && data.dispatchData.instanceId !== instanceId){
-            console.warn('Desktop attempted to change instanceId for iframe instance=', instanceId);
+        } else if(instanceId !== -1 && data.dispatchData.instanceId !== undefined 
+                    && data.dispatchData.instanceId !== instanceId){
+            console.warn('Desktop attempted to change instanceId for iframe instance=', instanceId, 'message=', message);
         }
     }
     if(data.key === undefined || data.instanceId != instanceId) return;
