@@ -14,24 +14,32 @@
    With ZLUX, there's a global called ZoweZLUX which holds useful tools. So, a site
    Can determine what actions to take by knowing if it is or isnt embedded in ZLUX via IFrame.
 */
-
 var responses = {};
 var these = {}; //contains this'
 var contextMenuActions = {};
 var closeHandlers = {};
+var pluginDef = undefined;
+var launchMetadata = undefined;
 var curResponseKey = 0;
 var numUnresolved = 0;
 var instanceId = -1;
 
 let messageHandler = function(message) {
-    if(message.data.dispatchData){
-        if(instanceId === -1 && message.data.dispatchData.instanceId !== undefined){
-            instanceId = message.data.dispatchData.instanceId;
+    let data = message.data;
+    if(data.dispatchData){
+        if(instanceId === -1 && data.dispatchData.instanceId !== undefined){
+            instanceId = data.dispatchData.instanceId;
             translateFunction('registerAdapterInstance', []);
+        } else if(instanceId !== -1 && data.dispatchData.instanceId !== undefined 
+                    && data.dispatchData.instanceId !== instanceId){
+            console.warn('Desktop attempted to change instanceId for iframe instance=', instanceId, 'message=', message);
         }
     }
-    if(message.data.key === undefined || message.data.instanceId != instanceId) return;
-    let data = message.data;
+    if(data.key === undefined || data.instanceId != instanceId) return;
+    if(data.constructorData){
+        pluginDef = data.constructorData.pluginDef;
+        launchMetadata = data.constructorData.launchMetadata;
+    }
     let key = data.key
     if(responses[key]){
         responses[key].resolve(data.value);
@@ -69,7 +77,7 @@ let messageHandler = function(message) {
                 console.log('restored')
                 return;
             case 'windowEvents.moved':
-                console.log('moved')
+                //console.log('moved')
                 return;
             case 'windowEvents.resized':
                 console.log('resized')
@@ -86,6 +94,8 @@ let messageHandler = function(message) {
     }
 }
 
+window.addEventListener('message', messageHandler);
+
 window.addEventListener("load", function () {
     console.log('iFrame Adapter has loaded!');
     window.top.postMessage('iframeload', '*');
@@ -95,7 +105,6 @@ window.addEventListener("unload", function () {
     this.removeEventListener('message', messageHandler)
 });
 
-window.addEventListener('message', messageHandler);
 
 function translateFunction(functionString, args){
     return new Promise((resolve, reject) => {
@@ -248,9 +257,6 @@ var ZoweZLUX = {
             return translateFunction('ZoweZLUX.dispatcher.invokeAction', [action, eventContext, targetId])
         }
     },
-    logger: {
-
-    },
     registry: {
 
     },
@@ -295,6 +301,10 @@ var ZoweZLUX = {
         }
     }
 }
+
+ZoweZLUX.logger = new exports.Logger();
+ZoweZLUX.logger.addDestination(ZoweZLUX.logger.makeDefaultDestination(true, true, true, true, true))
+var exports = (ZoweZLUX_tempExports) ? ZoweZLUX_tempExports : exports;
 
 var windowActions = {
     close(){

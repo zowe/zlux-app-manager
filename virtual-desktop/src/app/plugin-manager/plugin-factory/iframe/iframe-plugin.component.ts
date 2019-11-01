@@ -10,6 +10,7 @@
 import { Injectable, Inject, Component, Optional } from '@angular/core';
 import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents } from '../../../../pluginlib/inject-resources';
 import { SafeResourceUrl } from '@angular/platform-browser';
+import { BaseLogger } from '../../../../app/shared/logger'
 
 @Component({
     templateUrl: './iframe-plugin.component.html'
@@ -17,6 +18,7 @@ import { SafeResourceUrl } from '@angular/platform-browser';
 
 @Injectable()
 export class IFramePluginComponent {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   startingPage: SafeResourceUrl;
   iframeId: string;
   instanceId: number = -1;
@@ -27,7 +29,9 @@ export class IFramePluginComponent {
   constructor(
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_EVENTS) private windowEvents: Angular2PluginWindowEvents,
-    @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) private viewportEvents: Angular2PluginViewportEvents
+    @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) private viewportEvents: Angular2PluginViewportEvents,
+    @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefintion: ZLUX.ContainerPluginDefinition,
+    @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any
   ){
     addEventListener("message", this.postMessageListener.bind(this));
     //The following references are to suppress typescript warnings
@@ -54,6 +58,27 @@ export class IFramePluginComponent {
     if(split[0] === 'registerAdapterInstance' && this.instanceId == -1){
       this.instanceId = data.request.instanceId;
       this.frameSource = message.source;
+      try{
+        this.frameSource.postMessage({
+          key: -1,
+          constructorData: {
+            pluginDef: JSON.parse(JSON.stringify(this.pluginDefintion)),
+            launchMetadata: this.launchMetadata
+          },
+          instanceId: this.instanceId
+        }, '*')
+      }catch(e){
+        this.frameSource.postMessage({
+          key: -1,
+          constructorData: {
+            pluginDef: {},
+            launchMetadata: this.launchMetadata
+          },
+          instanceId: this.instanceId,
+          error: 'Unable to parse plugin definition'
+        }, '*');
+        this.logger.warn('Unable to parse plugin defintion.  Error: ', e);
+      }
       this.windowEvents.minimized.subscribe(() => {
         this.postWindowEvent('windowEvents.minimized');
       });
@@ -113,18 +138,23 @@ export class IFramePluginComponent {
   }
 
   private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>){
-    let copy = JSON.parse(JSON.stringify(itemsArray));
-    for(let i = 0; i < copy.length; i++){
-      copy[i].action = () => {
-        source.postMessage({
-          key: key,
-          originCall: 'windowActions.spawnContextMenu',
-          instanceId: this.instanceId,
-          contextMenuItemIndex: i
-        }, '*')
+    try{
+      let copy = JSON.parse(JSON.stringify(itemsArray));
+      for(let i = 0; i < copy.length; i++){
+        copy[i].action = () => {
+          source.postMessage({
+            key: key,
+            originCall: 'windowActions.spawnContextMenu',
+            instanceId: this.instanceId,
+            contextMenuItemIndex: i
+          }, '*')
+        }
       }
+      return copy;
+    }catch(e){
+      this.logger.warn('Unable to parse context menu items.  Error: ', e);
+      return undefined;
     }
-    return copy;
   }
 
   private windowActionsHandler(fnSplit: Array<string>, args: Array<any>, message: any){
@@ -158,7 +188,6 @@ export class IFramePluginComponent {
         let that = this;
         args[0] = function(): Promise<void>{
           return new Promise(function(resolve: any, reject: any){
-            console.log('close handler called from inside promise');
             that.responses[message.data.key] = {
               resolve: function(){
                 resolve();
