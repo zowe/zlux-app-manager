@@ -27,7 +27,8 @@ const query = parseQuery();
 if (typeof query.pluginId === 'string') {
   console.log(`simple container requested with pluginId ${query.pluginId}`);
   (window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED'] = true;
-  (window as any)['GIZA_PLUGIN_TO_BE_LOADED'] = query.pluginId; // "com.rs.mvd.ctds.dadb";
+  (window as any)['GIZA_PLUGIN_TO_BE_LOADED'] = query.pluginId;
+  (window as any)['ZOWE_SWM_SHOW_LOGIN'] = query.showLogin;
   (window as any)['GIZA_ENVIRONMENT'] = 'MVD';
 }
 

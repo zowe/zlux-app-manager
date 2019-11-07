@@ -24,7 +24,7 @@ import { generateInstanceActions } from '../shared/context-utils';
 @Component({
   selector: 'rs-com-launchbar-menu',
   templateUrl: './launchbar-menu.component.html',
-  styleUrls: ['./launchbar-menu.component.css']
+  styleUrls: ['./launchbar-menu.component.css', '../shared/shared.css']
 })
 export class LaunchbarMenuComponent {
   @Input() menuItems: LaunchbarItem[];

@@ -13,7 +13,6 @@
 .launchbar-container {
   box-sizing: border-box;
   position: absolute;
-  height: 60px;
   width: 100%;
   bottom: 0;
   background: transparent;
@@ -33,7 +32,7 @@
 .launchbar-basement {
   position: absolute;
   box-sizing: border-box;
-  height: 60px;
+  height: 100%;
   width: 100%;
   bottom: 0;
   background: #557999;
@@ -42,22 +41,18 @@
 }
 
 .launchbar {
-  height: 110px;
   box-sizing: border-box;
   display: flex;
   background: transparent;
   text-align: left;
   z-index: 6;
   margin: 0;
+  height: 100%;
   margin-left: 130px; /* Prevent overlap with launch widget on the left */
   margin-right: 150px; /* Prevent overlap with lauchbar clock and searcb bar on the right */
   padding: 0;
   padding-left: 25px;
   padding-top: 0;
-}
-
-rs-com-launchbar-icon {
-  text-align: center;
 }
 
 

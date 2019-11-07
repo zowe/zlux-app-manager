@@ -16,7 +16,7 @@ import { DesktopPluginDefinitionImpl } from './desktop-plugin-definition';
 import { PluginLoader } from './plugin-loader';
 
 @Injectable()
-export class PluginManager implements MVDHosting.PluginManagerInterface {
+export class PluginManager implements MVDHosting.PluginManagerInterface, MVDHosting.LoginActionInterface, MVDHosting.LogoutActionInterface {
   private _pluginDefinitions: Map<string, MVDHosting.DesktopPluginDefinition>;
 
   constructor(
@@ -25,20 +25,33 @@ export class PluginManager implements MVDHosting.PluginManagerInterface {
     this.loadApplicationPluginDefinitionsMap();
   }
 
+  onLogin(): boolean {
+    this._pluginDefinitions.clear();
+    this.loadApplicationPluginDefinitionsMap();
+    return true;
+  }
+
+  onLogout(): boolean {
+    this._pluginDefinitions.clear();
+    return true;
+  }
+
   loadApplicationPluginDefinitions(): Promise<MVDHosting.DesktopPluginDefinition[]> {
     if (this._pluginDefinitions != null) {
-      return Promise.resolve(Array.from(this._pluginDefinitions.values()));
+      if (this._pluginDefinitions.size != 0) {
+        return Promise.resolve(Array.from(this._pluginDefinitions.values()));
+      }
     }
-
     return ZoweZLUX.pluginManager.loadPlugins('application')
       .then((plugins: ZLUX.Plugin[]) => plugins.map(plugin => new DesktopPluginDefinitionImpl(plugin)));
   }
 
   loadApplicationPluginDefinitionsMap(): Promise<Map<string, MVDHosting.DesktopPluginDefinition>> {
     if (this._pluginDefinitions != null) {
-      return Promise.resolve(this._pluginDefinitions);
+      if (this._pluginDefinitions.size != 0) {
+        return Promise.resolve(this._pluginDefinitions);
+      }
     }
-
     return this.loadApplicationPluginDefinitions()
       .then((plugins: MVDHosting.DesktopPluginDefinition[]) => {
         const map = new Map();

@@ -1,0 +1,3 @@
+{
+  "extends": "../../../../zlux-app-manager/virtual-desktop/plugin-config/tsconfig.base.json"
+}

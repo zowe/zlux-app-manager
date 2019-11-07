@@ -12,7 +12,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { HttpClientModule } from '@angular/common/http';
 import { SharedModule } from 'app/shared/shared.module';
 import { ApplicationManagerModule } from 'app/application-manager/application-manager.module';
 
@@ -34,7 +34,8 @@ import { PersonalizationComponent } from '../mvd-window-manager/personalization-
     AuthenticationModule,
     CommonModule,
     SharedModule,
-    LaunchbarModule
+    LaunchbarModule,
+    HttpClientModule
   ],
   declarations: [
     DesktopComponent,
