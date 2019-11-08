@@ -9,13 +9,14 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ViewChild, ElementRef } from '@angular/core';
 import {Http} from '@angular/http';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 import { ZoweNotification } from '../../../../../../zlux-platform/base/src/notification-manager/notification'
+
 const EVERYONE = "Everyone";
 const INDIVIDUAL = "Individual";
-
+const ALL_ACTIVE_USERS = "All Active Users"
 @Component({
   selector: 'adminnotification',
   templateUrl: 'adminnotification-component.html',
@@ -27,20 +28,23 @@ export class AdminNotificationComponent {
   private items: any;
   private recipient: string;
   private displayText: boolean;
-  
+  @ViewChild('responseElem') responseElem: ElementRef;
+  @ViewChild('titleElem') titleElem: ElementRef;
+  @ViewChild('messageElem') messageElem: ElementRef;
+
   constructor(private http: Http,
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefinition: ZLUX.ContainerPluginDefinition,
     ) {
     this.response = "";
-    this.items = [{content: EVERYONE}, {content: INDIVIDUAL}]
+    this.items = [{content: ALL_ACTIVE_USERS}, {content: INDIVIDUAL}]
     this.recipient = EVERYONE
     this.displayText = true;
   }
 
   selected(e: any): void {
     this.recipient = e.item.content
-    if (e.item.content === EVERYONE) {
-      this.recipient = e.item.content
+    if (e.item.content === ALL_ACTIVE_USERS) {
+      this.recipient = EVERYONE
       this.displayText = true;
     } else if (e.item.content === INDIVIDUAL) {
       this.recipient = ""
@@ -56,6 +60,13 @@ export class AdminNotificationComponent {
         ZoweZLUX.notificationManager.serverNotify({"notification": notification, "recipient": EVERYONE})
         .then(
           (res: any) => {
+            if (res.ok) {
+              this.responseElem.nativeElement.style.color = 'black';
+              this.titleElem.nativeElement.value = "";
+              this.messageElem.nativeElement.value = "";
+            } else {
+              this.responseElem.nativeElement.style.color = '#b70000'
+            }
             res.json().then((json: any) => this.response = "Server Response: " + json.Response)
           },
           (error: any) => {
@@ -65,6 +76,13 @@ export class AdminNotificationComponent {
         ZoweZLUX.notificationManager.serverNotify({"username": this.recipient, "notification": notification, "recipient": INDIVIDUAL})
         .then(
           (res: any) => {
+            if (res.ok) {
+              this.responseElem.nativeElement.style.color = 'black';
+              this.titleElem.nativeElement.value = "";
+              this.messageElem.nativeElement.value = "";
+            } else {
+              this.responseElem.nativeElement.style.color = "#b70000"
+            }
             res.json().then((json: any) => this.response = "Server Response: " + json.Response)
           },
           (error: any) => {

@@ -21,4 +21,16 @@ export class SimpleGlobalization implements ZLUX.Globalization {
       return 'US';
     }
   }
+
+
+  //These setters are not used, therefore these should not be called.  At runtime, simple-globalization is replaced with
+  //the globalization in virtual desktop
+  setLanguage(language: string): any {
+    return language;
+  }
+
+  setLocale(locale: string): any{
+    return locale;
+  }
+  
 }

@@ -22,7 +22,17 @@
     font-size: 16px;
 }
 
+.snackbar-data {
+    word-break: break-word;
+    font-size: small;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 .snackbar-container {
+    width: 315px;
     display: inline-block;
 }
 
@@ -31,7 +41,7 @@
 }
 
 .snackbar-info {
-    width: 180px;
+    width: 200px;
     display: inline-block;
     vertical-align: top;
     margin: 5px;
@@ -62,6 +72,7 @@
     border: none;
     transition: 0.3s;
     padding: 5px;
+    color: inherit;
 }
 
 .snackbar-dismiss-button:hover {

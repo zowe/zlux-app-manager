@@ -83,7 +83,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
         });
         appsWithRecognizers.forEach(appWithRecognizer=> {
           appContents[appWithRecognizer].recognizers.forEach((recognizerObject:ZLUX.RecognizerObject)=> {
-            ZoweZLUX.dispatcher.addRecognizerFromObject(recognizerObject.clause,recognizerObject.id);
+            ZoweZLUX.dispatcher.addRecognizerObject(recognizerObject);
           });
           this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);
         });
@@ -101,10 +101,8 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
         });
         appsWithActions.forEach(appWithAction=> {
           appContents[appWithAction].actions.forEach((actionObject:any)=> {
-            let mode: any = ZoweZLUX.dispatcher.constants.ActionTargetMode[actionObject.targetMode];
-            let type: any = ZoweZLUX.dispatcher.constants.ActionType[actionObject.type];
-            if (actionObject.id && actionObject.defaultName && actionObject.targetId && actionObject.arg && mode !== undefined && type !== undefined) {
-              ZoweZLUX.dispatcher.registerAction(ZoweZLUX.dispatcher.makeAction(actionObject.id, actionObject.defaultName, (mode as ZLUX.ActionTargetMode), (type as ZLUX.ActionType), actionObject.targetId, actionObject.arg));
+            if (this.isValidAction(actionObject)) {
+              ZoweZLUX.dispatcher.registerAbstractAction(ZoweZLUX.dispatcher.makeActionFromObject(actionObject));
             }
           });
           this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);
@@ -112,6 +110,19 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
       }
     });
     return true;
+  }
+
+  isValidAction(actionObject: any): boolean {
+    switch (actionObject.objectType) {
+      case 'ActionContainer':
+      return actionObject.id && actionObject.defaultName && actionObject.children && actionObject.children.length > 0;
+
+      default:
+      const mode: any = ZoweZLUX.dispatcher.constants.ActionTargetMode[actionObject.targetMode];
+      const type: any = ZoweZLUX.dispatcher.constants.ActionType[actionObject.type];
+      return (actionObject.id && actionObject.defaultName && actionObject.targetId
+        && actionObject.arg && mode !== undefined && type !== undefined);
+    }
   }
 }
 
