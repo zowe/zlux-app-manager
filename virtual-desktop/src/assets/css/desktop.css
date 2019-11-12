@@ -28,6 +28,8 @@ body {
   position: absolute;
   cursor: default;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 
 /* Force the scroll bar to be show in webkit browser (Mac hides by default) */
