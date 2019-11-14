@@ -137,6 +137,11 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
             this.minimizeToggle(this.focusedWindow.windowId);
           }
         }
+        else if (event.which === KeyCode.UP_ARROW) {
+          if(this.focusedWindow) {
+            this.maximizeToggle(this.focusedWindow.windowId);
+          }
+        }
     });
   }
 
