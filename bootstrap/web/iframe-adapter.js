@@ -18,31 +18,31 @@
 let messageHandler = function(message) {
     let data = message.data;
     if(data.dispatchData){
-        if(ZoweZLUX.iframe.__instanceId === -1 && data.dispatchData.instanceId !== undefined){
-            ZoweZLUX.iframe.__instanceId = data.dispatchData.instanceId;
+        if(ZoweZLUX.iframe.instanceId === -1 && data.dispatchData.instanceId !== undefined){
+            ZoweZLUX.iframe.instanceId = data.dispatchData.instanceId;
             translateFunction('registerAdapterInstance', []);
-        } else if(ZoweZLUX.iframe.__instanceId !== -1 && data.dispatchData.instanceId !== undefined 
-                    && data.dispatchData.instanceId !== ZoweZLUX.iframe.__instanceId){
-            console.warn('Desktop attempted to change instanceId for iframe instance=', ZoweZLUX.iframe.__instanceId, 'message=', message);
+        } else if(ZoweZLUX.iframe.instanceId !== -1 && data.dispatchData.instanceId !== undefined 
+                    && data.dispatchData.instanceId !== ZoweZLUX.iframe.instanceId){
+            console.warn('Desktop attempted to change instanceId for iframe instance=', ZoweZLUX.iframe.instanceId, 'message=', message);
         }
     }
-    if(data.key === undefined || data.instanceId != ZoweZLUX.iframe.__instanceId) return;
+    if(data.key === undefined || data.instanceId != ZoweZLUX.iframe.instanceId) return;
     if(data.constructorData){
         ZoweZLUX.iframe.pluginDef = data.constructorData.pluginDef;
         ZoweZLUX.iframe.launchMetadata = data.constructorData.launchMetadata;
     }
     let key = data.key
-    if(ZoweZLUX.iframe.__responses[key]){
-        ZoweZLUX.iframe.__responses[key].resolve(data.value);
-        delete ZoweZLUX.iframe.__responses[key];
-        ZoweZLUX.iframe.__numUnresolved--;
+    if(ZoweZLUX.iframe.__iframeAdapter.__responses[key]){
+        ZoweZLUX.iframe.__iframeAdapter.__responses[key].resolve(data.value);
+        delete ZoweZLUX.iframe.__iframeAdapter.__responses[key];
+        ZoweZLUX.iframe.__iframeAdapter.__numUnresolved--;
     } else {
         switch(data.originCall){
             case 'handleMessageAdded':
-                ZoweZLUX.iframe.__these[data.instanceId].handleMessageAdded(data.notification);
+                ZoweZLUX.iframe.__iframeAdapter.__these[data.instanceId].handleMessageAdded(data.notification);
                 return;
             case 'handleMessageRemoved':
-                ZoweZLUX.iframe.__these[data.instanceId].handleMessageRemoved(data.notificationId);
+                ZoweZLUX.iframe.__iframeAdapter.__these[data.instanceId].handleMessageRemoved(data.notificationId);
                 return;
             case 'windowActions.spawnContextMenu':
                 if(data.contextMenuItemIndex !== undefined){
@@ -80,8 +80,8 @@ let messageHandler = function(message) {
                 return;
         }
     }
-    if(ZoweZLUX.iframe.__numUnresolved < 1){
-        ZoweZLUX.iframe.__responses = {};
+    if(ZoweZLUX.iframe.__iframeAdapter.__numUnresolved < 1){
+        ZoweZLUX.iframe.__iframeAdapter.__responses = {};
     }
 }
 
@@ -104,11 +104,11 @@ function translateFunction(functionString, args){
                 error: "functionString must be of type string, args must be an array of type object"
             })
         }
-        const key = ZoweZLUX.iframe.__curResponseKey++;
+        const key = ZoweZLUX.iframe.__iframeAdapter.__curResponseKey++;
         switch(functionString){
             case 'ZoweZLUX.notificationManager.addMessageHandler':
                 if(args[0] !== undefined){
-                    ZoweZLUX.iframe.__these[ZoweZLUX.iframe.__instanceId] = args[0];
+                    ZoweZLUX.iframe.__iframeAdapter.__these[ZoweZLUX.iframe.instanceId] = args[0];
                     args[0] = {}
                 }
                 break;
@@ -130,10 +130,10 @@ function translateFunction(functionString, args){
         const request = {
             function: functionString,
             args: args,
-            instanceId: ZoweZLUX.iframe.__instanceId
+            instanceId: ZoweZLUX.iframe.instanceId
         }
-        ZoweZLUX.iframe.__numUnresolved++;
-        ZoweZLUX.iframe.__responses[key] = {
+        ZoweZLUX.iframe.__iframeAdapter.__numUnresolved++;
+        ZoweZLUX.iframe.__iframeAdapter.__responses[key] = {
             resolve: function(res){
                 resolve(res);
             }
@@ -156,15 +156,19 @@ function removeActionsFromContextMenu(itemsArray){
 
 var ZoweZLUX = {
     iframe: {
-        __responses: {},
-        __these: {}, //contains this'
+        //Not meant to be touched
+        __iframeAdapter: {
+            __responses: {},
+            __these: {}, //contains this'
+            __curResponseKey: 0,
+            __numUnresolved: 0,
+        },
+        instanceId: -1,
         contextMenuActions: {},
         closeHandlers: {},
         pluginDef: undefined,
         launchMetadata: undefined,
-        __curResponseKey: 0,
-        __numUnresolved: 0,
-        __instanceId: -1,
+
         //True - Standalone, False - We are in regular desktop mode
         isSingleAppMode() {
             return new Promise(function(resolve, reject)  {
