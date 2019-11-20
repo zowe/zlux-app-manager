@@ -14,54 +14,45 @@
    With ZLUX, there's a global called ZoweZLUX which holds useful tools. So, a site
    Can determine what actions to take by knowing if it is or isnt embedded in ZLUX via IFrame.
 */
-var responses = {};
-var these = {}; //contains this'
-var contextMenuActions = {};
-var closeHandlers = {};
-var pluginDef = undefined;
-var launchMetadata = undefined;
-var curResponseKey = 0;
-var numUnresolved = 0;
-var instanceId = -1;
 
 let messageHandler = function(message) {
     let data = message.data;
     if(data.dispatchData){
-        if(instanceId === -1 && data.dispatchData.instanceId !== undefined){
-            instanceId = data.dispatchData.instanceId;
+        if(ZoweZLUX.iframe.__instanceId === -1 && data.dispatchData.instanceId !== undefined){
+            ZoweZLUX.iframe.__instanceId = data.dispatchData.instanceId;
             translateFunction('registerAdapterInstance', []);
-        } else if(instanceId !== -1 && data.dispatchData.instanceId !== undefined 
-                    && data.dispatchData.instanceId !== instanceId){
-            console.warn('Desktop attempted to change instanceId for iframe instance=', instanceId, 'message=', message);
+        } else if(ZoweZLUX.iframe.__instanceId !== -1 && data.dispatchData.instanceId !== undefined 
+                    && data.dispatchData.instanceId !== ZoweZLUX.iframe.__instanceId){
+            console.warn('Desktop attempted to change instanceId for iframe instance=', ZoweZLUX.iframe.__instanceId, 'message=', message);
         }
     }
-    if(data.key === undefined || data.instanceId != instanceId) return;
+    if(data.key === undefined || data.instanceId != ZoweZLUX.iframe.__instanceId) return;
     if(data.constructorData){
-        pluginDef = data.constructorData.pluginDef;
-        launchMetadata = data.constructorData.launchMetadata;
+        ZoweZLUX.iframe.pluginDef = data.constructorData.pluginDef;
+        ZoweZLUX.iframe.launchMetadata = data.constructorData.launchMetadata;
     }
     let key = data.key
-    if(responses[key]){
-        responses[key].resolve(data.value);
-        delete responses[key];
-        numUnresolved--;
+    if(ZoweZLUX.iframe.__responses[key]){
+        ZoweZLUX.iframe.__responses[key].resolve(data.value);
+        delete ZoweZLUX.iframe.__responses[key];
+        ZoweZLUX.iframe.__numUnresolved--;
     } else {
         switch(data.originCall){
             case 'handleMessageAdded':
-                these[data.instanceId].handleMessageAdded(data.notification);
+                ZoweZLUX.iframe.__these[data.instanceId].handleMessageAdded(data.notification);
                 return;
             case 'handleMessageRemoved':
-                these[data.instanceId].handleMessageRemoved(data.notificationId);
+                ZoweZLUX.iframe.__these[data.instanceId].handleMessageRemoved(data.notificationId);
                 return;
             case 'windowActions.spawnContextMenu':
                 if(data.contextMenuItemIndex !== undefined){
-                    contextMenuActions[key][data.contextMenuItemIndex].action();
-                    delete contextMenuActions[key];
+                    ZoweZLUX.iframe.contextMenuActions[key][data.contextMenuItemIndex].action();
+                    delete ZoweZLUX.iframe.contextMenuActions[key];
                 }
                 return;
             case 'viewportEvents.callCloseHandler':
-                closeHandlers[key]().then((res) => {
-                    delete closeHandlers[key]
+                ZoweZLUX.iframe.closeHandlers[key]().then((res) => {
+                    delete ZoweZLUX.iframe.closeHandlers[key]
                     translateFunction('resolveCloseHandler', [key])
                 })
                 return;
@@ -89,8 +80,8 @@ let messageHandler = function(message) {
                 return;
         }
     }
-    if(numUnresolved < 1){
-        responses = {};
+    if(ZoweZLUX.iframe.__numUnresolved < 1){
+        ZoweZLUX.iframe.__responses = {};
     }
 }
 
@@ -113,23 +104,23 @@ function translateFunction(functionString, args){
                 error: "functionString must be of type string, args must be an array of type object"
             })
         }
-        const key = curResponseKey++;
+        const key = ZoweZLUX.iframe.__curResponseKey++;
         switch(functionString){
             case 'ZoweZLUX.notificationManager.addMessageHandler':
                 if(args[0] !== undefined){
-                    these[instanceId] = args[0];
+                    ZoweZLUX.iframe.__these[ZoweZLUX.iframe.__instanceId] = args[0];
                     args[0] = {}
                 }
                 break;
             case 'windowActions.spawnContextMenu':
                 if(args.length > 0 && Array.isArray(args[2])){
-                    contextMenuActions[key] = args[2];
+                    ZoweZLUX.iframe.contextMenuActions[key] = args[2];
                     args[2] = removeActionsFromContextMenu(args[2]);
                 }
                 break;
             case 'viewportEvents.registerCloseHandler':
                 if(args[0] !== undefined){
-                    closeHandlers[key] = args[0];
+                    ZoweZLUX.iframe.closeHandlers[key] = args[0];
                     args[0] = {};
                 }
                 break;
@@ -139,10 +130,10 @@ function translateFunction(functionString, args){
         const request = {
             function: functionString,
             args: args,
-            instanceId: instanceId
+            instanceId: ZoweZLUX.iframe.__instanceId
         }
-        numUnresolved++;
-        responses[key] = {
+        ZoweZLUX.iframe.__numUnresolved++;
+        ZoweZLUX.iframe.__responses[key] = {
             resolve: function(res){
                 resolve(res);
             }
@@ -164,6 +155,41 @@ function removeActionsFromContextMenu(itemsArray){
 }
 
 var ZoweZLUX = {
+    iframe: {
+        __responses: {},
+        __these: {}, //contains this'
+        contextMenuActions: {},
+        closeHandlers: {},
+        pluginDef: undefined,
+        launchMetadata: undefined,
+        __curResponseKey: 0,
+        __numUnresolved: 0,
+        __instanceId: -1,
+        //True - Standalone, False - We are in regular desktop mode
+        isSingleAppMode() {
+            return new Promise(function(resolve, reject)  {
+                if (window.GIZA_SIMPLE_CONTAINER_REQUESTED) { //Ancient edgecase
+                    resolve(true); //Standalone mode
+                } else {
+                let intervalId = setInterval(checkForStandaloneMode, 100);
+                function checkForStandaloneMode() {
+                    if (ZoweZLUX.iframe.pluginDef) { //If we have the plugin definition
+                        clearInterval(intervalId);
+                        resolve(false);
+                    }
+                }
+                setTimeout(() => { 
+                    clearInterval(intervalId);
+                    if (ZoweZLUX.iframe.pluginDef === undefined || null) {
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                }, 1000);
+                }
+            });
+        }
+    },
     pluginManager: {
         getPlugin(id){
             return translateFunction('ZoweZLUX.pluginManager.getPlugin', [id])
@@ -328,31 +354,6 @@ var windowActions = {
     spawnContextMenu(xPos, yPos, items, isAbsolutePos){
         return translateFunction('windowActions.spawnContextMenu', [xPos, yPos, items, isAbsolutePos])
     },
-}
-
-//True - Standalone, False - We are in regular desktop mode
-function isSingleAppMode() {
-    return new Promise(function(resolve, reject)  {
-        if (window.GIZA_SIMPLE_CONTAINER_REQUESTED) { //Ancient edgecase
-            resolve(true); //Standalone mode
-        } else {
-        let intervalId = setInterval(checkForStandaloneMode, 100);
-        function checkForStandaloneMode() {
-            if (pluginDef) { //If we have the plugin definition
-                clearInterval(intervalId);
-                resolve(false);
-            }
-        }
-        setTimeout(() => { 
-            clearInterval(intervalId);
-            if (pluginDef === undefined || null) {
-                resolve(true);
-            } else {
-                resolve(false);
-            }
-        }, 1000);
-        }
-    });
 }
 
 var viewportEvents = {
