@@ -80,7 +80,7 @@ let messageHandler = function(message) {
                 //console.log('moved')
                 return;
             case 'windowEvents.resized':
-                console.log('resized')
+                //console.log('resized')
                 return;
             case 'windowEvents.titleChanged':
                 console.log('titleChanged')
@@ -97,7 +97,6 @@ let messageHandler = function(message) {
 window.addEventListener('message', messageHandler);
 
 window.addEventListener("load", function () {
-    console.log('iFrame Adapter has loaded!');
     window.top.postMessage('iframeload', '*');
 });
 
@@ -328,6 +327,31 @@ var windowActions = {
     spawnContextMenu(xPos, yPos, items, isAbsolutePos){
         return translateFunction('windowActions.spawnContextMenu', [xPos, yPos, items, isAbsolutePos])
     },
+}
+
+//True - Standalone, False - We are in regular desktop mode
+function isSingleAppMode() {
+    return new Promise(function(resolve, reject)  {
+        if (window.GIZA_SIMPLE_CONTAINER_REQUESTED) { //Ancient edgecase
+            resolve(true); //Standalone mode
+        } else {
+        let intervalId = setInterval(checkForStandaloneMode, 100);
+        function checkForStandaloneMode() {
+            if (pluginDef) { //If we have the plugin definition
+                clearInterval(intervalId);
+                resolve(false);
+            }
+        }
+        setTimeout(() => { 
+            clearInterval(intervalId);
+            if (pluginDef === undefined || null) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        }, 1000);
+        }
+    });
 }
 
 var viewportEvents = {
