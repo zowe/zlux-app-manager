@@ -97,6 +97,7 @@ let messageHandler = function(message) {
 window.addEventListener('message', messageHandler);
 
 window.addEventListener("load", function () {
+    console.log('iFrame Adapter has loaded!');
     window.top.postMessage('iframeload', '*');
 });
 
