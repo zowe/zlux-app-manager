@@ -16,11 +16,12 @@ import { CommonModule } from '@angular/common';
 import { SimpleWindowManagerService } from './simple-window-manager.service';
 import { SimpleComponent } from './simple.component';
 import { ApplicationManagerModule } from '../../application-manager/application-manager.module';
-
+import { AuthenticationModule } from '../../authentication-manager/authentication-manager.module';
 
 @NgModule({
   imports: [
     ApplicationManagerModule,
+    AuthenticationModule,
     CommonModule,
   ],
   declarations: [

@@ -11,14 +11,24 @@
 -->
 
 <div class="degenerate-container">
-  <com-rs-mvd-viewport [viewportId]="viewportId">
+  <h1 style="text-align:center" *ngIf="error.length > 0">
+    {{error}}
+  </h1>
+  <rs-com-login *ngIf="error.length == 0 && showLogin">
+    <com-rs-mvd-viewport [viewportId]="viewportId">
+      <!-- Loading display -->
+      <div class="full-center">
+        <i class="fa fa-spinner fa-spin fa-3x"></i>
+      </div>
+    </com-rs-mvd-viewport>
+  </rs-com-login>
+  <com-rs-mvd-viewport *ngIf="error.length == 0 && !showLogin" [viewportId]="viewportId">
     <!-- Loading display -->
     <div class="full-center">
       <i class="fa fa-spinner fa-spin fa-3x"></i>
     </div>
   </com-rs-mvd-viewport>
 </div>
-
 <!-- 
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies

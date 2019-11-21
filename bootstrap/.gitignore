@@ -8,6 +8,7 @@
 dist/*
 dts/*
 web/*
+!web/iframe-adapter.js
 node_modules/*
 src/uri/*.js
 src/uri/*.js.map

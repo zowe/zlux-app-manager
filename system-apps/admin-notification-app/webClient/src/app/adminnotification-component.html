@@ -14,10 +14,10 @@
   </div>
   <div class="outer-input">
     <div class="recipient-input-container">
-      <input ibmText class="recipient-input" type="text" placeholder="Enter Recipient" [hidden]="displayText" [(ngModel)]="recipient">
+      <input ibmText class="recipient-input" type="text" placeholder="Enter User" [hidden]="displayText" [(ngModel)]="recipient">
     </div>
     <div class="recipient">
-      <ibm-dropdown class="recipient-dropdown" placeholder="Everyone" (selected)="selected($event)">
+      <ibm-dropdown class="recipient-dropdown" placeholder="All Active Users" (selected)="selected($event)">
         <ibm-dropdown-list [items]="items"></ibm-dropdown-list>
       </ibm-dropdown>  
     </div>
@@ -26,17 +26,17 @@
     <div class="notification-info">
       <div class="notification-label">Notification: </div>
       <div class="notification-info">
-        <input ibmText #title class="notification-title" type="text" placeholder="Title">
+        <input ibmText #titleElem class="notification-title" type="text" placeholder="Title">
       </div>
       <div class="message">
-        <textarea ibmTextArea rows="5" class="message" #message id="message" type="text" placeholder="Message"></textarea>
+        <textarea #messageElem ibmTextArea rows="5" class="notification-message" id="message" type="text" placeholder="Message"></textarea>
       </div>
       <div class="send-notification">
-        <button class="send-notification-button" (click)="sendRest(title.value, message.value)">Send</button>
+        <button class="send-notification-button" (click)="sendRest(titleElem.value, messageElem.value)">Send</button>
       </div>
     </div>
   </div>
-  <div class="response">
+  <div #responseElem class="response">
     {{response}}
   </div>
 </div>
