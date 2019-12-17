@@ -29,7 +29,12 @@
           (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()'
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
         >
-          <span>{{menuItem.text}}</span>
+          <div style="display: flex;">
+            <div
+              class="icon {{menuItem.icon}}"
+            ></div>
+            <div>{{menuItem.text}}</div>
+          </div>
         </li>
       </ng-template>
       <ng-template #multiItem>
@@ -40,10 +45,13 @@
           [class.bottom]="i==menuItems.length-1"
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
         >
-          <div>
-            <span>{{menuItem.text}}</span>
-            <div class="menu-expand-caret"></div>
+          <div style="display: flex;">
+            <div
+              class="icon {{menuItem.icon}}"
+            ></div>
+            <div>{{menuItem.text}}</div>
           </div>
+          <div class="menu-expand-caret"></div>
           <div class="submenu">
             <com-rs-mvd-context-menu
               #contextmenus
