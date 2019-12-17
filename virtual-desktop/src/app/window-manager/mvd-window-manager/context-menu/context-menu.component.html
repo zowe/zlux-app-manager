@@ -15,12 +15,12 @@
     <ng-container *ngFor='let menuItem of menuItems'>
       <ng-container *ngIf='menuItem.children != null && menuItem.children.length > 0; then multiItem else singleItem'></ng-container>
       <ng-template #singleItem>
-        <li class='menu-item' [class.active]="hovering==menuItem" (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()' (mouseover)="hovering=menuItem">
+        <li class='menu-item' [class.active]="hovering==menuItem" (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()' (mouseover)="hovering=menuItem" (mouseleave)="hovering=null">
           <span>{{menuItem.text}}</span>
         </li>
       </ng-template>
       <ng-template #multiItem>
-        <li class='menu-item multi-menu-item' [class.active]="hovering==menuItem" (mouseover)="hovering=menuItem">
+        <li class='menu-item multi-menu-item' [class.active]="hovering==menuItem" (mouseover)="hovering=menuItem" (mouseleave)="hovering=null">
           <span>{{menuItem.text}}</span>
           <div class="menu-expand-caret"></div>
           <div class="submenu">
