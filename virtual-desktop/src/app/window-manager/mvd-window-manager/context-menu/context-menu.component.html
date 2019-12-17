@@ -43,6 +43,7 @@
           [class.active]="i==this.activeIndex"
           [class.top]="i==0"
           [class.bottom]="i==menuItems.length-1"
+          (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()'
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
         >
           <div style="display: flex;">

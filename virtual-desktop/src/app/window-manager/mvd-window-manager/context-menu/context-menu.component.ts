@@ -192,12 +192,16 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     this.activeIndex = index;
   }
 
-  @HostListener('document:mousedown', ['$event'])
-  onMouseDown(event: MouseEvent): void {
-    if (event && !this.elementRef.nativeElement.contains(event.target)) {
-      this.closeContextMenu();
-    }
-  }
+  // @HostListener('document:mousedown', ['$event'])
+  // onMouseDown(event: MouseEvent): void {
+  //   event.stopPropagation();
+  //   console.log("goodbye: ", this.menuItems[this.activeIndex])
+  //   setTimeout(() => {
+  //     if (event && !this.elementRef.nativeElement.contains(event.target)) {
+  //       this.closeContextMenu();
+  //     }
+  //   }, 0)
+  // }
 
   @HostListener('window:keydown', ['$event'])
   onWindowKeyDown(event: KeyboardEvent) {
@@ -228,6 +232,12 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
             this.makeParentNavigable.emit();
             this.setActiveIndex(-1);
           }
+          break;
+        case 'Enter':
+          if (this.menuItems[this.activeIndex].action) {
+            this.menuItems[this.activeIndex].action();
+          }
+          this.closeContextMenu();
       }
     }
   }
