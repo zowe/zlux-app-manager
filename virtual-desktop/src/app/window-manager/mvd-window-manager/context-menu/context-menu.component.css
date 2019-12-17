@@ -21,6 +21,16 @@
   background-color:#a6a6a6;
 }
 
+.context-menu .menu-item.top {
+  border-top-width: 1px;
+  border-radius: 4px 4px 0 0;
+}
+
+.context-menu .menu-item.bottom {
+  border-bottom-width: 1px;
+  border-radius: 0 0 4px 4px;
+}
+
 .context-menu>ul {
   background-color:#eaeaea;
   list-style: none;
