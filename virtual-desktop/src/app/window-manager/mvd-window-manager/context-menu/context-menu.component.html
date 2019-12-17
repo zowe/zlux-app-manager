@@ -11,34 +11,35 @@
 -->
 
 <div class='context-menu' #contextmenu [style.left.px]='this.newX' [style.top.px]='this.newY'>
-  <ul>
-    <ng-container *ngFor='let menuItem of menuItems'>
-      <ng-container *ngIf='menuItem.children != null && menuItem.children.length > 0; then multiItem else singleItem'></ng-container>
-      <ng-template #singleItem>
-        <li class='menu-item' [class.active]="hovering==menuItem" (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()' (mouseover)="hovering=menuItem" (mouseleave)="hovering=null">
-          <span>{{menuItem.text}}</span>
-        </li>
-      </ng-template>
-      <ng-template #multiItem>
-        <li class='menu-item multi-menu-item' [class.active]="hovering==menuItem" (mouseover)="hovering=menuItem" (mouseleave)="hovering=null">
-          <span>{{menuItem.text}}</span>
-          <div class="menu-expand-caret"></div>
-          <div class="submenu">
-            <com-rs-mvd-context-menu [xPos]="0" [yPos]="0" [menuItems]="menuItem.children" (complete)="closeContextMenu()"></com-rs-mvd-context-menu>
-          </div>
-        </li>
-      </ng-template>
-    </ng-container>
-  </ul>
-</div>
-
-<!-- 
-  This program and the accompanying materials are
-  made available under the terms of the Eclipse Public License v2.0 which accompanies
-  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+    <ul>
+      <ng-container *ngFor='let menuItem of menuItems'>
+        <ng-container *ngIf='menuItem.children != null && menuItem.children.length > 0; then multiItem else singleItem'></ng-container>
+        <ng-template #singleItem>
+          <li class='menu-item' [class.active]="hovering==menuItem" (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()' (mouseover)="hovering=menuItem" (mouseleave)="hovering=null">
+            <span>{{menuItem.text}}</span>
+          </li>
+        </ng-template>
+        <ng-template #multiItem>
+          <li class='menu-item multi-menu-item' [class.active]="hovering==menuItem" (mouseover)="hovering=menuItem" (mouseleave)="hovering=null">
+            <span>{{menuItem.text}}</span>
+            <div class="menu-expand-caret"></div>
+            <div class="submenu">
+              <com-rs-mvd-context-menu [xPos]="0" [yPos]="0" [menuItems]="menuItem.children" (complete)="closeContextMenu()"></com-rs-mvd-context-menu>
+            </div>
+          </li>
+        </ng-template>
+      </ng-container>
+    </ul>
+  </div>
   
-  SPDX-License-Identifier: EPL-2.0
+  <!-- 
+    This program and the accompanying materials are
+    made available under the terms of the Eclipse Public License v2.0 which accompanies
+    this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+    
+    SPDX-License-Identifier: EPL-2.0
+    
+    Copyright Contributors to the Zowe Project.
+  -->
   
-  Copyright Contributors to the Zowe Project.
--->
-
+  

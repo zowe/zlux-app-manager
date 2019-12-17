@@ -23,15 +23,15 @@ import { BaseLogger } from 'virtual-desktop-logger';
 })
 export class ContextMenuComponent {
   hovering: ContextMenuItem;
-  newX: number;
-  newY: number;
+  newX: number; // distance from left side of browser to left side of menu
+  newY: number; // distance from top of browser to top of menu
 
   @ViewChild('contextmenu')
   set menu(contextmenu: any) {
     contextmenu.nativeElement.style.opacity = 0;
     setTimeout(() => { 
-      let menuHeight = contextmenu.nativeElement.clientHeight;
-      let menuWidth = contextmenu.nativeElement.clientWidth;
+      let menuHeight = contextmenu.nativeElement.clientHeight; // Get inital menu height
+      let menuWidth = contextmenu.nativeElement.clientWidth; // Het initial menu width
       this.newY = this.validateY(this.newY, menuHeight);
       this.newX = this.validateX(this.newX, menuWidth);
       contextmenu.nativeElement.style.opacity = 1;
@@ -61,20 +61,30 @@ export class ContextMenuComponent {
 
   validateX(xPos: number, menuWidth: number): number {
     let menuRight = xPos + menuWidth;
+    let menuLeft = xPos;
     let screenWidth = window.innerWidth - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuRight > screenWidth) {
       let difference = menuRight - screenWidth;
       xPos = xPos - difference
+    }
+    if (menuLeft < 10) {
+      let difference = 10 - menuLeft;
+      xPos = xPos + difference;
     }
     return xPos;
   }
 
   validateY(yPos: number, menuHeight: number): number {
     let menuBottom = menuHeight + yPos;
+    let menuTop = yPos;
     let screenHeight = window.innerHeight - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuBottom > screenHeight) {
      let difference = menuBottom - screenHeight;
      yPos = yPos - difference;
+    }
+    if (menuTop < 10) {
+      let difference = 10 - menuTop;
+      yPos = yPos + difference;
     }
     return yPos;
   }
