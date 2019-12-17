@@ -98,6 +98,11 @@ export class ContextMenuComponent {
       this.closeContextMenu();
     }
   }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.closeContextMenu();
+  }
 }
 
 
