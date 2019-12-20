@@ -157,20 +157,30 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     
   validateX(xPos: number, menuWidth: number): number {
     let menuRight = xPos + menuWidth;
+    let menuLeft = xPos;
     let screenWidth = window.innerWidth - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuRight > screenWidth) {
       let difference = menuRight - screenWidth;
       xPos = xPos - difference
+    }
+    if (menuLeft < 10) {
+      let difference = 10 - menuLeft;
+      xPos = xPos + difference;
     }
     return xPos;
   }
 
   validateY(yPos: number, menuHeight: number): number {
     let menuBottom = menuHeight + yPos;
+    let menuTop = yPos;
     let screenHeight = window.innerHeight - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuBottom > screenHeight) {
      let difference = menuBottom - screenHeight;
      yPos = yPos - difference;
+    }
+    if (menuTop < 10) {
+      let difference = 10 - menuTop;
+      yPos = yPos + difference;
     }
     return yPos;
   }
@@ -202,6 +212,18 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   //     }
   //   }, 0)
   // }
+
+  @HostListener('document:mousedown', ['$event'])
+  onMouseDown(event: MouseEvent): void {
+    if (event && !this.elementRef.nativeElement.contains(event.target)) {
+      this.closeContextMenu();
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.closeContextMenu();
+  }
 
   @HostListener('window:keydown', ['$event'])
   onWindowKeyDown(event: KeyboardEvent) {

@@ -71,6 +71,7 @@ export interface Angular2PluginEmbedActions {
 export interface ContextMenuItem {
   text: string;
   icon?: string;
+  shortcut?: string;
   action: () => void;
   children?: ContextMenuItem[];
 }

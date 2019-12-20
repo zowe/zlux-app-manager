@@ -29,11 +29,12 @@
           (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()'
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
         >
-          <div style="display: flex;">
-            <div
-              class="icon {{menuItem.icon}}"
-            ></div>
-            <div>{{menuItem.text}}</div>
+          <div class="menuitem-content">
+            <div style="display: flex;">
+              <div class="icon {{menuItem.icon}}"></div>
+              <div>{{menuItem.text}}</div>
+            </div>
+            <div class="shortcut">{{menuItem.shortcut}}</div>
           </div>
         </li>
       </ng-template>
@@ -46,10 +47,8 @@
           (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()'
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
         >
-          <div style="display: flex;">
-            <div
-              class="icon {{menuItem.icon}}"
-            ></div>
+          <div class="menuitem-content">
+            <div class="icon {{menuItem.icon}}"></div>
             <div>{{menuItem.text}}</div>
           </div>
           <div class="menu-expand-caret"></div>
