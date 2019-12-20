@@ -87,9 +87,9 @@
   z-index: 1;
 }
 
-.context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu {
-  margin: -10px;
-  padding: 10px;
+.context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu>.context-menu {
+  left: 0;
+  top: 0;
 }
 
 

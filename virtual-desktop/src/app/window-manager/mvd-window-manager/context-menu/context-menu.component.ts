@@ -48,11 +48,13 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('contextmenu')
   set menu(contextmenu: any) {
     contextmenu.nativeElement.style.opacity = 0;
-    setTimeout(() => { 
+    setTimeout(() => {
       let menuHeight = contextmenu.nativeElement.clientHeight;
       let menuWidth = contextmenu.nativeElement.clientWidth;
-      this.newY = this.validateY(this.newY, menuHeight);
-      this.newX = this.validateX(this.newX, menuWidth);
+      if (!this._isChildMenu) {
+        this.newY = this.validateY(this.newY, menuHeight);
+        this.newX = this.validateX(this.newX, menuWidth);
+      }
       contextmenu.nativeElement.style.opacity = 1;
       this.activeIndex = -1; // By default, no item is selected.
       this._isParentActive = false; // Since by default no item is selected, all parent items are inactive.
@@ -158,7 +160,7 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   validateX(xPos: number, menuWidth: number): number {
     let menuRight = xPos + menuWidth;
     let menuLeft = xPos;
-    let screenWidth = window.innerWidth - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
+    let screenWidth = window.innerWidth - 20; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuRight > screenWidth) {
       let difference = menuRight - screenWidth;
       xPos = xPos - difference
@@ -173,7 +175,7 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   validateY(yPos: number, menuHeight: number): number {
     let menuBottom = menuHeight + yPos;
     let menuTop = yPos;
-    let screenHeight = window.innerHeight - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
+    let screenHeight = window.innerHeight - 20; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuBottom > screenHeight) {
      let difference = menuBottom - screenHeight;
      yPos = yPos - difference;
