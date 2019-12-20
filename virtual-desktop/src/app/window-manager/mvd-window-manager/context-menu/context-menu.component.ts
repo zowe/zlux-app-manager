@@ -38,6 +38,8 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   hovering: ContextMenuItem;
   newX: number;
   newY: number;
+  menuHeight: number;
+  menuWidth: number;
   activeIndex: number; // Index of active item in menu. -1 if none active.
   _isChildMenu: boolean; // True if menu is child of another menu, false otherwise.
   _isParentActive: boolean; // True if parent item is active (ie. menu should be displayed), false otherwise.
@@ -56,6 +58,8 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
         this.newX = this.validateX(this.newX, menuWidth);
       }
       contextmenu.nativeElement.style.opacity = 1;
+      this.menuHeight = menuHeight;
+      this.menuWidth = menuWidth;
       this.activeIndex = -1; // By default, no item is selected.
       this._isParentActive = false; // Since by default no item is selected, all parent items are inactive.
       this.isNavigable = !this._isChildMenu; // By default, surface-depth menu is navigable, and all others are not.
