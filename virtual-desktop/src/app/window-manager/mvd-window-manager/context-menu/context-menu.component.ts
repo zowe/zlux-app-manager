@@ -49,8 +49,8 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   set menu(contextmenu: any) {
     contextmenu.nativeElement.style.opacity = 0;
     setTimeout(() => {
-      let menuHeight = contextmenu.nativeElement.clientHeight;
-      let menuWidth = contextmenu.nativeElement.clientWidth;
+      let menuHeight = contextmenu.nativeElement.clientHeight + 2;
+      let menuWidth = contextmenu.nativeElement.clientWidth + 2;
       if (!this._isChildMenu) {
         this.newY = this.validateY(this.newY, menuHeight);
         this.newX = this.validateX(this.newX, menuWidth);
@@ -158,12 +158,12 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   }
     
   validateX(xPos: number, menuWidth: number): number {
-    let menuRight = xPos + menuWidth;
     let menuLeft = xPos;
-    let screenWidth = window.innerWidth - 20; /* Gave a 10 pixel buffer so isn't right on the edge */
+    let menuRight = xPos + menuWidth;
+    let screenWidth = window.innerWidth - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuRight > screenWidth) {
-      let difference = menuRight - screenWidth;
-      xPos = xPos - difference
+      let overshoot = menuLeft - screenWidth;
+      xPos = xPos - (menuWidth + (overshoot > 0 ? overshoot : 0))
     }
     if (menuLeft < 10) {
       let difference = 10 - menuLeft;
@@ -173,12 +173,12 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   validateY(yPos: number, menuHeight: number): number {
-    let menuBottom = menuHeight + yPos;
     let menuTop = yPos;
-    let screenHeight = window.innerHeight - 20; /* Gave a 10 pixel buffer so isn't right on the edge */
+    let menuBottom = yPos + menuHeight;
+    let screenHeight = window.innerHeight - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuBottom > screenHeight) {
-     let difference = menuBottom - screenHeight;
-     yPos = yPos - difference;
+     let overshoot = menuTop - screenHeight;
+     yPos = yPos - (menuHeight + (overshoot > 0 ? overshoot : 0));
     }
     if (menuTop < 10) {
       let difference = 10 - menuTop;
