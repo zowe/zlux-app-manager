@@ -92,11 +92,6 @@
   top: 0;
 }
 
-
-.context-menu .menu-item:last-child {
-  border-bottom: none;
-}
-
 .menuitem-content {
   display: flex;
 }
