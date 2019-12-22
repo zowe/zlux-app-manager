@@ -51,8 +51,8 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   set menu(contextmenu: any) {
     contextmenu.nativeElement.style.opacity = 0;
     setTimeout(() => {
-      let menuHeight = contextmenu.nativeElement.clientHeight + 2;
-      let menuWidth = contextmenu.nativeElement.clientWidth + 2;
+      let menuHeight = contextmenu.nativeElement.clientHeight;
+      let menuWidth = contextmenu.nativeElement.clientWidth;
       if (!this._isChildMenu) {
         this.newY = this.validateY(this.newY, menuHeight);
         this.newX = this.validateX(this.newX, menuWidth);
@@ -69,11 +69,11 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChildren(ContextMenuComponent) _children: QueryList<ContextMenuComponent>;
 
   @Input() set xPos(xPos: number) {
-    this.newX = xPos;
+    this.newX = xPos + 2;
   };
 
   @Input() set yPos(yPos: number) {
-    this.newY = yPos;
+    this.newY = yPos + 4;
   };
   
   @Input() menuItems: ContextMenuItem[];
