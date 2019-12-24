@@ -28,13 +28,17 @@
           [class.active]="i==this.activeIndex"
           [class.top]="i==0"
           [class.bottom]="i==menuItems.length-1"
+          [class.disabled]="menuItem.disabled"
           (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()'
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
         >
-        <div class="menuitem-content">
+        <div
+          class="menuitem-content"
+          [class.disabled]="menuItem.disabled"  
+        >
             <div class="menuitem-content-left">
               <div class="icon {{menuItem.icon}}"></div>
-              <div>{{this._isChildMenu == true}}</div>
+              <div>{{menuItem.text}}</div>
             </div>
             <div class="shortcut">{{menuItem.shortcut}}</div>
           </div>
@@ -46,6 +50,7 @@
           [class.active]="i==this.activeIndex"
           [class.top]="i==0"
           [class.bottom]="i==menuItems.length-1"
+          [class.disabled]="menuItem.disabled"
           (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()'
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
         >
@@ -72,13 +77,16 @@
               (sendRefToParent)="receiveRefFromChild($event)"
             ></com-rs-mvd-context-menu>
           </div>
-          <div class="menuitem-content">
+          <div
+            class="menuitem-content"
+            [class.disabled]="menuItem.disabled"  
+          >
             <div class="menuitem-content-left">
               <div
                 class="icon {{menuItem.icon}}"
                 [class.propagateChildLeft]="this._propagateChildLeft"
               ></div>
-              <div>{{this._isChildMenu == true}}</div>
+              <div>{{menuItem.text}}</div>
             </div>
             <div
               class="menu-expand-caret"

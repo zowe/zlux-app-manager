@@ -258,12 +258,21 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
       hasChildren = this.menuItems && this.menuItems[this.activeIndex].children ? true : false;
     }
     if (this.isNavigable) {
+      let newIndex;
       switch (event.key){
         case 'ArrowUp':
-          this.activeIndex = mod(this.activeIndex - 1, this.menuItems.length)
+          newIndex = mod(this.activeIndex - 1, this.menuItems.length)
+          while (this.menuItems[newIndex].disabled) {
+            newIndex = mod(newIndex - 1, this.menuItems.length)
+          }
+          this.activeIndex = newIndex;
           break;
         case 'ArrowDown':
-          this.activeIndex = mod(this.activeIndex + 1, this.menuItems.length)
+          newIndex = mod(this.activeIndex + 1, this.menuItems.length)
+          while (this.menuItems[newIndex].disabled) {
+            newIndex = mod(newIndex + 1, this.menuItems.length)
+          }
+          this.activeIndex = newIndex;
           break;
         case 'ArrowRight':
           if (this._propagateChildLeft) {

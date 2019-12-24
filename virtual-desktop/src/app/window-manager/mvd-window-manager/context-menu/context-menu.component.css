@@ -10,6 +10,14 @@
   Copyright Contributors to the Zowe Project.
 */
 
+li.disabled {
+  pointer-events: none;
+}
+
+.menuitem-content.disabled {
+  opacity: 0.3;
+}
+
 .context-menu {
   position: absolute;
   /* margin-left: 2px; Offset menu so adjacent item is not automatically selected */
