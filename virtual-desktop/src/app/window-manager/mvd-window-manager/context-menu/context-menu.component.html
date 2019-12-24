@@ -34,7 +34,7 @@
         <div class="menuitem-content">
             <div class="menuitem-content-left">
               <div class="icon {{menuItem.icon}}"></div>
-              <div>{{menuItem.text}}</div>
+              <div>{{this._isChildMenu == true}}</div>
             </div>
             <div class="shortcut">{{menuItem.shortcut}}</div>
           </div>
@@ -78,7 +78,7 @@
                 class="icon {{menuItem.icon}}"
                 [class.propagateChildLeft]="this._propagateChildLeft"
               ></div>
-              <div>{{menuItem.text}}</div>
+              <div>{{this._isChildMenu == true}}</div>
             </div>
             <div
               class="menu-expand-caret"
