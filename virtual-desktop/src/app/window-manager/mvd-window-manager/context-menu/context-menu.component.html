@@ -15,6 +15,8 @@
   #contextmenu
   [style.left.px]='this.newX'
   [style.top.px]='this.newY'
+  [class.propagateChildLeft]="this._propagateChildLeft"
+  [class.propagateChildUp]="this._propagateChildUp"
   [class.navigable]='this.isNavigable'
 >
   <ul>
@@ -29,8 +31,8 @@
           (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()'
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
         >
-          <div class="menuitem-content">
-            <div style="display: flex;">
+        <div class="menuitem-content">
+            <div class="menuitem-content-left">
               <div class="icon {{menuItem.icon}}"></div>
               <div>{{menuItem.text}}</div>
             </div>
@@ -47,26 +49,41 @@
           (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()'
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
         >
-          <div class="menuitem-content">
-            <div class="icon {{menuItem.icon}}"></div>
-            <div>{{menuItem.text}}</div>
-          </div>
-          <div class="menu-expand-caret"></div>
-          <div class="submenu">
+          <div
+            class="submenu"
+            [class.propagateChildLeft]="this._propagateChildLeft"
+            [class.propagateChildUp]="this._propagateChildUp"
+          >
             <com-rs-mvd-context-menu
               #contextmenus
-              [xPos]="-1"
-              [yPos]="-1"
+              [xPos]="-2"
+              [yPos]="-5"
               [menuItems]="menuItem.children"
               [isChildMenu]="true"
               [isParentActive]="i==this.activeIndex"
               [parentText]="this.menuItems[i].text"
               [parentNavigable]="this.isNavigable"
+              [parentWidth]="this.menuWidth"
+              [propagateChildLeft]="this._propagateChildLeft"
+              [propagateChildUp]="this._propagateChildUp"
               (complete)="closeContextMenu()"
               (makeParentUnnavigable)="makeUnnavigable()"
               (makeParentNavigable)="makeNavigable()"
               (sendRefToParent)="receiveRefFromChild($event)"
             ></com-rs-mvd-context-menu>
+          </div>
+          <div class="menuitem-content">
+            <div class="menuitem-content-left">
+              <div
+                class="icon {{menuItem.icon}}"
+                [class.propagateChildLeft]="this._propagateChildLeft"
+              ></div>
+              <div>{{menuItem.text}}</div>
+            </div>
+            <div
+              class="menu-expand-caret"
+              [class.propagateChildLeft]="this._propagateChildLeft"
+            ></div>
           </div>
         </li>
       </ng-template>

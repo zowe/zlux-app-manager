@@ -40,10 +40,13 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   newY: number;
   menuHeight: number;
   menuWidth: number;
+  _parentWidth: number;
   activeIndex: number; // Index of active item in menu. -1 if none active.
   _isChildMenu: boolean; // True if menu is child of another menu, false otherwise.
   _isParentActive: boolean; // True if parent item is active (ie. menu should be displayed), false otherwise.
   isNavigable: boolean; // True if menu is navigable, false otherwise.
+  _propagateChildLeft: boolean;
+  _propagateChildUp: boolean;
   _parentText: string; // Text of parent menu item
   children: { [key: string]: any };
 
@@ -69,11 +72,11 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChildren(ContextMenuComponent) _children: QueryList<ContextMenuComponent>;
 
   @Input() set xPos(xPos: number) {
-    this.newX = xPos + 2;
+    this.newX = xPos + 4;
   };
 
   @Input() set yPos(yPos: number) {
-    this.newY = yPos + 4;
+    this.newY = yPos + 2;
   };
   
   @Input() menuItems: ContextMenuItem[];
@@ -103,6 +106,19 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   @Input() set parentText(parentText: string) {
     this._parentText = parentText;
   };
+  
+  @Input() set parentWidth(parentWidth: number) {
+    this._parentWidth = parentWidth;
+  };
+
+  // If parent propagated child left, child should also propagate its child left.
+  @Input() set propagateChildLeft(propagateChildLeft: boolean) {
+    this._propagateChildLeft = propagateChildLeft;
+  }
+  
+  @Input() set propagateChildUp(propagateChildUp: boolean) {
+    this._propagateChildUp = propagateChildUp;
+  }
 
 
 
@@ -166,6 +182,7 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     let menuRight = xPos + menuWidth;
     let screenWidth = window.innerWidth - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuRight > screenWidth) {
+      this._propagateChildLeft = true;
       let overshoot = menuLeft - screenWidth;
       xPos = xPos - (menuWidth + (overshoot > 0 ? overshoot : 0))
     }
@@ -181,8 +198,9 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     let menuBottom = yPos + menuHeight;
     let screenHeight = window.innerHeight - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
     if (menuBottom > screenHeight) {
-     let overshoot = menuTop - screenHeight;
-     yPos = yPos - (menuHeight + (overshoot > 0 ? overshoot : 0));
+      this._propagateChildUp = true;
+      let overshoot = menuTop - screenHeight;
+      yPos = yPos - (menuHeight + (overshoot > 0 ? overshoot : 0));
     }
     if (menuTop < 10) {
       let difference = 10 - menuTop;
@@ -247,18 +265,35 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
           this.activeIndex = mod(this.activeIndex + 1, this.menuItems.length)
           break;
         case 'ArrowRight':
-          if (hasChildren) {
-            this.makeUnnavigable(); // Make un-navigable because navigability will transfer to child menu
-            setTimeout(() => {
-              this.children[this.menuItems[this.activeIndex].text].makeNavigable();
-              this.children[this.menuItems[this.activeIndex].text].setActiveIndex(0);
-            }, 0)
+          if (this._propagateChildLeft) {
+            if (this.isNavigable) {
+              this.makeParentNavigable.emit();
+              this.setActiveIndex(-1);
+            }
+          } else {
+            if (hasChildren) {
+              this.makeUnnavigable(); // Make un-navigable because navigability will transfer to child menu
+              setTimeout(() => {
+                this.children[this.menuItems[this.activeIndex].text].makeNavigable();
+                this.children[this.menuItems[this.activeIndex].text].setActiveIndex(0);
+              }, 0)
+            }
           }
           break;
         case 'ArrowLeft':
-          if (this.isNavigable) {
-            this.makeParentNavigable.emit();
-            this.setActiveIndex(-1);
+          if (this._propagateChildLeft) {
+            if (hasChildren) {
+              this.makeUnnavigable(); // Make un-navigable because navigability will transfer to child menu
+              setTimeout(() => {
+                this.children[this.menuItems[this.activeIndex].text].makeNavigable();
+                this.children[this.menuItems[this.activeIndex].text].setActiveIndex(0);
+              }, 0)
+            }
+          } else {
+            if (this.isNavigable) {
+              this.makeParentNavigable.emit();
+              this.setActiveIndex(-1);
+            }
           }
           break;
         case 'Enter':

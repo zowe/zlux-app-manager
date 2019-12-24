@@ -12,7 +12,7 @@
 
 .context-menu {
   position: absolute;
-  margin-left: 2px; /* Offset menu so adjacent item is not automatically selected */
+  /* margin-left: 2px; Offset menu so adjacent item is not automatically selected */
   z-index: 20000;
   min-width: 180px;
   width: auto;
@@ -69,6 +69,15 @@
   border-left: 5px solid #666;
 }
 
+.context-menu .multi-menu-item .menu-expand-caret.propagateChildLeft {
+  left: 5px;
+  margin: auto;
+  margin-left: 0;
+  margin-right: 0;
+  border-left: none;
+  border-right: 5px solid #666;
+}
+
 .context-menu .multi-menu-item.active>.menu-expand-caret {
   border-left: 5px solid #fff;
 }
@@ -78,22 +87,52 @@
 }
 
 .context-menu .multi-menu-item>.submenu {
-  width: 0;
-  height: 0;
-  right: 1px;
+  /* propagate right */
+  right: 0px;
+  /* propagate left */
+  /* left: 0px; */
   top: 0;
   position: absolute;
   display: none;
   z-index: 1;
 }
 
+.context-menu .multi-menu-item>.submenu.propagateChildLeft {
+  left: 0px;
+}
+
+.test {
+  width: 20px;
+  height: 20px;
+  border: 1px solid blue;
+}
+
+/* .context-menu .multi-menu-item>.submenu .propagateChildLeft {
+  right: 50px;
+}
+
+.context-menu .multi-menu-item>.submenu .propagateChildUp {
+  top: 50px;
+} */
+
 .context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu>.context-menu {
   left: 0;
   top: 0;
 }
 
+.context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu>.context-menu.propagateChildLeft>ul {
+  position: absolute;
+  right: 100%;
+}
+
 .menuitem-content {
   display: flex;
+  justify-content: space-between;
+}
+
+.menuitem-content-left {
+  display: flex;
+  margin-right: 15px;
 }
 
 .icon {
@@ -101,6 +140,10 @@
   height: 19px;
   margin-right: 5px;
   background-size: contain;
+}
+
+.icon.propagateChildLeft {
+  margin-left: 25px;
 }
 
 .icon-person {
