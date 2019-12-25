@@ -72,8 +72,9 @@ export interface ContextMenuItem {
   text: string;
   icon?: string;
   shortcut?: string;
-  action: () => void;
+  action: (closeContextMenu?: () => void) => void;
   children?: ContextMenuItem[];
+  disabled?: boolean;
 }
 
 export interface Angular2L10nConfig {

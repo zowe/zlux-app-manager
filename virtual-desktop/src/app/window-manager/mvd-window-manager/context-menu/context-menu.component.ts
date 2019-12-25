@@ -212,14 +212,12 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
 
   itemClicked(menuItem: ContextMenuItem): void {
     this.logger.info(menuItem.text);
-    if (menuItem.action) {
-      menuItem.action();
+    if (menuItem.action && !menuItem.disabled) {
+      menuItem.action(this.closeContextMenu);
     }
-
-    this.closeContextMenu();
   }
 
-  closeContextMenu(): void {
+  closeContextMenu = (): void => {
     this.complete.emit();
   }
 
@@ -227,20 +225,9 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     this.activeIndex = index;
   }
 
-  // @HostListener('document:mousedown', ['$event'])
-  // onMouseDown(event: MouseEvent): void {
-  //   event.stopPropagation();
-  //   console.log("goodbye: ", this.menuItems[this.activeIndex])
-  //   setTimeout(() => {
-  //     if (event && !this.elementRef.nativeElement.contains(event.target)) {
-  //       this.closeContextMenu();
-  //     }
-  //   }, 0)
-  // }
-
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
-    if (event && !this.elementRef.nativeElement.contains(event.target)) {
+    if (event && !this.elementRef.nativeElement.contains(event.target) && !this._isChildMenu) {
       this.closeContextMenu();
     }
   }

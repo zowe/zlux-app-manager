@@ -29,7 +29,7 @@
           [class.top]="i==0"
           [class.bottom]="i==menuItems.length-1"
           [class.disabled]="menuItem.disabled"
-          (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()'
+          (click)='itemClicked(menuItem); $event.stopPropagation();'
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
         >
         <div
@@ -51,7 +51,7 @@
           [class.top]="i==0"
           [class.bottom]="i==menuItems.length-1"
           [class.disabled]="menuItem.disabled"
-          (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()'
+          (click)='itemClicked(menuItem); $event.stopPropagation();'
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
         >
           <div
