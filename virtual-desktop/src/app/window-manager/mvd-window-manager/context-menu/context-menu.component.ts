@@ -221,6 +221,21 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     this.activeIndex = index;
   }
 
+  // getVisibleShortcuts = () => {
+  //   let visibleShortcuts = [];
+
+  // }
+
+  // getVisibleShortcutsForMenu = (menu) => {
+  //   let visibleShortCutsForMenu = [];
+  //   this.menuItems.forEach(item => {
+  //     if (item.shortcut) {
+  //       visibleShortCutsForMenu.push(item.shortcut)
+  //     }
+
+  //   })
+  // }
+
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
     if (event && !this.elementRef.nativeElement.contains(event.target) && !this._isChildMenu) {
@@ -239,6 +254,15 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     let hasChildren;
     if (this.activeIndex > -1) {
       hasChildren = this.menuItems && this.menuItems[this.activeIndex].children ? true : false;
+    }
+    if (this.elementRef.nativeElement.firstChild.scrollWidth > 0) {
+      this.menuItems.forEach(item => {
+        if (!item.disabled && item.shortcut) {
+          if (event.key === item.shortcut) {
+            item.action(this.closeContextMenu)
+          }
+        }
+      })
     }
     if (this.isNavigable) {
       let newIndex;
@@ -293,6 +317,10 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
           if (this.menuItems[this.activeIndex].action) {
             this.menuItems[this.activeIndex].action(this.closeContextMenu);
           }
+          break;
+        case 'Meta.k':
+          console.log("heloo")
+          break;
       }
     }
   }
