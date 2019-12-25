@@ -20,8 +20,6 @@ import {
   ViewChild,
   ViewChildren,
   AfterViewInit,
-  OnInit,
-  OnDestroy,
   QueryList
 } from '@angular/core';
 
@@ -32,21 +30,19 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
   templateUrl: './context-menu.component.html',
   styleUrls: ['./context-menu.component.css'],
 })
-export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
+export class ContextMenuComponent implements AfterViewInit {
   hovering: ContextMenuItem;
   newX: number;
   newY: number;
   menuHeight: number;
   menuWidth: number;
-  _parentWidth: number;
   activeIndex: number; // Index of active item in menu. -1 if none active.
   _isChildMenu: boolean; // True if menu is child of another menu, false otherwise.
   _isParentActive: boolean; // True if parent item is active (ie. menu should be displayed), false otherwise.
-  isNavigable: boolean; // True if menu is navigable, false otherwise.
-  _propagateChildLeft: boolean;
-  _propagateChildUp: boolean;
+  isNavigable: boolean; // True if menu is keyboard-navigable, false otherwise. Only one menu can be navigable at a time.
+  _propagateChildLeft: boolean; // True if child menus will appear to the left of their parent.
   _parentText: string; // Text of parent menu item
-  children: { [key: string]: any };
+  children: { [key: string]: any }; // Array of child elements
 
   @ViewChild('contextmenu')
   set menu(contextmenu: any) {
@@ -54,6 +50,7 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     setTimeout(() => {
       let menuHeight = contextmenu.nativeElement.clientHeight;
       let menuWidth = contextmenu.nativeElement.clientWidth;
+      // Apply specific styling to parent menu, and to parent menu that will propagate children to the left.
       if (!this._isChildMenu) {
         this.newY = this.validateY(this.newY, menuHeight);
         this.newX = this.validateX(this.newX, menuWidth);
@@ -72,14 +69,17 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
 
   @ViewChildren(ContextMenuComponent) _children: QueryList<ContextMenuComponent>;
 
+  // Set initial horizontal position of menu
   @Input() set xPos(xPos: number) {
     this.newX = xPos + 2;
   };
 
+  // Set initial vertical position of menu
   @Input() set yPos(yPos: number) {
     this.newY = yPos + 4;
   };
   
+  // Initialize array of menu items
   @Input() menuItems: ContextMenuItem[];
   
   // Declare value of _isChildMenu based on input isChildMenu
@@ -104,24 +104,15 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   };
   
+  // Set value of parentText based on input
   @Input() set parentText(parentText: string) {
     this._parentText = parentText;
-  };
-  
-  @Input() set parentWidth(parentWidth: number) {
-    this._parentWidth = parentWidth;
   };
 
   // If parent propagated child left, child should also propagate its child left.
   @Input() set propagateChildLeft(propagateChildLeft: boolean) {
     this._propagateChildLeft = propagateChildLeft;
   }
-  
-  @Input() set propagateChildUp(propagateChildUp: boolean) {
-    this._propagateChildUp = propagateChildUp;
-  }
-
-
 
   @Output() complete: EventEmitter<void>;
 
@@ -158,13 +149,8 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
       this.makeParentUnnavigable.emit()
     }
   }
-
-  ngOnInit() {
-  }
-
-  ngOnDestroy() {
-  }
   
+  // After child elements retrieved from DOM, convert from array to object for faster access
   ngAfterViewInit() {
     this.elementRef.nativeElement.focus()
     this.children = this._children.toArray().reduce((acc, curr) => (
@@ -175,15 +161,18 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     ), {})
   }
     
+  // Recalculate horizontal position at which to spawn menu, correcting for proximity to edges of screen
   validateX(xPos: number, menuWidth: number): number {
     let menuLeft = xPos;
     let menuRight = xPos + menuWidth;
-    let screenWidth = window.innerWidth - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
+    let screenWidth = window.innerWidth - 10; /* Give a 10 pixel buffer so isn't right on the edge */
+    // If initial position or menu too close to right edge of screen, shift left until right edge of menu is at least 10px from right edge of screen
     if (menuRight > screenWidth) {
       this._propagateChildLeft = true;
       let overshoot = menuLeft - screenWidth;
       xPos = xPos - (menuWidth + (overshoot > 0 ? overshoot : 0))
     }
+    // If initial position or menu too close to left edge of screen, shift right until left edge of menu is at least 10px from left edge of screen
     if (menuLeft < 10) {
       let difference = 10 - menuLeft;
       xPos = xPos + difference;
@@ -191,15 +180,17 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     return xPos;
   }
 
+  // Recalculate vertical position at which to spawn menu, correcting for proximity to edges of screen
   validateY(yPos: number, menuHeight: number): number {
     let menuTop = yPos;
     let menuBottom = yPos + menuHeight;
-    let screenHeight = window.innerHeight - 10; /* Gave a 10 pixel buffer so isn't right on the edge */
+    let screenHeight = window.innerHeight - 10; /* Give a 10 pixel buffer so isn't right on the edge */
+    // If initial position of menu too close to bottom of screen, shift left until bottom edge of menu is at least 10px from bottom of screen
     if (menuBottom > screenHeight) {
-      this._propagateChildUp = true;
       let overshoot = menuTop - screenHeight;
       yPos = yPos - (menuHeight + (overshoot > 0 ? overshoot : 0));
     }
+    // If initial position of menu too close to top of screen, shift left until top edge of menu is at least 10px from top of screen
     if (menuTop < 10) {
       let difference = 10 - menuTop;
       yPos = yPos + difference;
@@ -207,35 +198,25 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     return yPos;
   }
 
+  // Triggered when menu item clicked.
+  // If item has associated action and is not disabled, execute action
   itemClicked(menuItem: ContextMenuItem): void {
     if (menuItem.action && !menuItem.disabled) {
       menuItem.action(this.closeContextMenu);
     }
   }
 
+  // Close context menu
   closeContextMenu = (): void => {
     this.complete.emit();
   }
 
+  // Set active index
   setActiveIndex = (index: number) => {
     this.activeIndex = index;
   }
 
-  // getVisibleShortcuts = () => {
-  //   let visibleShortcuts = [];
-
-  // }
-
-  // getVisibleShortcutsForMenu = (menu) => {
-  //   let visibleShortCutsForMenu = [];
-  //   this.menuItems.forEach(item => {
-  //     if (item.shortcut) {
-  //       visibleShortCutsForMenu.push(item.shortcut)
-  //     }
-
-  //   })
-  // }
-
+  // When area of screen outside of menu is clicked, close menu
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
     if (event && !this.elementRef.nativeElement.contains(event.target) && !this._isChildMenu) {
@@ -243,11 +224,13 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
+  // When window resized, close menu
   @HostListener('window:resize')
   onResize(): void {
     this.closeContextMenu();
   }
 
+  // Handle key presses that occur while context menu is open
   @HostListener('window:keydown', ['$event'])
   onWindowKeyDown(event: KeyboardEvent) {
     let mod = (x: number, n: number): number => ((x == -2 ? -1 : x % n) + n) % n;
@@ -255,6 +238,7 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
     if (this.activeIndex > -1) {
       hasChildren = this.menuItems && this.menuItems[this.activeIndex].children ? true : false;
     }
+    // Execute action of any visible item whose shortcut has been pressed
     if (this.elementRef.nativeElement.firstChild.scrollWidth > 0) {
       this.menuItems.forEach(item => {
         if (!item.disabled && item.shortcut) {
@@ -264,6 +248,7 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
         }
       })
     }
+    // Perform navigation of navigable menu
     if (this.isNavigable) {
       let newIndex;
       switch (event.key){
@@ -317,9 +302,6 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
           if (this.menuItems[this.activeIndex].action) {
             this.menuItems[this.activeIndex].action(this.closeContextMenu);
           }
-          break;
-        case 'Meta.k':
-          console.log("heloo")
           break;
       }
     }

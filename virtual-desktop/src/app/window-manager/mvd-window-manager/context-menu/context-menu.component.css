@@ -20,7 +20,6 @@ li.disabled {
 
 .context-menu {
   position: absolute;
-  /* margin-left: 2px; Offset menu so adjacent item is not automatically selected */
   z-index: 20000;
   min-width: 180px;
   width: auto;
@@ -41,11 +40,9 @@ li.disabled {
 }
 
 .context-menu>ul {
-  /* background-color:#eaeaea; */
   list-style: none;
   padding: 0;
   margin: 0;
-  /* width: 100%; */
 }
 
 .context-menu .menu-item {
@@ -96,10 +93,7 @@ li.disabled {
 }
 
 .context-menu .multi-menu-item>.submenu {
-  /* propagate right */
   right: 0px;
-  /* propagate left */
-  /* left: 0px; */
   top: 0;
   position: absolute;
   display: none;
@@ -109,20 +103,6 @@ li.disabled {
 .context-menu .multi-menu-item>.submenu.propagateChildLeft {
   left: 0px;
 }
-
-.test {
-  width: 20px;
-  height: 20px;
-  border: 1px solid blue;
-}
-
-/* .context-menu .multi-menu-item>.submenu .propagateChildLeft {
-  right: 50px;
-}
-
-.context-menu .multi-menu-item>.submenu .propagateChildUp {
-  top: 50px;
-} */
 
 .context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu>.context-menu {
   left: 0;

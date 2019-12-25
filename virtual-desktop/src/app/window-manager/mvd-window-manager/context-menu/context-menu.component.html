@@ -16,7 +16,6 @@
   [style.left.px]='this.newX'
   [style.top.px]='this.newY'
   [class.propagateChildLeft]="this._propagateChildLeft"
-  [class.propagateChildUp]="this._propagateChildUp"
   [class.navigable]='this.isNavigable'
 >
   <ul>
@@ -57,10 +56,8 @@
           <div
             class="submenu"
             [class.propagateChildLeft]="this._propagateChildLeft"
-            [class.propagateChildUp]="this._propagateChildUp"
           >
             <com-rs-mvd-context-menu
-              #contextmenus
               [xPos]="-2"
               [yPos]="-5"
               [menuItems]="menuItem.children"
@@ -68,9 +65,7 @@
               [isParentActive]="i==this.activeIndex"
               [parentText]="this.menuItems[i].text"
               [parentNavigable]="this.isNavigable"
-              [parentWidth]="this.menuWidth"
               [propagateChildLeft]="this._propagateChildLeft"
-              [propagateChildUp]="this._propagateChildUp"
               (complete)="closeContextMenu()"
               (makeParentUnnavigable)="makeUnnavigable()"
               (makeParentNavigable)="makeNavigable()"
