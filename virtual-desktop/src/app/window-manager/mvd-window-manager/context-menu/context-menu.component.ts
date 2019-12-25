@@ -297,9 +297,8 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
           break;
         case 'Enter':
           if (this.menuItems[this.activeIndex].action) {
-            this.menuItems[this.activeIndex].action();
+            this.menuItems[this.activeIndex].action(this.closeContextMenu);
           }
-          this.closeContextMenu();
       }
     }
   }
