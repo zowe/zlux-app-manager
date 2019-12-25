@@ -59,7 +59,9 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
       if (!this._isChildMenu) {
         this.newY = this.validateY(this.newY, menuHeight);
         this.newX = this.validateX(this.newX, menuWidth);
-        this.newX = this.newX + 3;
+        if (!this._propagateChildLeft) {
+          this.newX = this.newX + 3;
+        }
       }
       contextmenu.nativeElement.style.opacity = 1;
       this.menuHeight = menuHeight;
