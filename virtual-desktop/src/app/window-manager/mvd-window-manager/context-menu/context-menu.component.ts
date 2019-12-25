@@ -27,8 +27,6 @@ import {
 
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 
-import { BaseLogger } from 'virtual-desktop-logger';
-
 @Component({
   selector: 'com-rs-mvd-context-menu',
   templateUrl: './context-menu.component.html',
@@ -133,11 +131,8 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
 
   @Output() sendRefToParent = new EventEmitter();
 
-  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
-
   constructor(
     private elementRef: ElementRef
-    //private logger: DesktopLogger
     ) {
     this.complete = new EventEmitter<void>();
   }
@@ -213,7 +208,6 @@ export class ContextMenuComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   itemClicked(menuItem: ContextMenuItem): void {
-    this.logger.info(menuItem.text);
     if (menuItem.action && !menuItem.disabled) {
       menuItem.action(this.closeContextMenu);
     }
