@@ -202,7 +202,10 @@ export class ContextMenuComponent implements AfterViewInit {
   // If item has associated action and is not disabled, execute action
   itemClicked(menuItem: ContextMenuItem): void {
     if (menuItem.action && !menuItem.disabled) {
-      menuItem.action(this.closeContextMenu);
+      menuItem.action();
+    }
+    if (!menuItem.preventCloseMenu) {
+      this.closeContextMenu();
     }
   }
 
@@ -243,7 +246,7 @@ export class ContextMenuComponent implements AfterViewInit {
       this.menuItems.forEach(item => {
         if (!item.disabled && item.shortcut) {
           if (event.key === item.shortcut) {
-            item.action(this.closeContextMenu)
+            item.action()
           }
         }
       })
@@ -300,7 +303,7 @@ export class ContextMenuComponent implements AfterViewInit {
           break;
         case 'Enter':
           if (this.menuItems[this.activeIndex].action) {
-            this.menuItems[this.activeIndex].action(this.closeContextMenu);
+            this.menuItems[this.activeIndex].action();
           }
           break;
       }
