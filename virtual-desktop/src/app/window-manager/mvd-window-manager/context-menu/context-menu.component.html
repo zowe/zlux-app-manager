@@ -39,7 +39,9 @@
               <div class="icon {{menuItem.icon}}"></div>
               <div>{{menuItem.text}}</div>
             </div>
-            <div class="shortcut">{{menuItem.shortcut}}</div>
+            <div class="shortcut">
+              {{this.computeShortcutString(menuItem)}}
+            </div>
           </div>
         </li>
       </ng-template>

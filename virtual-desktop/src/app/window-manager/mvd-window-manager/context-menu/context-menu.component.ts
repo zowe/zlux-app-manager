@@ -219,6 +219,35 @@ export class ContextMenuComponent implements AfterViewInit {
     this.activeIndex = index;
   }
 
+  computeShortcutString = (item: ContextMenuItem) => {
+    let shortcutString = "";
+    if (item.shortcutProps) {
+      let props = item.shortcutProps;
+      if (props.altKey) {
+        shortcutString += "Alt ";
+      }
+      if (props.ctrlKey) {
+        shortcutString += "Ctrl ";
+      }
+      if (props.metaKey) {
+        shortcutString += "Cmd ";
+      }
+      if (props.shiftKey) {
+        shortcutString += "Shift ";
+      }
+    }
+    shortcutString += item.shortcutText;
+    return shortcutString;
+  }
+
+  shortcutProps?: {
+    "code": string;
+    "altKey": boolean;
+    "ctrlKey": boolean;
+    "metaKey": boolean;
+    "shiftKey": boolean;
+  };
+
   // When area of screen outside of menu is clicked, close menu
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
@@ -236,6 +265,7 @@ export class ContextMenuComponent implements AfterViewInit {
   // Handle key presses that occur while context menu is open
   @HostListener('window:keydown', ['$event'])
   onWindowKeyDown(event: KeyboardEvent) {
+    // console.log(event)
     let mod = (x: number, n: number): number => ((x == -2 ? -1 : x % n) + n) % n;
     let hasChildren;
     if (this.activeIndex > -1) {
@@ -244,9 +274,11 @@ export class ContextMenuComponent implements AfterViewInit {
     // Execute action of any visible item whose shortcut has been pressed
     if (this.elementRef.nativeElement.firstChild.scrollWidth > 0) {
       this.menuItems.forEach(item => {
-        if (!item.disabled && item.shortcut) {
-          if (event.key === item.shortcut) {
-            item.action()
+        if (!item.disabled && item.shortcutProps) {
+          // If all properties of shortcut associated with given item match those of key(s) clicked, execute action associated with item.
+          if (Object.keys(item.shortcutProps).every(shortcutProp => ((<any>event)[shortcutProp] === (<any>item.shortcutProps)[shortcutProp]))){
+            item.action();
+            event.preventDefault();
           }
         }
       })
