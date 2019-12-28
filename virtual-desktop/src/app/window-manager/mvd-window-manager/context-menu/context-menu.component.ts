@@ -277,8 +277,11 @@ export class ContextMenuComponent implements AfterViewInit {
         if (!item.disabled && item.shortcutProps) {
           // If all properties of shortcut associated with given item match those of key(s) clicked, execute action associated with item.
           if (Object.keys(item.shortcutProps).every(shortcutProp => ((<any>event)[shortcutProp] === (<any>item.shortcutProps)[shortcutProp]))){
-            item.action();
             event.preventDefault();
+            item.action();
+            if (!item.preventCloseMenu) {
+              this.closeContextMenu();
+            }
           }
         }
       })
@@ -334,8 +337,12 @@ export class ContextMenuComponent implements AfterViewInit {
           }
           break;
         case 'Enter':
-          if (this.menuItems[this.activeIndex].action) {
-            this.menuItems[this.activeIndex].action();
+          let item = this.menuItems[this.activeIndex];
+          if (item.action) {
+            item.action();
+          }
+          if (!item.preventCloseMenu) {
+            this.closeContextMenu();
           }
           break;
       }
