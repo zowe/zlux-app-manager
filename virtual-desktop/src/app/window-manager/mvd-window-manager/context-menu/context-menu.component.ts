@@ -236,7 +236,9 @@ export class ContextMenuComponent implements AfterViewInit {
         shortcutString += "Shift ";
       }
     }
-    shortcutString += item.shortcutText;
+    if (item.shortcutText) {
+      shortcutString += item.shortcutText;
+    }
     return shortcutString;
   }
 
