@@ -27,7 +27,7 @@ export const Angular2InjectionTokens = {
   PLUGIN_DEFINITION: 'virtualdesktop-ng2.0-0-0.plugin-definition',
   LAUNCH_METADATA: 'virtualdesktop-ng2.0-0-0.launch-metadata',
   L10N_CONFIG: 'virtualdesktop-ng2.0-0-0.l10n-config',
-  INSTANCE_ID: 'virtualdesktop-ng2.0-0-0.instance-id'
+  INSTANCE_ID: 'virtualdesktop-ng2.0-0-0.instance-id',
 
   /* Component Level Resources */
   PLUGIN_EMBED_ACTIONS: 'virtualdesktop-ng2.0-0-0.plugin-embed-actions',
@@ -37,7 +37,6 @@ export const Angular2InjectionTokens = {
   MAIN_WINDOW_ID: 'virtualdesktop-ng2.0-0-0.window-id', /* optional */
   WINDOW_ACTIONS: 'virtualdesktop-ng2.0-0-0.window-actions', /* optional */
   WINDOW_EVENTS: 'virtualdesktop-ng2.0-0-0.window-events', /* optional */
-
 };
 
 export interface Angular2PluginWindowActions {
