@@ -24,6 +24,7 @@ import {
 } from '@angular/core';
 
 import { ContextMenuItem } from 'pluginlib/inject-resources';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'com-rs-mvd-context-menu',
@@ -123,7 +124,8 @@ export class ContextMenuComponent implements AfterViewInit {
   @Output() sendRefToParent = new EventEmitter();
 
   constructor(
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private sanitizer:DomSanitizer
     ) {
     this.complete = new EventEmitter<void>();
   }
@@ -240,6 +242,10 @@ export class ContextMenuComponent implements AfterViewInit {
       shortcutString += item.shortcutText;
     }
     return shortcutString;
+  }
+
+  generateIcon = (base64Image: string) => {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(base64Image);
   }
 
   shortcutProps?: {

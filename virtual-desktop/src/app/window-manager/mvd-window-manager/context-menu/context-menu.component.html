@@ -36,7 +36,11 @@
           [class.disabled]="menuItem.disabled"  
         >
             <div class="menuitem-content-left">
-              <div class="icon {{menuItem.icon}}"></div>
+              <img
+                class="icon"
+                [src]="menuItem.icon ? this.generateIcon(menuItem.icon) : null"
+                [class.hide-icon]="!menuItem.icon"
+              >
               <div>{{menuItem.text}}</div>
             </div>
             <div class="shortcut">
@@ -79,10 +83,12 @@
             [class.disabled]="menuItem.disabled"  
           >
             <div class="menuitem-content-left">
-              <div
-                class="icon {{menuItem.icon}}"
+              <img
+                class="icon"
+                [src]="menuItem.icon ? this.generateIcon(menuItem.icon) : null"
+                [class.hide-icon]="!menuItem.icon"
                 [class.propagateChildLeft]="this._propagateChildLeft"
-              ></div>
+              >
               <div>{{menuItem.text}}</div>
             </div>
             <div

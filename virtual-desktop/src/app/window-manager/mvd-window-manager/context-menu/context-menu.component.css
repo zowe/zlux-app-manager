@@ -135,18 +135,14 @@ li.disabled {
   margin-left: 25px;
 }
 
-.icon-person {
-  background-image: url(../../../../assets/images/contextmenu/person.png);
-}
-
-.icon-settings {
-  background-image: url(../../../../assets/images/contextmenu/settings.png);
-}
-
 .shortcut {
   margin-left: 15px;
   right: 5px;
   font-weight: bold;
+}
+
+.hide-icon {
+  display: none;
 }
 
 /*
