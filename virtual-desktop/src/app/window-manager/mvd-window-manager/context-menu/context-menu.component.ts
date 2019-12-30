@@ -308,7 +308,7 @@ export class ContextMenuComponent implements AfterViewInit {
           break;
         case 'ArrowRight':
           if (this._propagateChildLeft) {
-            if (this.isNavigable) {
+            if (this.isNavigable && this._isChildMenu) {
               this.makeParentNavigable.emit();
               this.setActiveIndex(-1);
             }
@@ -332,7 +332,7 @@ export class ContextMenuComponent implements AfterViewInit {
               }, 0)
             }
           } else {
-            if (this.isNavigable) {
+            if (this.isNavigable && this._isChildMenu) {
               this.makeParentNavigable.emit();
               this.setActiveIndex(-1);
             }
