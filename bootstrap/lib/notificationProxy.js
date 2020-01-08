@@ -97,9 +97,6 @@ exports.adminNotificationWebsocketRouter = function(context) {
             clients[id_index].splice(asyncId_index, 1)
             instance_ids[id_index].splice(asyncId_index, 1)
         })
-		ws.on('error', (err) => {
-			console.log(err)
-		})
       });
       resolve(router);
     });
