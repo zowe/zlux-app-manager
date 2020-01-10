@@ -146,7 +146,7 @@ export class LaunchbarComponent {
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);
-    this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY - 60, items: menuItems});
+    this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY, items: menuItems});
     return false;
   }
 

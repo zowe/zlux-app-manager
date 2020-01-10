@@ -70,15 +70,25 @@ export interface Angular2PluginEmbedActions {
 
 export interface ContextMenuItem {
   text: string;
+  icon?: string;
+  shortcutText?: string;
+  shortcutProps?: {
+    "code": string;
+    "altKey": boolean;
+    "ctrlKey": boolean;
+    "metaKey": boolean;
+    "shiftKey": boolean;
+  };
   action: () => void;
   children?: ContextMenuItem[];
+  disabled?: boolean;
+  preventCloseMenu?: boolean;
 }
 
 export interface Angular2L10nConfig {
   readonly defaultLocale: { languageCode: string; countryCode?: string; };
   readonly providers: any[];
 }
-
 
 /*
   This program and the accompanying materials are
