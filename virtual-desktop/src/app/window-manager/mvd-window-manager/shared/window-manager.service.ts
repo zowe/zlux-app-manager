@@ -673,14 +673,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     const windowPos = desktopWindow.windowState.position;
     const newX = isAbsolutePos ? x : windowPos.left + x;
     const newY = isAbsolutePos ? y : windowPos.top + y + WindowManagerService.WINDOW_HEADER_HEIGHT;
-    if ((newX >= windowPos.left && newX <= (windowPos.left+windowPos.width))
-         && (newY >= windowPos.top && newY <= (windowPos.top+windowPos.height))) {
-      this.contextMenuRequested.next({xPos: newX, yPos: newY, items: items});   
-      return true; 
-    } else {
-      this.logger.warn(`Rejecting context menu due to invalid coord ${newX},${newY} for app at ${windowPos.left},${windowPos.top} w=${windowPos.width}, h=${windowPos.height}`);
-      return false;
-    }
+    this.contextMenuRequested.next({xPos: newX, yPos: newY, items: items});   
+    return true; 
   }
 
   setDesktopTitle(title?:String) {
