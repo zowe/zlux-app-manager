@@ -80,6 +80,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     this.appKeyboard.keyupEvent
       .subscribe((event) => {
         if (event.which === KeyCode.KEY_M) {
+          event.stopImmediatePropagation();
           this.activeToggle();
         }
     });
