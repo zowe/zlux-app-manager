@@ -132,6 +132,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     this.appKeyboard.keyupEvent
       .subscribe((event) => {
+        event.stopImmediatePropagation();
         if (event.which === KeyCode.DOWN_ARROW) {
           if(this.focusedWindow) {
             this.minimizeToggle(this.focusedWindow.windowId);
