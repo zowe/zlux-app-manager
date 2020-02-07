@@ -133,10 +133,12 @@ export class AuthenticationManager {
   //requestLogin() used to exist here but it was counter-intuitive in behavior to requestLogout.
   //This was not documented and therefore has been removed to prevent misuse and confusion.
  
-  private doLoggoutInner(reason: LoginScreenChangeReason): void {
+  private doLogoutInner(reason: LoginScreenChangeReason): void {
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
       this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
-    windowManager.closeAllWindows();
+    if (reason == LoginScreenChangeReason.UserLogout) {
+      windowManager.closeAllWindows();
+    }
     this.performLogout().subscribe(
       response => {
         this.loginScreenVisibilityChanged.emit(reason);
@@ -149,7 +151,7 @@ export class AuthenticationManager {
   }
 
   requestLogout(): void {
-    this.doLoggoutInner(LoginScreenChangeReason.UserLogout);
+    this.doLogoutInner(LoginScreenChangeReason.UserLogout);
   }
 
   private performPostLoginActions(): Observable<any> {
@@ -216,7 +218,7 @@ export class AuthenticationManager {
                                             expirationInMS: logoutAfterWarnTimer});
         this.expirationWarning = setTimeout(()=> {
           this.log.warn(`Session timeout reached. Clearing desktop for new login.`);
-          this.doLoggoutInner(LoginScreenChangeReason.SessionExpired);
+          this.doLogoutInner(LoginScreenChangeReason.SessionExpired);
         },logoutAfterWarnTimer);
       },warnTimer);
       this.log.debug(`Set session timeout watcher to notify ${warnTimer}ms before expiration`);
