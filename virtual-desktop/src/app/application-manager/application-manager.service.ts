@@ -87,10 +87,10 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
           const iframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instance}`);
           if (iframe) {
             // this always resolved as true oddly enough
-            // if ((iframe as any).contentWindow === message.source
-            //     || (iframe as any).contentWindow === message.source.parent
-            //     || ((iframe as any).src.indexOf(message.origin) == 0)) { 
-            if ((iframe as any).contentWindow.frameElement.id === message.source.frameElement.id) {
+             if ((iframe as any).contentWindow === message.source
+                 || (iframe as any).contentWindow === message.source.parent
+                 || ((iframe as any).src.indexOf(message.origin) == 0)) { 
+//            if ((iframe as any).contentWindow.frameElement.id === message.source.frameElement.id) {
               //it's this one
               const appInstance = this.applicationInstances.get(instance);
               if (appInstance) {
@@ -189,7 +189,8 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
                                                   applicationInstance.instanceId,
                                                  applicationInstance.isIFrame );   // instanceId is proxy handle to isntance
       if (applicationInstance.isIFrame) {
-        ZoweZLUX.dispatcher.addPendingIframe(plugin.getBasePlugin(), null)
+        // TODO does this work with iframe-adapter.js
+        //ZoweZLUX.dispatcher.addPendingIframe(plugin.getBasePlugin(), null)
       }    
       if (notATurtle && (typeof notATurtle.provideZLUXDispatcherCallbacks == 'function')) {
         ZoweZLUX.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
