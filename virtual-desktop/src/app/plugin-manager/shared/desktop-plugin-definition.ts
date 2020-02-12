@@ -36,6 +36,10 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
     this.key = basePlugin.getKey();
   }
 
+  get standaloneUseFramework(): boolean {
+    return !!this.basePlugin.getWebContent().standaloneUseFramework;
+  }
+
   get hasWebContent(): boolean {
     return this.basePlugin.getWebContent() != null;
   }
