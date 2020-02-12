@@ -10,21 +10,91 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class='context-menu' #contextmenu [style.left.px]='this.newX' [style.top.px]='this.newY'>
+<div
+  class='context-menu'
+  #contextmenu
+  [style.left.px]='this.newX'
+  [style.top.px]='this.newY'
+  [class.propagateChildLeft]="this._propagateChildLeft"
+  [class.navigable]='this.isNavigable'
+>
   <ul>
-    <ng-container *ngFor='let menuItem of menuItems'>
+    <ng-container *ngFor='let menuItem of menuItems; let i = index;'>
       <ng-container *ngIf='menuItem.children != null && menuItem.children.length > 0; then multiItem else singleItem'></ng-container>
       <ng-template #singleItem>
-        <li class='menu-item' [class.active]="hovering==menuItem" (click)='itemClicked(menuItem); $event.stopPropagation(); closeContextMenu()' (mouseover)="hovering=menuItem">
-          <span>{{menuItem.text}}</span>
+        <li
+          class='menu-item'
+          [class.active]="i==this.activeIndex"
+          [class.top]="i==0"
+          [class.bottom]="i==menuItems.length-1"
+          [class.disabled]="menuItem.disabled"
+          (click)='itemClicked(menuItem); $event.stopPropagation();'
+          (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
+        >
+        <div
+          class="menuitem-content"
+          [class.disabled]="menuItem.disabled"  
+        >
+            <div class="menuitem-content-left">
+              <img
+                class="icon"
+                [src]="menuItem.icon ? this.generateIcon(menuItem.icon) : null"
+                [class.hide-icon]="!menuItem.icon"
+              >
+              <div>{{menuItem.text}}</div>
+            </div>
+            <div class="shortcut">
+              {{this.computeShortcutString(menuItem)}}
+            </div>
+          </div>
         </li>
       </ng-template>
       <ng-template #multiItem>
-        <li class='menu-item multi-menu-item' [class.active]="hovering==menuItem" (mouseover)="hovering=menuItem">
-          <span>{{menuItem.text}}</span>
-          <div class="menu-expand-caret"></div>
-          <div class="submenu">
-            <com-rs-mvd-context-menu [xPos]="0" [yPos]="0" [menuItems]="menuItem.children" (complete)="closeContextMenu()"></com-rs-mvd-context-menu>
+        <li
+          class='menu-item multi-menu-item'
+          [class.active]="i==this.activeIndex"
+          [class.top]="i==0"
+          [class.bottom]="i==menuItems.length-1"
+          [class.disabled]="menuItem.disabled"
+          (click)='itemClicked(menuItem); $event.stopPropagation();'
+          (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
+        >
+          <div
+            class="submenu"
+            [class.propagateChildLeft]="this._propagateChildLeft"
+          >
+            <com-rs-mvd-context-menu
+              [xPos]="-2"
+              [yPos]="-5"
+              [menuItems]="menuItem.children"
+              [isChildMenu]="true"
+              [isParentActive]="i==this.activeIndex"
+              [parentText]="this.menuItems[i].text"
+              [parentNavigable]="this.isNavigable"
+              [propagateChildLeft]="this._propagateChildLeft"
+              (complete)="closeContextMenu()"
+              (makeParentUnnavigable)="makeUnnavigable()"
+              (makeParentNavigable)="makeNavigable()"
+              (sendRefToParent)="receiveRefFromChild($event)"
+            ></com-rs-mvd-context-menu>
+          </div>
+          <div
+            class="menuitem-content"
+            [class.disabled]="menuItem.disabled"  
+          >
+            <div class="menuitem-content-left">
+              <img
+                class="icon"
+                [src]="menuItem.icon ? this.generateIcon(menuItem.icon) : null"
+                [class.hide-icon]="!menuItem.icon"
+                [class.propagateChildLeft]="this._propagateChildLeft"
+              >
+              <div>{{menuItem.text}}</div>
+            </div>
+            <div
+              class="menu-expand-caret"
+              [class.propagateChildLeft]="this._propagateChildLeft"
+            ></div>
           </div>
         </li>
       </ng-template>

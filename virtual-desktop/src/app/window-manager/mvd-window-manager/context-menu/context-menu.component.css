@@ -10,6 +10,14 @@
   Copyright Contributors to the Zowe Project.
 */
 
+li.disabled {
+  pointer-events: none;
+}
+
+.menuitem-content.disabled {
+  opacity: 0.3;
+}
+
 .context-menu {
   position: absolute;
   z-index: 20000;
@@ -21,8 +29,17 @@
   background-color:#a6a6a6;
 }
 
+.context-menu .menu-item.top {
+  border-top-width: 1px;
+  border-radius: 4px 4px 0 0;
+}
+
+.context-menu .menu-item.bottom {
+  border-bottom-width: 1px;
+  border-radius: 0 0 4px 4px;
+}
+
 .context-menu>ul {
-  background-color:#eaeaea;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -38,12 +55,14 @@
   font-weight: 400;
   white-space:nowrap;
   color:#404040;
-  border-bottom: 1px solid #ccc;
+  border-style: solid;
+  border-width: 0 1px 1px 1px;
+  border-color: #ccc;
   cursor: pointer;
   position:relative;
 }
 
-.context-menu .multi-menu-item>.menu-expand-caret {
+.context-menu .multi-menu-item .menu-expand-caret {
   position: absolute;
   margin: auto;
   top: 0;
@@ -56,6 +75,15 @@
   border-left: 5px solid #666;
 }
 
+.context-menu .multi-menu-item .menu-expand-caret.propagateChildLeft {
+  left: 5px;
+  margin: auto;
+  margin-left: 0;
+  margin-right: 0;
+  border-left: none;
+  border-right: 5px solid #666;
+}
+
 .context-menu .multi-menu-item.active>.menu-expand-caret {
   border-left: 5px solid #fff;
 }
@@ -65,22 +93,56 @@
 }
 
 .context-menu .multi-menu-item>.submenu {
-  width: 0;
-  height: 0;
-  right: 0;
+  right: 0px;
   top: 0;
   position: absolute;
   display: none;
+  z-index: 1;
 }
 
-.context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu {
-  margin: -10px;
-  padding: 10px;
+.context-menu .multi-menu-item>.submenu.propagateChildLeft {
+  left: 0px;
 }
 
+.context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu>.context-menu {
+  left: 0;
+  top: 0;
+}
 
-.context-menu .menu-item:last-child {
-  border-bottom: none;
+.context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu>.context-menu.propagateChildLeft>ul {
+  position: absolute;
+  right: 100%;
+}
+
+.menuitem-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.menuitem-content-left {
+  display: flex;
+  margin-right: 15px;
+}
+
+.icon {
+  width: 19px;
+  height: 19px;
+  margin-right: 5px;
+  background-size: contain;
+}
+
+.icon.propagateChildLeft {
+  margin-left: 25px;
+}
+
+.shortcut {
+  margin-left: 15px;
+  right: 5px;
+  font-weight: bold;
+}
+
+.hide-icon {
+  display: none;
 }
 
 /*
