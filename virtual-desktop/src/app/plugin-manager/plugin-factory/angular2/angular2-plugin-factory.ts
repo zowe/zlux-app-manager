@@ -59,7 +59,7 @@ class SimpleAngularComponentFactory extends ComponentFactory {
     const promise: Promise<ZLUX.IComponent> = new Promise((resolve, reject) => {
       (window as any).require([this.componentModulePath],
         (fullPlugin: MvdNativeAngularComponent) => {
-          this.logger.debug(`Instantiating into DOM=`,fullPlugin);
+          this.logger.debug("ZWED0314I",fullPlugin); //this.logger.debug(`Instantiating into DOM=`,fullPlugin);
           return this.compiler.compileModuleAsync(fullPlugin.componentNgModule).then(factory => {
             const resolver = factory.create(this.injector).componentFactoryResolver;
             const outlet = new DomPortalOutlet(target, resolver, this.applicationRef, this.injector);
@@ -68,7 +68,7 @@ class SimpleAngularComponentFactory extends ComponentFactory {
 
             resolve(componentRef.instance as ZLUX.IComponent);
           }).catch((failure: any) => {
-            this.logger.warn(`Could not instantiate into DOM,`, failure);
+            this.logger.warn("ZWED0315I", failure); //this.logger.warn(`Could not instantiate into DOM,`, failure);
             reject();
           });
         },
@@ -118,8 +118,8 @@ export class Angular2PluginFactory extends PluginFactory {
               const componentFactory = new SimpleAngularComponentFactory(this.compiler, this.applicationRef, this.injector,
               factory.componentScriptUrl, factory.componentClass, factory.capabilities);
 
-              this.logger.info(`Registering component factory for plugin=${pluginDefinition.getIdentifier()}:`);
-              this.logger.debug(componentFactory);
+              this.logger.info(`ZWED0011I`, pluginDefinition.getIdentifier()); //this.logger.info(`Registering component factory for plugin=${pluginDefinition.getIdentifier()}:`);
+              this.logger.debug("ZWED0306I", componentFactory); //this.logger.debug(componentFactory);
 
               ZoweZLUX.registry.registerComponentFactory(componentFactory);
 
@@ -127,7 +127,7 @@ export class Angular2PluginFactory extends PluginFactory {
             });
           },
           (failure: any) => {
-            this.logger.warn(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
+            this.logger.warn("ZWED0164W", pluginDefinition.getIdentifier()); //this.logger.warn(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
             resolve();
           });
         } else {
@@ -140,7 +140,7 @@ export class Angular2PluginFactory extends PluginFactory {
     this.loadComponentFactories(pluginDefinition);
     const scriptUrl = Angular2PluginFactory.getAngularModuleURL(pluginDefinition);
 
-    this.logger.info(`Loading Angular Plugin ID=${pluginDefinition.getIdentifier()}, URL=${scriptUrl}`);
+    this.logger.info(`ZWED0012I`, pluginDefinition.getIdentifier(), scriptUrl); //this.logger.info(`Loading Angular Plugin ID=${pluginDefinition.getIdentifier()}, URL=${scriptUrl}`);
 
     return new Promise((resolve, reject) => {
       (window as any).require([scriptUrl],

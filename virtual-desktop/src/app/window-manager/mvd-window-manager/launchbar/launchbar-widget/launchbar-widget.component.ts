@@ -131,15 +131,15 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   setLanguage(value: string): void {
     this.languageLocaleService.setLanguage(value).subscribe(
-      arg => this.logger.debug(`setLanguage, arg=`,arg),
+      arg => this.logger.debug("ZWED0316I", arg),
       err => {
-        this.logger.warn("setLanguage error=",err);
+        this.logger.warn("ZWED0177W", err);
       }
     )
   }
 
   setLocale(value: string): void {
-    this.languageLocaleService.setLocale('US').subscribe(arg => this.logger.debug(`setLocale, arg=`,arg))
+    this.languageLocaleService.setLocale('US').subscribe(arg => this.logger.debug("ZWED0317I",arg))
   }
 
   handleMessageAdded(message: any): void {

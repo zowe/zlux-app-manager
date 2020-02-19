@@ -99,7 +99,7 @@ export class MvdUri implements ZLUX.UriBroker {
     if (desktopPlugin != null) {
       return this.pluginResourceUri(desktopPlugin, "");
     } else {
-      throw new Error("The desktop plugin has not been bootstrapped");
+      throw new Error("ZWED5015E - The desktop plugin has not been bootstrapped");
     }
   }
 

@@ -51,7 +51,7 @@ export class PluginLoader {
     const candidateFactories = this.frameworkMap.get(pluginDefinition.getFramework()) || [];
     if (pluginDefinition.getFramework() === 'unsupported') {
       return new Promise((resolve, reject) => {
-        this.logger.warn(`${pluginDefinition.getIdentifier()} does not use supported framework`);
+        this.logger.warn("ZWED0175W", pluginDefinition.getIdentifier()); //this.logger.warn(`${pluginDefinition.getIdentifier()} does not use supported framework`);
         resolve();
       });
     } else if (pluginDefinition.getFramework() === 'n/a') {
@@ -65,7 +65,7 @@ export class PluginLoader {
       (promise, factory) => promise.catch((errors: any[]) =>
         factory.loadPlugin(pluginDefinition, instanceId).catch((error) => Promise.reject(errors.concat([error])))
       ),
-      Promise.reject([new Error(`All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
+      Promise.reject([new Error(`ZWED0016E - All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
     );
   }
 
@@ -74,7 +74,7 @@ export class PluginLoader {
 
     if (pluginDefinition.getFramework() === 'unsupported') {
       return new Promise((resolve, reject) => {
-        this.logger.warn(`${pluginDefinition.getIdentifier()} does not use supported framework`);
+        this.logger.warn("ZWED0176W", pluginDefinition.getIdentifier()); //this.logger.warn(`${pluginDefinition.getIdentifier()} does not use supported framework`);
         resolve();
       });
     } else if (pluginDefinition.getFramework() === 'n/a') {
@@ -88,7 +88,7 @@ export class PluginLoader {
       (promise, factory) => promise.catch((errors: any[]) =>
         factory.loadComponentFactories(pluginDefinition).catch((error) => Promise.reject(errors.concat([error])))
       ),
-      Promise.reject([new Error(`All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
+      Promise.reject([new Error(`ZWED0017E - All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
     );
   }
 }

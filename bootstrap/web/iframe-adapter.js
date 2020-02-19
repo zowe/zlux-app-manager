@@ -23,7 +23,7 @@ let messageHandler = function(message) {
             translateFunction('registerAdapterInstance', []);
         } else if(ZoweZLUX.iframe.instanceId !== -1 && data.dispatchData.instanceId !== undefined 
                     && data.dispatchData.instanceId !== ZoweZLUX.iframe.instanceId){
-            console.warn('Desktop attempted to change instanceId for iframe instance=', ZoweZLUX.iframe.instanceId, 'message=', message);
+            console.warn('ZWED5000W - Desktop attempted to change instanceId for iframe instance=', ZoweZLUX.iframe.instanceId, 'message=', message);
         }
     }
     if(data.key === undefined || data.instanceId != ZoweZLUX.iframe.instanceId) return;
@@ -88,7 +88,7 @@ let messageHandler = function(message) {
 window.addEventListener('message', messageHandler);
 
 window.addEventListener("load", function () {
-    console.log('iFrame Adapter has loaded!');
+    console.log('ZWED5009I - iFrame Adapter has loaded!');
     window.top.postMessage('iframeload', '*');
 });
 
@@ -101,7 +101,7 @@ function translateFunction(functionString, args){
     return new Promise((resolve, reject) => {
         if(typeof functionString !== 'string' || !Array.isArray(args)){
             reject({
-                error: "functionString must be of type string, args must be an array of type object"
+                error: "ZWED5013E - functionString must be of type string, args must be an array of type object"
             })
         }
         const key = ZoweZLUX.iframe.__iframeAdapter.__curResponseKey++;

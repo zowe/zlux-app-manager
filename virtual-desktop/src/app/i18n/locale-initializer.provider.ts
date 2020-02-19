@@ -22,7 +22,7 @@ export const localeIdFactory = (localeService: LanguageLocaleService): string =>
   // of globalization that can use cookies set by the browser-preferences service of this plugin
   // We may move that service into zlux-proxy-server, then Globalization can maybe move to bootstrap.
   if (!(zoweGlobal.globalization instanceof Globalization)) {
-    logger.info('Setting ZoweZLUX.globalization to an implementation specific to com.rs.mvd.ng2desktop')
+    logger.info('ZWED0010I') //logger.info('Setting ZoweZLUX.globalization to an implementation specific to com.rs.mvd.ng2desktop')
     zoweGlobal.globalization = localeService.globalization;
   }
   return localeService.getLanguage();
