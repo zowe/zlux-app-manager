@@ -27,6 +27,7 @@ export const Angular2InjectionTokens = {
   PLUGIN_DEFINITION: 'virtualdesktop-ng2.0-0-0.plugin-definition',
   LAUNCH_METADATA: 'virtualdesktop-ng2.0-0-0.launch-metadata',
   L10N_CONFIG: 'virtualdesktop-ng2.0-0-0.l10n-config',
+  INSTANCE_ID: 'virtualdesktop-ng2.0-0-0.instance-id',
 
   /* Component Level Resources */
   PLUGIN_EMBED_ACTIONS: 'virtualdesktop-ng2.0-0-0.plugin-embed-actions',

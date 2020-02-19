@@ -57,29 +57,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         return this.spawnApplication(plugin as DesktopPluginDefinitionImpl, metadata);
       });
     });
-    window.addEventListener('message',(message:any)=> {
-      if (message.data === 'iframeload') {
-        this.applicationInstances.forEach((appInstance)=> {
-          let instance = appInstance.instanceId;
-          const iframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instance}`);
-          this.logger.log("ZWED0311I", iframe); //console.log(`iframe=`,iframe);
-          if (iframe) {
-            if ((iframe as any).contentWindow == message.source
-                || (iframe as any).contentWindow == message.source.parent
-                || ((iframe as any).src.indexOf(message.origin) == 0)) {
-              //it's this one
-              const appInstance = this.applicationInstances.get(instance);
-              if (appInstance) {
-                const pluginId = appInstance.plugin.getIdentifier();
-                this.logger.info(`ZWED0003I`, pluginId, instance); /*this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);*/
-                return ZoweZLUX.dispatcher.iframeLoaded(instance, pluginId);
-              }
-            }
-          }
-        });
-        this.logger.warn(`ZWED0156W`); //this.logger.warn(`No iframe identified as source of message`);
-      }
-    });
+    
     (window as any).ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
        let applicationInstance:ApplicationInstance|undefined = this.applicationInstances.get(instanceId);
        if (applicationInstance){
@@ -101,6 +79,30 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
           this.logger.warn("ZWED0293I", applicationInstance.plugin.getIdentifier(),instanceId); //this.logger.warn(`iframe postMessage failed, no iframe found for ${applicationInstance.plugin.getIdentifier()}, id=${instanceId}`);
          }
        }
+    });
+    window.addEventListener('message',(message:any)=> {
+      if (message.data === 'iframeload') {
+        this.applicationInstances.forEach((appInstance)=> {
+          let instance = appInstance.instanceId;
+          const iframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instance}`);
+          if (iframe) {
+            // this always resolved as true oddly enough
+             if ((iframe as any).contentWindow === message.source
+                 || (iframe as any).contentWindow === message.source.parent
+                 || ((iframe as any).src.indexOf(message.origin) == 0)) { 
+//            if ((iframe as any).contentWindow.frameElement.id === message.source.frameElement.id) {
+              //it's this one
+              const appInstance = this.applicationInstances.get(instance);
+              if (appInstance) {
+                const pluginId = appInstance.plugin.getIdentifier();
+                this.logger.info(`ZWED0003I`, pluginId, instance); /*this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);*/
+                return ZoweZLUX.dispatcher.iframeLoaded(instance, pluginId);
+              }
+            }
+          }
+        });
+        this.logger.warn(`No iframe identified as source of message`);
+      }
     });
   }
 
@@ -172,26 +174,24 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         // so we return as to not repeat the process and create two Viewports for one instance
         return applicationInstance.instanceId;
       }
-      let injector;
-      if (messages) {
-        injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata, messages);
-      } else {
-        injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata);
-      }
+      const injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata, applicationInstance.instanceId, messages);
+    
       this.instantiateApplicationInstance(applicationInstance, compiled.moduleFactory, injector);
       this.logger.debug("ZWED0295I", plugin.getIdentifier(), compiled.initialComponent); //this.logger.debug(`appMgr spawning plugin ID=${plugin.getIdentifier()}, `
                         //+`compiled.initialComponent=`,compiled.initialComponent);
       applicationInstance.setMainComponent(compiled.initialComponent); 
       this.generateMainComponentRefFor(applicationInstance, viewportId);   // new component is added to DOM here
-      if (applicationInstance.isIFrame) {
-        // applicationInstance.ifrramwWindow = 
-      }
+
       //Beneath all the abstraction is the instance of the App object, framework-independent
       let notATurtle = this.getJavascriptObjectForApplication(applicationInstance, viewportId);
       // JOE HAX - register to dispatcher
       ZoweZLUX.dispatcher.registerPluginInstance(plugin.getBasePlugin(),                  // this is Plugin class instance
                                                   applicationInstance.instanceId,
-                                                  applicationInstance.isIFrame );   // instanceId is proxy handle to isntance
+                                                 applicationInstance.isIFrame );   // instanceId is proxy handle to isntance
+      if (applicationInstance.isIFrame) {
+        // TODO does this work with iframe-adapter.js
+        //ZoweZLUX.dispatcher.addPendingIframe(plugin.getBasePlugin(), null)
+      }    
       if (notATurtle && (typeof notATurtle.provideZLUXDispatcherCallbacks == 'function')) {
         ZoweZLUX.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
       } else if (!applicationInstance.isIFrame) {
