@@ -66,7 +66,7 @@ export class DraggableDirective implements OnInit {
 
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
-    this.logger.debug('Draggable=Down');
+    //this.logger.debug('Draggable=Down');
 
     if (!this.draggable || event.button === 2 || (this.handle !== undefined && event.target !== this.handle)) {
       return;

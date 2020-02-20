@@ -45,6 +45,7 @@
     "ZWED0319I":"Reducing height from %s to %s based on nextTop %s and innerHeight %s",
     "ZWED0320I":"Window-pane-component wMgr=",
     "ZWED0321I":"App framework initializing. User agent=%s",
+    "ZWED0323I":"ngOnChanges=",
 
     "ZWED0001W":"App callbacks not registered. Couldn't find instance object or object didn't provide callbacks. App ID=%s, Instance Obj=%s",
     "ZWED0002W":"Session will expire soon! Logout will occur in %d seconds",

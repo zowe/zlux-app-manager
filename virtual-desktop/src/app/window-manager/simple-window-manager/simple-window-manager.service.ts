@@ -95,7 +95,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
 
   private onResize() {
     const wh = { width: document.body.clientWidth, height: document.body.clientHeight };
-    this.logger.debug('onresize', JSON.stringify(wh));
+    //this.logger.debug('onresize', JSON.stringify(wh));
     this.windowResized.emit(wh);
   }
 
