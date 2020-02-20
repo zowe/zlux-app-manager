@@ -101,7 +101,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
             }
           }
         });
-        this.logger.warn(`No iframe identified as source of message`);
+        this.logger.warn(`ZWED0189W`); //this.logger.warn(`No iframe identified as source of message`);
       }
     });
   }
@@ -127,10 +127,10 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
   private generateComponentRefFor(instance: ApplicationInstance, viewportId: MVDHosting.ViewportId, component: Type<any>): void {
     if (instance.moduleRef == null) {
-      this.logger.warn('ZWED0157W'); //this.logger.warn('Component ref requested before module ref available');
+      this.logger.warn('ZWED0190W'); //this.logger.warn('Component ref requested before module ref available');
       return;
     } else if (instance.viewportContents.get(viewportId) != null) {
-      this.logger.warn('ZWED0158W'); //this.logger.warn('Overwriting existing component ref for window');
+      this.logger.warn('ZWED0191W'); //this.logger.warn('Overwriting existing component ref for window');
     }
 
     const viewport = this.viewportManager.getViewport(viewportId);
