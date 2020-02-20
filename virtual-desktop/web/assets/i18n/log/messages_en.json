@@ -34,7 +34,7 @@
     "ZWED0308I":"iframe startingPageUri ",
     "ZWED0309I":"Getting recognizers from %s, actions from %s",
     "ZWED0310I":"RESERVED: Simple container requested with pluginId %s",
-    "ZWED0311I":"UNUSED",
+    "ZWED0311I":"NOT USED",
     "ZWED0312I":"RESERVED: Tool:",
     "ZWED0313I":"Attempting to set language to %s",
     "ZWED0314I":"Instantiating into DOM=",
