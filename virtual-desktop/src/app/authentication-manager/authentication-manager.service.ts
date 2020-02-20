@@ -126,7 +126,7 @@ export class AuthenticationManager {
           }
         });//or throw err to subscriber
     } else {
-      return ErrorObservable.create('ZWED0012E - No Session Found');
+      return ErrorObservable.create('ZWED0148E - No Session Found');
     }
   }
   
@@ -145,7 +145,7 @@ export class AuthenticationManager {
       },
       (error: any) => {
         this.loginScreenVisibilityChanged.emit(reason);
-        this.log.warn('ZWED0013E', error); //this.log.warn('Logout failed! Error=', error);
+        this.log.warn('ZWED0149E', error); //this.log.warn('Logout failed! Error=', error);
       }
     );
   }

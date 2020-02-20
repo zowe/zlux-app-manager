@@ -65,7 +65,7 @@ export class PluginLoader {
       (promise, factory) => promise.catch((errors: any[]) =>
         factory.loadPlugin(pluginDefinition, instanceId).catch((error) => Promise.reject(errors.concat([error])))
       ),
-      Promise.reject([new Error(`ZWED0016E - All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
+      Promise.reject([new Error(`ZWED0152E - All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
     );
   }
 
@@ -88,7 +88,7 @@ export class PluginLoader {
       (promise, factory) => promise.catch((errors: any[]) =>
         factory.loadComponentFactories(pluginDefinition).catch((error) => Promise.reject(errors.concat([error])))
       ),
-      Promise.reject([new Error(`ZWED0017E - All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
+      Promise.reject([new Error(`ZWED0153E - All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
     );
   }
 }

@@ -52,7 +52,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     (window as any).ZoweZLUX.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
       return this.pluginManager.findPluginDefinition(zluxPlugin.getIdentifier()).then(plugin => {
         if (plugin == null) {
-          throw new Error('ZWED0010E - Unknown plugin in launch handler '+zluxPlugin);
+          throw new Error('ZWED0146E - Unknown plugin in launch handler '+zluxPlugin);
         }
         return this.spawnApplication(plugin as DesktopPluginDefinitionImpl, metadata);
       });
@@ -136,7 +136,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     const viewport = this.viewportManager.getViewport(viewportId);
 
     if (viewport == null) {
-      throw new Error('ZWED0011E - Unknown viewport when requesting component generation');
+      throw new Error('ZWED0147E - Unknown viewport when requesting component generation');
     }
 
     const factory = instance.moduleRef.componentFactoryResolver.resolveComponentFactory(component);
@@ -156,7 +156,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
   private generateMainComponentRefFor(instance: ApplicationInstance, viewportId: MVDHosting.ViewportId): void {
     if (instance.mainComponent == null) {
-      throw new Error('ZWED0014E - Plugin does not have a main component to generate'); //throw new Error('Plugin does not have a main component to generate');
+      throw new Error('ZWED0150E - Plugin does not have a main component to generate'); //throw new Error('Plugin does not have a main component to generate');
     }
 
     this.generateComponentRefFor(instance, viewportId, instance.mainComponent);

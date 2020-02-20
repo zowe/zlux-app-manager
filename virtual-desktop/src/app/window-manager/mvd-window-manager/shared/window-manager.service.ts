@@ -283,7 +283,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       createEmbeddedInstance: (identifier: string, launchMetadata: any, viewContainer: ViewContainerRef): Promise<EmbeddedInstance> => {
         return this.pluginManager.findPluginDefinition(identifier).then((plugin): InstanceId => {
           if (plugin == null) {
-            throw new Error('ZWED0018E - No matching plugin definition found');
+            throw new Error('ZWED0154E - No matching plugin definition found');
           }
 
           const factory = this.componentFactoryResolver.resolveComponentFactory(ViewportComponent);
@@ -388,7 +388,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   getViewportId(windowId: MVDWindowManagement.WindowId): MVDHosting.ViewportId {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('ZWED0019E - Attempted to retrieve viewport id of null window');
+      throw new Error('ZWED0155E - Attempted to retrieve viewport id of null window');
     }
 
     return desktopWindow.viewportId;
@@ -531,7 +531,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   getWindowEvents(windowId: MVDWindowManagement.WindowId): LocalWindowEvents {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('ZWED0020E - Attempted to get window events for null window');
+      throw new Error('ZWED0156E - Attempted to get window events for null window');
     }
 
     return desktopWindow.localWindowEvents;
@@ -540,7 +540,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   maximize(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('ZWED0021E - Attempted to maximize null window');
+      throw new Error('ZWED0157E - Attempted to maximize null window');
     }
 
     desktopWindow.windowState.maximize();
@@ -550,7 +550,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   minimize(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('ZWED0022E - Attempted to minimize null window');
+      throw new Error('ZWED0158E - Attempted to minimize null window');
     }
 
     desktopWindow.windowState.minimize();
@@ -559,7 +559,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   restore(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('ZWED0023E - Attempted to restore null window');
+      throw new Error('ZWED0159E - Attempted to restore null window');
     }
     desktopWindow.windowState.restore();
     this.updateLastWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
@@ -568,7 +568,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   setPosition(windowId: MVDWindowManagement.WindowId, pos: WindowPosition): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('ZWED0024E - Attempted to set position for null window');
+      throw new Error('ZWED0160E - Attempted to set position for null window');
     }
     //TODO(?): It seems like this method is never being used. The only method used to set position of a
     //window is positionStyle() in window.component.ts --- this.logger.info("Set position used here!");
@@ -626,7 +626,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   maximizeToggle(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('ZWED0025E - Attempted to maximize toggle null window');
+      throw new Error('ZWED0161E - Attempted to maximize toggle null window');
     }
 
     const stateType = desktopWindow.windowState.stateType;
@@ -647,7 +647,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   minimizeToggle(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('ZWED0026E - Attempted to minimize toggle null window');
+      throw new Error('ZWED0162E - Attempted to minimize toggle null window');
     }
 
     const stateType = desktopWindow.windowState.stateType;
@@ -668,7 +668,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   spawnContextMenu(windowId: MVDWindowManagement.WindowId, x: number, y: number, items: ContextMenuItem[], isAbsolutePos?: boolean): boolean {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('ZWED0027E - Attempted to spawn context menu for null window');
+      throw new Error('ZWED0163E - Attempted to spawn context menu for null window');
     }
     const windowPos = desktopWindow.windowState.position;
     const newX = isAbsolutePos ? x : windowPos.left + x;

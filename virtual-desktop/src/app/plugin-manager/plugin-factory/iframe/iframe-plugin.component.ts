@@ -152,7 +152,7 @@ export class IFramePluginComponent {
       }
       return copy;
     }catch(e){
-      this.logger.warn('ZWED0015E', e); //this.logger.warn('Unable to parse context menu items.  Error: ', e);
+      this.logger.warn('ZWED0151E', e); //this.logger.warn('Unable to parse context menu items.  Error: ', e);
       return undefined;
     }
   }
