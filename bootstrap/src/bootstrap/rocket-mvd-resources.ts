@@ -42,7 +42,7 @@ fetch('/ZLUX/plugins/org.zowe.zlux.bootstrap/web/assets/i18n/log/messages_en.jso
     bootstrapLogger.warn("ZWED5000E - Unable to retrieve message resource file: messages_en.json\n", e);
   });
 
-
+  PluginManager.logger = bootstrapLogger;
 
 export class ZoweZLUXResources {
   static pluginManager = PluginManager
