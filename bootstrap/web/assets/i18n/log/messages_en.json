@@ -1,7 +1,7 @@
 {
     "3":"Bootstrap Resource File",
     "ZWED5000I":"RESERVED: Message sent to %s",
-    "ZWED5001I":"Saw Websocket request, method=%s",
+    "ZWED5001I":"RESERVED: Saw Websocket request, method=%s",
     "ZWED5002I":"RESERVED: Message sent to %s",
     "ZWED5003I":"RESERVED: Simple container requested with pluginId %s",
     "ZWED5004I":"RESERVED: bootstrapGlobalResources simpleContainerRequested flag value: ",

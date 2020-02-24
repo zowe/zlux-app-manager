@@ -28,7 +28,7 @@ exports.adminNotificationWebsocketRouter = function(context) {
       }
 
       router.use(function abc(req,res,next) {
-        context.logger.info('ZWED5001I', req.method);/*context.logger.info('Saw Websocket request, method='+req.method);*/
+        context.logger.info('ZWED5001I - Saw Websocket request, method='+req.method);
         next();
       });
       context.addBodyParseMiddleware(router);
