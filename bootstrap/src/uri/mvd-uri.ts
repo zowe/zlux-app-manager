@@ -47,7 +47,7 @@ export class MvdUri implements ZLUX.UriBroker {
     });
     let params = this.createParamURL(paramArray);
     let routeParam = route;
-    let absPathParam = encodeURIComponent(absPath);
+    let absPathParam = encodeURIComponent(absPath).replace(/\%2F/gi,'/');
     
     return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`;
   }
@@ -55,7 +55,7 @@ export class MvdUri implements ZLUX.UriBroker {
     return `${this.serverRootUri('omvs')}`;
   }
   datasetContentsUri(dsn: string): string {
-    return `${this.serverRootUri(`datasetContents/${encodeURIComponent(dsn)}`)}`;
+    return `${this.serverRootUri(`datasetContents/${encodeURIComponent(dsn).replace(/\%2F/gi,'/')}`)}`;
   }
   VSAMdatasetContentsUri(dsn: string, closeAfter?: boolean): string {
     let closeAfterParam = closeAfter ? '?closeAfter=' + closeAfter : '';
