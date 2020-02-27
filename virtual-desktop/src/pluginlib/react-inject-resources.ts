@@ -25,6 +25,7 @@ export interface ReactMVDResources {
   readonly logger: ZLUX.ComponentLogger;
   readonly pluginDefinition: MVDHosting.DesktopPluginDefinition;
   readonly launchMetadata: any;
+  readonly instanceId: MVDHosting.InstanceId;
 };
 
 /* TODO
