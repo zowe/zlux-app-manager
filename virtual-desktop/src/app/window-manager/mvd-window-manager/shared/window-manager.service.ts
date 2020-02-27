@@ -93,6 +93,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       },
       "minimize" : (id: MVDWindowManagement.WindowId) => {
         this.minimize(id);
+      },
+      "focus": (id: MVDWindowManagement.WindowId) => {
+        this.requestWindowFocus(id);
       }
     });
     this.screenshotRequestEmitter = new Subject();
