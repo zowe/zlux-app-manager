@@ -69,9 +69,9 @@ function openWindow(item: LaunchbarItem, applicationManager: MVDHosting.Applicat
 }
 
 function openStandalone(item: LaunchbarItem): void {
-  const plginType:string = item.plugin.getFramework();
+  const pluginType:string = item.plugin.getFramework();
   //future TODO: initialize cross-window app2app communication??
-  if (plginType === 'iframe') {
+  if (pluginType === 'iframe' && !(item.plugin.standaloneUseFramework)) {
     // Still allows IFrames to comprehend URL parameters if address is copy/pasted later. Should not break any app2app possibilities
     window.open(`${location.origin}${(window as any).ZoweZLUX.uriBroker.pluginResourceUri(item.plugin, item.plugin.getBasePlugin().getWebContent().startingPage)}`);
   } else {
