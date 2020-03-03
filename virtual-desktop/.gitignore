@@ -9,7 +9,8 @@
 
 # compiled output
 /tmp
-/web
+web/*
+!web/assets
 /dll/dist
 /out-tsc
 *CVS/

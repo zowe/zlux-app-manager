@@ -63,7 +63,7 @@ export class TranslationLoaderService {
     return this.loadTranslations(currentTranslationFileURL)
       .catch(err => {
         if (fallbackTranslationFileURL != null) {
-          this.logger.warn(`Failed to load language file ${translationFileURL}, using ${fallbackTranslationFileURL}.`);
+          this.logger.warn("ZWED0170W", translationFileURL, fallbackTranslationFileURL); //this.logger.warn(`Failed to load language file ${translationFileURL}, using ${fallbackTranslationFileURL}.`);
           currentTranslationFileURL = fallbackTranslationFileURL;
           return this.loadTranslations(currentTranslationFileURL);
         }
@@ -76,7 +76,7 @@ export class TranslationLoaderService {
         { provide: LOCALE_ID, useValue: language }
       ])
       .catch(() => {
-          this.logger.warn(`Failed to load language file ${currentTranslationFileURL}, using no translation files.`);
+        this.logger.warn("ZWED0171W", currentTranslationFileURL); //this.logger.warn(`Failed to load language file ${currentTranslationFileURL}, using no translation files.`);
           return noProviders;
       });
   }

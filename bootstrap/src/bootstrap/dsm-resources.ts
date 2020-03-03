@@ -23,10 +23,25 @@ declare var window: { ZoweZLUX: typeof DSMResources };
 window; /* Suppress TS error */
 let logger = new Logger();
 logger.addDestination(logger.makeDefaultDestination(true,true,true));
+
+// component logger
+export var bootstrapLogger : ZLUX.ComponentLogger = logger.makeComponentLogger("_zsf.bootstrap");
+
+fetch('/ZLUX/plugins/org.zowe.zlux.bootstrap/web/assets/i18n/log/messages_en.json')
+  .then((response) => {
+    return response.json();
+  })
+  .then((myJson) => {
+    (bootstrapLogger as any)._messages = myJson;
+  })
+  .catch((e) => {
+    bootstrapLogger.warn("ZWED5001E - Unable to retrieve message resource file: messages_en.json\n", e);
+  });
+
 export class DSMResources {
   static pluginManager = PluginManager
   static uriBroker:ZLUX.UriBroker = new DsmUri();
-  static dispatcher:Dispatcher = new Dispatcher(logger);
+  static dispatcher:Dispatcher = new Dispatcher(bootstrapLogger);
   static logger:Logger = logger;
   static registry:ZLUX.Registry = new Registry();
   static notificationManager:ZoweNotificationManager = new ZoweNotificationManager();

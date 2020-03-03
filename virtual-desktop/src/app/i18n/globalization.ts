@@ -25,7 +25,7 @@ export class Globalization implements ZLUX.Globalization {
 
   setPreference(preference: string, value: string): Promise<any> {
     const uri = ZoweZLUX.uriBroker.pluginRESTUri(this.plugin, this.resourcePath, '');
-    this.logger.info(`set preference ${preference} to ${value} at uri ${uri}`);
+    this.logger.info(`ZWED0009I`, preference, value, uri); /*this.logger.info(`set preference ${preference} to ${value} at uri ${uri}`);*/
     const body: any = {};
     body[`${this.preferencePrefix}.${preference}`] = value;
 

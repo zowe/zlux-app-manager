@@ -116,7 +116,7 @@ export class AuthenticationManager {
             this.username = this.defaultUsername();
             this.performPostLoginActions().subscribe(
               ()=> {
-                this.log.debug('Done performing post-login actions');
+                this.log.debug('ZWED0298I'); //this.log.debug('Done performing post-login actions');
                 this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogin);
               }
             );
@@ -126,7 +126,7 @@ export class AuthenticationManager {
           }
         });//or throw err to subscriber
     } else {
-      return ErrorObservable.create('No Session Found');
+      return ErrorObservable.create('ZWED0148E - No Session Found');
     }
   }
   
@@ -145,7 +145,7 @@ export class AuthenticationManager {
       },
       (error: any) => {
         this.loginScreenVisibilityChanged.emit(reason);
-        this.log.warn('Logout failed! Error=', error);
+        this.log.warn('ZWED0149E', error); //this.log.warn('Logout failed! Error=', error);
       }
     );
   }
@@ -160,7 +160,7 @@ export class AuthenticationManager {
         if (this.username != null) {
           for (let i = 0; i < this.postLoginActions.length; i++) {
             let success = this.postLoginActions[i].onLogin(this.username, plugins);
-            this.log.debug(`LoginAction ${i}=${success}`);
+            this.log.debug("ZWED0299I", i, success); //this.log.debug(`LoginAction ${i}=${success}`);
           }
         }
         observer.next(true);
@@ -174,7 +174,7 @@ export class AuthenticationManager {
   private performPreLogoutActions() {
     for (let i = 0; i < this.preLogoutActions.length; i++) {
       let success = this.preLogoutActions[i].onLogout(this.username);
-      this.log.debug(`LogoutAction ${i}=${success}`);
+      this.log.debug("ZWED0300I", i, success); //this.log.debug(`LogoutAction ${i}=${success}`);
     }
     ZoweZLUX.pluginManager.pluginsById.clear()
   }  
@@ -212,29 +212,29 @@ export class AuthenticationManager {
       let warnTimer = this.nearestExpiration - logoutAfterWarnTimer;
       
       this.expirationWarning = setTimeout(()=> {       
-        this.log.info(`Session will expire soon! Logout will occur in ${logoutAfterWarnTimer/1000} seconds.`);
-        this.log.debug(`Session expirations=`,this.expirations);
+        this.log.info(`ZWED0002W`, logoutAfterWarnTimer/1000); /*this.log.info(`Session will expire soon! Logout will occur in ${logoutAfterWarnTimer/1000} seconds.`);*/
+        this.log.debug("ZWED0301I", this.expirations); //this.log.debug(`Session expirations=`,this.expirations);
         this.loginExpirationIdleCheck.emit({shortestSessionDuration: this.nearestExpiration,
                                             expirationInMS: logoutAfterWarnTimer});
         this.expirationWarning = setTimeout(()=> {
-          this.log.warn(`Session timeout reached. Clearing desktop for new login.`);
+          this.log.warn("ZWED0162W"); //this.log.warn(`Session timeout reached. Clearing desktop for new login.`);
           this.doLogoutInner(LoginScreenChangeReason.SessionExpired);
         },logoutAfterWarnTimer);
       },warnTimer);
-      this.log.debug(`Set session timeout watcher to notify ${warnTimer}ms before expiration`);
+      this.log.debug("ZWED0302I", warnTimer); //this.log.debug(`Set session timeout watcher to notify ${warnTimer}ms before expiration`);
     }
   }
 
   performSessionRenewal(): Observable<Response> {
-    this.log.info('Renewing session');
+    this.log.info('ZWED0005I');/*this.log.info('Renewing session');*/
     return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh')).map(result=> {
       let jsonMessage = result.json();
       if (jsonMessage && jsonMessage.success === true) {
-        this.log.info('Session renewal successful');
+        this.log.info('ZWED0006I');/*this.log.info('Session renewal successful');*/
         this.setSessionTimeoutWatcher(jsonMessage.categories);
         return result;
       } else {
-        this.log.warn('Session renewal unsuccessful');        
+        this.log.warn("ZWED0163W"); //this.log.warn('Session renewal unsuccessful');
         throw Observable.throw(result);
       }
     });
@@ -251,7 +251,7 @@ export class AuthenticationManager {
         (ZoweZLUX.logger as any)._setBrowserUsername(username);
         this.performPostLoginActions().subscribe(
           ()=> {
-            this.log.debug('Done performing post-login actions');
+            this.log.debug('ZWED0303I'); //this.log.debug('Done performing post-login actions');
             this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogin);              
           });
         return result;

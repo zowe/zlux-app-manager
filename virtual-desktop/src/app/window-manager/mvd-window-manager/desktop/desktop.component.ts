@@ -70,7 +70,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
     let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
     let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'recognizers');
     let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
-    this.log.debug(`Getting recognizers from "${recognizersUri}", actions from "${actionsUri}"`);
+    this.log.debug("ZWED0309I", recognizersUri, actionsUri); //this.log.debug(`Getting recognizers from "${recognizersUri}", actions from "${actionsUri}"`);
     this.http.get(recognizersUri).map((res:Response)=>res.json()).subscribe((config: any)=> {
       if (config) {
         let appContents = config.contents;
@@ -85,7 +85,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
           appContents[appWithRecognizer].recognizers.forEach((recognizerObject:ZLUX.RecognizerObject)=> {
             ZoweZLUX.dispatcher.addRecognizerObject(recognizerObject);
           });
-          this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);
+          this.log.info(`ZWED0015I`, appContents[appWithRecognizer].recognizers.length, appWithRecognizer); //this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);
         });
       }
     });
@@ -105,7 +105,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
               ZoweZLUX.dispatcher.registerAbstractAction(ZoweZLUX.dispatcher.makeActionFromObject(actionObject));
             }
           });
-          this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);
+          this.log.info(`ZWED0016I`, appContents[appWithAction].actions.length, appWithAction); //this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);
         });
       }
     });

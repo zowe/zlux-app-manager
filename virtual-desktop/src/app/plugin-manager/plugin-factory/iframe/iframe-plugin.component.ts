@@ -77,7 +77,7 @@ export class IFramePluginComponent {
           instanceId: this.instanceId,
           error: 'Unable to parse plugin definition'
         }, '*');
-        this.logger.warn('Unable to parse plugin defintion.  Error: ', e);
+        this.logger.warn("ZWED0172W", e); //this.logger.warn('Unable to parse plugin defintion.  Error: ', e);
       }
       this.windowEvents.minimized.subscribe(() => {
         this.postWindowEvent('windowEvents.minimized');
@@ -152,7 +152,7 @@ export class IFramePluginComponent {
       }
       return copy;
     }catch(e){
-      this.logger.warn('Unable to parse context menu items.  Error: ', e);
+      this.logger.warn('ZWED0151E', e); //this.logger.warn('Unable to parse context menu items.  Error: ', e);
       return undefined;
     }
   }

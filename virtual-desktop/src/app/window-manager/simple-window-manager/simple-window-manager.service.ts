@@ -14,12 +14,12 @@ import { Injectable, Injector, EventEmitter } from '@angular/core';
 // import { DesktopPluginDefinition } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { ViewportManager } from 'app/application-manager/viewport-manager/viewport-manager.service';
 import { ContextMenuItem, Angular2InjectionTokens, Angular2PluginViewportEvents } from 'pluginlib/inject-resources';
-import { BaseLogger } from 'virtual-desktop-logger';
+//import { BaseLogger } from 'virtual-desktop-logger';
 import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class SimpleWindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
-  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  //private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private theViewportId: MVDHosting.ViewportId;
   readonly windowResized: EventEmitter<{ width: number, height: number }>;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
@@ -95,7 +95,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
 
   private onResize() {
     const wh = { width: document.body.clientWidth, height: document.body.clientHeight };
-    this.logger.debug('onresize', JSON.stringify(wh));
+    //this.logger.debug('onresize', JSON.stringify(wh));
     this.windowResized.emit(wh);
   }
 

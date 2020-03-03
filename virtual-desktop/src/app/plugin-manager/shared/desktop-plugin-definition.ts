@@ -49,7 +49,7 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
       if ('framework' in this.basePlugin.getWebContent()) {
         return this.basePlugin.getWebContent().framework;
       } else {
-        this.logger.warn(`Plugin ${this.getIdentifier()} has no framework specified`);
+        this.logger.warn("ZWED0174W", this.getIdentifier()); //this.logger.warn(`Plugin ${this.getIdentifier()} has no framework specified`);
         return 'unsupported';
       }
     } else {
