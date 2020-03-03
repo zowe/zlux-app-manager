@@ -1,6 +1,5 @@
 {
     "4":"Desktop Resource File",
-    "ZWED0002I":"Saw request, method=%s",
     "ZWED0003I":"Iframe loaded: %s, instance=%s",
     "ZWED0004I":"Closing and removing viewport ID=%s",
     "ZWED0005I":"Renewing session",
