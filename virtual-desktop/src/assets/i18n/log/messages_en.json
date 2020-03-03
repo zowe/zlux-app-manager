@@ -7,7 +7,7 @@
     "ZWED0007I":"Near session expiration, but renewing session due to activity",
     "ZWED0008I":"Near session expiration. No activity detected, prompting to renew session",
     "ZWED0009I":"Set preference %s to %s at uri %s",
-    "ZWED0010I":"Setting ZoweZLUX.globalization to an implementation specific to com.rs.mvd.ng2desktop",
+    "ZWED0010I":"RESERVED: Setting ZoweZLUX.globalization to an implementation specific to com.rs.mvd.ng2desktop",
     "ZWED0011I":"Registering component factory for plugin=%s:",
     "ZWED0012I":"Loading Angular Plugin ID=%s, URL=%s",
     "ZWED0013I":"Loading iframe, URI=%s",
