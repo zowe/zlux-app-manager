@@ -198,9 +198,10 @@ var ZoweZLUX = {
         getPlugin(id){
             return translateFunction('ZoweZLUX.pluginManager.getPlugin', [id])
         },
-        loadPlugins(pluginType){
-
+        loadPlugins(pluginType, update){
+            return translateFunction('ZoweZLUX.pluginManager.loadPlugins', Array.prototype.slice.call(arguments))
         },
+      /*  These are omitted because they do not seem like something an iframe should modify
         setDesktopPlugin(plugin){
 
         },
@@ -210,54 +211,55 @@ var ZoweZLUX = {
         getDesktopPlugin(){
 
         }
+      */
     },
     uriBroker: {
         desktopRootUri(){
             return translateFunction('ZoweZLUX.uriBroker.desktopRootUri', [])
         },
         datasetMetadataHlqUri(updateCache, types, workAreaSize, resumeName, resumeCatalogName){
-
+            return translateFunction('ZoweZLUX.uriBroker.datasetMetadataHlqUri', Array.prototype.slice.call(arguments))
         },
         datasetMetadataUri(dsn, detail, types, listMembers, workAreaSize, includeMigrated, includeUnprintable,
                                     resumeName, resumeCatalogName, addQualifiers){
-            
+          return translateFunction('ZoweZLUX.uriBroker.datasetMetadataUri', Array.prototype.slice.call(arguments))
         },
         datasetContentsUri(dsn){
-
+          return translateFunction('ZoweZLUX.uriBroker.datasetContentsUri', Array.prototype.slice.call(arguments))
         },
         VSAMdatasetContentsUri(dsn, closeAfter){
-
+          return translateFunction('ZoweZLUX.uriBroker.VSAMdatasetContentsUri', Array.prototype.slice.call(arguments))
         },
         unixFileUri(route, absPath, sourceEncodingOrOptions,
                             targetEncoding, newName, forceOverwrite, sessionID, lastChunk, responseType){
-
+          return translateFunction('ZoweZLUX.uriBroker.unixFileUri', Array.prototype.slice.call(arguments))
         },
         omvsSegmentUri(){
-
+          return translateFunction('ZoweZLUX.uriBroker.omvsSegmentUri', Array.prototype.slice.call(arguments))
         },
         rasUri(uri){
-
+          return translateFunction('ZoweZLUX.uriBroker.rasUri', Array.prototype.slice.call(arguments))
         },
         serverRootUri(uri){
-
+          return translateFunction('ZoweZLUX.uriBroker.serverRootUri', Array.prototype.slice.call(arguments))
         },
         pluginResourceUri(pluginDefinition, relativePath){
-
+          return translateFunction('ZoweZLUX.uriBroker.pluginResourceUri', Array.prototype.slice.call(arguments))
         },
-        pluginListUri(pluginType){
-
+        pluginListUri(pluginType, update){
+          return translateFunction('ZoweZLUX.uriBroker.pluginListUri', Array.prototype.slice.call(arguments))
         },
         pluginConfigForScopeUri(pluginDefinition, scope, resourcePath, resourceName){
-
+          return translateFunction('ZoweZLUX.uriBroker.pluginConfigForScopeUri', Array.prototype.slice.call(arguments))
         },
         pluginConfigUri(pluginDefinition, resourcePath, resourceName){
-            return translateFunction('ZoweZLUX.uriBroker.pluginConfigUri', [pluginDefinition, resourcePath, resourceName])
+            return translateFunction('ZoweZLUX.uriBroker.pluginConfigUri', Array.prototype.slice.call(arguments))
         },
         pluginWSUri(pluginDefinition, serviceName, relativePath, version){
-
+            return translateFunction('ZoweZLUX.uriBroker.pluginWSUri', Array.prototype.slice.call(arguments))
         },
         pluginRESTUri(pluginDefinition, serviceName, relativePath, version){
-            return translateFunction('ZoweZLUX.uriBroker.pluginRESTUri', [pluginDefinition, serviceName, relativePath, version])
+            return translateFunction('ZoweZLUX.uriBroker.pluginRESTUri', Array.prototype.slice.call(arguments))
         }
     },
     dispatcher: {
@@ -350,7 +352,7 @@ var windowActions = {
         return translateFunction('windowActions.restore', [])
     },
     setTitle(title){
-        return translateFunction('windowActions.setTitle', [title])
+        return translateFunction('windowActions.setTitle', Array.prototype.slice.call(arguments))
     },
     setPosition(pos){
         return translateFunction('windowActions.setPosition', [pos])

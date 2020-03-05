@@ -15,10 +15,10 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { DesktopPluginDefinitionImpl } from './desktop-plugin-definition';
 import { PluginLoader } from './plugin-loader';
 
-const SCAN_INTERVAL = 300000;
+const SCAN_INTERVAL_MINIMUM = 300000;
 
 @Injectable()
-export class PluginManager implements MVDHosting.PluginManagerInterface, MVDHosting.LoginActionInterface, MVDHosting.LogoutActionInterface {
+export class PluginManager implements MVDHosting.PluginManagerInterface, MVDHosting.LogoutActionInterface {
   private static _pluginDefinitions: Map<string, MVDHosting.DesktopPluginDefinition> = new Map();
   private static _scanner: any;
 
@@ -29,11 +29,28 @@ export class PluginManager implements MVDHosting.PluginManagerInterface, MVDHost
   ) {
   }
 
-  onLogin(plugins:any): boolean {
-    PluginManager._scanner = setInterval(()=> {
-      this.updateMap();
-    },SCAN_INTERVAL);
-    return true;
+  unsetScanner(): boolean {
+    return this.setScanInterval(0);
+  }
+
+  setScanInterval(ms: number): boolean {
+    if (ms <= 0) {
+      if (PluginManager._scanner) {
+        clearInterval(PluginManager._scanner);
+      }
+      return true;
+    }
+
+    if (ms >= SCAN_INTERVAL_MINIMUM) {
+      if (PluginManager._scanner) {
+        clearInterval(PluginManager._scanner);
+      }
+      PluginManager._scanner = setInterval(()=> {
+        this.updateMap();
+      },ms);
+      return true;      
+    }
+    return false;
   }
   
   onLogout(): boolean {
