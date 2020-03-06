@@ -98,6 +98,5 @@
     "ZWED5040E":"RESERVED: Plugin version is not a string",
     "ZWED5041E":"RESERVED: Plugin type is not present",
     "ZWED5042E":"RESERVED: Plugin type is not a string",
-    "ZWED5043E":"RESERVED: %s is not a valid semantic version",
-    "ZWED0044E":"RESERVED: Unable to retrieve message resource file: messages_en.json\n"
+    "ZWED5043E":"RESERVED: %s is not a valid semantic version"
 }

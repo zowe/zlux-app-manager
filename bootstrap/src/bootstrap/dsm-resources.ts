@@ -35,7 +35,7 @@ fetch('/ZLUX/plugins/org.zowe.zlux.bootstrap/web/assets/i18n/log/messages_en.jso
     (bootstrapLogger as any)._messages = myJson;
   })
   .catch((e) => {
-    bootstrapLogger.warn("ZWED5001E - Unable to retrieve message resource file: messages_en.json\n", e);
+    bootstrapLogger.warn("ZWED5000E - Unable to retrieve message resource file: messages_en.json\n", e);
   });
 
 export class DSMResources {
