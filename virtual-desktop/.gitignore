@@ -15,6 +15,7 @@ web/*
 /out-tsc
 *CVS/
 /lib
+!lib/assets
 
 # dependencies
 /node_modules
