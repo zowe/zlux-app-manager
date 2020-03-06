@@ -359,9 +359,10 @@ var windowActions = {
         return translateFunction('windowActions.spawnContextMenu', [xPos, yPos, items, isAbsolutePos])
     },
 }
-
+ZoweZLUX.iframe.windowActions = windowActions;
 var viewportEvents = {
     registerCloseHandler(handler){
         return translateFunction('viewportEvents.registerCloseHandler', [handler])
     }
 }
+ZoweZLUX.iframe.viewportEvents = viewportEvents;
