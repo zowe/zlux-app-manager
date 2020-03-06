@@ -74,7 +74,7 @@ exports.adminNotificationWebsocketRouter = function(context) {
             res.status(403).json({"Response": "RBAC is not enabled"})
         }
       });
-      router.ws('/', {perMessageDeflate: false}, function(ws,req) {
+      router.ws('/',function(ws,req) {
         let id = req.cookies["connect.sid." + req.headers['host'].split(":")[1]]
         let symbols = Object.getOwnPropertySymbols(req.client)
         let asyncId = req.client[symbols[1]]
