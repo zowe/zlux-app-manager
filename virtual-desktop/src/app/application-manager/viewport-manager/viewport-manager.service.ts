@@ -36,7 +36,7 @@ export class ViewportManager implements MVDHosting.ViewportManagerInterface {
 
   registerViewport(viewportId: MVDHosting.ViewportId, instanceId: MVDHosting.InstanceId): void {
     if (this.viewportInstances.has(viewportId)) {
-      this.logger.warn("ZWED0161W", viewportId); //this.logger.warn('Attempting to replace an existing viewport id=${viewportId} in registration ');
+      this.logger.warn("ZWED5161W", viewportId); //this.logger.warn('Attempting to replace an existing viewport id=${viewportId} in registration ');
     }
 
     this.viewportInstances.set(viewportId, instanceId);
@@ -65,7 +65,7 @@ export class ViewportManager implements MVDHosting.ViewportManagerInterface {
 
   destroyViewport(viewportId: MVDHosting.ViewportId): Promise<any> {
     // TODO there may be other actions desired for destroyviewport
-    this.logger.info(`ZWED0004I`, viewportId); /*this.logger.info(`Closing viewport ID=${viewportId}`);*/
+    this.logger.info(`ZWED5044I`, viewportId); /*this.logger.info(`Closing viewport ID=${viewportId}`);*/
     return new Promise((resolve,reject)=> {
       let handlers = this.closeHandlers.get(viewportId);
       if (handlers) {

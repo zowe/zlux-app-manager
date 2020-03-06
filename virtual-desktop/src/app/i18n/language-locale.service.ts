@@ -80,7 +80,7 @@ export class LanguageLocaleService {
         if (value) {
           return fromPromise(this.globalization.setPreference(preferenceName, requestedValue));
         } else {
-          const message: string = `ZWED0169W - no locale data found for locale id ${value}`;
+          const message: string = `ZWED5169W - no locale data found for locale id ${value}`;
           this.logger.warn(message)
           //return Observable.throwError(message);
           return _throw(message);
@@ -90,7 +90,7 @@ export class LanguageLocaleService {
   }
 
   setLanguage(language: string): Observable<any> {
-    this.logger.debug("ZWED0313I", language) //this.logger.debug(`Attempting to set language to ${language}`)
+    this.logger.debug("ZWED5313I", language) //this.logger.debug(`Attempting to set language to ${language}`)
     return this.setLanguageOrLocale('language', language);
   }
 

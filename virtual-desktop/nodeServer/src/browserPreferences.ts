@@ -23,7 +23,7 @@ class BrowserPreferencesDataservice {
     this.context = context;
     const router = express.Router();
     router.use(function noteRequest(req: Request, res: Response, next: any): void {
-      context.logger.info('ZWED0002I', req.method); /*context.logger.info('Saw request, method=' + req.method);*/
+      context.logger.info('ZWED0017I', req.method); /*context.logger.info('Saw request, method=' + req.method);*/
       next();
     });
     context.addBodyParseMiddleware(router);

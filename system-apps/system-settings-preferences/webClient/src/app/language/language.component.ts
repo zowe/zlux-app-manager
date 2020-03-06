@@ -55,12 +55,12 @@ export class LanguageComponent {
   applyLanguage(): void {
     this.languageLocaleService.setLanguage(this.idLanguage).subscribe(
       arg => { 
-        this.logger.debug("ZWED0322I",arg); //this.logger.debug(`setLanguage, arg=`,arg);
+        this.logger.debug("ZWED5323I",arg); //this.logger.debug(`setLanguage, arg=`,arg);
         this.isRestartWindowVisible = true;
         this.isVeilVisible = true;
        },
       err => {
-        this.logger.warn("ZWED0192W",err); //this.logger.warn("setLanguage error=",err);
+        this.logger.warn("ZWED5192W",err); //this.logger.warn("setLanguage error=",err);
       }
     )
   }

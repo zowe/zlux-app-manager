@@ -40,7 +40,6 @@
     "ZWED5040I":"Found some wrappers %s",
     "ZWED5041I":"ectxt=",
     "ZWED5042I":"dispatcher.invokeAction on context %s",
-    "ZWED5043I":"Invoking message type Action",
 
     "ZWED5000W":"RESERVED: Desktop attempted to change instanceId for iframe instance=%s, message=%s",
     "ZWED5001W":"pluginWSUri not implemented yet!",
@@ -100,5 +99,5 @@
     "ZWED5041E":"RESERVED: Plugin type is not present",
     "ZWED5042E":"RESERVED: Plugin type is not a string",
     "ZWED5043E":"RESERVED: %s is not a valid semantic version",
-    "ZWED5044E":"RESERVED: Unable to retrieve message resource file: messages_en.json\n"
+    "ZWED0044E":"RESERVED: Unable to retrieve message resource file: messages_en.json\n"
 }

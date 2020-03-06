@@ -55,7 +55,7 @@ export class ReactPluginFactory extends PluginFactory {
             components.registerComponentFactories();
           },
           (failure: any) => {
-            this.logger.warn("ZWED0173W", pluginDefinition.getIdentifier()); //this.logger.warn(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
+            this.logger.warn("ZWED5173W", pluginDefinition.getIdentifier()); //this.logger.warn(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
             resolve();
           });
         } else {

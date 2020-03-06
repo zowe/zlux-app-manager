@@ -1,21 +1,16 @@
 {
    
-    
-    "ZWED5043I":"Invoking message type Action",
 
-    "ZWED5000I":"RESERVED: Message sent to %s",
-    "ZWED5001I":"RESERVED: Saw Websocket request, method=%s",
-    "ZWED5002I":"RESERVED: Message sent to %s",
+    "ZWED0000I":"RESERVED: Message sent to %s",
+    "ZWED0001I":"RESERVED: Saw Websocket request, method=%s",
+    "ZWED0002I":"RESERVED: Message sent to %s",
 
+    "ZWED0044E":"RESERVED: Unable to retrieve message resource file: messages_en.json\n",
 
-    "ZWED5000W":"RESERVED: Desktop attempted to change instanceId for iframe instance=%s, message=%s",
-
-    "ZWED5044E":"RESERVED: Unable to retrieve message resource file: messages_en.json\n",
-
-    "ZWED5008E":"RESERVED: Server error",
-    "ZWED5002E":"RESERVED: Recipient input cannot be blank",
-    "ZWED5003E":"RESERVED: %s is not a valid user or is not online",
-    "ZWED5004E":"RESERVED: Server error",
-    "ZWED5005E":"RESERVED: Message was not sent",
-    "ZWED5006E":"RESERVED: RBAC is not enabled",
+    "ZWED0008E":"RESERVED: Server error",
+    "ZWED0002E":"RESERVED: Recipient input cannot be blank",
+    "ZWED0003E":"RESERVED: %s is not a valid user or is not online",
+    "ZWED0004E":"RESERVED: Server error",
+    "ZWED0005E":"RESERVED: Message was not sent",
+    "ZWED0006E":"RESERVED: RBAC is not enabled"
 }

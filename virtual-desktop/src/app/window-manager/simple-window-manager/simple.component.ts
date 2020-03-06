@@ -43,7 +43,7 @@ export class SimpleComponent implements OnInit {
 
     if (!requestedPluginID) {
       let message = "Plugin ID required. Use query parameter ?pluginId";
-      this.logger.severe("ZWED0143E"); //this.logger.severe(message);
+      this.logger.severe("ZWED5143E"); //this.logger.severe(message);
       this.error = message;
       return;
     }
@@ -71,12 +71,12 @@ export class SimpleComponent implements OnInit {
         this.viewportId = this.windowManager.getViewportId(1);
       } else {
         let message = "Cannot find plugin with ID="+pluginID;
-        this.logger.severe("ZWED0144E", pluginID); //this.logger.severe(message);
+        this.logger.severe("ZWED5144E", pluginID); //this.logger.severe(message);
         this.error = message;
       }
     }).catch((x) => {
       let message = "Plugin promise not returned, cannot continue";
-      this.logger.severe("ZWED0145E"); //this.logger.severe(message);
+      this.logger.severe("ZWED5145E"); //this.logger.severe(message);
       this.error = message;
       return;
     });

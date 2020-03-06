@@ -33,7 +33,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     private injector: Injector,
     private http : HttpClient
   ) {
-    this.logger.debug("ZWED0320I", windowManager); //this.logger.debug("Window-pane-component wMgr=",windowManager);
+    this.logger.debug("ZWED5320I", windowManager); //this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.authenticationManager.registerPostLoginAction(this);

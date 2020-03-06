@@ -50,7 +50,7 @@ export class ApplicationInstance {
     if (component != null) {
       component.destroy();
     } else {
-      this.logger.warn('ZWED0167W'); //this.logger.warn('Attempted to clean up undefined component');
+      this.logger.warn('ZWED5167W'); //this.logger.warn('Attempted to clean up undefined component');
     }
   }
 
