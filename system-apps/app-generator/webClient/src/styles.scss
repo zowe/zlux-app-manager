@@ -1,0 +1,21 @@
+@import "~carbon-components/scss/globals/scss/feature-flags";
+
+
+$feature-flags: (ui-shell: true);
+@import "~carbon-components/scss/globals/scss/styles";
+
+.carbon--theme--white {
+  font-family: Arial, Helvetica, sans-serif;
+	$css--body: false;
+	color: $text-01;
+	background-color: $ui-background;
+
+	p {
+		max-width: 800px;
+	}
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1;
+}
