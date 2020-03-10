@@ -16,7 +16,7 @@ const fs = require('fs-extra');
 const beautify = require('js-beautify');
 const unzipper = require('unzipper');
 const ZLUX_ROOT_FOLDER = path.join(process.env['PWD'], '../../');
-const DESTINATION = process.env['INSTANCE_DIR'] ? path.join(process.env['INSTANCE_DIR'], 'workspace/app-server/pluginFolders') : ZLUX_ROOT_FOLDER;
+const DESTINATION = process.env['INSTANCE_DIR'] ? path.join(process.env['INSTANCE_DIR'], 'workspace/app-server/devPlugins') : ZLUX_ROOT_FOLDER;
 const installApp = require(path.join(ZLUX_ROOT_FOLDER,'zlux-server-framework/utils/install-app'));
 
 export class ProjectService {
