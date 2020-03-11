@@ -5,7 +5,6 @@
     "ZWED0001I":"RESERVED: Saw Websocket request, method=%s",
     "ZWED0002I":"RESERVED: Message sent to %s",
 
-    "ZWED0008E":"RESERVED: Server error",
     "ZWED0002E":"RESERVED: Recipient input cannot be blank",
     "ZWED0003E":"RESERVED: %s is not a valid user or is not online",
     "ZWED0004E":"RESERVED: Server error",
