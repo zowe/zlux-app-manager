@@ -45,7 +45,7 @@ exports.adminNotificationWebsocketRouter = function(context) {
                     if (sent) {
                         res.status(201).json({"Response" : "ZWED0000I - Message sent to " + req.body.recipient});
                     } else {
-                        res.status(500).json({"Response" : "ZWED0008E - Server error"});
+                        res.status(500).json({"Response" : "ZWED0004E - Server error"});
                     }
                 } else {
                     if (req.body.username === "") {

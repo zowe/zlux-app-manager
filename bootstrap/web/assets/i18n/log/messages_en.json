@@ -70,7 +70,6 @@
     "ZWED5012E":"RESERVED: No desktops available to bootstrap.",
     "ZWED5013E":"RESERVED: functionString must be of type string, args must be an array of type object",
     "ZWED5014E":"RESERVED: The desktop plugin has not been bootstrapped",
-    "ZWED5015E":"RESERVED: The desktop plugin has not been bootstrapped",
     "ZWED5016E":"RESERVED: Could not customize vt-ng2, error writing json=",
     "ZWED5017E":"RESERVED: Could not customize tn3270-ng2, error writing json=",
     "ZWED5018E":"RESERVED: Missing one or more parameters required to run.\nConfig file was ",
