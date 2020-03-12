@@ -11,7 +11,7 @@
 -->
 
 <div class="launchbar-container launchbar-large" id="container" (mouseup)="onMouseUpContainer($event)" [class.active]="isActive">
-  <rs-com-launchbar-menu [menuItems]="allItems" (itemClicked)="menuItemClicked($event)"  (menuStateChanged)="onStateChanged($event)"></rs-com-launchbar-menu>
+  <rs-com-launchbar-menu [menuItems]="allItems" (itemClicked)="menuItemClicked($event)"  (refreshClicked)="getNewItems()" (menuStateChanged)="onStateChanged($event)"></rs-com-launchbar-menu>
   <div class="launchbar">
     <rs-com-launchbar-icon *ngFor="let item of pinnedItems" [launchbarItem]="item" (contextmenu)="onRightClick($event, item)"
     (mousedown)="onMouseDown($event, item)" (mousemove)="onMouseMove($event, item)">

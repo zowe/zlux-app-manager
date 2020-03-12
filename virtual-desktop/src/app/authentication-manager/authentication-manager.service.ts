@@ -66,7 +66,6 @@ export class AuthenticationManager {
     public http: Http,
     private injector: Injector,
     private pluginManager: PluginManager
-
   ) {
     this.log = BaseLogger.makeSublogger("auth");
     this.username = null;
@@ -75,7 +74,6 @@ export class AuthenticationManager {
     this.registerPreLogoutAction(new ClearZoweZLUX());
     this.registerPreLogoutAction(this.pluginManager)
     this.registerPostLoginAction(new initializeNotificationManager());
-    this.registerPostLoginAction(this.pluginManager);
     this.loginScreenVisibilityChanged = new EventEmitter();
     this.loginExpirationIdleCheck = new EventEmitter();
   }
@@ -155,8 +153,9 @@ export class AuthenticationManager {
   }
 
   private performPostLoginActions(): Observable<any> {
-    return new Observable((observer)=> {      
-      ZoweZLUX.pluginManager.loadPlugins(ZLUX.PluginType.Application).then((plugins:ZLUX.Plugin[])=> {
+    return new Observable((observer)=> {
+      this.pluginManager.loadApplicationPluginDefinitions().then((pluginDefs:MVDHosting.DesktopPluginDefinition[])=> {
+        let plugins = pluginDefs.map(plugin => plugin.getBasePlugin());
         if (this.username != null) {
           for (let i = 0; i < this.postLoginActions.length; i++) {
             let success = this.postLoginActions[i].onLogin(this.username, plugins);

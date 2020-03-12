@@ -100,11 +100,17 @@ export class DsmUri implements ZLUX.UriBroker {
     return this.pluginServletUri()+`?pluginResourceUri=${this.pluginRootUri(pluginDefinition)}/${relativePath}`
   }
 
-  pluginListUri(pluginType?: ZLUX.PluginType): string {
+  pluginListUri(pluginType?: ZLUX.PluginType, refresh?: boolean): string {
+    let query;
     if (pluginType === undefined) {
-      return this.pluginServletUri()+`?pluginType=all`
+      query = `plugins?type=all`;
+    } else {
+      query = `plugins?type=${pluginType}`
     }
-    return this.pluginServletUri()+`?pluginType=${pluginType}`
+    if (refresh) {
+      query += `&refresh=true`;
+    }
+    return `${this.serverRootUri(query)}`;
   }
 
   pluginWSUri(pluginDefinition: ZLUX.Plugin, serviceName:string, 

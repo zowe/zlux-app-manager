@@ -114,11 +114,17 @@ export class MvdUri implements ZLUX.UriBroker {
     return `${this.pluginRootUri(pluginDefinition)}web/${relativePath}`;
   }
 
-  pluginListUri(pluginType?: ZLUX.PluginType): string {
+  pluginListUri(pluginType?: ZLUX.PluginType, refresh?: boolean): string {
+    let query;
     if (pluginType === undefined) {
-      return `${this.serverRootUri(`plugins?type=all`)}`;
+      query = `plugins?type=all`;
+    } else {
+      query = `plugins?type=${pluginType}`
     }
-    return `${this.serverRootUri(`plugins?type=${pluginType}`)}`;
+    if (refresh) {
+      query += `&refresh=true`;
+    }
+    return `${this.serverRootUri(query)}`;
   }
 
   pluginWSUri(plugin: ZLUX.Plugin, serviceName: string, relativePath: string,

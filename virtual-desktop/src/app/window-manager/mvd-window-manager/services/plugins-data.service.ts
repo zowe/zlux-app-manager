@@ -57,14 +57,17 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
     this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res =>{
         res.json().contents.plugins.forEach((p: string) => {
-          this.pluginManager.findPluginDefinition(p)
-          .then(res => {
-            if (res == null) {
-              this.logger.warn(`Bad Plugin Definition for plugin=${p}`)
-            } else {
-              this.pinnedPlugins.push(new PluginLaunchbarItem((res as DesktopPluginDefinitionImpl), this.windowManager));
+          let found = false;
+          for (let i = 0; i < accessiblePlugins.length; i++) {
+            if (accessiblePlugins[i].plugin.getIdentifier() == p) {
+              this.pinnedPlugins.push(new PluginLaunchbarItem(accessiblePlugins[i].plugin, this.windowManager));
+              found = true;
+              break;
             }
-          })
+          }
+          if (!found) {
+            this.logger.warn(`Pinned plugin not found=${p}`)
+          }
         })
       })
     }
@@ -127,8 +130,18 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
         } else {
           plugins = res.json().contents.plugins;
         }
-        plugins.push(item.plugin.getBasePlugin().getIdentifier());
-        this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
+        let exists = false;
+        let id = item.plugin.getBasePlugin().getIdentifier();
+        for (let i = 0; i < plugins.length; i++) {
+          if (plugins[i] == id) {
+            exists = true;
+            break;
+          }
+        }
+        if (!exists) {
+          plugins.push(id);
+          this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
+        }
       })
   }
 
