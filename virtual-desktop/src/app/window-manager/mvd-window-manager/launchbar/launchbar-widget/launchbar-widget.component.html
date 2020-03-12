@@ -1,5 +1,3 @@
-
-
 <!--
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -15,10 +13,6 @@
   <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()"
     i18n="signout button|Title of Sign out button@@signout-button-title">Log out</button>
   <h6 class="launchbar-plugin-version">{{getPluginVersion()}}</h6>
-  <!-- <button #languagebutton class="btn btn-primary launchbar-button" (click)="setLanguage('fr')">French</button>
-  <button #clearlanguagebutton class="btn btn-primary launchbar-button" (click)="setLanguage(null)">Clear Language</button>
-  <button #localebutton class="btn btn-primary launchbar-button" (click)="setLocale('US')">Locale</button>
-  -->
 </div>
 
 <div #notificationicon [hidden]="!notificationsVisible" class='notifications'>
