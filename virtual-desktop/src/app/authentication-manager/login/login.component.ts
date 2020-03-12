@@ -35,10 +35,12 @@ export class LoginComponent implements OnInit {
   locked: boolean;
   username: string;
   password: string;
+  newPassword: string;
   errorMessage: string | null;
   loginMessage: string;
   private idleWarnModal: any;
   private lastActive: number = 0;
+  expiredPassword: boolean;
 
   constructor(
     private authenticationService: AuthenticationManager,
@@ -51,8 +53,9 @@ export class LoginComponent implements OnInit {
     this.locked = false;
     this.username = '';
     this.password = '';
+    this.newPassword = '';
     this.errorMessage = null;
-
+    this.expiredPassword = false;
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
       switch (eventReason) {
       case LoginScreenChangeReason.UserLogout:
@@ -183,14 +186,46 @@ export class LoginComponent implements OnInit {
     }    
   }
 
+  cancelPasswordReset(): void {
+    this.loginMessage = "";
+    this.errorMessage = "";
+    this.expiredPassword = false;
+  }
+
+  loginMiddleman(): void {
+    if (this.expiredPassword) {
+      this.attemptPasswordReset();
+    } else {
+      this.attemptLogin();
+    }
+  }
+
+  attemptPasswordReset(): void {
+    this.authenticationService.performPasswordReset(this.username, this.password, this.newPassword).subscribe(
+      result => {
+        let jsonMessage = result.json();
+        this.expiredPassword = false;
+        this.loginMessage = jsonMessage.categories.zss.plugins['org.zowe.zlux.auth.zss'].response;
+        this.errorMessage = "";
+        this.password = '';
+        this.newPassword = '';
+      },
+      error => {
+        let jsonMessage = error.json();
+        this.loginMessage = "";
+        this.errorMessage = "Error: " + jsonMessage.categories.zss.plugins['org.zowe.zlux.auth.zss'].response;
+      }
+    )
+  }
+
   attemptLogin(): void {
     this.errorMessage = null;
     this.needLogin = false;
     this.locked = true;
     this.isLoading = true;
+    this.expiredPassword = false;
     // See https://github.com/angular/angular/issues/22426
     this.cdr.detectChanges();
-
     if (this.username==null || this.username==''){
       this.errorMessage= this.translation.translate('UsernameRequired');
       this.password = '';
@@ -216,14 +251,18 @@ export class LoginComponent implements OnInit {
                 failedTypes.push(keys[i]);
               }
             }
-            this.errorMessage = this.translation.translate('AuthenticationFailed',
+            if (error.status == 428) {
+              this.expiredPassword = true;
+              this.loginMessage = "Password Expired: Need new password";
+            } else {
+              this.errorMessage = this.translation.translate('AuthenticationFailed',
               { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
-
+              this.password = '';
+            }
           }
         } else {
           this.errorMessage = error.text();
         }
-        this.password = '';
         this.locked = false;
         this.isLoading = false;
       }

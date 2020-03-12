@@ -87,6 +87,12 @@
   margin: 5px 0px 5px 0px;
 }
 
+.btn.btn-primary.launchbar-button-password{
+  font-size: 13px;
+  width: 100%;
+  margin: 5px 0px 5px 0px;
+}
+
 .launch-user-caret {
   position: absolute;
   bottom: 70px;

@@ -240,6 +240,14 @@ export class AuthenticationManager {
     });
   }
 
+  performPasswordReset(username: string, password: string, newPassword: string): Observable<Response> {
+    return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-password'),
+                          {username: username, password: password, newPassword: newPassword})
+    .map(result => {
+      return result
+    })
+  }
+
   performLogin(username: string, password: string): Observable<Response> {
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth'), { username: username, password: password })
     .map(result => {

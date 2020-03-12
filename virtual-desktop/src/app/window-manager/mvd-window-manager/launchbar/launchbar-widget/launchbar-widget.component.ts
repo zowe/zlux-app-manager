@@ -29,6 +29,7 @@ import { MatSnackBar} from '@angular/material';
 import {SnackbarComponent} from '../shared/snackbar/snackbar.component';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { WindowManagerService } from '../../shared/window-manager.service';
+import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
 
 @Component({
   selector: 'rs-com-launchbar-widget',
@@ -44,8 +45,10 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   @Output() popupStateChanged = new EventEmitter<boolean>();
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
+  @ViewChild('passwordbutton') passwordButton: ElementRef;
   @ViewChild('notificationicon') notificationIcon: ElementRef;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+  private pluginManager: MVDHosting.PluginManagerInterface;
   public notificationsVisible: boolean;
   private info: any[];
   @Input() menuItems: LaunchbarItem[];
@@ -67,6 +70,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.date = new Date();
     this.popupVisible = false;
     this.notificationsVisible = false;
@@ -113,6 +117,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     if (this.popupVisible && event
         && !this.userIcon.nativeElement.contains(event.target)
         && this.logoutButton.nativeElement !== event.target
+        && this.passwordButton.nativeElement !== event.target
         // Convenience widgets for testing the i18n work
         // && this.languageButton.nativeElement !== event.target
         // && this.clearLanguageButton.nativeElement !== event.target
@@ -124,7 +129,8 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
     if(this.notificationsVisible && event 
       && !this.notificationIcon.nativeElement.contains(event.target)
-      && this.logoutButton.nativeElement !== event.target) {
+      && this.logoutButton.nativeElement !== event.target
+      && this.passwordButton.nativeElement !== event.target) {
         this.notificationsVisible = false;
     }
   }
@@ -226,6 +232,13 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         }
       }
     }
+  }
+
+  changePassword() {
+    this.popupStateChanged.emit(this.popupVisible);
+    this.pluginManager.findPluginDefinition("org.zowe.zlux.ng2desktop.password-reset").then(res => {
+      this.applicationManager.showApplicationWindow(res as DesktopPluginDefinitionImpl);
+    })
   }
 }
 

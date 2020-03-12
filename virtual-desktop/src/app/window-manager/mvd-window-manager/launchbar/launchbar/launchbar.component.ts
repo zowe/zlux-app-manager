@@ -21,6 +21,8 @@ import { PluginsDataService } from '../../services/plugins-data.service';
 import { TranslationService } from 'angular-l10n';
 import { generateInstanceActions } from '../shared/context-utils';
 
+const SYSTEM_APPS = ['org.zowe.zlux.ng2desktop.settings', 'org.zowe.zlux.ng2desktop.password-reset']
+
 @Component({
   selector: 'rs-com-launchbar',
   templateUrl: './launchbar.component.html',
@@ -69,7 +71,7 @@ export class LaunchbarComponent {
           if (p.identifier === 'org.zowe.zlux.appmanager.app.propview') {
             const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;
             this.propertyWindowPluginDef = pluginImpl;
-          } else if (p.identifier === 'org.zowe.zlux.ng2desktop.settings') { 
+          } else if (SYSTEM_APPS.indexOf(p.identifier) != -1) {
             // UI decision made to not display Settings application with the main application menu.
             // The Settings apps will be accessible via their own dedicated panel, and need not hog the menu.
           } else {
