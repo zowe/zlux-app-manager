@@ -34,7 +34,6 @@
     "ZWED5309I":"Getting recognizers from %s, actions from %s",
     "ZWED5310I":"RESERVED: Simple container requested with pluginId %s",
     "ZWED5311I":"NOT USED",
-    "ZWED5312I":"RESERVED: Tool:",
     "ZWED5313I":"Attempting to set language to %s",
     "ZWED5314I":"Instantiating into DOM=",
     "ZWED5315I":"Could not instantiate into DOM,",

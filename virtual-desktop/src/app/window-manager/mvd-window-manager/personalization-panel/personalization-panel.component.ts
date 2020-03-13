@@ -102,7 +102,6 @@ export class PersonalizationComponent {
   }
 
   openTool (tool:any) {
-    console.log("ZWED5312I - Tool: " + tool);
     let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
     if (propertyWindowID == null) {
       this.desktopComponent.hidePersonalizationPanel();
