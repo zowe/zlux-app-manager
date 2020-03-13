@@ -45,7 +45,7 @@
     "ZWED5321I":"App framework initializing. User agent=%s",
     "ZWED5322I":"ngOnChanges=",
 
-    "ZWED5021W":"App callbacks not registered. Couldn't find instance object or object didn't provide callbacks. App ID=%s, Instance Obj=%s",
+    "ZWED5021W":"App callbacks not registered. Couldn't find instance object or object didn't provide callbacks. App ID=%s, Instance Obj=",
     "ZWED5022W":"Session will expire soon! Logout will occur in %d seconds",
     "ZWED5160W":"Not yet implemented: showapplicationinstancewindow",
     "ZWED5161W":"Attempting to replace an existing viewport id=%s in registration",
