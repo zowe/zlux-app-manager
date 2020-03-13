@@ -9,7 +9,6 @@ dist/*
 dts/*
 web/*
 !web/iframe-adapter.js
-!web/assets
 node_modules/*
 src/uri/*.js
 src/uri/*.js.map

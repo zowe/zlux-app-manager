@@ -95,7 +95,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
               const appInstance = this.applicationInstances.get(instance);
               if (appInstance) {
                 const pluginId = appInstance.plugin.getIdentifier();
-                this.logger.info(`ZWED5043I`, pluginId, instance); /*this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);*/
+                this.logger.info(`ZWED5057I`, pluginId, instance); /*this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);*/
                 return ZoweZLUX.dispatcher.iframeLoaded(instance, pluginId);
               }
             }

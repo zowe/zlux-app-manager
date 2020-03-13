@@ -1,6 +1,5 @@
 {
     "4":"Desktop Resource File",
-    "ZWED5043I":"Iframe loaded: %s, instance=%s",
     "ZWED5044I":"Closing and removing viewport ID=%s",
     "ZWED5045I":"Renewing session",
     "ZWED5046I":"Session renewal successful",
@@ -14,6 +13,7 @@
     "ZWED5054I":"IFrame component factories currently unsupported. Skipping for plugin ID=%s",
     "ZWED5055I":"Loaded %d recognizers for App(%s)",
     "ZWED5056I":"Loaded %d actions for App(%s)",
+    "ZWED5057I":"Iframe loaded: %s, instance=%s",
     "ZWED5292I":"PostMessage for instance=",
     "ZWED5293I":"iframe postMessage failed, no iframe found for %s, id=%s",
     "ZWED5294I":"iframeID found = ",
@@ -28,7 +28,7 @@
     "ZWED5303I":"Done performing post-login actions",
     "ZWED5304I":"User lastActive=%s, now=%s, idle=%s",
     "ZWED5305I":"User activity detected",
-    "ZWED5306I":"%s",
+    "ZWED5306I":"",
     "ZWED5307I":"iframe startingPage ",
     "ZWED5308I":"iframe startingPageUri ",
     "ZWED5309I":"Getting recognizers from %s, actions from %s",
