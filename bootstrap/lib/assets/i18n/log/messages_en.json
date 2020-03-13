@@ -2,7 +2,7 @@
    
 
     "ZWED0000I":"RESERVED: Message sent to %s",
-    "ZWED0001I":"RESERVED: Saw Websocket request, method=%s",
+    "ZWED0001I":"Saw Websocket request, method=%s",
     "ZWED0002I":"RESERVED: Message sent to %s",
 
     "ZWED0002E":"RESERVED: Recipient input cannot be blank",

@@ -15,7 +15,7 @@
     "ZWED5055I":"Loaded %d recognizers for App(%s)",
     "ZWED5056I":"Loaded %d actions for App(%s)",
     "ZWED5292I":"PostMessage for instance=",
-    "ZWED5293I":"iframe postMessage failed, no iframe found for ${applicationInstance.plugin.getIdentifier()}%s, id=%s",
+    "ZWED5293I":"iframe postMessage failed, no iframe found for %s, id=%s",
     "ZWED5294I":"iframeID found = ",
     "ZWED5295I":"appMgr spawning plugin ID=%s, compiled.initialComponent=",
     "ZWED5296I":"setEmbeddedInstanceInput '%s' to value '%s'",

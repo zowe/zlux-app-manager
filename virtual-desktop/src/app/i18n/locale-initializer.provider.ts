@@ -21,6 +21,7 @@ export const localeIdFactory = (localeService: LanguageLocaleService): string =>
   // chicken and egg bootstrapping problem. virtual-desktop wants a particular implementation
   // of globalization that can use cookies set by the browser-preferences service of this plugin
   // We may move that service into zlux-proxy-server, then Globalization can maybe move to bootstrap.
+  logger.info("ZWED5050I")
   if (!(zoweGlobal.globalization instanceof Globalization)) {
     logger.info('ZWED5050I - Setting ZoweZLUX.globalization to an implementation specific to com.rs.mvd.ng2desktop')
     zoweGlobal.globalization = localeService.globalization;
