@@ -76,7 +76,6 @@
     "ZWED5185W":"Attempted to set window title for null window, ID=%s",
     "ZWED5186W":"Attempted to set window title for null window, ID=%s",
     "ZWED5187W":"Attempted to request focus for null window, ID=%s",
-    "ZWED5188W":"Missing library %s",
     "ZWED5189W":"No iframe identified as source of message",
     "ZWED5190W":"Component ref requested before module ref available",
     "ZWED5191W":"Overwriting existing component ref for window",

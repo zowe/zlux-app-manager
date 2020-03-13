@@ -43,7 +43,7 @@ for (const library in libs) {
   if (libs[library]) {
     (window as any).define(library, libs[library]);
   } else {
-    logger.warn("ZWED5188W", library); //logger.warn(`Missing library ${library}`);
+    console.warn(`Missing library ${library}`);
   }
 }
 
