@@ -1,0 +1,12 @@
+:host {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+iframe {
+  flex: 1 1 auto;
+  border: 0;
+}
+

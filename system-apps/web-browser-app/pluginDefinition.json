@@ -1,0 +1,35 @@
+{
+  "identifier": "org.zowe.zlux.ng2desktop.webbrowser",
+  "apiVersion": "1.0.0",
+  "pluginVersion": "1.1.0",
+  "pluginType": "application",
+  "webContent": {
+    "framework": "angular2",
+    "launchDefinition": {
+      "pluginShortNameKey": "webbrowser",
+      "pluginShortNameDefault": "Web Browser",
+      "imageSrc": "assets/icon.png"
+    },
+    "descriptionKey": "webbrowserdescription",
+    "descriptionDefault": "Web Browser Application",
+    "isSingleWindowApp": true,
+    "defaultWindowStyle": {
+      "width": 850,
+      "height": 450
+    }
+  },
+  "dataServices": [
+    {
+      "type": "router",
+      "name": "proxy",
+      "filename": "proxy.js",
+      "routerFactory": "proxyRouter",
+      "dependenciesIncluded": true,
+      "initializerLookupMethod": "external",
+      "version": "1.0.1"
+    }
+  ],
+  "configurationData": {
+    "resources": {}
+  }
+}

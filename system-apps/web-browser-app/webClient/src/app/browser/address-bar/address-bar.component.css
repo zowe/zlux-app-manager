@@ -1,0 +1,8 @@
+:host {
+  flex: 0 0 auto;
+  display: flex;
+}
+
+input {
+  flex: 1 1 auto;
+}
