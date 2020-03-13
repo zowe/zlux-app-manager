@@ -218,7 +218,8 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
           let languageCode = this.l10nConfigService.getDefaultLocale().languageCode; // Figure out the desktop language
           let messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_${languageCode}.json`);
           this.http.get(messageLoc).subscribe( // Try to load log messages of desired language
-          messages => {
+            messages => {
+              if (languageCode != 'en') {
               let messageLocEN = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_en.json`);
               this.http.get(messageLocEN).subscribe( // Try to load English log messages
                 messagesEN => {
@@ -228,8 +229,11 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
                 error => { // If English is not found, just return the previously obtained messages.
                   resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
                 });
+              } else {
+                resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
+              }
           }, error => {
-            if (error.status = 404) { // If log messages are not available in desired language,
+            if (error.status = 404 && languageCode != 'en') { // If log messages are not available in desired language,
               let messageLocEN = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_en.json`); // Default to English
               this.http.get(messageLocEN).subscribe( // ...try English.
                 messages => {
@@ -237,6 +241,8 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
                 }, error => { // In all other cases, load the logger without messages.
                   resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null));
                 });
+            } else {
+              resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null));
             }
           });
         }

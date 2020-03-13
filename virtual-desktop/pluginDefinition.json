@@ -3,8 +3,10 @@
   "apiVersion": "1.1.0",
   "pluginVersion": "0.0.0-zlux.version.replacement",
   "pluginType": "desktop",
+  "license": "EPL-2.0",
+  "homepage": "zowe.org",
   "webContent": {
-    "framework": "angular2"
+    "framework": "angular"
   },
   "configurationData": {
     "resources": {
@@ -33,8 +35,6 @@
         }
       },
       "session": {
-        //this could be used to configure activity idle timeout, time to warn before expiration, and more
-        //as well as max and min username and password lengths, or if another means is being used
         "subResources": {
           "security": {
             "aggregationPolicy": "none",

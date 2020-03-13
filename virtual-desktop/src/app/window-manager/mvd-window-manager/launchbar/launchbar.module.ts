@@ -12,7 +12,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { FormsModule } from '@angular/forms';
 import { SharedModule } from 'app/shared/shared.module';
 
 import { LaunchbarComponent } from './launchbar/launchbar.component';
@@ -30,6 +30,7 @@ import {MAT_SNACK_BAR_DATA} from '@angular/material';
     CommonModule,
     SharedModule,
     MatSnackBarModule,
+    FormsModule
   ],
   declarations: [
     LaunchbarComponent,

@@ -1,5 +1,3 @@
-
-
 <!-- 
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -17,14 +15,19 @@
 
 <ng-template [ngIf]="isActive">
   <div class="launch-widget-popup">
-    <!-- <div class="launch-widget-row" (click)="personalizationPanelToggle()">
-        <img class="icon" src="/ZLUX/plugins/org.zowe.zlux.ng2desktop.settings/web/assets/Settings2.png">
-        <p>Preferences</p>
+    <div style="cursor: pointer" class="refresh-plugins" (click)="refresh()">
+      Refresh applications
+      <i style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></i>
     </div>
-    <hr class="launchbar-separator-hor"> -->
-    <div class="launch-widget-row" *ngFor="let item of menuItems" (click)="clicked(item)" [title]="item.tooltip" (contextmenu)="onRightClick($event, item)">
-      <img class="icon" [src]="item.image">
-      <p>{{item.label}}</p>
+    <div style="margin: 20px"></div>
+    <div class="launch-menu-scroller">
+      <div class="launch-widget-row" *ngFor="let item of displayItems" (click)="clicked(item)" [title]="item.tooltip" (contextmenu)="onRightClick($event, item)">
+        <img class="icon" [src]="item.image">
+        <p>{{item.label}}</p>
+      </div>
+    </div>
+    <div class="launch-menu-search">
+      <input style="width:95%" type="text" placeholder="Search Applications" [(ngModel)]="appFilter" (input)="filterMenuItems()">
     </div>
   </div>
   <div class="launch-widget-caret caret-down"></div>
