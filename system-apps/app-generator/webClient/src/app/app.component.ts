@@ -12,9 +12,6 @@ import { Component, ViewEncapsulation, ViewChild, AfterViewInit, OnInit } from "
 import { HttpClient } from "@angular/common/http";
 import { ZoweApplication } from "./shared/models/application";
 
-var MY_PLUGIN_ID = 'org.zowe.generator';
-declare var ZoweZLUX: any;
-
 @Component({
 	selector: "app-root",
 	encapsulation: ViewEncapsulation.None,
@@ -36,13 +33,11 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
 
 	ngOnInit() {
+    const MY_PLUGIN_ID = ZoweZLUX.iframe.pluginDef.basePlugin.identifier;
     ZoweZLUX.pluginManager.getPlugin(MY_PLUGIN_ID).then(plugin => {
-      console.log('got my plugin=',plugin);
       ZoweZLUX.uriBroker.pluginRESTUri(plugin,'gen','project/get').then(uri => {
-        console.log('my uri=',uri);
         this.http.get(uri)
           .subscribe((res:any)=> {
-            console.log('got my apps=',res);
             this.appList = res;
             window.localStorage.setItem(MY_PLUGIN_ID, JSON.stringify(res));
             /*

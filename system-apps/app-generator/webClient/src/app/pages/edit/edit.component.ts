@@ -13,7 +13,6 @@ import { HttpClient } from "@angular/common/http";
 import { ZoweApplication } from "../../shared/models/application";
 import { ActivatedRoute } from '@angular/router';
 
-var MY_PLUGIN_ID = 'org.zowe.generator';
 const STARTING_CONFIG = {
   "identifier": "",
   "apiVersion": "1.0.0",
@@ -59,6 +58,7 @@ export class EditComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
+      const MY_PLUGIN_ID = ZoweZLUX.iframe.pluginDef.basePlugin.identifier;
       if (window.localStorage.getItem(MY_PLUGIN_ID) != null) {
         let storage = JSON.parse(window.localStorage.getItem(MY_PLUGIN_ID))
         for (let i = 0; i < storage.length; i++) {
@@ -80,19 +80,20 @@ export class EditComponent implements OnInit {
 
   updateApp() {
     let projectInfo = Object.assign({}, STARTING_CONFIG, this.pluginConfig);
-
-    this.http.put(`/ZLUX/plugins/org.zowe.generator/services/gen/1.0.0/project/edit`, projectInfo)
-      .subscribe((res) => {
-        console.log("==============> " + res);
-        let storage = JSON.parse(window.localStorage.getItem(MY_PLUGIN_ID))
-        for (let i = 0; i < storage.length; i++) {
-          if (storage[i].identifier == (res as any).identifier) {
-            storage[i] = res;
-            window.localStorage.setItem(MY_PLUGIN_ID, JSON.stringify(storage));
-            break;
+    const MY_PLUGIN = ZoweZLUX.iframe.pluginDef.basePlugin;
+    ZoweZLUX.uriBroker.pluginRESTUri(MY_PLUGIN,'gen',`project/edit`).then(uri => {
+      this.http.put(uri, projectInfo)
+        .subscribe((res) => {
+          let storage = JSON.parse(window.localStorage.getItem(MY_PLUGIN.identifier))
+          for (let i = 0; i < storage.length; i++) {
+            if (storage[i].identifier == (res as any).identifier) {
+              storage[i] = res;
+              window.localStorage.setItem(MY_PLUGIN.identifier, JSON.stringify(storage));
+              break;
+            }
           }
-        }
-      });
+        });
+    });
   }
 
   editReason() {
@@ -115,7 +116,6 @@ export class EditComponent implements OnInit {
   }
 
   openEditor(pluginConfig) {
-    console.log('do something about',pluginConfig);
     let req = { 
       type: 'openDir',
       name: pluginConfig.location
@@ -131,17 +131,20 @@ export class EditComponent implements OnInit {
   }
 
   deleteApp(id: string) {
-    this.http.delete(`/ZLUX/plugins/org.zowe.generator/services/gen/1.0.0/project/delete/${id}`)
-      .subscribe((res) => {
-        let storage = JSON.parse(window.localStorage.getItem(MY_PLUGIN_ID))
-        for (let i = 0; i < storage.length; i++) {
-          if (storage[i].identifier == id) {
-            storage.splice(i,1);
-            window.localStorage.setItem(MY_PLUGIN_ID, JSON.stringify(storage));
-            break;
+    const MY_PLUGIN = ZoweZLUX.iframe.pluginDef.basePlugin;
+    ZoweZLUX.uriBroker.pluginRESTUri(MY_PLUGIN,'gen',`project/delete/${id}`).then(uri => {
+      this.http.delete(uri)
+        .subscribe((res) => {
+          let storage = JSON.parse(window.localStorage.getItem(MY_PLUGIN.identifier))
+          for (let i = 0; i < storage.length; i++) {
+            if (storage[i].identifier == id) {
+              storage.splice(i,1);
+              window.localStorage.setItem(MY_PLUGIN.identifier, JSON.stringify(storage));
+              break;
+            }
           }
-        }
-      });
+        });
+    });
   }
 }
 

@@ -13,7 +13,6 @@ import { HttpClient } from "@angular/common/http";
 import { ZoweApplication } from "../../shared/models/application";
 import { ListItem } from "carbon-components-angular";
 
-var MY_PLUGIN_ID = 'org.zowe.generator';
 const STARTING_CONFIG = {
   "identifier": "",
   "apiVersion": "1.0.0",
@@ -106,19 +105,22 @@ export class CreateComponent implements OnInit, AfterViewInit {
       projectInfo.webContent.standaloneUseFramework = true;
       projectInfo.webContent.startingPage = "html/index.html";
     }
-    this.http.post(`/ZLUX/plugins/org.zowe.generator/services/gen/1.0.0/project/create`, projectInfo)
-      .subscribe((res:any) => {
-        let appList;
-        
-        if (window.localStorage.getItem(MY_PLUGIN_ID) != null) {
-          appList = JSON.parse(window.localStorage.getItem(MY_PLUGIN_ID));
-        } else {
-          appList = [];
-        }
-        projectInfo.location = res.location;
-        appList.push(projectInfo);
-        window.localStorage.setItem(MY_PLUGIN_ID, JSON.stringify(appList));
-      });
+    const MY_PLUGIN = ZoweZLUX.iframe.pluginDef.basePlugin;
+    ZoweZLUX.uriBroker.pluginRESTUri(MY_PLUGIN,'gen','project/create').then(uri => {
+      this.http.post(uri, projectInfo)
+        .subscribe((res:any) => {
+          let appList;
+
+          if (window.localStorage.getItem(MY_PLUGIN.identifier) != null) {
+            appList = JSON.parse(window.localStorage.getItem(MY_PLUGIN.identifer));
+          } else {
+            appList = [];
+          }
+          projectInfo.location = res.location;
+          appList.push(projectInfo);
+          window.localStorage.setItem(MY_PLUGIN.identifier, JSON.stringify(appList));
+        });
+    });
   }
 }
 
