@@ -52,7 +52,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     (window as any).ZoweZLUX.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
       return this.pluginManager.findPluginDefinition(zluxPlugin.getIdentifier()).then(plugin => {
         if (plugin == null) {
-          throw new Error('Unknown plugin in launch handler '+zluxPlugin);
+          throw new Error('ZWED5146E - Unknown plugin in launch handler '+zluxPlugin);
         }
         return this.spawnApplication(plugin as DesktopPluginDefinitionImpl, metadata);
       });
@@ -72,11 +72,11 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
            if (secondIframe) {
              theIframe = secondIframe;
            }
-           this.logger.debug(`PostMessage for instance=`,applicationInstance);
+           this.logger.debug(`ZWED5292I`, applicationInstance); //this.logger.debug(`PostMessage for instance=`,applicationInstance);
            let iframeWindow:Window|null = (theIframe as HTMLIFrameElement).contentWindow!;
            iframeWindow.postMessage(message, "*");
          } else {
-           this.logger.warn(`iframe postMessage failed, no iframe found for ${applicationInstance.plugin.getIdentifier()}, id=${instanceId}`);
+          this.logger.warn("ZWED5293I", applicationInstance.plugin.getIdentifier(),instanceId); //this.logger.warn(`iframe postMessage failed, no iframe found for ${applicationInstance.plugin.getIdentifier()}, id=${instanceId}`);
          }
        }
     });
@@ -95,13 +95,13 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
               const appInstance = this.applicationInstances.get(instance);
               if (appInstance) {
                 const pluginId = appInstance.plugin.getIdentifier();
-                this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);
+                this.logger.info(`ZWED5057I`, pluginId, instance); /*this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);*/
                 return ZoweZLUX.dispatcher.iframeLoaded(instance, pluginId);
               }
             }
           }
         });
-        this.logger.warn(`No iframe identified as source of message`);
+        this.logger.warn(`ZWED5189W`); //this.logger.warn(`No iframe identified as source of message`);
       }
     });
   }
@@ -127,16 +127,16 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
   private generateComponentRefFor(instance: ApplicationInstance, viewportId: MVDHosting.ViewportId, component: Type<any>): void {
     if (instance.moduleRef == null) {
-      this.logger.warn('Component ref requested before module ref available');
+      this.logger.warn('ZWED5190W'); //this.logger.warn('Component ref requested before module ref available');
       return;
     } else if (instance.viewportContents.get(viewportId) != null) {
-      this.logger.warn('Overwriting existing component ref for window');
+      this.logger.warn('ZWED5191W'); //this.logger.warn('Overwriting existing component ref for window');
     }
 
     const viewport = this.viewportManager.getViewport(viewportId);
 
     if (viewport == null) {
-      throw new Error('Unknown viewport when requesting component generation');
+      throw new Error('ZWED5147E - Unknown viewport when requesting component generation');
     }
 
     const factory = instance.moduleRef.componentFactoryResolver.resolveComponentFactory(component);
@@ -150,13 +150,13 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     if (instanceOfComponent.iframeId){
       instance.isIFrame = true;
       instance.iframeId = instanceOfComponent.iframeId;
-      this.logger.debug("iframeID found = ",instance.iframeId);
+      this.logger.debug("ZWED5294I", instance.iframeId); //this.logger.debug("iframeID found = ",instance.iframeId);
     }
   }
 
   private generateMainComponentRefFor(instance: ApplicationInstance, viewportId: MVDHosting.ViewportId): void {
     if (instance.mainComponent == null) {
-      throw new Error('Plugin does not have a main component to generate');
+      throw new Error('ZWED5150E - Plugin does not have a main component to generate'); //throw new Error('Plugin does not have a main component to generate');
     }
 
     this.generateComponentRefFor(instance, viewportId, instance.mainComponent);
@@ -177,8 +177,8 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
       const injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata, applicationInstance.instanceId, messages);
     
       this.instantiateApplicationInstance(applicationInstance, compiled.moduleFactory, injector);
-      this.logger.debug(`appMgr spawning plugin ID=${plugin.getIdentifier()}, `
-                        +`compiled.initialComponent=`,compiled.initialComponent);
+      this.logger.debug("ZWED5295I", plugin.getIdentifier(), compiled.initialComponent); //this.logger.debug(`appMgr spawning plugin ID=${plugin.getIdentifier()}, `
+                        //+`compiled.initialComponent=`,compiled.initialComponent);
       applicationInstance.setMainComponent(compiled.initialComponent); 
       this.generateMainComponentRefFor(applicationInstance, viewportId);   // new component is added to DOM here
 
@@ -195,8 +195,9 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
       if (notATurtle && (typeof notATurtle.provideZLUXDispatcherCallbacks == 'function')) {
         ZoweZLUX.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
       } else if (!applicationInstance.isIFrame) {
-        this.logger.info(`App callbacks not registered. Couldn't find instance object or object didn't provide callbacks.`
-                        +`App ID=${plugin.getIdentifier()}, Instance Obj=`,notATurtle); 
+        this.logger.info(`ZWED5021W`, plugin.getIdentifier(), JSON.stringify(notATurtle))
+        /*this.logger.info(`App callbacks not registered. Couldn't find instance object or object didn't provide callbacks.`
+                        +`App ID=${plugin.getIdentifier()}, Instance Obj=`,notATurtle); */
       }
 
 
@@ -322,7 +323,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
 
   showApplicationInstanceWindow(plugin: DesktopPluginDefinitionImpl, viewportId: MVDHosting.ViewportId): void {
-    this.logger.warn('Not yet implemented: showapplicationinstancewindow');
+    this.logger.warn('ZWED5160W'); //this.logger.warn('Not yet implemented: showapplicationinstancewindow');
   }
 
   isApplicationRunning(plugin: DesktopPluginDefinitionImpl): boolean {
@@ -354,7 +355,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
   
   setEmbeddedInstanceInput(embeddedInstance: EmbeddedInstance, input: string, value: any): void {
-    this.logger.debug(`setEmbeddedInstanceInput '${input}' to value '${value}'`);
+    this.logger.debug("ZWED5296I", input, value); //this.logger.debug(`setEmbeddedInstanceInput '${input}' to value '${value}'`);
     let appInstance = this.applicationInstances.get(embeddedInstance.instanceId);
     if (appInstance == undefined) {
       return;
@@ -382,7 +383,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
   
   getEmbeddedInstanceOutput(embeddedInstance: EmbeddedInstance, output: string): Observable<any> | undefined {
-    this.logger.debug(`getEmbeddedInstanceOutput '${output}'`);
+    this.logger.debug("ZWED5297I", output); //this.logger.debug(`getEmbeddedInstanceOutput '${output}'`);
     let appInstance = this.applicationInstances.get(embeddedInstance.instanceId);
     if (appInstance !== undefined) {
       const componentRef = appInstance.viewportContents.get(embeddedInstance.viewportId);

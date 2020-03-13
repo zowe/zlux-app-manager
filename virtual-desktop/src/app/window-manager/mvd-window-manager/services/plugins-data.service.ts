@@ -85,7 +85,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
     this.http.put(uri, params).subscribe((res) => {
       this.pinnedPlugins = this.getMatchingPlugins(this.accessiblePlugins, plugins);
     }, (err)=> {
-      this.logger.warn(`Could not update pinned plugins, err=${err}`);
+      this.logger.warn("ZWED5179W", err); //this.logger.warn(`Could not update pinned plugins, err=${err}`);
     });
   }
 
@@ -95,7 +95,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
       this.pluginManager.findPluginDefinition(p)
         .then(res => {
           if (res == null) {
-            this.logger.warn(`Bad Plugin Definition for plugin=${p}`)
+            this.logger.warn("ZWED5180W", p) //this.logger.warn(`Bad Plugin Definition for plugin=${p}`)
           } else {
             for (let i = 0; i < items.length; i++) {
               if (items[i].plugin.getKey() == (res as DesktopPluginDefinitionImpl).getKey()) {

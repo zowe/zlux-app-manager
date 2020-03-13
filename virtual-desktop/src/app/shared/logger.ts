@@ -41,5 +41,5 @@ fetch(messageLoc) // Attempt to find log messages for global language
 });
 
 function afterBaseLoggerInit() {
-  BaseLogger.info(`App framework initializing. User agent=${navigator.userAgent}`);
+  BaseLogger.info(`ZWED5321I`, navigator.userAgent); //BaseLogger.info(`App framework initializing. User agent=${navigator.userAgent}`);
 }

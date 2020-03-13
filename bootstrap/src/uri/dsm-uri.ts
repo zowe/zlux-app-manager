@@ -11,6 +11,7 @@
 */
 
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager' 
+import { bootstrapLogger } from '../bootstrap/dsm-resources'
 
 const proxy_path = 'zowe-zlux';
 const proxy_mode = (window.location.pathname.split('/')[1] == proxy_path) ? true : false;
@@ -89,7 +90,7 @@ export class DsmUri implements ZLUX.UriBroker {
     if (desktopPlugin != null) {
       return this.pluginServletUri() + `?pluginResourceUri=` + this.pluginRootUri(desktopPlugin);
     } else {
-      throw new Error("The desktop plugin has not been bootstrapped");
+      throw new Error("ZWED5014E - The desktop plugin has not been bootstrapped");
     }
   }
 
@@ -121,8 +122,8 @@ export class DsmUri implements ZLUX.UriBroker {
     //const protocol = window.location.protocol;
     //const wsProtocol = (protocol === 'https:') ? 'wss:' : 'ws:';        
     // return protocol+'://'+host+`/ZLUX/plugins/${pluginDefinition.getIdentifier()}/services/data`+relativePath;
-    console.warn("pluginWSUri not implemented yet!", pluginDefinition, 
-        serviceName, relativePath, version);
+    bootstrapLogger.warn("ZWED5001W", pluginDefinition, serviceName, relativePath, version); //console.warn("pluginWSUri not implemented yet!", pluginDefinition, 
+        //serviceName, relativePath, version);
     return "";
   }
 
