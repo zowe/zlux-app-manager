@@ -22,7 +22,6 @@
     "@angular/platform-browser": "~6.0.9",
     "@angular/platform-browser-dynamic": "~6.0.9",
     "@angular/router": "~6.0.9",
-    "@zlux/widgets": "https://github.com/zowe/zlux-widgets.git",
     "angular-l10n": "5.2.0",
     "angular2-template-loader": "~0.6.2",
     "codelyzer": "~4.4.2",

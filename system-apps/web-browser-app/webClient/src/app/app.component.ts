@@ -12,7 +12,6 @@
 
 import { Component, Inject } from '@angular/core';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
-import { ZluxPopupManagerService } from '@zlux/widgets';
 
 import { LocaleService, TranslationService } from 'angular-l10n';
 
@@ -20,7 +19,6 @@ import { LocaleService, TranslationService } from 'angular-l10n';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  providers: [ZluxPopupManagerService]
 })
 export class AppComponent {
 
@@ -30,9 +28,7 @@ export class AppComponent {
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) public pluginDefinition: ZLUX.ContainerPluginDefinition,
     @Inject(Angular2InjectionTokens.LOGGER) public log: ZLUX.ComponentLogger,
     @Inject(Angular2InjectionTokens.LAUNCH_METADATA) public launchMetadata: any,
-    public popupManager: ZluxPopupManagerService
   ) {
-    this.popupManager.setLogger(log);
   }
 
   ngOnInit(): void {
