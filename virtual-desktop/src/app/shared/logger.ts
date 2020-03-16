@@ -18,7 +18,7 @@ let messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin, `assets/i18n/log/m
 fetch(messageLoc) // Attempt to find log messages for global language
 .then((resp) => resp.json())
 .then(function(messages) {
-    BaseLogger._messages = messages;
+    BaseLogger._setMessages(messages);
     afterBaseLoggerInit();
 })
   .catch(function() { // If it doesn't work...
@@ -29,7 +29,7 @@ fetch(messageLoc) // Attempt to find log messages for global language
       fetch(messageLoc)
         .then((resp) => resp.json())
         .then(function(messages) {
-          BaseLogger._messages = messages;
+          BaseLogger._setMessages(messages);
           afterBaseLoggerInit();
         })
         .catch(function() { // If that still doesn't work, just do nothing...

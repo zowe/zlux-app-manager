@@ -59,7 +59,9 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   }
 
   closeAllWindows(): void {
-    this.closeWindow(1);
+    //Doing this would leave you with nothing at all, so ignore
+    //Also, onLogin logic in authmgr could call this, so if behavior is ever changed keep this in mind.
+    //this.closeWindow(1);
   }
 
   showWindow(windowId: MVDWindowManagement.WindowId): void {
