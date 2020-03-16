@@ -19,6 +19,7 @@ if (process.env.MVD_DESKTOP_DIR == null) {
 }
 
 var config = {
+  mode: 'development',
   'entry': [
     path.resolve(__dirname, './src/plugin.ts')
   ],

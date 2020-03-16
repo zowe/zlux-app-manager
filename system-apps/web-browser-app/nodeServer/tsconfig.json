@@ -4,6 +4,7 @@
     "ts/*.ts"
   ],
   "compilerOptions": {
+    "target": "ES5",
     "outDir": "../lib",
     "sourceMap": true,
     "allowJs": true,
@@ -11,6 +12,8 @@
     "types": [
       "node",
       "express"
-    ]
+    ],
+    "lib": ["es6"],
+    "esModuleInterop": true
   }
 }

@@ -13,8 +13,7 @@ import { BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class NavigationService {
-
-  readonly startPage = 'https://zowe.org';
+  readonly startPage = '/ZLUX/plugins/org.zowe.zlux.ng2desktop.webbrowser/services/proxy/1.0.1';
   urlSubject = new BehaviorSubject<string>(this.startPage);
   history: string[] = [];
 
