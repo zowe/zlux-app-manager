@@ -20,7 +20,15 @@ iframe {
   border: 0;
 }
 
-
+.welcome {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 500;
+}
 
 /*
   This program and the accompanying materials are

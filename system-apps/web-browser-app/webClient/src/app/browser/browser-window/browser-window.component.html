@@ -8,9 +8,11 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<iframe *ngIf="url$ | async else startPage" [src]="url$ | async"></iframe>
+<iframe *ngIf="url else startPage" [src]="url"></iframe>
 <ng-template #startPage>
-  Welcome to Zowe Web Browser
+  <div class="welcome">
+    Welcome to Zowe Web Browser
+  </div>
 </ng-template>
 
 <!--

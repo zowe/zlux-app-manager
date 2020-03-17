@@ -11,8 +11,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NavigationService } from '../services/navigation.service';
-import { map, mergeMap, tap } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
+import { map, mergeMap, tap, mapTo, distinctUntilChanged } from 'rxjs/operators';
+import { Observable, of, Subscription } from 'rxjs';
 import { ProxyService, ProxyServerResult } from '../services/proxy.service';
 
 @Component({
@@ -21,17 +21,19 @@ import { ProxyService, ProxyServerResult } from '../services/proxy.service';
   styleUrls: ['./browser-window.component.css']
 })
 export class BrowserWindowComponent implements OnInit, OnDestroy {
-  url$: Observable<SafeResourceUrl>;
-  currentProxyPort: number = 123;
+  currentProxyPort: number;
+  url: SafeResourceUrl;
+  urlSubscription: Subscription;
 
   constructor(
     private domSanitizer: DomSanitizer,
     private navigation: NavigationService,
     private proxy: ProxyService,
   ) {
-    this.url$ = this.navigation.urlSubject.pipe(
+    this.urlSubscription = this.navigation.urlSubject.pipe(
+      distinctUntilChanged(),
       tap(url => console.log(`url is ${url}`)),
-      mergeMap(url => this.deletePreviousProxyServerIfNeeded().pipe(map(() => url))),
+      mergeMap(url => this.deletePreviousProxyServerIfNeeded().pipe(mapTo(url))),
       tap(url => console.log(`url is ${url}`)),
       mergeMap(url => this.proxy.create(url)),
       map((result: ProxyServerResult) => result.port),
@@ -40,22 +42,25 @@ export class BrowserWindowComponent implements OnInit, OnDestroy {
       map(port => `https://${location.hostname}:${port}/`),
       tap(url => console.log(`proxy url is ${url}`)),
       map(url => this.domSanitizer.bypassSecurityTrustResourceUrl(url)),
-    );
+    ).subscribe(url => this.url = url);
   }
 
   ngOnInit(): void {
   }
 
-  private deletePreviousProxyServerIfNeeded(): Observable<void> {
+  private deletePreviousProxyServerIfNeeded(): Observable<void | null> {
     console.log(`deletePreviousProxyServerIfNeeded port = ${this.currentProxyPort}`)
     if (this.currentProxyPort) {
       return this.proxy.delete(this.currentProxyPort);
     }
-    return of();
+    return of(null);
   }
 
   ngOnDestroy(): void {
     this.deletePreviousProxyServerIfNeeded().subscribe();
+    if (this.urlSubscription) {
+      this.urlSubscription.unsubscribe();
+    }
   }
 
 }
