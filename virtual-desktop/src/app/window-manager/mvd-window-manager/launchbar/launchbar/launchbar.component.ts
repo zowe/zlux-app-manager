@@ -44,6 +44,7 @@ export class LaunchbarComponent {
   helperLoggedIn: boolean;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+  private pluginManager: MVDHosting.PluginManagerInterface;
   propertyWindowPluginDef: DesktopPluginDefinitionImpl;
   
    constructor(
@@ -55,31 +56,28 @@ export class LaunchbarComponent {
      // Workaround for AoT problem with namespaces (see angular/angular#15613)
      this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
      this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
+     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
      this.allItems = [];
      this.runItems = [];
      this.isActive = false;
      this.contextMenuRequested = new Subject();
      this.loggedIn = false;
      this.helperLoggedIn = false; //helperLoggedIn is to indicate when the initial login happens
+     this.pluginManager.pluginsAdded.subscribe((plugins:MVDHosting.DesktopPluginDefinition[])=> {
+       plugins.forEach((p: any)=> {
+         let pluginDef = p.getBasePlugin().getBasePlugin();
+         if (pluginDef.identifier === 'org.zowe.zlux.appmanager.applugin.propview') {
+           this.propertyWindowPluginDef = p;
+         } else if (!pluginDef.isSystemPlugin && pluginDef.webContent) {
+           this.allItems.push(new PluginLaunchbarItem(p, this.windowManager));
+         }
+       });
+       this.pluginsDataService.refreshPinnedPlugins(this.allItems);
+     });
    }
-  
-  getAllItems(): void {
-    this.allItems = [];
-    ZoweZLUX.pluginManager.loadPlugins('application').then((plugins: Plugin[]) => {
-      plugins.forEach((p: any)=> {
-        if (p.webContent != null) {
-          if (p.identifier === 'org.zowe.zlux.appmanager.app.propview') {
-            const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;
-            this.propertyWindowPluginDef = pluginImpl;
-          } else if (SYSTEM_APPS.indexOf(p.identifier) != -1) {
-            // UI decision made to not display Settings application with the main application menu.
-            // The Settings apps will be accessible via their own dedicated panel, and need not hog the menu.
-          } else {
-            this.allItems.push(new PluginLaunchbarItem(new DesktopPluginDefinitionImpl(p), this.windowManager));
-          }
-        }
-      })
-    });
+
+  getNewItems(): void {
+    this.pluginManager.loadApplicationPluginDefinitions(true);
   }
 
   ngDoCheck(): void {
@@ -91,11 +89,7 @@ export class LaunchbarComponent {
       this.helperLoggedIn = false;
     }
     if (this.loggedIn) {
-      if(this.helperLoggedIn != true){
-        this.getAllItems();
-        this.pluginsDataService.refreshPinnedPlugins(this.allItems);
-        this.helperLoggedIn = true;
-      }
+      this.helperLoggedIn = true;
     }
   }
 

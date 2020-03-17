@@ -90,17 +90,17 @@ export class LoginComponent implements OnInit {
         this.needLogin = true;
         break;
       default:
-        this.logger.warn('Ignoring unknown login screen change reason='+eventReason);
+        this.logger.warn('ZWED5168W', eventReason); //this.logger.warn('Ignoring unknown login screen change reason='+eventReason);
       }
       this.isLoading = false;
     });
     this.authenticationService.loginExpirationIdleCheck.subscribe((e: LoginExpirationIdleCheckEvent)=> {
       //it's not just about if its idle, but how long we've been idle for or when we were last active
       if (!this.isIdle()) {
-        this.logger.info('Near session expiration, but renewing session due to activity');
+        this.logger.info('ZWED5047I'); /*this.logger.info('Near session expiration, but renewing session due to activity');*/
         this.renewSession();
       } else {
-        this.logger.info('Near session expiration. No activity detected, prompting to renew session');
+        this.logger.info('ZWED5048I'); /*this.logger.info('Near session expiration. No activity detected, prompting to renew session');*/
         this.idleWarnModal = this.popupManager.createErrorReport(
           ZluxErrorSeverity.WARNING,
           this.translation.translate('Session Expiring Soon'),
@@ -123,7 +123,7 @@ export class LoginComponent implements OnInit {
 
   private isIdle(): boolean {
     let idle = (Date.now() - this.lastActive) > ACTIVITY_IDLE_TIMEOUT_MS;
-    this.logger.debug(`User lastActive=${this.lastActive}, now=${Date.now()}, idle={idle}`);
+    this.logger.debug("ZWED5304I", this.lastActive, Date.now(), idle); //this.logger.debug(`User lastActive=${this.lastActive}, now=${Date.now()}, idle={idle}`);
     return idle;
   }
 
@@ -198,7 +198,7 @@ export class LoginComponent implements OnInit {
   }
 
   detectActivity(): void {
-    this.logger.debug('User activity detected');
+    this.logger.debug('ZWED5305I'); //this.logger.debug('User activity detected');
     this.lastActive = Date.now();
     if (this.idleWarnModal) {
       this.popupManager.removeReport(this.idleWarnModal.id); 

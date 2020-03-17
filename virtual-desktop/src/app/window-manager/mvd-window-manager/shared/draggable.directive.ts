@@ -13,13 +13,13 @@
 import { Directive, ElementRef, HostListener, Input, OnInit } from '@angular/core';
 
 import { DesktopWindow } from './desktop-window';
-import { BaseLogger } from 'virtual-desktop-logger';
+//import { BaseLogger } from 'virtual-desktop-logger';
 
 @Directive({
   selector: '[rs-com-draggable]'
 })
 export class DraggableDirective implements OnInit {
-  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  //private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private static readonly draggleCss = ' cursor-draggable';
 
   @Input('rs-com-draggable-window') desktopWindow: DesktopWindow;
@@ -66,7 +66,7 @@ export class DraggableDirective implements OnInit {
 
   @HostListener('mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
-    this.logger.debug('Draggable=Down');
+    //this.logger.debug('Draggable=Down');
 
     if (!this.draggable || event.button === 2 || (this.handle !== undefined && event.target !== this.handle)) {
       return;
