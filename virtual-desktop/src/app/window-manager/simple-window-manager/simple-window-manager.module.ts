@@ -17,6 +17,7 @@ import { SimpleWindowManagerService } from './simple-window-manager.service';
 import { SimpleComponent } from './simple.component';
 import { ApplicationManagerModule } from '../../application-manager/application-manager.module';
 import { AuthenticationModule } from '../../authentication-manager/authentication-manager.module';
+import { ContextMenuComponent } from '../mvd-window-manager/context-menu/context-menu.component';
 
 @NgModule({
   imports: [
@@ -25,7 +26,8 @@ import { AuthenticationModule } from '../../authentication-manager/authenticatio
     CommonModule,
   ],
   declarations: [
-    SimpleComponent
+    SimpleComponent,
+    ContextMenuComponent
   ],
   exports: [
 
