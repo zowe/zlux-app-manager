@@ -13,7 +13,13 @@ import httpProxy from 'http-proxy';
 import express from 'express';
 import Promise from 'bluebird';
 import http from "http";
+import https from "https";
 import fs from 'fs';
+
+interface CheckURLResult {
+  redirect: boolean;
+  location?: string;
+}
 
 class ProxyDataService {
   private context: any;
@@ -31,12 +37,18 @@ class ProxyDataService {
   private handleNewProxyServerRequest(req: Request, res: Response) {
     const url = req.body.url;
     this.context.logger.info(`proxy got post request for url=${url}`);
-    const port = this.lastPort;
-    this.lastPort++;
-    const proxyServer = this.startProxyServer(url, port);
-    this.proxyServerByPort.set(port, proxyServer);
-    this.context.logger.info(`created proxy for ${url} on port ${port}`);
-    res.status(200).json({ port });
+    this.checkURL(url).then(redirectResult => {
+      let newURL = url;
+      if (redirectResult.redirect) {
+        newURL = redirectResult.location;
+      }
+      const port = this.lastPort;
+      this.lastPort++;
+      const proxyServer = this.startProxyServer(newURL, port);
+      this.proxyServerByPort.set(port, proxyServer);
+      this.context.logger.info(`created proxy for ${url} (${newURL}) on port ${port}`);
+      res.status(200).json({ port });
+    });
   }
 
   private handleDeleteProxyServerRequest(req: Request, res: Response) {
@@ -93,12 +105,27 @@ class ProxyDataService {
     res.end(`Connection reset: ${JSON.stringify(err, null, 2)}`);
   }
 
+  private checkURL(url: string) {
+    return new Promise((resolve, reject) => {
+      https.get(url, (res: http.IncomingMessage) => {
+        const { statusCode, headers } = res;
+        console.log(`statusCode ${statusCode}`);
+        console.log(`headers ${JSON.stringify(headers, null, 2)}`);
+        if (statusCode === 301) {
+          resolve({redirect: true, location: headers['location']});
+        } else {
+          resolve({redirect: false});
+        }
+      });
+    });
+  }
+
   getRouter(): Router {
     return this.router;
   }
 }
 
-exports.proxyRouter = function (context: any): Router {
+exports.proxyRouter = function (context: any) {
   return new Promise(function (resolve, reject) {
     const dataService = new ProxyDataService(context);
     resolve(dataService.getRouter());
