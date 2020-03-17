@@ -47,7 +47,10 @@ export type LoginExpirationIdleCheckEvent = {
 export enum LoginScreenChangeReason {
   UserLogout,
   UserLogin,
-  SessionExpired
+  SessionExpired,
+  PasswordChange,
+  PasswordChangeSuccess,
+  HidePasswordChange
 };
 
 @Injectable()
@@ -240,9 +243,9 @@ export class AuthenticationManager {
     });
   }
 
-  performPasswordReset(username: string, password: string, newPassword: string): Observable<Response> {
+  performPasswordReset(username: string, password: string, newPassword: string, serviceHandler: string): Observable<Response> {
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-password'),
-                          {username: username, password: password, newPassword: newPassword})
+                          {username: username, password: password, newPassword: newPassword, serviceHandler: serviceHandler})
     .map(result => {
       return result
     })
@@ -277,6 +280,18 @@ export class AuthenticationManager {
         (ZoweZLUX.logger as any)._setBrowserUsername('N/A');
         return response;
       });
+  }
+
+  requestPasswordChangeScreen() {
+    this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.PasswordChange);
+  }
+
+  hidePasswordChangeScreen() {
+    this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.HidePasswordChange);
+  }
+
+  passwordChangeSuccessfulScreen() {
+    this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.PasswordChangeSuccess);
   }
 }
 

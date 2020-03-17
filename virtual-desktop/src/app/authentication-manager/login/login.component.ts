@@ -20,6 +20,8 @@ import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { BaseLogger } from 'virtual-desktop-logger';
 
 const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
+const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
+const ZSS_AUTH = "org.zowe.zlux.auth.zss"
 
 @Component({
   selector: 'rs-com-login',
@@ -30,12 +32,15 @@ export class LoginComponent implements OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   logo: string = require('../../../assets/images/login/Zowe_Logo.png');
+  passwordLogo: string = require('../../../assets/images/login/password-reset.png');
   isLoading:boolean;
   needLogin:boolean;
+  changePassword:boolean;
   locked: boolean;
   username: string;
   password: string;
   newPassword: string;
+  confirmNewPassword: string;
   errorMessage: string | null;
   loginMessage: string;
   private idleWarnModal: any;
@@ -50,10 +55,12 @@ export class LoginComponent implements OnInit {
   ) {
     this.isLoading = true;
     this.needLogin = false;
+    this.changePassword = false;
     this.locked = false;
     this.username = '';
     this.password = '';
     this.newPassword = '';
+    this.confirmNewPassword = '';
     this.errorMessage = null;
     this.expiredPassword = false;
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
@@ -64,6 +71,15 @@ export class LoginComponent implements OnInit {
       case LoginScreenChangeReason.UserLogin:
         this.errorMessage = '';
         this.needLogin = false;
+        break;
+      case LoginScreenChangeReason.PasswordChange:
+        this.changePassword = true;
+        break;
+      case LoginScreenChangeReason.PasswordChangeSuccess:
+        this.changePassword = false;
+        break;
+      case LoginScreenChangeReason.HidePasswordChange:
+        this.changePassword = false;
         break;
       case LoginScreenChangeReason.SessionExpired:
         if (this.idleWarnModal) {
@@ -173,7 +189,11 @@ export class LoginComponent implements OnInit {
 
   considerSubmit(event: KeyboardEvent): void {
     if (event.keyCode === 13) {
-      this.attemptLogin();
+      if (this.needLogin && !this.expiredPassword) {
+        this.attemptLogin();
+      } else if (this.expiredPassword || this.changePassword) {
+        this.attemptPasswordReset();
+      }
     }
   }
 
@@ -186,36 +206,39 @@ export class LoginComponent implements OnInit {
     }    
   }
 
-  cancelPasswordReset(): void {
-    this.loginMessage = "";
-    this.errorMessage = "";
-    this.expiredPassword = false;
-  }
-
-  loginMiddleman(): void {
-    if (this.expiredPassword) {
-      this.attemptPasswordReset();
-    } else {
-      this.attemptLogin();
-    }
-  }
-
   attemptPasswordReset(): void {
-    this.authenticationService.performPasswordReset(this.username, this.password, this.newPassword).subscribe(
-      result => {
-        let jsonMessage = result.json();
-        this.expiredPassword = false;
-        this.loginMessage = jsonMessage.categories.zss.plugins['org.zowe.zlux.auth.zss'].response;
-        this.errorMessage = "";
-        this.password = '';
-        this.newPassword = '';
-      },
-      error => {
-        let jsonMessage = error.json();
-        this.loginMessage = "";
-        this.errorMessage = "Error: " + jsonMessage.categories.zss.plugins['org.zowe.zlux.auth.zss'].response;
-      }
-    )
+    if (this.newPassword != this.confirmNewPassword) {
+      this.errorMessage = "New passwords do not match. Please try again.";
+    } else if (this.newPassword.length == 0) {
+      this.errorMessage = "No new password provided";
+    } else if (this.confirmNewPassword.length == 0) {
+      this.errorMessage = "Confirmation password not provided"
+    } else {
+      this.authenticationService.performPasswordReset(this.username, this.password, this.newPassword, ZSS_AUTH).subscribe(
+        result => {
+          if (this.needLogin) {
+            this.password = this.newPassword;
+            this.attemptLogin();
+          }
+          if (this.expiredPassword) {
+            this.expiredPassword = false;
+          }
+          if (this.changePassword) {
+            this.authenticationService.passwordChangeSuccessfulScreen();
+          }
+          this.loginMessage = "";
+          this.errorMessage = "";
+          this.password = '';
+          this.newPassword = '';
+          this.confirmNewPassword = '';
+        },
+        error => {
+          let jsonMessage = error.json();
+          this.loginMessage = "";
+          this.errorMessage = "Error: " + jsonMessage.response;
+        }
+      )
+    }
   }
 
   attemptLogin(): void {
@@ -251,9 +274,9 @@ export class LoginComponent implements OnInit {
                 failedTypes.push(keys[i]);
               }
             }
-            if (error.status == 428) {
+            if (error.status == HTTP_STATUS_PRECONDITION_REQUIRED) {
               this.expiredPassword = true;
-              this.loginMessage = "Password Expired: Need new password";
+              this.loginMessage = "Password Expired: Please enter a new password";
             } else {
               this.errorMessage = this.translation.translate('AuthenticationFailed',
               { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
@@ -271,6 +294,24 @@ export class LoginComponent implements OnInit {
 
   getPluginVersion(): string | null {
     return "v. " + this.plugin.version;
+  }
+
+  backButton(): void {
+    if (this.changePassword) {
+      this.authenticationService.hidePasswordChangeScreen();
+      this.loginMessage = "";
+      this.errorMessage = "";
+      this.password = "";
+      this.newPassword = "";
+      this.confirmNewPassword = "";
+    }
+    if (this.expiredPassword) {
+      this.expiredPassword = false;
+      this.loginMessage = "";
+      this.errorMessage = "";
+      this.newPassword = "";
+      this.confirmNewPassword = "";
+    }
   }
 }
 

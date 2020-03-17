@@ -12,7 +12,6 @@
 
 <div class="launchbar-user-popup" [class.hidden]="!popupVisible">
   <h5 class="launchbar-username">{{getUsername()}}</h5>
-  <button #passwordbutton class="btn btn-primary launchbar-button-password" (click)="changePassword()">Change Password</button>
   <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()"
     i18n="signout button|Title of Sign out button@@signout-button-title">Log out</button>
   <h6 class="launchbar-plugin-version">{{getPluginVersion()}}</h6>

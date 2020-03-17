@@ -15,6 +15,9 @@ import { Http, Response } from '@angular/http';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { AuthenticationManager, LoginScreenChangeReason } from '../../../authentication-manager/authentication-manager.service';
+import { DesktopWindow } from '../shared/desktop-window';
+import { DesktopWindowStateType } from '../shared/desktop-window-state';
 
 @Component({
   selector: 'rs-com-mvd-desktop',
@@ -24,20 +27,78 @@ export class DesktopComponent {
 contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
 private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 public isPersonalizationPanelVisible: boolean;
+private needLogin: boolean;
+private changePassword: boolean;
+private previousOpenWindows: DesktopWindow[];
 constructor(
     public windowManager: WindowManagerService,
+    private authenticationService: AuthenticationManager,
     private http: Http,
     private injector: Injector
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.contextMenuDef = null;
+    this.needLogin = true;
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
+    this.previousOpenWindows = []
+    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
+      switch (eventReason) {
+      case LoginScreenChangeReason.UserLogout:
+        this.needLogin = true;
+        break;
+      case LoginScreenChangeReason.UserLogin:
+        this.needLogin = false;
+        break;
+      case LoginScreenChangeReason.SessionExpired:
+        this.needLogin = true;
+        break;
+      case LoginScreenChangeReason.PasswordChange:
+        this.hideVisibleApplications();
+        this.changePassword = true;
+        this.hidePersonalizationPanel();
+        break;
+      case LoginScreenChangeReason.PasswordChangeSuccess:
+        this.changePassword = false;
+        this.hidePersonalizationPanel();
+        this.showPreviouslyVisibleApplications();
+        break;
+      case LoginScreenChangeReason.HidePasswordChange:
+        this.changePassword = false;
+        this.showPersonalizationPanel();
+        this.showPreviouslyVisibleApplications();
+        break;
+      default:
+      }
+    });
   }
   ngOnInit(): void {
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
+  }
+
+  checkLaunchbarVisibility(): boolean {
+    return this.needLogin || this.changePassword;
+  }
+
+  get isLoggedIn(): boolean {
+    return this.authenticationManager.getUsername() != null ? true : false;
+  }
+
+  hideVisibleApplications(): void {
+    this.previousOpenWindows = [];
+    let windows: DesktopWindow[] = this.windowManager.getAllWindows();
+    windows.map(window => {
+      if (window.windowState.stateType != DesktopWindowStateType.Minimized) {
+        this.previousOpenWindows.push(window)
+        window.windowState.minimize();
+      }
+    })
+  }
+
+  showPreviouslyVisibleApplications(): void {
+    this.previousOpenWindows.map(window => window.windowState.restore());
   }
 
   showPersonalizationPanel(): void {
