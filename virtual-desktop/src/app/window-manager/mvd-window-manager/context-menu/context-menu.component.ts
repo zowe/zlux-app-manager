@@ -32,6 +32,8 @@ import { DomSanitizer } from '@angular/platform-browser';
   styleUrls: ['./context-menu.component.css'],
 })
 export class ContextMenuComponent implements AfterViewInit {
+  static ItemHeight:number;
+  _itemHeight: number;
   hovering: ContextMenuItem;
   newX: number;
   newY: number;
@@ -49,18 +51,24 @@ export class ContextMenuComponent implements AfterViewInit {
   set menu(contextmenu: any) {
     contextmenu.nativeElement.style.opacity = 0;
     setTimeout(() => {
-      let menuHeight = contextmenu.nativeElement.clientHeight;
       let menuWidth = contextmenu.nativeElement.clientWidth;
+      if (!ContextMenuComponent.ItemHeight) {
+        ContextMenuComponent.ItemHeight = Math.floor(contextmenu.nativeElement.clientHeight / this.menuItems.length);
+      }
+      //hack for template
+      this._itemHeight = ContextMenuComponent.ItemHeight;
       // Apply specific styling to parent menu, and to parent menu that will propagate children to the left.
       if (!this._isChildMenu) {
-        this.newY = this.validateY(this.newY, menuHeight);
+        this.newY = this.validateY(this.newY, contextmenu.nativeElement.clientHeight);
         this.newX = this.validateX(this.newX, menuWidth);
         if (!this._propagateChildLeft) {
           this.newX = this.newX + 3;
         }
+      } else {
+        this.newY = this.validateY(this.newY, (ContextMenuComponent.ItemHeight*this.menuItems.length), this.parentY);
       }
       contextmenu.nativeElement.style.opacity = 1;
-      this.menuHeight = menuHeight;
+      this.menuHeight = contextmenu.nativeElement.clientHeight;
       this.menuWidth = menuWidth;
       this.activeIndex = -1; // By default, no item is selected.
       this._isParentActive = false; // Since by default no item is selected, all parent items are inactive.
@@ -79,6 +87,9 @@ export class ContextMenuComponent implements AfterViewInit {
   @Input() set yPos(yPos: number) {
     this.newY = yPos + 4;
   };
+
+  // Set initial vertical position of menu
+  @Input() parentY: number;
   
   // Initialize array of menu items
   @Input() menuItems: ContextMenuItem[];
@@ -183,14 +194,17 @@ export class ContextMenuComponent implements AfterViewInit {
   }
 
   // Recalculate vertical position at which to spawn menu, correcting for proximity to edges of screen
-  validateY(yPos: number, menuHeight: number): number {
-    let menuTop = yPos;
-    let menuBottom = yPos + menuHeight;
+  validateY(yPos: number, menuHeight: number, parentY?: number): number {
+    let menuTop = parentY ? parentY : yPos;
+    let menuBottom = menuTop + menuHeight;
     let screenHeight = window.innerHeight - 10; /* Give a 10 pixel buffer so isn't right on the edge */
     // If initial position of menu too close to bottom of screen, shift left until bottom edge of menu is at least 10px from bottom of screen
     if (menuBottom > screenHeight) {
       let overshoot = menuTop - screenHeight;
       yPos = yPos - (menuHeight + (overshoot > 0 ? overshoot : 0));
+      if (parentY) {
+        yPos += ContextMenuComponent.ItemHeight;
+      }
     }
     // If initial position of menu too close to top of screen, shift left until top edge of menu is at least 10px from top of screen
     if (menuTop < 10) {
@@ -282,7 +296,7 @@ export class ContextMenuComponent implements AfterViewInit {
     // Execute action of any visible item whose shortcut has been pressed
     if (this.elementRef.nativeElement.firstChild.scrollWidth > 0) {
       this.menuItems.forEach(item => {
-        if (!item.disabled && item.shortcutProps) {
+        if (!item.disabled && item.shortcutProps && item.action) {
           // If all properties of shortcut associated with given item match those of key(s) clicked, execute action associated with item.
           if (Object.keys(item.shortcutProps).every(shortcutProp => ((<any>event)[shortcutProp] === (<any>item.shortcutProps)[shortcutProp]))){
             event.preventDefault();

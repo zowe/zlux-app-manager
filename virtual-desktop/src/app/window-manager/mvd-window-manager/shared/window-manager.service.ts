@@ -276,7 +276,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     return {
       resized: events.windowResized,
-      spawnContextMenu: (xRel, yRel, items) => this.spawnContextMenu(windowId, xRel, yRel, items),
+      spawnContextMenu: (xPos, yPos, items, isAbsolutePos?:boolean) => this.spawnContextMenu(windowId, xPos, yPos, items, isAbsolutePos),
       registerCloseHandler: (handler) => this.viewportManager.registerViewportCloseHandler(viewportId, handler)
     };
   }

@@ -15,7 +15,7 @@ import { Injectable, Injector, EventEmitter } from '@angular/core';
 import { ViewportManager } from 'app/application-manager/viewport-manager/viewport-manager.service';
 import { ContextMenuItem, Angular2InjectionTokens, Angular2PluginViewportEvents } from 'pluginlib/inject-resources';
 //import { BaseLogger } from 'virtual-desktop-logger';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class SimpleWindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
