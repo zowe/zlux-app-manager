@@ -10,6 +10,7 @@
 
 <iframe *ngIf="url$ | async else startPage" [src]="url$ | async"></iframe>
 <ng-template #startPage>
+  Welcome to Zowe Web Browser
 </ng-template>
 
 <!--

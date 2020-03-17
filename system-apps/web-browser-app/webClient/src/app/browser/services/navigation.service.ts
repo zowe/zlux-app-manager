@@ -11,9 +11,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
+
 @Injectable()
 export class NavigationService {
-  readonly startPage = '/ZLUX/plugins/org.zowe.zlux.ng2desktop.webbrowser/services/proxy/1.0.1';
+  readonly startPage = 'https://www.google.ru';
   urlSubject = new BehaviorSubject<string>(this.startPage);
   history: string[] = [];
 

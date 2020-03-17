@@ -18,13 +18,14 @@ import { NavigationService } from '../services/navigation.service';
   styleUrls: ['./address-bar.component.css']
 })
 export class AddressBarComponent implements OnInit {
-
-  url = new FormControl('');
+  url: FormControl;
   placeholder = 'URL';
 
   constructor(
     private navigation: NavigationService,
-  ) { }
+  ) {
+    this.url = new FormControl(navigation.startPage);
+  }
 
   ngOnInit() {
   }
