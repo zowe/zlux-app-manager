@@ -69,7 +69,7 @@ class ProxyDataService {
       secure: false,
       changeOrigin: true,
       autoRewrite: true,
-      timeout: 0,
+      followRedirects: true,
       ws: true,
       cookieDomainRewrite: `${hostname}:${proxyPort}`,
       ssl: {
