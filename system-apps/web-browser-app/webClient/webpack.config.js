@@ -27,6 +27,19 @@ var config = {
     'path': path.resolve(__dirname, '../web'),
     'filename': 'main.js',
   },
+  module: {
+    'rules': [
+      {
+        'test': /\.scss$/,
+        'use': [
+          'exports-loader?module.exports.toString()',
+          { 'loader': 'style-loader' },
+          { 'loader': 'css-loader' },
+          { 'loader': 'sass-loader' }
+        ],
+      },
+    ]
+  },
   'plugins': [
     new CopyWebpackPlugin([
       {
