@@ -18,7 +18,7 @@ import { ProxyService, ProxyServerResult } from '../services/proxy.service';
 @Component({
   selector: 'app-browser-window',
   templateUrl: './browser-window.component.html',
-  styleUrls: ['./browser-window.component.css']
+  styleUrls: ['./browser-window.component.scss']
 })
 export class BrowserWindowComponent implements OnInit, OnDestroy {
   currentProxyPort: number;

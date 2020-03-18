@@ -27,13 +27,12 @@ var config = {
     'path': path.resolve(__dirname, '../web'),
     'filename': 'main.js',
   },
-  module: {
+  'module': {
     'rules': [
       {
         'test': /\.scss$/,
         'use': [
-          'exports-loader?module.exports.toString()',
-          { 'loader': 'style-loader' },
+          { 'loader': 'to-string-loader'},
           { 'loader': 'css-loader' },
           { 'loader': 'sass-loader' }
         ],

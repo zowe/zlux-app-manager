@@ -15,7 +15,7 @@ import { NavigationService } from '../services/navigation.service';
 @Component({
   selector: 'app-address-bar',
   templateUrl: './address-bar.component.html',
-  styleUrls: ['./address-bar.component.css']
+  styleUrls: ['./address-bar.component.scss']
 })
 export class AddressBarComponent implements OnInit {
   url: FormControl;
