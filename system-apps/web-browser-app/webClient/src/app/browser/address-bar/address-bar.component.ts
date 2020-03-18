@@ -39,8 +39,8 @@ export class AddressBarComponent implements OnInit {
   }
 
   private addSchemeIfNeeded(url: string): string {
-    if (!url.startsWith('https://')) {
-      return `https://${url}`;
+    if (!url.startsWith('https://') && !url.startsWith('http://')) {
+      return `http://${url}`;
     }
     return url;
   }
