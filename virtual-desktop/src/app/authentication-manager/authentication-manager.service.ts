@@ -67,7 +67,6 @@ export class AuthenticationManager {
     private injector: Injector,
     private pluginManager: PluginManager
   ) {
-    this.log = BaseLogger.makeSublogger("auth");
     this.username = null;
     this.postLoginActions = new Array<MVDHosting.LoginActionInterface>();
     this.preLogoutActions = new Array<MVDHosting.LogoutActionInterface>();
@@ -76,6 +75,7 @@ export class AuthenticationManager {
     this.registerPostLoginAction(new initializeNotificationManager());
     this.loginScreenVisibilityChanged = new EventEmitter();
     this.loginExpirationIdleCheck = new EventEmitter();
+    this.log = BaseLogger.makeSublogger("auth");
   }
 
   registerPostLoginAction(action:MVDHosting.LoginActionInterface):void {
@@ -95,37 +95,47 @@ export class AuthenticationManager {
   }
 
   checkSessionValidity(): Observable<any> {
-    if (this.defaultUsername() != null) {
-      return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh'))
-        .map(result => {
-          let jsonMessage = result.json();
-          if (jsonMessage && jsonMessage.categories) {
-            let failedTypes = [];
-            let keys = Object.keys(jsonMessage.categories);
-            for (let i = 0; i < keys.length; i++) {
-              if (!jsonMessage.categories[keys[i]].success) {
-                failedTypes.push(keys[i]);
-              }
-            }
-            if (failedTypes.length > 0) {
-              throw ErrorObservable.create('');//no need for a message here, just standard login prompt.
-            }
-            this.setSessionTimeoutWatcher(jsonMessage.categories);
+    return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh'))
+      .map(result => {
+        let jsonMessage = result.json();
+        if (jsonMessage && jsonMessage.categories) {
+          let failedTypes = [];
+          let keys = Object.keys(jsonMessage.categories);
+          if (!this.username) {
             this.username = this.defaultUsername();
-            this.performPostLoginActions().subscribe(
-              ()=> {
-                this.log.debug('ZWED5298I'); //this.log.debug('Done performing post-login actions');
-                this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogin);
-              }
-            );
-            return result;
-          } else {
-            throw ErrorObservable.create(result.text());
           }
-        });//or throw err to subscriber
-    } else {
-      return ErrorObservable.create('ZWED5148E - No Session Found');
-    }
+          let needUsername = !!this.username;
+          for (let i = 0; i < keys.length; i++) {
+            const category = jsonMessage.categories[keys[i]];
+            if (!category.success) {
+              failedTypes.push(keys[i]);
+            } else if (needUsername && jsonMessage.defaultCategory == keys[i]) {
+              //the ui needs to know what the primary username is even if you are signed into different accounts on different apps. So, here is a search for that handler.
+              //this could cause a casing difference: standard login uses casing typed, this uses server info.
+              let firstHandler = category[Object.keys(category)[1]];
+              if (firstHandler.username) {
+                this.username = firstHandler.username;
+              }                
+            }
+          }
+          if (this.username) {
+            (ZoweZLUX.logger as any)._setBrowserUsername(this.username);
+          }
+          if (failedTypes.length > 0) {
+            throw ErrorObservable.create('');//no need for a message here, just standard login prompt.
+          }
+          this.setSessionTimeoutWatcher(jsonMessage.categories);
+          this.performPostLoginActions().subscribe(
+            ()=> {
+              this.log.debug('ZWED5298I'); //this.log.debug('Done performing post-login actions');
+              this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogin);
+            }
+          );
+          return result;
+        } else {
+          throw ErrorObservable.create(result.text());
+        }
+      });//or throw err to subscriber
   }
   
   //requestLogin() used to exist here but it was counter-intuitive in behavior to requestLogout.
@@ -139,6 +149,10 @@ export class AuthenticationManager {
     }
     this.performLogout().subscribe(
       response => {
+        if (reason == LoginScreenChangeReason.UserLogout) {
+          this.username = null;
+          (ZoweZLUX.logger as any)._setBrowserUsername('N/A');
+        }
         this.loginScreenVisibilityChanged.emit(reason);
       },
       (error: any) => {
@@ -240,6 +254,11 @@ export class AuthenticationManager {
   }
 
   performLogin(username: string, password: string): Observable<Response> {
+    if (this.username != null && (username != this.username)) {
+      const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
+        this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+      windowManager.closeAllWindows();
+    }
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth'), { username: username, password: password })
     .map(result => {
       let jsonMessage = result.json();
@@ -262,12 +281,7 @@ export class AuthenticationManager {
 
   private performLogout(): Observable<Response> {
     this.performPreLogoutActions();
-    return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-logout'), {})
-      .map(response => {
-        this.username = null;
-        (ZoweZLUX.logger as any)._setBrowserUsername('N/A');
-        return response;
-      });
+    return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-logout'), {});
   }
 }
 
