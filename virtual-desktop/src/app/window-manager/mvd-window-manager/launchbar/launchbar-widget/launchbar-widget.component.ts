@@ -22,7 +22,7 @@ import {
   Input
   } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
-import { DesktopComponent } from "../../desktop/desktop.component";
+import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
 import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
 import { BaseLogger } from '../../../../shared/logger';
 import { MatSnackBar} from '@angular/material';
@@ -42,6 +42,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public date: Date;
   public popupVisible: boolean;
   @Output() popupStateChanged = new EventEmitter<boolean>();
+  @Input() theme: DesktopTheme;
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
   @ViewChild('notificationicon') notificationIcon: ElementRef;

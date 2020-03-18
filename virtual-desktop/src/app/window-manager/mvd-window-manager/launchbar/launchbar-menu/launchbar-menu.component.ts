@@ -16,12 +16,14 @@ import { PluginsDataService } from '../../services/plugins-data.service';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
-import { DesktopComponent } from "../../desktop/desktop.component";
+import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
 import { TranslationService } from 'angular-l10n';
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
 import { generateInstanceActions } from '../shared/context-utils';
 import { KeybindingService } from '../../shared/keybinding.service';
 import { KeyCode } from '../../shared/keycode-enum';
+
+const FONT_SIZE=12;
 
 @Component({
   selector: 'rs-com-launchbar-menu',
@@ -36,6 +38,56 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     this.displayItems = items;
     this.filterMenuItems();
   }
+  public color: any = {};
+  public menuIconSize: string;
+  public appIconSize: string;
+  public appLabelPadding: string;
+  public menuBottom: string;
+  public menuText: string;
+  public menuWidth: string;
+  public menuWidthInner: string;
+  /* later
+  public launchbarIconSize;
+  public launchbarTextSize;
+  public launchbarMenuSize;
+  */
+  @Input() set theme(newTheme: DesktopTheme) {
+    console.log('Launchbar menu theme set=',newTheme);
+    this.color = newTheme.color;
+    let menuIcon:number;
+    let appIcon:number;
+    switch (newTheme.size.launchbarMenu) {
+    case 1:
+      //dont go smaller than 32 for apps
+      menuIcon = 16;
+      appIcon = 32;
+      this.menuWidth = '250px';
+      this.menuWidthInner = '230px';
+      this.menuText = '12px';
+      this.menuBottom = '29px';
+      break;
+    case 3:
+      menuIcon = 64;
+      appIcon = menuIcon;
+      this.menuWidth = '400px';
+      this.menuWidthInner = '380px';
+      this.menuText = '14px';
+      this.menuBottom = '80px';
+      break;
+    default:
+      //2
+      menuIcon = 32;
+      appIcon = menuIcon;
+      this.menuWidth = '335px';
+      this.menuWidthInner = '315px';
+      this.menuText = '16px';
+      this.menuBottom = '45px';
+    }
+    this.menuIconSize = menuIcon+'px';
+    this.appIconSize = appIcon+'px';
+    let appLabel:number = Math.round((appIcon/2) - (FONT_SIZE/2))|0;
+    this.appLabelPadding = appLabel+'px';
+  };
   
   @Output() refreshClicked: EventEmitter<void>;
   @Output() itemClicked: EventEmitter<LaunchbarItem>;
@@ -156,6 +208,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   }
 
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
+    event.stopPropagation();
     let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     return false;

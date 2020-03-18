@@ -7,16 +7,15 @@
   
   Copyright Contributors to the Zowe Project.
   -->
-<div class="instance-viewer">
+<div class="instance-viewer" [style.bottom]="viewerBottom">
   <div class="all-instances-box">
     <div class="instance-item" (mousedown)="clicked(windowId, launchbarItem)" *ngFor="let windowId of windowManager.getWindowIDs(launchbarItem.plugin); let i = index">
       <div>
-      <p class="caption truncate">#{{i}} {{getTitleForWindow(windowId)}}</p>
+      <p class="caption truncate">{{getTitleForWindow(windowId)}}</p>
       </div>
       <div class="instance-snapshot" (click)="clicked(windowId)" [style.background-color]="black">
         <img class="instance-preview" src={{getPreview(i,launchbarItem)}}/>
       </div>
     </div>
   </div>
-  <p class="caption label-caption truncate">{{launchbarItem.label}}</p>
 </div>
