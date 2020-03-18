@@ -19,12 +19,15 @@ import { NavigationService } from '../services/navigation.service';
 })
 export class AddressBarComponent implements OnInit {
   url: FormControl;
+  proxy: FormControl;
   placeholder = 'URL';
+  isProxyEnabled: boolean;
 
   constructor(
     private navigation: NavigationService,
   ) {
     this.url = new FormControl(navigation.startPage);
+    this.proxy = new FormControl(false);
   }
 
   ngOnInit() {
