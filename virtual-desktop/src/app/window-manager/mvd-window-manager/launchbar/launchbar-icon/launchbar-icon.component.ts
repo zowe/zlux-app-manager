@@ -11,6 +11,7 @@
 */
 
 import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
+import { DesktopTheme } from "../../desktop/desktop.component";
 import { LaunchbarItem } from '../shared/launchbar-item';
 
 @Component({
@@ -20,7 +21,37 @@ import { LaunchbarItem } from '../shared/launchbar-item';
 })
 export class LaunchbarIconComponent {
   @Input() launchbarItem: LaunchbarItem;
-
+  public iconSize: string;
+  public indicatorSize: string;
+  public indicatorPos: string;
+  public hoverBottom: string;
+  public _theme:DesktopTheme;
+  
+  @Input() set theme(newTheme: DesktopTheme) {
+    this._theme = newTheme;
+    console.log('Launchbar icon theme set=',newTheme);
+    switch (newTheme.size.launchbar) {
+    case 1:
+      this.iconSize="16px";
+      this.hoverBottom="14px";
+      this.indicatorPos="1px";
+      this.indicatorSize = '2px';
+      break;
+    case 3:
+      this.iconSize="64px";
+      this.hoverBottom="62px";
+      this.indicatorPos="-2px";
+      this.indicatorSize = '4px';
+      break;
+    default:
+      //2
+      this.iconSize="32px";
+      this.hoverBottom="30px";
+      this.indicatorPos="1px";
+      this.indicatorSize = '2px';
+      break;
+    }
+  }
   @Output() iconClicked: EventEmitter<void>;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   titleVisible: boolean;

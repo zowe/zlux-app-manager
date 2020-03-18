@@ -29,18 +29,7 @@
   z-index: 10000;
 }
 
-.launchbar-basement {
-  position: absolute;
-  box-sizing: border-box;
-  height: 100%;
-  width: 100%;
-  bottom: 0;
-  background: #557999;
-  margin: 0;
-  padding: 0;
-}
-
-.launchbar {
+.applist {
   box-sizing: border-box;
   display: flex;
   background: transparent;

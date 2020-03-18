@@ -20,7 +20,6 @@
 
 .instance-viewer {
     position: fixed;
-    top: 0px;
     height: 190px;
     padding: 5px 5px 5px 5px;
     background-color: rgb(51,75,107, 0.7);

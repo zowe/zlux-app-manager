@@ -10,8 +10,9 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, Injector } from '@angular/core';
+import { Component, OnInit, Injector, Input } from '@angular/core';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
+import { DesktopTheme } from "../desktop/desktop.component";
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import { DesktopWindow } from '../shared/desktop-window';
 import { WindowManagerService } from '../shared/window-manager.service';
@@ -27,7 +28,8 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
   contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
   public wallpaper: any = { };
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
-
+  @Input() theme: DesktopTheme;
+  
   constructor(
     public windowManager: WindowManagerService,
     private injector: Injector,

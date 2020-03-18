@@ -36,16 +36,22 @@
   [rs-com-sizeable-sw]="sw"
   [rs-com-sizeable-enabled]="isNormal()"
 
+  [style.background-color]="hasFocus() ? color.windowColorActive : color.windowColorInactive"
+  [style.border-color]="hasFocus() ? color.windowColorActive : color.windowColorInactive"
+  [style.border-width]="borderSize"
   class="window">
 
   <div class="border-box-sizing">
 
   <!-- Window control bar -->
-  <div [class.inactive]="!hasFocus()" class="heading" (mousedown)="requestFocus()">
-    <div class="caption handle" #dragHandle>{{getTitle()}}</div>
-    <div class="minimize-button" (click)="minimizeToggle()"></div>
-    <div class="maximize-button" (click)="maximizeToggle()" [class.maximized]="isMaximized()"></div>
-    <div class="close-button" (click)="close()"></div>
+  <div [class.inactive]="!hasFocus()" class="heading"
+       [style.background]="hasFocus() ? color.windowColorActive : color.windowColorInactive"
+       [style.height]="headerSize+'px'" (mousedown)="requestFocus()">
+    <div class="caption handle" [style.font-size]="textSize" [style.color]="hasFocus() ? color.windowTextActive : color.windowTextInactive"
+ #dragHandle>{{getTitle()}}</div>
+    <div class="minimize-button" [style.top]="buttonTop" (click)="minimizeToggle()"></div>
+    <div class="maximize-button" [style.top]="buttonTop" (click)="maximizeToggle()" [class.maximized]="isMaximized()"></div>
+    <div class="close-button" [style.top]="buttonTop" (click)="close()"></div>
   </div>
 
   <!-- Window body -->
