@@ -19,7 +19,6 @@
       Refresh <!-- TODO: Needs internationalization -->
       <i style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></i>
     </div>
-    <div style="margin: 20px"></div>
     <div class="launch-menu-scroller">
       <div class="launch-widget-row" *ngFor="let item of displayItems" (click)="clicked(item)" [title]="item.tooltip" (contextmenu)="onRightClick($event, item)">
         <img class="icon" [src]="item.image">
