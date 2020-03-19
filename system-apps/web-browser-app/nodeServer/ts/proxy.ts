@@ -25,7 +25,7 @@ class ProxyDataService {
   private context: any;
   private router: Router = express.Router();
   private readonly startPort = 6565;
-  private readonly endPort = 6585;
+  private readonly endPort = this.startPort + 20;
   private proxyServerByPort = new Map<number, httpProxy>();
 
   constructor(context: any) {
