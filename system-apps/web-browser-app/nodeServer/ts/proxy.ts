@@ -2,9 +2,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 import { Response, Request } from "express";
@@ -24,7 +24,8 @@ interface CheckURLResult {
 class ProxyDataService {
   private context: any;
   private router: Router = express.Router();
-  private lastPort = 6565;
+  private readonly startPort = 6565;
+  private readonly endPort = 6585;
   private proxyServerByPort = new Map<number, httpProxy>();
 
   constructor(context: any) {
@@ -44,13 +45,25 @@ class ProxyDataService {
       if (redirectResult.redirect) {
         newURL = redirectResult.location;
       }
-      const port = this.lastPort;
-      this.lastPort++;
+      const port = this.findFreePort();
+      if (!port) {
+        res.status(503).json();
+        return;
+      }
       const proxyServer = this.startProxyServer(newURL, hostname, port);
       this.proxyServerByPort.set(port, proxyServer);
       this.context.logger.info(`created proxy for ${url} (${newURL}) on port ${port}`);
       res.status(200).json({ port });
     });
+  }
+
+  private findFreePort(): number | undefined {
+    for (let port = this.startPort; port <= this.endPort; port++) {
+      if (!this.proxyServerByPort.has(port)) {
+        return port;
+      }
+    }
+    return undefined;
   }
 
   private handleDeleteProxyServerRequest(req: Request, res: Response) {
@@ -59,6 +72,7 @@ class ProxyDataService {
     const proxyServer = this.proxyServerByPort.get(port);
     if (proxyServer) {
       proxyServer.close();
+      this.proxyServerByPort.delete(port);
     }
     res.status(204).send();
   }
