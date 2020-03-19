@@ -91,6 +91,18 @@ var config = {
           commonjs2: request,
           amd: request
         });
+      } else if (request.match(/^rxjs(\/|$)/)) {
+        var parts = request.split('/');
+        if (parts.length > 2) {
+          console.warn(`rxjs v5-style deep import found: ${request}`);
+        } else {
+          return callback(null, {
+            root: parts,
+            commonjs: request,
+            commonjs2: request,
+            amd: request
+          });
+        }
       }
       callback();
     }
