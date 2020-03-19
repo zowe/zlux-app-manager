@@ -10,11 +10,11 @@
 <button>&larr;</button>
 <button>&rarr;</button>
 <button>&#8634;</button>
-<input type="url" [formControl]="url" [placeholder]="placeholder" (keyup.enter)="navigate()">
+<input type="url" [formControl]="urlControl" [placeholder]="placeholder" (keyup.enter)="navigate()">
 <button>Go</button>
 <div class="proxy">
   <label for="proxy">Proxy</label>
-  <input name="proxy" type="checkbox" [formControl]="proxy">
+  <input name="proxy" type="checkbox" [formControl]="proxyControl">
 </div>
 <!--
   This program and the accompanying materials are

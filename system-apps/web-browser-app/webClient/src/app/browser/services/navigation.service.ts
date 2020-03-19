@@ -9,20 +9,29 @@
 */
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { ProxyService } from './proxy.service';
+import { mergeMap } from 'rxjs/operators';
 
 
 @Injectable()
 export class NavigationService {
   readonly startPage = 'https://www.google.ru';
-  urlSubject = new BehaviorSubject<string>(this.startPage);
+  private urlSubject = new BehaviorSubject(this.startPage);
+  url$: Observable<string>;
   history: string[] = [];
 
-  constructor() { }
+  constructor(private proxy: ProxyService) {
+    this.url$ = this.urlSubject.pipe(mergeMap(url => this.proxy.process(url)));
+  }
 
   navigate(url: string): void {
     this.history.push(url);
     this.urlSubject.next(url);
+  }
+
+  stop(): void {
+    this.proxy.deletePreviousProxyServerIfNeeded().subscribe();
   }
 }
 

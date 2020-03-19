@@ -10,8 +10,9 @@
 
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, of } from 'rxjs';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
+import { map, tap, mergeMap } from 'rxjs/operators';
 
 
 export interface ProxyServerResult {
@@ -21,6 +22,9 @@ export interface ProxyServerResult {
 @Injectable()
 export class ProxyService {
   readonly proxyServiceURL: string;
+  private enabled = false;
+  proxyState = new BehaviorSubject<boolean>(this.enabled);
+  currentProxyPort: number;
 
   constructor(
     private http: HttpClient,
@@ -30,15 +34,53 @@ export class ProxyService {
     this.proxyServiceURL = ZoweZLUX.uriBroker.pluginRESTUri(this.pluginDefinition.getBasePlugin(), 'proxy', '');
   }
 
-  create(urlString: string): Observable<ProxyServerResult> {
+  private create(urlString: string): Observable<ProxyServerResult> {
     const url = new URL(urlString);
     const target = `${url.protocol}//${url.host}`;
     return this.http.post<ProxyServerResult>(this.proxyServiceURL, { url: target });
   }
 
-  delete(port: number): Observable<void> {
+  private delete(port: number): Observable<void> {
     return this.http.delete<void>(`${this.proxyServiceURL}?port=${port}`);
   }
+
+  process(url: string): Observable<string> {
+    return this.proxyState.pipe(
+      mergeMap(() => this.deletePreviousProxyServerIfNeeded()),
+      mergeMap(() => this.createProxyIfNeeded(url)),
+    )
+  }
+
+  private createProxyIfNeeded(url: string): Observable<string> {
+    if (this.enabled) {
+      return this.create(url).pipe(
+        map((result: ProxyServerResult) => result.port),
+        tap(port => this.currentProxyPort = port),
+        tap(port => console.log(`created proxy at port ${port}`)),
+        map(port => `https://${location.hostname}:${port}/`),
+        tap(proxyURL => console.log(`proxy url is ${proxyURL}`)),
+      );
+    }
+    return of(url);
+  }
+
+  deletePreviousProxyServerIfNeeded(): Observable<void | null> {
+    console.log(`deletePreviousProxyServerIfNeeded port = ${this.currentProxyPort}`)
+    if (this.currentProxyPort) {
+      return this.delete(this.currentProxyPort);
+    }
+    return of(null);
+  }
+
+  toggle(): void {
+    this.enabled = !this.enabled;
+    this.proxyState.next(this.enabled);
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
 }
 
 

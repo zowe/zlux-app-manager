@@ -8,35 +8,42 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { NavigationService } from '../services/navigation.service';
+import { ProxyService } from '../services/proxy.service';
+import { Subscription } from 'rxjs';
+import { throttleTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-address-bar',
   templateUrl: './address-bar.component.html',
   styleUrls: ['./address-bar.component.scss']
 })
-export class AddressBarComponent implements OnInit {
-  url: FormControl;
-  proxy: FormControl;
+export class AddressBarComponent implements OnInit, OnDestroy {
+  urlControl: FormControl;
+  proxyControl: FormControl;
   placeholder = 'URL';
-  isProxyEnabled: boolean;
+  proxyValueSubscription: Subscription;
 
   constructor(
     private navigation: NavigationService,
+    private proxy: ProxyService,
   ) {
-    this.url = new FormControl(navigation.startPage);
-    this.proxy = new FormControl(false);
+    this.urlControl = new FormControl(navigation.startPage);
+    this.proxyControl = new FormControl(this.proxy.isEnabled());
+    this.proxyValueSubscription = this.proxyControl.valueChanges.pipe(
+      throttleTime(300),
+    ).subscribe(() => this.proxy.toggle());
   }
 
   ngOnInit() {
   }
 
   navigate(): void {
-    if (this.url.value) {
+    if (this.urlControl.value) {
       this.navigation.navigate(
-        this.addSchemeIfNeeded(this.url.value)
+        this.addSchemeIfNeeded(this.urlControl.value)
       );
     }
   }
@@ -46,6 +53,12 @@ export class AddressBarComponent implements OnInit {
       return `http://${url}`;
     }
     return url;
+  }
+
+  ngOnDestroy(): void {
+    if (this.proxyValueSubscription && !this.proxyValueSubscription.closed) {
+      this.proxyValueSubscription.unsubscribe();
+    }
   }
 
 }
