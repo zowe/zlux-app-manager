@@ -25,6 +25,7 @@ export class AddressBarComponent implements OnInit, OnDestroy {
   proxyControl: FormControl;
   placeholder = 'URL';
   proxyValueSubscription: Subscription;
+  proxyErrorSubscription: Subscription;
 
   constructor(
     private navigation: NavigationService,
@@ -35,6 +36,7 @@ export class AddressBarComponent implements OnInit, OnDestroy {
     this.proxyValueSubscription = this.proxyControl.valueChanges.pipe(
       throttleTime(300),
     ).subscribe(() => this.proxy.toggle());
+    this.proxyErrorSubscription = this.proxy.proxyError.subscribe(() => this.proxyControl.setValue(false));
   }
 
   ngOnInit() {
@@ -84,6 +86,9 @@ export class AddressBarComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.proxyValueSubscription && !this.proxyValueSubscription.closed) {
       this.proxyValueSubscription.unsubscribe();
+    }
+    if (this.proxyErrorSubscription && !this.proxyErrorSubscription.closed) {
+      this.proxyErrorSubscription.unsubscribe();
     }
   }
 

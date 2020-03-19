@@ -10,9 +10,9 @@
 
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, of } from 'rxjs';
+import { Observable, BehaviorSubject, of, Subject } from 'rxjs';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
-import { map, tap, mergeMap } from 'rxjs/operators';
+import { map, tap, mergeMap, catchError } from 'rxjs/operators';
 
 
 export interface ProxyServerResult {
@@ -24,6 +24,7 @@ export class ProxyService {
   readonly proxyServiceURL: string;
   private enabled = false;
   proxyState = new BehaviorSubject<boolean>(this.enabled);
+  proxyError = new Subject<void>();
   currentProxyPort: number;
 
   constructor(
@@ -47,7 +48,11 @@ export class ProxyService {
   process(url: string): Observable<string> {
     return this.proxyState.pipe(
       mergeMap(() => this.deletePreviousProxyServerIfNeeded()),
-      mergeMap(() => this.createProxyIfNeeded(url)),
+      mergeMap(() => this.createProxyIfNeeded(url).pipe(catchError(err => {
+        this.enabled = false;
+        this.proxyError.next();
+        return of(url);
+      }))),
     )
   }
 
