@@ -7,14 +7,14 @@
 
   Copyright Contributors to the Zowe Project.
 -->
-<button (click)="goBack()">&larr;</button>
-<button (click)="goForward()">&rarr;</button>
-<button (click)="refresh()">&#8634;</button>
-<input type="url" [formControl]="urlControl" [placeholder]="placeholder" (keyup.enter)="navigate()">
+<button class="icon-button" (click)="goBack()" [disabled]="!canGoBack" title="Go Back">&larr;</button>
+<button class="icon-button" (click)="goForward()" [disabled]="!canGoForward" title="Go Forward">&rarr;</button>
+<button class="icon-button" (click)="refresh()" title="Refresh">&#8634;</button>
+<input type="url" [formControl]="urlControl" [placeholder]="placeholder" (keyup.enter)="navigate()" title="Go">
 <button (click)="navigate()">Go</button>
-<div class="proxy">
+<div class="proxy" title="Enable/Disable Proxy">
   <label for="proxy">Proxy</label>
-  <input name="proxy" type="checkbox" [formControl]="proxyControl">
+  <input name="proxy" id="proxy" type="checkbox" [formControl]="proxyControl">
 </div>
 <!--
   This program and the accompanying materials are

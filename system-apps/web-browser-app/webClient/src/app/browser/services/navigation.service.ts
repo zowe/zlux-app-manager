@@ -53,6 +53,10 @@ export class NavigationService {
     return url;
   }
 
+  canGoBack(): boolean {
+    return this.backStack.length > 0;
+  }
+
   goForward(): string | undefined {
     this.backStack.push(this.currentURL);
     const url = this.forwardStack.pop();
@@ -60,6 +64,10 @@ export class NavigationService {
       this.navigateInternal(url);
     }
     return url;
+  }
+
+  canGoForward(): boolean {
+    return this.forwardStack.length > 0;
   }
 
   private navigateInternal(newURL: string): void {

@@ -66,6 +66,14 @@ export class AddressBarComponent implements OnInit, OnDestroy {
     }
   }
 
+  get canGoForward(): boolean {
+    return this.navigation.canGoForward();
+  }
+
+  get canGoBack(): boolean {
+    return this.navigation.canGoBack();
+  }
+
   private addSchemeIfNeeded(url: string): string {
     if (!url.startsWith('https://') && !url.startsWith('http://')) {
       return `http://${url}`;
