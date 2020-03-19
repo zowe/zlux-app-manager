@@ -16,7 +16,7 @@
 <ng-template [ngIf]="isActive">
   <div class="launch-widget-popup">
     <div style="cursor: pointer" class="refresh-plugins" (click)="refresh()">
-      Refresh applications
+      Refresh <!-- TODO: Needs internationalization -->
       <i style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></i>
     </div>
     <div style="margin: 20px"></div>
@@ -27,7 +27,9 @@
       </div>
     </div>
     <div class="launch-menu-search">
-      <input style="width:95%" type="text" placeholder="Search Applications" [(ngModel)]="appFilter" (input)="filterMenuItems()">
+      <i class="launch-menu-search-icon fa fa-search"></i>
+      <!-- TODO: Needs internationalization -->
+      <input class="launch-menu-search-input" type="text" placeholder="Search" [(ngModel)]="appFilter" (input)="filterMenuItems()">
     </div>
   </div>
   <div class="launch-widget-caret caret-down"></div>

@@ -23,6 +23,22 @@
   width: 100%;
 }
 
+.launch-menu-search-input {
+  width: calc(100% - 10px);
+  border-color: transparent;
+  background-color: #ffffff;
+  border-radius: 0px 0px 10px 10px;
+  padding-left: 30px;
+  margin-left: -5px;
+}
+
+.launch-menu-search-icon {
+  padding: 5px;
+  float: left;
+  position: absolute;
+  background-color: transparent;
+}
+
 .launch-menu-scroller {
   overflow-y: scroll;
   width: 315px;
@@ -30,10 +46,12 @@
   bottom: 31px;
   position: absolute;
   background: #dde8f1;
+  margin-bottom: 5px;
 }
 
 .refresh-plugins {
-  float:right;  
+  float: right;  
+  margin-right: -5px;
 }
 
 .launch-widget {
@@ -81,7 +99,7 @@
 
 .launch-widget-popup {
   width: 335px;
-  height: 350px;
+  height: 360px;
   position: absolute;
   bottom: 90px;
   left: 10px;
