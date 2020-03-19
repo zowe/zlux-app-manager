@@ -82,6 +82,7 @@ export class LoginComponent implements OnInit {
         this.changePassword = false;
         break;
       case LoginScreenChangeReason.SessionExpired:
+        this.backButton();
         if (this.idleWarnModal) {
           this.popupManager.removeReport(this.idleWarnModal.id); 
           this.idleWarnModal = undefined;
