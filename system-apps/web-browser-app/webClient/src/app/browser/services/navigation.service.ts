@@ -15,38 +15,56 @@ import { mergeMap } from 'rxjs/operators';
 
 @Injectable()
 export class NavigationService {
-
-  readonly startPage = 'https://www.google.ru';
+  readonly startURL = 'https://zowe.org';
   private urlSubject = new ReplaySubject<string>(1);
   url$: Observable<string>;
-  history: string[] = [];
+
+  private currentURL: string;
+  private backStack: string[] = [];
+  private forwardStack: string[] = [];
 
   constructor(private proxy: ProxyService) {
     this.url$ = this.urlSubject.pipe(mergeMap(url => this.proxy.process(url)));
-    this.navigate(this.startPage);
-  }
-
-  navigate(url: string): void {
-    this.history.push(url);
-    this.urlSubject.next(url);
+    this.navigateInternal(this.startURL);
   }
 
   stop(): void {
     this.proxy.deletePreviousProxyServerIfNeeded().subscribe();
   }
 
-  forward(): void {
-    throw new Error("Method not implemented.");
-  }
-  back(): void {
-    throw new Error("Method not implemented.");
+  refresh(): void {
+    if (this.currentURL) {
+      this.urlSubject.next(this.currentURL);
+    }
   }
 
-  refresh(): void {
-    const lastURL = this.history[this.history.length - 1];
-    if (lastURL) {
-      this.urlSubject.next(lastURL);
+  navigate(url: string): void {
+    this.backStack.push(this.currentURL);
+    this.forwardStack = [];
+    this.navigateInternal(url);
+  }
+
+  goBack(): string | undefined{
+    this.forwardStack.push(this.currentURL);
+    const url = this.backStack.pop();
+    if (url) {
+      this.navigateInternal(url);
     }
+    return url;
+  }
+
+  goForward(): string | undefined {
+    this.backStack.push(this.currentURL);
+    const url = this.forwardStack.pop();
+    if (url) {
+      this.navigateInternal(url);
+    }
+    return url;
+  }
+
+  private navigateInternal(newURL: string): void {
+    this.currentURL = newURL;
+    this.urlSubject.next(newURL);
   }
 }
 

@@ -7,8 +7,8 @@
 
   Copyright Contributors to the Zowe Project.
 -->
-<button (click)="back()">&larr;</button>
-<button (click)="forward()">&rarr;</button>
+<button (click)="goBack()">&larr;</button>
+<button (click)="goForward()">&rarr;</button>
 <button (click)="refresh()">&#8634;</button>
 <input type="url" [formControl]="urlControl" [placeholder]="placeholder" (keyup.enter)="navigate()">
 <button (click)="navigate()">Go</button>

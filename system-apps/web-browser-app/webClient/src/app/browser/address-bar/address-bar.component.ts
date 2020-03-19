@@ -30,7 +30,7 @@ export class AddressBarComponent implements OnInit, OnDestroy {
     private navigation: NavigationService,
     private proxy: ProxyService,
   ) {
-    this.urlControl = new FormControl(navigation.startPage);
+    this.urlControl = new FormControl(navigation.startURL);
     this.proxyControl = new FormControl(this.proxy.isEnabled());
     this.proxyValueSubscription = this.proxyControl.valueChanges.pipe(
       throttleTime(300),
@@ -52,12 +52,18 @@ export class AddressBarComponent implements OnInit, OnDestroy {
     this.navigation.refresh();
   }
 
-  back(): void {
-    this.navigation.back();
+  goBack(): void {
+    const url = this.navigation.goBack();
+    if (url) {
+      this.urlControl.setValue(url);
+    }
   }
 
-  forward(): void {
-    this.navigation.forward();
+  goForward(): void {
+    const url = this.navigation.goForward();
+    if (url) {
+      this.urlControl.setValue(url);
+    }
   }
 
   private addSchemeIfNeeded(url: string): string {
