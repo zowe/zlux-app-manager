@@ -21,14 +21,28 @@ interface CheckURLResult {
   location?: string;
 }
 
+interface Context {
+  serviceDefinition: any;
+  serviceConfiguration: any;
+  plugin: any;
+  storage: any;
+  logger: {
+    info: (message: string) => void;
+  };
+  wsRouterPatcher: any;
+  addBodyParseMiddleware: (router: Router) => void;
+}
+
+const X_FRAME_OPTIONS = 'x-frame-options';
+
 class ProxyDataService {
-  private context: any;
+  private context: Context;
   private router: Router = express.Router();
   private readonly startPort = 6565;
   private readonly endPort = this.startPort + 20;
   private proxyServerByPort = new Map<number, httpProxy>();
 
-  constructor(context: any) {
+  constructor(context: Context) {
     this.context = context;
     context.addBodyParseMiddleware(this.router);
     this.router.post('/', (req: Request, res: Response) => this.handleNewProxyServerRequest(req, res));
@@ -108,8 +122,10 @@ class ProxyDataService {
   }
 
   private handleProxyRes(proxyRes: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) {
-    proxyRes.headers['x-frame-options'] = 'allowall';
-    this.context.logger.info('Modified Response headers from target', JSON.stringify(proxyRes.headers, null, 2));
+    if (proxyRes.headers[X_FRAME_OPTIONS]) {
+      proxyRes.headers[X_FRAME_OPTIONS] = 'allowall';
+    }
+    this.context.logger.info(`Modified Response headers from target ${JSON.stringify(proxyRes.headers, null, 2)}`);
   }
 
   private handleProxyError(err: Error, req: http.IncomingMessage, res: http.ServerResponse) {
@@ -149,7 +165,7 @@ class ProxyDataService {
   }
 }
 
-exports.proxyRouter = function (context: any) {
+exports.proxyRouter = function (context: Context) {
   return new Promise(function (resolve, reject) {
     const dataService = new ProxyDataService(context);
     resolve(dataService.getRouter());
