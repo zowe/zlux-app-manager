@@ -9,20 +9,21 @@
 */
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 import { ProxyService } from './proxy.service';
 import { mergeMap } from 'rxjs/operators';
 
-
 @Injectable()
 export class NavigationService {
+
   readonly startPage = 'https://www.google.ru';
-  private urlSubject = new BehaviorSubject(this.startPage);
+  private urlSubject = new ReplaySubject<string>(1);
   url$: Observable<string>;
   history: string[] = [];
 
   constructor(private proxy: ProxyService) {
     this.url$ = this.urlSubject.pipe(mergeMap(url => this.proxy.process(url)));
+    this.navigate(this.startPage);
   }
 
   navigate(url: string): void {
@@ -32,6 +33,20 @@ export class NavigationService {
 
   stop(): void {
     this.proxy.deletePreviousProxyServerIfNeeded().subscribe();
+  }
+
+  forward(): void {
+    throw new Error("Method not implemented.");
+  }
+  back(): void {
+    throw new Error("Method not implemented.");
+  }
+
+  refresh(): void {
+    const lastURL = this.history[this.history.length - 1];
+    if (lastURL) {
+      this.urlSubject.next(lastURL);
+    }
   }
 }
 

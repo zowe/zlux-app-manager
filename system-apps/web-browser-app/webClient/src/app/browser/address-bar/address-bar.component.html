@@ -7,11 +7,11 @@
 
   Copyright Contributors to the Zowe Project.
 -->
-<button>&larr;</button>
-<button>&rarr;</button>
-<button>&#8634;</button>
+<button (click)="back()">&larr;</button>
+<button (click)="forward()">&rarr;</button>
+<button (click)="refresh()">&#8634;</button>
 <input type="url" [formControl]="urlControl" [placeholder]="placeholder" (keyup.enter)="navigate()">
-<button>Go</button>
+<button (click)="navigate()">Go</button>
 <div class="proxy">
   <label for="proxy">Proxy</label>
   <input name="proxy" type="checkbox" [formControl]="proxyControl">
