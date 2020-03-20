@@ -41,7 +41,6 @@ export class LaunchbarComponent {
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.info('Launchbar theme set=',newTheme);
     this._theme = newTheme;
-    this.size = newTheme.size.launchbar;
     switch (newTheme.size.launchbar) {
     case 1:
       //16 for icon, 2 for indicator, 1 for bottom and 3 for top
@@ -268,16 +267,56 @@ export class LaunchbarComponent {
             this._theme.size.window = 1;
             this._theme.size.launchbar = 1;
             this._theme.size.launchbarMenu = 1;
-            const color = "#000000";
-            const text = "#eeeeee";
-            this._theme.color.windowColorActive = color;
-            this._theme.color.windowTextActive = text;
-            this._theme.color.launchbarColor = color;
+            const color = "#0d0d0d";
+            const text = "#dddee0";
+            this._theme.color.windowColorActive = "#3d3f42";
+            this._theme.color.windowTextActive = "#f4f4f4";
+            this._theme.color.launchbarColor = color+'b2';
             this._theme.color.launchbarText = text;
             this._theme.color.launchbarMenuColor = color;
             this._theme.color.launchbarMenuText = text;
             this.changeTheme.emit(this._theme);
-            this.logger.info(this.translation.translate('DesktopSmall'));
+            this.logger.info(this.translation.translate('DesktopSmallBlack'));
+          }
+        },
+        {
+          "text":this.translation.translate('DesktopMediumBlack'),
+          "disabled": this.size === 4,
+          "action": () => {
+            this.size = 4;
+            this._theme.size.window = 2;
+            this._theme.size.launchbar = 2;
+            this._theme.size.launchbarMenu = 2;
+            const color = "#0d0d0d";
+            const text = "#dddee0";
+            this._theme.color.windowColorActive = "#3d3f42";
+            this._theme.color.windowTextActive = "#f4f4f4";
+            this._theme.color.launchbarColor = color+'b2';
+            this._theme.color.launchbarText = text;
+            this._theme.color.launchbarMenuColor = color;
+            this._theme.color.launchbarMenuText = text;
+            this.changeTheme.emit(this._theme);
+            this.logger.info(this.translation.translate('DesktopMediumBlack'));
+          }
+        },
+        {
+          "text":this.translation.translate('DesktopBigBlack'),
+          "disabled": this.size === 5,
+          "action": () => {
+            this.size = 5;
+            this._theme.size.window = 3;
+            this._theme.size.launchbar = 3;
+            this._theme.size.launchbarMenu = 3;
+            const color = "#0d0d0d";
+            const text = "#dddee0";
+            this._theme.color.windowColorActive = "#3d3f42";
+            this._theme.color.windowTextActive = "#f4f4f4";
+            this._theme.color.launchbarColor = color+'b2';
+            this._theme.color.launchbarText = text;
+            this._theme.color.launchbarMenuColor = color;
+            this._theme.color.launchbarMenuText = text;
+            this.changeTheme.emit(this._theme);
+            this.logger.info(this.translation.translate('DesktopBigBlack'));
           }
         }
         ]

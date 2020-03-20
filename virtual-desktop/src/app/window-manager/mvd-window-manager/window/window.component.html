@@ -47,15 +47,26 @@
   <div [class.inactive]="!hasFocus()" class="heading"
        [style.background]="hasFocus() ? color.windowColorActive : color.windowColorInactive"
        [style.height]="headerSize+'px'" (mousedown)="requestFocus()">
-    <div class="caption handle" [style.font-size]="textSize" [style.color]="hasFocus() ? color.windowTextActive : color.windowTextInactive"
+    <div class="caption handle"
+         [style.font-size]="textSize"
+         [style.color]="hasFocus() ? color.windowTextActive : color.windowTextInactive"
+         [style.padding-top]="textPad"
  #dragHandle>{{getTitle()}}</div>
-    <div class="minimize-button" [style.top]="buttonTop" (click)="minimizeToggle()"></div>
-    <div class="maximize-button" [style.top]="buttonTop" (click)="maximizeToggle()" [class.maximized]="isMaximized()"></div>
-    <div class="close-button" [style.top]="buttonTop" (click)="close()"></div>
+    <div class="minimize-button" [style.top]="buttonTop"
+         [class.active]="hasFocus()"
+         [style.background-size]="buttonSize" (click)="minimizeToggle()"></div>
+    <div class="maximize-button" [style.top]="buttonTop"
+         [class.active]="hasFocus()"
+         [style.background-size]="buttonSize" (click)="maximizeToggle()" [class.maximized]="isMaximized()"></div>
+    <div class="close-button" [style.top]="buttonTop"
+         [class.active]="hasFocus()"
+         [style.background-size]="buttonSize" (click)="close()"></div>
   </div>
 
   <!-- Window body -->
-  <div class="body" (mousedown)="requestFocus()" #windowBody>
+  <div class="body"
+       [style.top]="headerSize+'px'"
+       (mousedown)="requestFocus()" #windowBody>
     <com-rs-mvd-viewport [viewportId]="desktopWindow.viewportId" [attr.rs-com-viewport-id]="desktopWindow.viewportId">
       <!-- Loading display -->
       <div class="full-center">

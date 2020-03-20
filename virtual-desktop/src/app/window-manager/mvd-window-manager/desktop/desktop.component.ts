@@ -27,14 +27,14 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
   private _theme: DesktopTheme = {
     color: {
-      windowTextActive: '#171616',
-      windowTextInactive: '#171616',
-      windowColorActive: '#659ff9',
-      windowColorInactive: '#659ff9',
-      launchbarText: '#eeeeee',
-      launchbarColor: '#557999',
-      launchbarMenuText: '#212529',
-      launchbarMenuColor: '#dde8f1'
+      windowTextActive: '#f4f4f4',
+      windowTextInactive: '#828282',
+      windowColorActive: '#3d3f42',
+      windowColorInactive: '#0d0d0d',
+      launchbarText: '#dddee0',
+      launchbarColor: '#0d0d0db2',
+      launchbarMenuText: '#dddee0',
+      launchbarMenuColor: '#0d0d0d'
     },
     size: {
       window: 2,
