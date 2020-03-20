@@ -8,11 +8,13 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Optional, Inject, HostBinding } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 import { NavigationService, ProxyService } from '../services';
+import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
+import { LaunchMetadata } from '../shared';
 
 @Component({
   selector: 'app-address-bar',
@@ -25,11 +27,18 @@ export class AddressBarComponent implements OnInit, OnDestroy {
   placeholder = 'URL';
   proxyValueSubscription: Subscription;
   proxyErrorSubscription: Subscription;
+  @HostBinding('hidden')
+  isHidden: boolean;
 
   constructor(
     private navigation: NavigationService,
     private proxy: ProxyService,
+    @Optional() @Inject(Angular2InjectionTokens.LAUNCH_METADATA)
+    launchMetadata: Partial<LaunchMetadata>,
   ) {
+    if (launchMetadata && launchMetadata.hideControls) {
+      this.isHidden = true;
+    }
     this.urlControl = new FormControl(navigation.startURL);
     this.proxyControl = new FormControl(this.proxy.isEnabled());
     this.proxyValueSubscription = this.proxyControl.valueChanges.pipe(
@@ -90,7 +99,7 @@ export class AddressBarComponent implements OnInit, OnDestroy {
       this.proxyErrorSubscription.unsubscribe();
     }
   }
-
+  
 }
 
 

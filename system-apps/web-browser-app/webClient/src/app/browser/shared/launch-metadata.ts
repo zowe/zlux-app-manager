@@ -10,6 +10,7 @@
 
 export interface LaunchMetadata {
   url: string;
+  hideControls?: boolean;
 }
 
 
