@@ -15,6 +15,7 @@ import Promise from 'bluebird';
 import http from "http";
 import https from "https";
 import fs from 'fs';
+import { CONTENT_SECURITY_POLICY, CSP } from "./csp";
 
 interface CheckURLResult {
   redirect: boolean;
@@ -125,7 +126,30 @@ class ProxyDataService {
     if (proxyRes.headers[X_FRAME_OPTIONS]) {
       proxyRes.headers[X_FRAME_OPTIONS] = 'allowall';
     }
+    if (proxyRes.headers[CONTENT_SECURITY_POLICY]) {
+      const cspHeaders = proxyRes.headers[CONTENT_SECURITY_POLICY];
+      proxyRes.headers[CONTENT_SECURITY_POLICY] = this.fixContentSecurityPolicyHeaders(cspHeaders);
+    }
     this.context.logger.info(`Modified Response headers from target ${JSON.stringify(proxyRes.headers, null, 2)}`);
+  }
+  
+  private fixContentSecurityPolicyHeaders(cspHeaders: string | string[]): string | string[] {
+    if (Array.isArray(cspHeaders)) {
+      return cspHeaders.map(header => this.fixContentSecurityPolicyHeader(header));
+    }
+    return this.fixContentSecurityPolicyHeader(cspHeaders);
+  }
+  
+  private fixContentSecurityPolicyHeader(header: string): string {
+    const csp = CSP.parse(header);
+    const directivesToRemove = [
+      'child-src',
+      'default-src',
+      'frame-src',
+      'frame-ancestors',
+    ];
+    directivesToRemove.forEach(directive => delete csp[directive])
+    return CSP.stringify(csp);
   }
 
   private handleProxyError(err: Error, req: http.IncomingMessage, res: http.ServerResponse) {
