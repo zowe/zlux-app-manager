@@ -11,7 +11,7 @@
 import { Injectable, Inject, Optional } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 import { ProxyService } from './proxy.service';
-import { mergeMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { LaunchMetadata } from '../shared';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 
@@ -33,7 +33,7 @@ export class NavigationService {
     if (launchMetadata && typeof launchMetadata.url === 'string') {
       this.startURL = launchMetadata.url;
     }
-    this.url$ = this.urlSubject.pipe(mergeMap(url => this.proxy.process(url)));
+    this.url$ = this.urlSubject.pipe(switchMap(url => this.proxy.process(url)));
     this.navigateInternal(this.startURL);
   }
 

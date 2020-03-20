@@ -12,7 +12,7 @@ import { Injectable, Inject, Optional } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, Subject } from 'rxjs';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
-import { map, tap, mergeMap, catchError } from 'rxjs/operators';
+import { map, tap, catchError, switchMap } from 'rxjs/operators';
 import { LaunchMetadata } from '../shared';
 
 
@@ -52,9 +52,11 @@ export class ProxyService {
   }
 
   process(url: string): Observable<string> {
+    console.log(`process url ${url}`);
     return this.proxyState.pipe(
-      mergeMap(() => this.deletePreviousProxyServerIfNeeded()),
-      mergeMap(() => this.createProxyIfNeeded(url).pipe(catchError(err => {
+      tap(state => console.log(`state = ${state} ${this.enabled}`)),
+      switchMap(() => this.deletePreviousProxyServerIfNeeded()),
+      switchMap(() => this.createProxyIfNeeded(url).pipe(catchError(err => {
         this.enabled = false;
         this.proxyError.next();
         return of(url);
@@ -67,11 +69,12 @@ export class ProxyService {
       return this.create(url).pipe(
         map((result: ProxyServerResult) => result.port),
         tap(port => this.currentProxyPort = port),
-        tap(port => console.log(`created proxy at port ${port}`)),
+        tap(port => console.log(`created proxy at port ${port} for url ${url}`)),
         map(port => `https://${location.hostname}:${port}/`),
         tap(proxyURL => console.log(`proxy url is ${proxyURL}`)),
       );
     }
+    console.log(`createProxyIfNeeded proxy disabled ${url}`);
     return of(url);
   }
 
