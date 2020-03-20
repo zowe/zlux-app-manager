@@ -1,0 +1,72 @@
+swagger: '2.0'
+info:
+  description: Proxy Server management API
+  version: 1.0.0
+  title: Proxy Server management API
+host: localhost
+basePath: /
+schemes:
+  - http
+  - https
+tags:
+  - name: proxy
+paths:
+  /:
+    post:
+      summary: Allocate a new Proxy server
+      description: Allocate a new Proxy server
+      operationId: create
+      tags:
+        - proxy
+      produces:
+        - application/json
+      consumes:
+        - application/json      
+      parameters:
+        - name: body
+          in: body
+          description: Target URL
+          required: true
+          schema:
+            type: object
+            required: 
+              - url
+            properties:
+              url:
+                type: string
+      responses:
+        '200':
+          description: Proxy allocated
+          schema:
+            $ref: '#/definitions/ProxyResult'
+        '503':
+          description: Proxy unavailable
+    delete:
+      summary: Deallocate Proxy server
+      description: Deallocate Proxy server
+      operationId: delete
+      tags:
+        - proxy
+      produces:
+        - application/json
+      consumes:
+        - application/json      
+      parameters:
+        - in: query
+          name: port
+          description: Proxy Port
+          required: true
+          type: integer
+      responses:
+        '204':
+          description: Proxy deallocated
+definitions:
+  ProxyResult:
+    type: object
+    properties:
+      _objectType:
+        type: string
+      _metadataVersion:
+        type: string
+      port:
+        type: integer
