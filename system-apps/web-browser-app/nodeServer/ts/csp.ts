@@ -52,7 +52,7 @@ export class CSP {
     const directives = scpString.toLowerCase().split(';').map(directive => directive.trim());
     const csp: ContentSecurityPolicy = {};
     directives.forEach(directive => {
-      const parts = directive.split(/s+/);
+      const parts = directive.split(/\s+/);
       const partsLen = parts.length;
       if (partsLen == 0) {
         return;
