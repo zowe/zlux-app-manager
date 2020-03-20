@@ -7,8 +7,8 @@
 
   Copyright Contributors to the Zowe Project.
 -->
-<button class="icon-button" (click)="goBack()" [disabled]="!canGoBack" title="Go Back">&larr;</button>
-<button class="icon-button" (click)="goForward()" [disabled]="!canGoForward" title="Go Forward">&rarr;</button>
+<button class="icon-button" (click)="goBack()" [disabled]="!canGoBack" title="Go Back">&#8678;</button>
+<button class="icon-button" (click)="goForward()" [disabled]="!canGoForward" title="Go Forward">&#8680;</button>
 <button class="icon-button" (click)="refresh()" title="Refresh">&#8634;</button>
 <input type="url" [formControl]="urlControl" [placeholder]="placeholder" (keyup.enter)="navigate()" title="Go">
 <button (click)="navigate()">Go</button>
