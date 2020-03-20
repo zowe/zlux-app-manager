@@ -14,8 +14,7 @@ import { BrowserComponent } from './browser/browser.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddressBarComponent } from './address-bar/address-bar.component';
 import { BrowserWindowComponent } from './browser-window/browser-window.component';
-import { NavigationService } from './services/navigation.service';
-import { ProxyService } from './services/proxy.service';
+import { NavigationService, ProxyService } from './services';
 
 @NgModule({
   imports: [

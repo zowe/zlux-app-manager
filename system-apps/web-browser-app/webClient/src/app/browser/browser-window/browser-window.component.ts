@@ -10,7 +10,7 @@
 
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { NavigationService } from '../services/navigation.service';
+import { NavigationService } from '../services';
 import { map } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 

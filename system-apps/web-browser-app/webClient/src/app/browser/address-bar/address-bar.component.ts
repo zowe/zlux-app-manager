@@ -10,10 +10,9 @@
 
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { NavigationService } from '../services/navigation.service';
-import { ProxyService } from '../services/proxy.service';
 import { Subscription } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
+import { NavigationService, ProxyService } from '../services';
 
 @Component({
   selector: 'app-address-bar',
