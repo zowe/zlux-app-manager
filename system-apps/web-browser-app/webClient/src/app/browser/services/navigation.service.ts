@@ -8,14 +8,16 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, Optional } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 import { ProxyService } from './proxy.service';
 import { mergeMap } from 'rxjs/operators';
+import { LaunchMetadata } from '../shared';
+import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 
 @Injectable()
 export class NavigationService {
-  readonly startURL = 'https://zowe.org';
+  readonly startURL: string = 'https://zowe.org';
   private urlSubject = new ReplaySubject<string>(1);
   url$: Observable<string>;
 
@@ -23,7 +25,14 @@ export class NavigationService {
   private backStack: string[] = [];
   private forwardStack: string[] = [];
 
-  constructor(private proxy: ProxyService) {
+  constructor(
+    @Optional() @Inject(Angular2InjectionTokens.LAUNCH_METADATA)
+    launchMetadata: Partial<LaunchMetadata>,
+    private proxy: ProxyService
+  ) {
+    if (launchMetadata && typeof launchMetadata.url === 'string') {
+      this.startURL = launchMetadata.url;
+    }
     this.url$ = this.urlSubject.pipe(mergeMap(url => this.proxy.process(url)));
     this.navigateInternal(this.startURL);
   }
@@ -44,7 +53,7 @@ export class NavigationService {
     this.navigateInternal(url);
   }
 
-  goBack(): string | undefined{
+  goBack(): string | undefined {
     this.forwardStack.push(this.currentURL);
     const url = this.backStack.pop();
     if (url) {
