@@ -18,7 +18,6 @@ import { WindowManagerService } from '../shared/window-manager.service';
 import { WindowPosition } from '../shared/window-position';
 
 const SCREEN_EDGE_BORDER = 2;
-const LAUNCHBAR_HEIGHT = WindowManagerService.LAUNCHBAR_HEIGHT;
 
 @Component({
   selector: 'rs-com-mvd-window',
@@ -33,31 +32,38 @@ export class WindowComponent {
   public headerSize:number;
   public borderSize:string;
   public textSize:string;
+  public textPad:string;
   public buttonTop:string;
+  public buttonSize:string;
   
   @Input() set theme(newTheme: DesktopTheme) {
     console.log('Window theme set=',newTheme);
     this.color = newTheme.color;
     switch (newTheme.size.window) {
     case 1:
-      this.headerSize = 20;
       this.borderSize = '1px';
-      this.buttonTop = '0px';
+      this.buttonSize = '10px';
+      this.buttonTop = '6px';
       this.textSize = '12px';
+      this.textPad = '3px';
       break;
     case 3:
-      this.headerSize = 48;
       this.borderSize = '3px';
-      this.buttonTop = '12px';
+      this.buttonSize = '16px';
+      this.buttonTop = '16px';
       this.textSize = '18px';
+      this.textPad = '12px';
       break;
     default:
       //2
-      this.headerSize = 30;
       this.borderSize = '2px';
-      this.buttonTop = '5px';
+      this.buttonSize = '12px';
+      this.buttonTop = '9px';
       this.textSize = '14px';
+      this.textPad = '5px';
     }
+    (WindowManagerService as any)._setTheme(newTheme);
+    this.headerSize = WindowManagerService.WINDOW_HEADER_HEIGHT;
   };
   
   MIN_WIDTH = 180;
@@ -104,8 +110,8 @@ export class WindowComponent {
     if (position.left + position.width - this.headerSize < 0) {
       position.left = -position.width + this.headerSize;
     }
-    if ((position.top + this.headerSize) > DESKTOP_HEIGHT - LAUNCHBAR_HEIGHT) {
-      position.top = DESKTOP_HEIGHT - this.headerSize - LAUNCHBAR_HEIGHT;
+    if ((position.top + this.headerSize) > DESKTOP_HEIGHT - WindowManagerService.LAUNCHBAR_HEIGHT) {
+      position.top = DESKTOP_HEIGHT - this.headerSize - WindowManagerService.LAUNCHBAR_HEIGHT;
     }
     if ((position.left + this.headerSize) > DESKTOP_WIDTH) {
       position.left = DESKTOP_WIDTH - this.headerSize;

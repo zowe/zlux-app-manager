@@ -139,59 +139,73 @@
 
 .maximize-button {
   left: 73px;
-  background-image: url(../../../../assets/images/window/expand-normal.png);
+  background-image: url(../../../../assets/images/window/expand-inactive.png);
 }
 
 .maximize-button.maximized {
   left: 73px;
-  background-image: url(../../../../assets/images/window/expanded-normal.png);
+  background-image: url(../../../../assets/images/window/expanded-inactive.png);
 }
 
 .minimize-button {
   left: 42px;
-  background-image: url(../../../../assets/images/window/minimize-normal.png);
+  background-image: url(../../../../assets/images/window/minimize-inactive.png);
 }
 
 .close-button {
   left: 12px;
-  background-image: url(../../../../assets/images/window/close-normal.png);
+  background-image: url(../../../../assets/images/window/close-inactive.png);
 }
 
-.link-button {
-  right: 15px;
-  background-size: 19px 19px;
-  background-image: url(../../../../assets/images/window/link-button.png);
+.maximize-button.active:hover {
+  background-image: url(../../../../assets/images/window/expand-hover-active.png);
 }
 
-.maximize-button:hover {
-  background-image: url(../../../../assets/images/window/expand-hover.png);
+.maximize-button.maximized.active:hover {
+  background-image: url(../../../../assets/images/window/expanded-hover-active.png);
 }
 
-.maximize-button.maximized:hover {
-  background-image: url(../../../../assets/images/window/expanded-hover.png);
+.minimize-button.active:hover {
+  background-image: url(../../../../assets/images/window/minimize-hover-active.png);
 }
 
-.minimize-button:hover {
-  background-image: url(../../../../assets/images/window/minimize-hover.png);
+.close-button.active:hover {
+  background-image: url(../../../../assets/images/window/close-hover-active.png);
 }
 
-.close-button:hover {
-  background-image: url(../../../../assets/images/window/close-hover.png);
+.maximize-button.active {
+  background-image: url(../../../../assets/images/window/expand-active.png);
 }
 
-.maximize-button:active {
+.maximize-button.maximized.active {
+  background-image: url(../../../../assets/images/window/expanded-active.png);
+}
+
+.minimize-button.active {
+  background-image: url(../../../../assets/images/window/minimize-active.png);
+}
+
+.close-button.active {
+  background-image: url(../../../../assets/images/window/close-active.png);
+}
+
+.close-button.active:active {
+  background-image: url(../../../../assets/images/window/close-pressed.png);
+}
+
+.maximize-button.active:active {
   background-image: url(../../../../assets/images/window/expand-pressed.png);
 }
 
-.maximize-button.maximized:active {
+.maximize-button.maximized.active:active {
   background-image: url(../../../../assets/images/window/expanded-pressed.png);
 }
 
-.minimize-button:active {
+.minimize-button.active:active {
   background-image: url(../../../../assets/images/window/minimize-pressed.png);
 }
 
-.close-button:active {
+.close-button.active:active {
   background-image: url(../../../../assets/images/window/close-pressed.png);
 }
 

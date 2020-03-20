@@ -37,18 +37,33 @@
 </div>
 <div [hidden]="!notificationsVisible" class="launch-widget-caret caret-down"></div>
 
-<div class="launchbar-clock">
+<div class="widget-area" [style.padding-top]="widgetOffset" [style.min-width]="areaSize">
   <div class="launchbar-separator left"></div>
-  <span>
+  <div class="clock two-row" *ngIf="clockTwoRow" [style.font-size]="fontSize" [style.padding-top]="clockOffset">
     <span>{{date | date:'shortTime'}}</span>
     <br>
     <span>{{date | date:'shortDate'}}</span>
-  </span>
-  <div #notificationicon class="launchbar-tray-icon notification" (click)="toggleNotifications()">
+  </div>
+  <div class="clock" *ngIf="!clockTwoRow" [style.font-size]="fontSize" [style.padding-top]="clockOffset">
+    <span>{{date | date:'shortDate'}} {{date | date:'shortTime'}}</span>
+  </div>
+  <div #notificationicon class="launchbar-tray-icon notification"
+       [style.background-size]="widgetSize+' '+widgetSize"
+       [style.height]="widgetSize"
+       [style.width]="widgetSize"
+       (click)="toggleNotifications()">
       <div [hidden]="notifications.length == 0"class="launchbar-tray-indicator">{{notifications.length}}</div>
   </div>
-  <div #usericon class="launchbar-tray-icon settings" (click)="togglePersonalizationPanel()"></div>
-  <div #usericon class="launchbar-tray-icon user" (click)="togglePopup()"></div>
+  <div #settingsicon class="launchbar-tray-icon settings"
+       [style.background-size]="widgetSize+' '+widgetSize"
+       [style.height]="widgetSize"
+       [style.width]="widgetSize"
+       (click)="togglePersonalizationPanel()"></div>
+  <div #usericon class="launchbar-tray-icon user"
+       [style.height]="widgetSize"
+       [style.width]="widgetSize"
+       [style.background-size]="widgetSize+' '+widgetSize"
+       (click)="togglePopup()"></div>
 </div>
 
 <!--

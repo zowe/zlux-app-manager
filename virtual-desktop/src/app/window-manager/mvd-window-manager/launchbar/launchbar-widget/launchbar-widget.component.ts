@@ -41,8 +41,46 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   public date: Date;
   public popupVisible: boolean;
+  public fontSize:string;
+  
   @Output() popupStateChanged = new EventEmitter<boolean>();
-  @Input() theme: DesktopTheme;
+  
+  public clockTwoRow: boolean = true;
+  public clockOffset: string;
+  public widgetOffset: string;
+  public widgetSize: string;
+  public areaSize: string;
+  
+  @Input() set theme (newTheme: DesktopTheme) {
+    switch (newTheme.size.launchbar) {
+    case 1:
+      this.clockTwoRow = false;
+      this.clockOffset = '0px';
+      this.widgetOffset = '5px';
+      this.areaSize = "188px";
+      this.widgetSize="16px";
+      this.fontSize = '12px';
+      break;
+    case 3:
+      this.clockTwoRow = true;
+      this.widgetOffset = '24px';
+      this.areaSize = "200px";
+      this.widgetSize="32px";
+      this.fontSize = '16px';
+      break;
+    default:
+      //2
+      this.clockTwoRow = true;
+      this.clockOffset = '0px';
+      this.widgetOffset = '9px';
+      this.areaSize = "175px";
+      this.widgetSize="24px";
+      this.fontSize = '14px';
+      break;      
+    }
+  }
+  
+  
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
   @ViewChild('notificationicon') notificationIcon: ElementRef;
@@ -50,7 +88,6 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public notificationsVisible: boolean;
   private info: any[];
   @Input() menuItems: LaunchbarItem[];
-  public closeImage: string = require('../../../../../assets/images/window/close-normal.png')
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   public notifications: any[];
   // Convenience widgets for testing the i18n work
