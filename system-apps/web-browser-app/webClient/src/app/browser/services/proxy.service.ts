@@ -10,7 +10,7 @@
 
 import { Injectable, Inject, Optional } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, of, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, of } from 'rxjs';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 import { map, tap, catchError, switchMap } from 'rxjs/operators';
 import { isLaunchMetadata } from '../shared';
@@ -25,7 +25,6 @@ export class ProxyService {
   readonly proxyServiceURL: string;
   private enabled = false;
   proxyState = new BehaviorSubject<boolean>(this.enabled);
-  proxyError = new Subject<void>();
   currentProxyPort: number;
 
   constructor(
@@ -58,7 +57,7 @@ export class ProxyService {
       switchMap(() => this.deletePreviousProxyServerIfNeeded()),
       switchMap(() => this.createProxyIfNeeded(url).pipe(catchError(err => {
         this.enabled = false;
-        this.proxyError.next();
+        this.proxyState.next(false);
         return of(url);
       }))),
     )
