@@ -18,6 +18,10 @@ export interface WebBrowserLaunchMetadata {
   enableProxy: boolean;
 }
 
+export function isLaunchMetadata(data: any): data is LaunchMetadata {
+  return data && data.data != null && typeof data.data === 'object';
+}
+
 
 /*
   This program and the accompanying materials are

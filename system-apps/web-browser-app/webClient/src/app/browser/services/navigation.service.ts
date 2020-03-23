@@ -12,7 +12,7 @@ import { Injectable, Inject, Optional } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 import { ProxyService } from './proxy.service';
 import { switchMap } from 'rxjs/operators';
-import { LaunchMetadata } from '../shared';
+import { isLaunchMetadata } from '../shared';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 
 @Injectable()
@@ -27,11 +27,10 @@ export class NavigationService {
 
   constructor(
     @Optional() @Inject(Angular2InjectionTokens.LAUNCH_METADATA)
-    launchMetadata: Partial<LaunchMetadata>,
+    launchMetadata: any,
     private proxy: ProxyService
   ) {
-    console.log(`navigation service got launch metadata:\n${JSON.stringify(launchMetadata, null, 2)}`);
-    if (launchMetadata && launchMetadata.data && typeof launchMetadata.data.url === 'string') {
+    if (isLaunchMetadata(launchMetadata) && typeof launchMetadata.data.url === 'string') {
       this.startURL = launchMetadata.data.url;
     }
     this.url$ = this.urlSubject.pipe(switchMap(url => this.proxy.process(url)));

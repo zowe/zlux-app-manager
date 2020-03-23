@@ -13,7 +13,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, Subject } from 'rxjs';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 import { map, tap, catchError, switchMap } from 'rxjs/operators';
-import { LaunchMetadata } from '../shared';
+import { isLaunchMetadata } from '../shared';
 
 
 export interface ProxyServerResult {
@@ -33,10 +33,10 @@ export class ProxyService {
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION)
     private pluginDefinition: ZLUX.ContainerPluginDefinition,
     @Optional() @Inject(Angular2InjectionTokens.LAUNCH_METADATA)
-    launchMetadata: Partial<LaunchMetadata>,
+    launchMetadata: any,
   ) {
     this.proxyServiceURL = ZoweZLUX.uriBroker.pluginRESTUri(this.pluginDefinition.getBasePlugin(), 'proxy', '');
-    if (launchMetadata && launchMetadata.data && launchMetadata.data.enableProxy) {
+    if (isLaunchMetadata(launchMetadata) && launchMetadata.data.enableProxy) {
       this.enabled = true;
     }
   }

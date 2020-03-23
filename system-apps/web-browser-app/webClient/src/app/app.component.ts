@@ -12,8 +12,9 @@
 
 import { Component, Inject } from '@angular/core';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
-
 import { LocaleService, TranslationService } from 'angular-l10n';
+import { WebBrowserLaunchMetadata, isLaunchMetadata } from './browser/shared';
+import { NavigationService, ProxyService, SettingsService } from './browser/services';
 
 @Component({
   selector: 'app-root',
@@ -25,14 +26,42 @@ export class AppComponent {
   constructor(
     public locale: LocaleService,
     public translation: TranslationService,
-    @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) public pluginDefinition: ZLUX.ContainerPluginDefinition,
     @Inject(Angular2InjectionTokens.LOGGER) public log: ZLUX.ComponentLogger,
-    @Inject(Angular2InjectionTokens.LAUNCH_METADATA) public launchMetadata: any,
+    private navigation: NavigationService,
+    private proxy: ProxyService,
+    private settings: SettingsService,
   ) {
   }
 
   ngOnInit(): void {
     this.log.info(`web browser started`);
+  }
+
+  provideZLUXDispatcherCallbacks(): ZLUX.ApplicationCallbacks {
+    return {
+      onMessage: (eventContext: any): Promise<any> => this.zluxOnMessage(eventContext)
+    }
+  }
+
+  private zluxOnMessage(eventContext: any): Promise<void> {
+    if (isLaunchMetadata(eventContext)) {
+      this.handleLaunchMetadata(eventContext.data);
+      return Promise.resolve();
+    }
+    return Promise.reject(`Event context missing or malformed`);
+  }
+
+  private handleLaunchMetadata(launchMetaData: Partial<WebBrowserLaunchMetadata>): void {
+    const { enableProxy, hideControls, url } = launchMetaData;
+    if (typeof enableProxy === 'boolean' && this.proxy.isEnabled() !== enableProxy) {
+      this.proxy.toggle();
+    }
+    if (typeof hideControls === 'boolean' && !this.settings.areControlsVisible() !== hideControls) {
+      this.settings.toggleControls();
+    }
+    if (typeof url === 'string') {
+      this.navigation.navigate(url);
+    }
   }
 
 }

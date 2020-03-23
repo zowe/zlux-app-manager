@@ -10,6 +10,7 @@
 
 export * from './navigation.service';
 export * from './proxy.service';
+export * from './settings.service';
 
 /*
   This program and the accompanying materials are
