@@ -17,7 +17,6 @@ import { CssUrlPipe } from './css-url.pipe';
 import { WindowMonitor } from './window-monitor.service';
 import { DirectEmbedComponent } from './direct-embed.component';
 
-
 @NgModule({
   imports: [
     CommonModule

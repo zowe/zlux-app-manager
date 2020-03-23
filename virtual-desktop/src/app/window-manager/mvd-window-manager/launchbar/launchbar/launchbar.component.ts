@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, Injector } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { PluginLaunchbarItem } from '../shared/launchbar-items/plugin-launchbar-item';
@@ -20,7 +20,6 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { TranslationService } from 'angular-l10n';
 import { generateInstanceActions } from '../shared/context-utils';
-import { KeybindingService } from '../../shared/keybinding.service';
 
 @Component({
   selector: 'rs-com-launchbar',
@@ -28,7 +27,7 @@ import { KeybindingService } from '../../shared/keybinding.service';
   styleUrls: ['./launchbar.component.css', '../shared/shared.css'],
   providers: [PluginsDataService]
 })
-export class LaunchbarComponent implements OnInit {
+export class LaunchbarComponent {
   allItems: LaunchbarItem[];
   runItems: LaunchbarItem[];
   isActive: boolean;
@@ -50,8 +49,7 @@ export class LaunchbarComponent implements OnInit {
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     public windowManager: WindowManagerService,
-    private translation: TranslationService,
-    private appKeyboard: KeybindingService,
+    private translation: TranslationService
   ) {
      // Workaround for AoT problem with namespaces (see angular/angular#15613)
      this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -78,29 +76,6 @@ export class LaunchbarComponent implements OnInit {
 
   getNewItems(): void {
     this.pluginManager.loadApplicationPluginDefinitions(true);
-  }
-  
-   ngOnInit() {
-    this.appKeyboard.registerKeyUpEvent();
-  }
-  
-  getAllItems(): void {
-    this.allItems = [];
-    ZoweZLUX.pluginManager.loadPlugins('application').then((plugins: Plugin[]) => {
-      plugins.forEach((p: any)=> {
-        if (p.webContent != null) {
-          if (p.identifier === 'org.zowe.zlux.appmanager.app.propview') {
-            const pluginImpl:DesktopPluginDefinitionImpl = p as DesktopPluginDefinitionImpl;
-            this.propertyWindowPluginDef = pluginImpl;
-          } else if (p.identifier === 'org.zowe.zlux.ng2desktop.settings') { 
-            // UI decision made to not display Settings application with the main application menu.
-            // The Settings apps will be accessible via their own dedicated panel, and need not hog the menu.
-          } else {
-            this.allItems.push(new PluginLaunchbarItem(new DesktopPluginDefinitionImpl(p), this.windowManager));
-          }
-        }
-      })
-    });
   }
 
   ngDoCheck(): void {
@@ -204,7 +179,6 @@ export class LaunchbarComponent implements OnInit {
   }
 
   onMouseUpContainer(event: MouseEvent): void {
-
     if (this.currentItem != null) {
       this.onMouseUp(event, this.currentItem);
     }

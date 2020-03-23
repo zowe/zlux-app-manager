@@ -10,9 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component} from '@angular/core';
-
-
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'rs-com-root',
@@ -22,7 +20,6 @@ export class MvdComponent {
 
   constructor() {
   }
-
 }
 
 
