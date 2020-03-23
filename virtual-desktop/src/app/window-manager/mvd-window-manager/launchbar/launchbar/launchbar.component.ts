@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Injector, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, Injector, OnInit } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { PluginLaunchbarItem } from '../shared/launchbar-items/plugin-launchbar-item';
@@ -45,8 +45,6 @@ export class LaunchbarComponent implements OnInit {
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
   propertyWindowPluginDef: DesktopPluginDefinitionImpl;
-  @ViewChild('launchbar')
-  launchBarRef: ElementRef<any>;
   
    constructor(
     private pluginsDataService: PluginsDataService,
@@ -83,7 +81,7 @@ export class LaunchbarComponent implements OnInit {
   }
   
    ngOnInit() {
-    this.appKeyboard.registerKeyUpEvent(this.launchBarRef.nativeElement);
+    this.appKeyboard.registerKeyUpEvent();
   }
   
   getAllItems(): void {

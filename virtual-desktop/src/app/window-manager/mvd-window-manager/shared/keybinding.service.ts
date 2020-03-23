@@ -10,26 +10,24 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable } from '@angular/core';
-
-import { Subject, Observable } from 'rxjs/Rx';
+import { Injectable, EventEmitter } from '@angular/core';
 
 @Injectable()
 export class KeybindingService {
-  public keyupEvent: Subject<KeyboardEvent>;
-
+  public keyupEvent = new EventEmitter<KeyboardEvent>();
   constructor() {
-    this.keyupEvent = new Subject();
+    this.keyupHandler = this.keyupHandler.bind(this);
   }
 
-  registerKeyUpEvent(appChild:Element) {
-    let elm = appChild.closest('rs-com-mvd-desktop');
-    if(elm) {
-      const observable = Observable.fromEvent(elm, 'keyup' ) as Observable<KeyboardEvent>;
-      observable
-        .filter(value => value.altKey && value.ctrlKey)
-        .subscribe(this.keyupEvent);
-      console.log('registered for keyup desktop');
+  registerKeyUpEvent() {
+    document.addEventListener('keyup', this.keyupHandler, true);
+  }
+
+  keyupHandler(event: KeyboardEvent) {
+    if(event.altKey && event.ctrlKey) {
+      //console.log('desktop' + event.which);
+      event.stopImmediatePropagation();
+      this.keyupEvent.emit(event);
     }
   }
 }

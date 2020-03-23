@@ -76,11 +76,9 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   }
 
   ngOnInit(): void {
-
     this.appKeyboard.keyupEvent
-      .subscribe((event) => {
+      .subscribe((event:KeyboardEvent) => {
         if (event.which === KeyCode.KEY_M) {
-          event.stopImmediatePropagation();
           this.activeToggle();
         }
     });
