@@ -25,13 +25,32 @@ interface CheckURLResult {
 interface Context {
   serviceDefinition: any;
   serviceConfiguration: any;
-  plugin: any;
+  plugin: {
+    server: {
+      config: {
+        user: {
+          node: {
+            https: {
+              keys: string[];
+              certificates: string[];
+            }
+          }
+        }
+      }
+    }
+  };
   storage: any;
   logger: {
     info: (message: string) => void;
+    error: (message: string) => void;
   };
   wsRouterPatcher: any;
   addBodyParseMiddleware: (router: Router) => void;
+}
+
+interface KeyAndCert {
+  key: string;
+  cert: string;
 }
 
 const X_FRAME_OPTIONS = 'x-frame-options';
@@ -42,9 +61,11 @@ class ProxyDataService {
   private readonly startPort = 6565;
   private readonly endPort = this.startPort + 20;
   private proxyServerByPort = new Map<number, httpProxy>();
+  private keyAndCert: KeyAndCert;
 
   constructor(context: Context) {
     this.context = context;
+    this.keyAndCert = this.getServerKeyAndCert();
     context.addBodyParseMiddleware(this.router);
     this.router.post('/', (req: Request, res: Response) => this.handleNewProxyServerRequest(req, res));
     this.router.delete('/', (req: Request, res: Response) => this.handleDeleteProxyServerRequest(req, res));
@@ -102,8 +123,8 @@ class ProxyDataService {
       ws: true,
       cookieDomainRewrite: `${hostname}:${proxyPort}`,
       ssl: {
-        key: fs.readFileSync('../defaults/serverConfig/zlux.keystore.key', 'utf8'),
-        cert: fs.readFileSync('../defaults/serverConfig/zlux.keystore.cer', 'utf8')
+        key: this.keyAndCert.key,
+        cert: this.keyAndCert.cert
       },
     };
     return <httpProxy.ServerOptions>{
@@ -132,14 +153,14 @@ class ProxyDataService {
     }
     this.context.logger.info(`Modified Response headers from target ${JSON.stringify(proxyRes.headers, null, 2)}`);
   }
-  
+
   private fixContentSecurityPolicyHeaders(cspHeaders: string | string[]): string | string[] {
     if (Array.isArray(cspHeaders)) {
       return cspHeaders.map(header => this.fixContentSecurityPolicyHeader(header));
     }
     return this.fixContentSecurityPolicyHeader(cspHeaders);
   }
-  
+
   private fixContentSecurityPolicyHeader(header: string): string {
     const csp = CSP.parse(header);
     const directivesToRemove = [
@@ -182,6 +203,22 @@ class ProxyDataService {
     } else {
       resolve({ redirect: false });
     }
+  }
+
+  private getServerKeyAndCert(): KeyAndCert {
+    let key: string;
+    let cert: string;
+    try {
+      const keys = this.context.plugin.server.config.user.node.https.keys;
+      const certs = this.context.plugin.server.config.user.node.https.certificates;
+      key = fs.readFileSync(keys[0], 'utf-8');
+      cert = fs.readFileSync(certs[0], 'utf-8');
+    } catch(e) {
+      this.context.logger.error(`unable to find key/cert pair JSON.stringify(e)`);
+      cert = undefined;
+      key = undefined;
+    }
+    return {key, cert};
   }
 
   getRouter(): Router {
