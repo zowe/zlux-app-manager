@@ -14,7 +14,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 
 @Injectable()
 export class KeybindingService {
-  public keyupEvent = new EventEmitter<KeyboardEvent>();
+  public keyUpEvent = new EventEmitter<KeyboardEvent>();
   constructor() {
     this.keyUpHandler = this.keyUpHandler.bind(this);
   }
@@ -24,10 +24,9 @@ export class KeybindingService {
   }
 
   keyUpHandler(event: KeyboardEvent) {
-    if(event.altKey) {
-      console.log('desktop' + event.which);
+    if(event.altKey && event.ctrlKey) {
       event.stopImmediatePropagation();
-      this.keyupEvent.emit(event);
+      this.keyUpEvent.emit(event);
     }
   }
 }

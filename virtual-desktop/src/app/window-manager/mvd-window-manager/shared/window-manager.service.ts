@@ -127,7 +127,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     document.addEventListener('keydown', tabHandler, false);
 
     this.appKeyboard.registerKeyUpEvent();
-    this.appKeyboard.keyupEvent
+    this.appKeyboard.keyUpEvent
       .subscribe((event:KeyboardEvent) => {
         if (event.which === KeyCode.DOWN_ARROW) {
           if(this.focusedWindow) {
