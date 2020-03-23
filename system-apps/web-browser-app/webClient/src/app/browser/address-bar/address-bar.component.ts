@@ -36,7 +36,7 @@ export class AddressBarComponent implements OnInit, OnDestroy {
     @Optional() @Inject(Angular2InjectionTokens.LAUNCH_METADATA)
     launchMetadata: Partial<LaunchMetadata>,
   ) {
-    if (launchMetadata && launchMetadata.hideControls) {
+    if (launchMetadata && launchMetadata.data && launchMetadata.data.hideControls) {
       this.isHidden = true;
     }
     this.urlControl = new FormControl(navigation.startURL);

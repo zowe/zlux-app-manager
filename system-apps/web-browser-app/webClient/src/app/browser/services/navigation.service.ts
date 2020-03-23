@@ -30,8 +30,9 @@ export class NavigationService {
     launchMetadata: Partial<LaunchMetadata>,
     private proxy: ProxyService
   ) {
-    if (launchMetadata && typeof launchMetadata.url === 'string') {
-      this.startURL = launchMetadata.url;
+    console.log(`navigation service got launch metadata:\n${JSON.stringify(launchMetadata, null, 2)}`);
+    if (launchMetadata && launchMetadata.data && typeof launchMetadata.data.url === 'string') {
+      this.startURL = launchMetadata.data.url;
     }
     this.url$ = this.urlSubject.pipe(switchMap(url => this.proxy.process(url)));
     this.navigateInternal(this.startURL);

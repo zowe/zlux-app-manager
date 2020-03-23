@@ -36,7 +36,7 @@ export class ProxyService {
     launchMetadata: Partial<LaunchMetadata>,
   ) {
     this.proxyServiceURL = ZoweZLUX.uriBroker.pluginRESTUri(this.pluginDefinition.getBasePlugin(), 'proxy', '');
-    if (launchMetadata && launchMetadata.enableProxy) {
+    if (launchMetadata && launchMetadata.data && launchMetadata.data.enableProxy) {
       this.enabled = true;
     }
   }

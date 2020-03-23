@@ -9,9 +9,13 @@
 */
 
 export interface LaunchMetadata {
+  data: Partial<WebBrowserLaunchMetadata>;
+}
+
+export interface WebBrowserLaunchMetadata {
   url: string;
-  hideControls?: boolean;
-  enableProxy?: boolean;
+  hideControls: boolean;
+  enableProxy: boolean;
 }
 
 
