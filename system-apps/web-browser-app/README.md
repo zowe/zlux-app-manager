@@ -10,6 +10,9 @@ Copyright Contributors to the Zowe Project.
 
 Zowe Web Browser App
 
+## Environment Variables
+
+- `ZOWE_WEB_BROWSER_PROXY_PORT_RANGE=61000..61100`
 
 This program and the accompanying materials are
 made available under the terms of the Eclipse Public License v2.0 which accompanies

@@ -54,22 +54,28 @@ interface KeyAndCert {
 }
 
 const X_FRAME_OPTIONS = 'x-frame-options';
+const ZOWE_WEB_BROWSER_PROXY_PORT_RANGE = 'ZOWE_WEB_BROWSER_PROXY_PORT_RANGE';
 
 class ProxyDataService {
   private context: Context;
   private router: Router = express.Router();
-  private readonly startPort = 6565;
-  private readonly endPort = this.startPort + 20;
-  private proxyServerByPort = new Map<number, httpProxy>();
-  private keyAndCert: KeyAndCert;
+  private readonly startPort: number;
+  private readonly endPort: number;
+  private readonly keyAndCert: KeyAndCert;
+  private readonly portRangeDefault = { start: 16000, end: 16030 };
+  private readonly proxyServerByPort = new Map<number, httpProxy>();
+  private portRangeSource: string = 'default';
 
   constructor(context: Context) {
     this.context = context;
     this.keyAndCert = this.getServerKeyAndCert();
+    const { start, end } = this.getPortRange();
+    this.startPort = start;
+    this.endPort = end;
     context.addBodyParseMiddleware(this.router);
     this.router.post('/', (req: Request, res: Response) => this.handleNewProxyServerRequest(req, res));
     this.router.delete('/', (req: Request, res: Response) => this.handleDeleteProxyServerRequest(req, res));
-    this.context.logger.info(`context keys are ${JSON.stringify(Object.keys(context))}`);
+    this.context.logger.info(`port range is ${this.startPort}..${this.endPort} [${this.portRangeSource}]`);
   }
 
   private handleNewProxyServerRequest(req: Request, res: Response) {
@@ -213,12 +219,37 @@ class ProxyDataService {
       const certs = this.context.plugin.server.config.user.node.https.certificates;
       key = fs.readFileSync(keys[0], 'utf-8');
       cert = fs.readFileSync(certs[0], 'utf-8');
-    } catch(e) {
+    } catch (e) {
       this.context.logger.error(`unable to find key/cert pair JSON.stringify(e)`);
       cert = undefined;
       key = undefined;
     }
-    return {key, cert};
+    return { key, cert };
+  }
+
+  getPortRange(): { start: number, end: number } {
+    const portRangeString = process.env[ZOWE_WEB_BROWSER_PROXY_PORT_RANGE];
+    if (!portRangeString) {
+      this.context.logger.info(`${ZOWE_WEB_BROWSER_PROXY_PORT_RANGE} environment variable not set`);
+      return this.portRangeDefault;
+    }
+    this.context.logger.info(`${ZOWE_WEB_BROWSER_PROXY_PORT_RANGE} environment variable: ${portRangeString}`);
+    const [startString, endString] = portRangeString.split(/\.\.+/);
+    const [start, end] = [+startString, +endString];
+    if (!Number.isInteger(start) || !Number.isInteger(end)) {
+      this.context.logger.error(`${ZOWE_WEB_BROWSER_PROXY_PORT_RANGE} is invalid. Correct format is N..M, e.g. 12345..12378`);
+      return this.portRangeDefault;
+    }
+    if (start < 1024 || end < 1024) {
+      this.context.logger.error(`${ZOWE_WEB_BROWSER_PROXY_PORT_RANGE} must not use privileged ports`);
+      return this.portRangeDefault;
+    }
+    if (start >= end) {
+      this.context.logger.error(`${ZOWE_WEB_BROWSER_PROXY_PORT_RANGE} specifies empty port range`);
+      return this.portRangeDefault;
+    }
+    this.portRangeSource = `${ZOWE_WEB_BROWSER_PROXY_PORT_RANGE} environment variable`;
+    return { start, end };
   }
 
   getRouter(): Router {
