@@ -30,6 +30,10 @@
     }
   ],
   "configurationData": {
-    "resources": {}
+    "resources": {
+      "settings": {
+        "aggregationPolicy": "override"
+      }
+    }
   }
 }

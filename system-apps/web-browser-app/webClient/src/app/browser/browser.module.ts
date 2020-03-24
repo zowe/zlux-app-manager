@@ -17,6 +17,8 @@ import { AddressBarComponent } from './address-bar/address-bar.component';
 import { BrowserWindowComponent } from './browser-window/browser-window.component';
 import { NavigationService, ProxyService, SettingsService, BookmarksService } from './services';
 import { BookmarksComponent } from './bookmarks/bookmarks.component';
+import { BookmarkComponent } from './bookmark/bookmark.component';
+import { BookmarkButtonComponent } from './bookmark-button/bookmark-button.component';
 
 @NgModule({
   imports: [
@@ -27,9 +29,11 @@ import { BookmarksComponent } from './bookmarks/bookmarks.component';
   ],
   declarations: [
     AddressBarComponent,
+    BookmarkComponent,
     BookmarksComponent,
     BrowserComponent,
     BrowserWindowComponent,
+    BookmarkButtonComponent,
   ],
   providers: [
     BookmarksService,

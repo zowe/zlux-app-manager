@@ -8,7 +8,12 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<app-bookmark *ngFor="let bookmark of bookmarks.bookmarks" [bookmark]="bookmark"></app-bookmark>
+<button (click)="toggleBookmark()" [ngClass]="{'bookmarked': bookmarked}"
+  [title]="bookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'">
+  <ng-container *ngIf="bookmarked else notBookmarked">&#10029;</ng-container>
+  <ng-template #notBookmarked>&#10025;</ng-template>
+</button>
+
 
 <!--
   This program and the accompanying materials are

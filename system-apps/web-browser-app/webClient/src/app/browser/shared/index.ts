@@ -8,6 +8,8 @@
   Copyright Contributors to the Zowe Project.
 */
 
+export * from './bookmark';
+export * from './bookmarks-response';
 export * from './launch-metadata';
 
 /*

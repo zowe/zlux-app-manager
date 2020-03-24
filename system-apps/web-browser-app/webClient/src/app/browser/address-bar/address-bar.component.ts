@@ -29,7 +29,7 @@ export class AddressBarComponent implements OnInit, OnDestroy {
   private urlSubscription: Subscription;
 
   constructor(
-    private navigation: NavigationService,
+    public navigation: NavigationService,
     private proxy: ProxyService,
     private settings: SettingsService,
   ) {

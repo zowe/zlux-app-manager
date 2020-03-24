@@ -8,27 +8,39 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, HostBinding } from '@angular/core';
-import { BookmarksService, SettingsService } from '../services';
+import { Component, OnInit, Input } from '@angular/core';
+import { BookmarksService } from '../services';
 
 @Component({
-  selector: 'app-bookmarks',
-  templateUrl: './bookmarks.component.html',
-  styleUrls: ['./bookmarks.component.scss']
+  selector: 'app-bookmark-button',
+  templateUrl: './bookmark-button.component.html',
+  styleUrls: ['./bookmark-button.component.scss']
 })
-export class BookmarksComponent implements OnInit {
+export class BookmarkButtonComponent implements OnInit {
+
+  @Input() url: string;
 
   constructor(
-    private settings: SettingsService,
-    public bookmarks: BookmarksService,
+    private bookmarks: BookmarksService,
   ) { }
 
   ngOnInit(): void {
-    this.bookmarks.update();
   }
 
-  @HostBinding('hidden') get isHidden(): boolean {
-    return !this.settings.areControlsVisible();
+  get bookmarked(): boolean {
+    return !!this.bookmarks.findByURL(this.url);
+  }
+
+  toggleBookmark(): void {
+    if (this.bookmarked) {
+      this.bookmarks.remove(this.url);
+    } else {
+      this.bookmarks.add(this.url);
+    }
+  }
+
+  get color(): string {
+    return this.bookmarked ? 'yellow' : 'black';
   }
 
 }
