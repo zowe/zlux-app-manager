@@ -8,10 +8,30 @@
   Copyright Contributors to the Zowe Project.
 */
 
-export * from './navigation.service';
-export * from './proxy.service';
-export * from './settings.service';
-export * from './bookmarks.service';
+import { Component, OnInit, HostBinding } from '@angular/core';
+import { BookmarksService, SettingsService } from '../services';
+
+@Component({
+  selector: 'app-bookmarks',
+  templateUrl: './bookmarks.component.html',
+  styleUrls: ['./bookmarks.component.scss']
+})
+export class BookmarksComponent implements OnInit {
+
+  constructor(
+    private settings: SettingsService,
+    public bookmarks: BookmarksService,
+  ) { }
+
+  ngOnInit(): void {
+  }
+
+  @HostBinding('hidden') get isHidden(): boolean {
+    return !this.settings.areControlsVisible();
+  }
+
+}
+
 
 /*
   This program and the accompanying materials are

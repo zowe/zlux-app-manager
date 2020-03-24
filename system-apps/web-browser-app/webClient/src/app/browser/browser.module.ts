@@ -10,24 +10,29 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 import { BrowserComponent } from './browser/browser.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddressBarComponent } from './address-bar/address-bar.component';
 import { BrowserWindowComponent } from './browser-window/browser-window.component';
-import { NavigationService, ProxyService, SettingsService } from './services';
+import { NavigationService, ProxyService, SettingsService, BookmarksService } from './services';
+import { BookmarksComponent } from './bookmarks/bookmarks.component';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
+    HttpClientModule,
     ReactiveFormsModule,
   ],
   declarations: [
     AddressBarComponent,
+    BookmarksComponent,
     BrowserComponent,
     BrowserWindowComponent,
   ],
   providers: [
+    BookmarksService,
     NavigationService,
     ProxyService,
     SettingsService,
