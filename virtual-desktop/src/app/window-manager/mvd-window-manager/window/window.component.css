@@ -11,6 +11,7 @@
 */
 
 .caption.handle {
+  user-select: none;
   cursor: grab;
   cursor: -moz-grab;
   cursor: -webkit-grab;

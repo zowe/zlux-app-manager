@@ -12,6 +12,7 @@
 
 .clock {
   float: right;
+  user-select: none;
 }
 
 .two-row {

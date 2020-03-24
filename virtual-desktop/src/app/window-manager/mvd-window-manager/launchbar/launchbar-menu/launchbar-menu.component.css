@@ -43,6 +43,10 @@
   background: #dde8f1;
 }
 
+.launch-menu-scroller::-webkit-scrollbar:enabled {
+    background: #ffffff55;
+}
+
 .refresh-plugins {
   float:right;  
 }
@@ -92,6 +96,7 @@
 }
 
 .launch-widget-popup {
+  user-select: none;    
   width: 335px;
   height: 350px;
   position: absolute;

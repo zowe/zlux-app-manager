@@ -24,6 +24,7 @@ export class LaunchbarIconComponent {
   public iconSize: string;
   public indicatorSize: string;
   public indicatorPos: string;
+  public hoverOffset: string;
   public hoverBottom: string;
   public _theme:DesktopTheme;
   
@@ -34,11 +35,13 @@ export class LaunchbarIconComponent {
     case 1:
       this.iconSize="16px";
       this.hoverBottom="14px";
+      this.hoverOffset="-22px";
       this.indicatorPos="1px";
       this.indicatorSize = '2px';
       break;
     case 3:
       this.iconSize="64px";
+      this.hoverOffset="0px";
       this.hoverBottom="62px";
       this.indicatorPos="-2px";
       this.indicatorSize = '4px';
@@ -46,6 +49,7 @@ export class LaunchbarIconComponent {
     default:
       //2
       this.iconSize="32px";
+      this.hoverOffset="-14px";
       this.hoverBottom="30px";
       this.indicatorPos="1px";
       this.indicatorSize = '2px';
