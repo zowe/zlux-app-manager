@@ -50,8 +50,14 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public widgetOffset: string;
   public widgetSize: string;
   public areaSize: string;
+  public popupBottom: string;
+  public popupBackground: string;
+  public popupTextColor: string;
   
   @Input() set theme (newTheme: DesktopTheme) {
+    this.popupBackground = newTheme.color.launchbarMenuColor;
+    this.popupTextColor = newTheme.color.launchbarMenuText;
+    
     switch (newTheme.size.launchbar) {
     case 1:
       this.clockTwoRow = false;
@@ -60,6 +66,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       this.areaSize = "188px";
       this.widgetSize="16px";
       this.fontSize = '12px';
+      this.popupBottom = '30px';
       break;
     case 3:
       this.clockTwoRow = true;
@@ -67,6 +74,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       this.areaSize = "200px";
       this.widgetSize="32px";
       this.fontSize = '16px';
+      this.popupBottom = '81px';
       break;
     default:
       //2
@@ -76,6 +84,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       this.areaSize = "175px";
       this.widgetSize="24px";
       this.fontSize = '14px';
+      this.popupBottom = '46px';
       break;      
     }
   }
@@ -83,6 +92,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
+  @ViewChild('notificationarea') notificationArea: ElementRef;
   @ViewChild('notificationicon') notificationIcon: ElementRef;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public notificationsVisible: boolean;
@@ -161,9 +171,9 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     }
 
     if(this.notificationsVisible && event 
-      && !this.notificationIcon.nativeElement.contains(event.target)
-      && this.logoutButton.nativeElement !== event.target) {
-        this.notificationsVisible = false;
+       && !this.notificationArea.nativeElement.contains(event.target)
+       && this.notificationIcon.nativeElement !== event.target) {
+      this.notificationsVisible = false;
     }
   }
 

@@ -8,14 +8,20 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="launchbar-user-popup" [class.hidden]="!popupVisible">
+<div class="launchbar-user-popup" [class.hidden]="!popupVisible"
+     [style.background]="popupBackground"
+     [style.bottom]="popupBottom"
+     [style.color]="popupTextColor">
   <h5 class="launchbar-username">{{getUsername()}}</h5>
   <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()"
     i18n="signout button|Title of Sign out button@@signout-button-title">Log out</button>
-  <h6 class="launchbar-plugin-version">{{getPluginVersion()}}</h6>
+  <h6 class="launchbar-plugin-version" [style.color]="popupTextColor">{{getPluginVersion()}}</h6>
 </div>
 
-<div #notificationicon [hidden]="!notificationsVisible" class='notifications'>
+<div #notificationarea [hidden]="!notificationsVisible" class='notifications'
+     [style.bottom]="popupBottom"
+     [style.background]="popupBackground"
+     [style.color]="popupTextColor">
   <div [hidden]="notifications.length > 0" class="no-notifications">No Notifications</div>
   <div class="notification-item" *ngFor="let item of notifications; let i = index" [attr.data-index]="i">
       <div class="outer-container" (click)="focusApplication(i)">
@@ -35,7 +41,6 @@
       <hr class="notification-breaker">
   </div>
 </div>
-<div [hidden]="!notificationsVisible" class="launch-widget-caret caret-down"></div>
 
 <div class="widget-area" [style.padding-top]="widgetOffset" [style.min-width]="areaSize">
   <div class="launchbar-separator left"></div>

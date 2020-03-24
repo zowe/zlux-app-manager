@@ -97,10 +97,7 @@
   position: absolute;
   bottom: 90px;
   left: 5px;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-  border-top-left-radius: 10px;
-  border-bottom-left-radius: 10px;
+  border-radius: 10px;
   background: #dde8f1;
   padding: 5px 10px 0px 10px;
 }
