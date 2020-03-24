@@ -210,11 +210,7 @@ export class LoginComponent implements OnInit {
   attemptPasswordReset(): void {
     if (this.newPassword != this.confirmNewPassword) {
       this.errorMessage = "New passwords do not match. Please try again.";
-    } else if (this.newPassword.length == 0) {
-      this.errorMessage = "No new password provided";
-    } else if (this.confirmNewPassword.length == 0) {
-      this.errorMessage = "Confirmation password not provided"
-    } else {
+    }  else {
       this.authenticationService.performPasswordReset(this.username, this.password, this.newPassword, ZSS_AUTH).subscribe(
         result => {
           if (this.needLogin) {
