@@ -15,11 +15,10 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { SharedModule } from 'app/shared/shared.module';
 import { ApplicationManagerModule } from 'app/application-manager/application-manager.module';
-
+import { ContextMenuModule } from '../../context-menu/context-menu.module';
 import { LaunchbarModule } from './launchbar/launchbar.module';
 import { DesktopComponent } from './desktop/desktop.component';
 import { WindowPaneComponent } from './window-pane/window-pane.component';
-import { ContextMenuComponent } from './context-menu/context-menu.component';
 import { WindowComponent } from './window/window.component';
 import { WindowManagerService } from './shared/window-manager.service';
 import { DraggableDirective } from './shared/draggable.directive';
@@ -36,7 +35,8 @@ import { KeybindingService } from './shared/keybinding.service';
     CommonModule,
     SharedModule,
     LaunchbarModule,
-    HttpClientModule
+    HttpClientModule,
+    ContextMenuModule
   ],
   declarations: [
     DesktopComponent,
@@ -44,7 +44,6 @@ import { KeybindingService } from './shared/keybinding.service';
     WindowComponent,
     DraggableDirective,
     SizeableDirective,
-    ContextMenuComponent,
     MvdComponent,
     PersonalizationComponent
   ],
