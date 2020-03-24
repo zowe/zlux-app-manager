@@ -156,8 +156,8 @@
   transition: 0.3s;
 }
 
-.notification-item:hover {
-  background-color: #B1BAC1;
+.notification-item:after:hover {
+  background: rgba(255,255,255,0.1);
 }
 
 .notification-icon-container {
@@ -181,18 +181,18 @@
 }
 
 .notification-title {
-  color: black;
   font-weight: 600;
   font-size: 16px;
 }
 
 .notification-message {
   word-break: break-word;
-  color: black;
 }
 
 .delete-notification {
   display: inline-block;
+  width: 12px;
+  height: 12px;
   color: black;
   vertical-align: top;
   float: right;
@@ -206,13 +206,11 @@
 }
 
 .time {
-  color: black;
   font-size: 12px;
   float: left;
 }
 
 .timeAgo {
-  color: black;
   font-size: 12px;
   float: right;
 }
