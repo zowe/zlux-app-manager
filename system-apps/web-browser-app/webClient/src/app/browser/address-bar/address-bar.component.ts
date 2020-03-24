@@ -26,6 +26,7 @@ export class AddressBarComponent implements OnInit, OnDestroy {
   placeholder = 'URL';
   proxyValueSubscription: Subscription;
   proxyStateSubscription: Subscription;
+  urlSubscription: Subscription;
 
   constructor(
     private navigation: NavigationService,
@@ -37,7 +38,8 @@ export class AddressBarComponent implements OnInit, OnDestroy {
     this.proxyValueSubscription = this.proxyControl.valueChanges.pipe(
       throttleTime(300),
     ).subscribe(() => this.proxy.toggle());
-    this.proxyStateSubscription = this.proxy.proxyState.subscribe((state) => this.proxyControl.setValue(state, {emitEvent: false}));
+    this.proxyStateSubscription = this.proxy.proxyState.subscribe(state => this.proxyControl.setValue(state, {emitEvent: false}));
+    this.urlSubscription = this.navigation.urlSubject.subscribe(url => this.urlControl.setValue(url, {emitEvent: false}));
   }
 
   ngOnInit() {
@@ -94,6 +96,9 @@ export class AddressBarComponent implements OnInit, OnDestroy {
     }
     if (this.proxyStateSubscription && !this.proxyStateSubscription.closed) {
       this.proxyStateSubscription.unsubscribe();
+    }
+    if (this.urlSubscription && !this.urlSubscription.closed) {
+      this.urlSubscription.unsubscribe();
     }
   }
 

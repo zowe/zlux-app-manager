@@ -18,7 +18,7 @@ import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 @Injectable()
 export class NavigationService {
   readonly startURL: string = 'https://zowe.org';
-  private urlSubject = new ReplaySubject<string>(1);
+  urlSubject = new ReplaySubject<string>(1);
   url$: Observable<string>;
 
   private currentURL: string;
