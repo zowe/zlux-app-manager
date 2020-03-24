@@ -18,8 +18,9 @@ import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 @Injectable()
 export class NavigationService {
   readonly startURL: string = 'https://zowe.org';
-  urlSubject = new ReplaySubject<string>(1);
-  url$: Observable<string>;
+  private rawURLSubject = new ReplaySubject<string>(1);
+  rawURL$ = this.rawURLSubject.asObservable();
+  iframeURL$: Observable<string>;
 
   private currentURL: string;
   private backStack: string[] = [];
@@ -33,7 +34,7 @@ export class NavigationService {
     if (isLaunchMetadata(launchMetadata) && typeof launchMetadata.data.url === 'string') {
       this.startURL = launchMetadata.data.url;
     }
-    this.url$ = this.urlSubject.pipe(switchMap(url => this.proxy.process(url)));
+    this.iframeURL$ = this.rawURLSubject.pipe(switchMap(url => this.proxy.process(url)));
     this.navigateInternal(this.startURL);
   }
 
@@ -43,7 +44,7 @@ export class NavigationService {
 
   refresh(): void {
     if (this.currentURL) {
-      this.urlSubject.next(this.currentURL);
+      this.rawURLSubject.next(this.currentURL);
     }
   }
 
@@ -81,7 +82,7 @@ export class NavigationService {
 
   private navigateInternal(newURL: string): void {
     this.currentURL = newURL;
-    this.urlSubject.next(newURL);
+    this.rawURLSubject.next(newURL);
   }
 }
 

@@ -25,7 +25,7 @@ export class ProxyService {
   readonly proxyServiceURL: string;
   private enabled = false;
   proxyState = new BehaviorSubject<boolean>(this.enabled);
-  currentProxyPort: number;
+  currentProxyPort: number | undefined;
 
   constructor(
     private http: HttpClient,
@@ -33,6 +33,7 @@ export class ProxyService {
     private pluginDefinition: ZLUX.ContainerPluginDefinition,
     @Optional() @Inject(Angular2InjectionTokens.LAUNCH_METADATA)
     launchMetadata: any,
+    @Inject(Angular2InjectionTokens.LOGGER) public logger: ZLUX.ComponentLogger,
   ) {
     this.proxyServiceURL = ZoweZLUX.uriBroker.pluginRESTUri(this.pluginDefinition.getBasePlugin(), 'proxy', '');
     if (isLaunchMetadata(launchMetadata) && launchMetadata.data.enableProxy) {
@@ -51,9 +52,9 @@ export class ProxyService {
   }
 
   process(url: string): Observable<string> {
-    console.log(`process url ${url}`);
+    this.logger.info(`process url ${url}`);
     return this.proxyState.pipe(
-      tap(state => console.log(`state = ${state} ${this.enabled}`)),
+      tap(state => this.logger.info(`proxy state = ${state ? 'on' : 'off'}`)),
       switchMap(() => this.deletePreviousProxyServerIfNeeded()),
       switchMap(() => this.createProxyIfNeeded(url).pipe(catchError(err => {
         this.enabled = false;
@@ -68,20 +69,23 @@ export class ProxyService {
       return this.create(url).pipe(
         map((result: ProxyServerResult) => result.port),
         tap(port => this.currentProxyPort = port),
-        tap(port => console.log(`created proxy at port ${port} for url ${url}`)),
+        tap(port => this.logger.info(`created proxy at port ${port} for url ${url}`)),
         map(port => `https://${location.hostname}:${port}/`),
-        tap(proxyURL => console.log(`proxy url is ${proxyURL}`)),
+        tap(proxyURL => this.logger.info(`proxy url for iframe is ${proxyURL}`)),
       );
     }
-    console.log(`createProxyIfNeeded proxy disabled ${url}`);
+    this.logger.info(`don't need to create proxy for url ${url} because proxy is off`);
     return of(url);
   }
 
   deletePreviousProxyServerIfNeeded(): Observable<void | null> {
-    console.log(`deletePreviousProxyServerIfNeeded port = ${this.currentProxyPort}`)
     if (this.currentProxyPort) {
-      return this.delete(this.currentProxyPort);
+      this.logger.info(`delete previous proxy at port ${this.currentProxyPort}`);
+      return this.delete(this.currentProxyPort).pipe(
+        tap(() => this.currentProxyPort = undefined)
+      );
     }
+    this.logger.info(`no allocated proxy`);
     return of(null);
   }
 

@@ -28,7 +28,7 @@ export class BrowserWindowComponent implements OnInit, OnDestroy {
     private domSanitizer: DomSanitizer,
     private navigation: NavigationService,
   ) {
-    this.urlSubscription = this.navigation.url$.pipe(
+    this.urlSubscription = this.navigation.iframeURL$.pipe(
       map(url => this.domSanitizer.bypassSecurityTrustResourceUrl(url))
     ).subscribe(url => this.url = url);
   }

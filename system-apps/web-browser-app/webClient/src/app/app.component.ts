@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -10,7 +8,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 import { LocaleService, TranslationService } from 'angular-l10n';
 import { WebBrowserLaunchMetadata, isLaunchMetadata } from './browser/shared';
@@ -21,7 +19,7 @@ import { NavigationService, ProxyService, SettingsService } from './browser/serv
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
 
   constructor(
     public locale: LocaleService,

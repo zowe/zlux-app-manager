@@ -43,6 +43,7 @@ interface Context {
   logger: {
     info: (message: string) => void;
     error: (message: string) => void;
+    debug: (message: string) => void;
   };
   wsRouterPatcher: any;
   addBodyParseMiddleware: (router: Router) => void;
@@ -202,9 +203,9 @@ class ProxyDataService {
 
   private processCheckRequest(resolve, reject, res: http.IncomingMessage) {
     const { statusCode, headers } = res;
-    console.log(`statusCode ${statusCode}`);
-    console.log(`headers ${JSON.stringify(headers, null, 2)}`);
-    if (statusCode === 301) {
+    this.context.logger.debug(`check URL statusCode ${statusCode}`);
+    this.context.logger.debug(`headers ${JSON.stringify(headers, null, 2)}`);
+    if (statusCode === 301 || statusCode === 302) {
       resolve({ redirect: true, location: headers['location'] });
     } else {
       resolve({ redirect: false });
