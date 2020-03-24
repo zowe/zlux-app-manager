@@ -27,6 +27,7 @@ import { SizeableDirective } from './shared/sizeable.directive';
 import { MvdComponent } from './mvd.component';
 import { AuthenticationModule } from '../../authentication-manager/authentication-manager.module';
 import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization-panel.component';
+import { KeybindingService } from './shared/keybinding.service';
 
 @NgModule({
   imports: [
@@ -53,7 +54,8 @@ import { PersonalizationComponent } from '../mvd-window-manager/personalization-
   providers: [
     WindowManagerService,
     /* Expose to the rest of the desktop */
-    { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService }
+    { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
+    KeybindingService
   ]
 })
 export class WindowManagerModule {

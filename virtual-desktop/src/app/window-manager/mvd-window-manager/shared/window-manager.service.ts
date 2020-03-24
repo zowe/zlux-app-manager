@@ -26,6 +26,9 @@ import { ContextMenuItem, Angular2PluginWindowActions,
   Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, InstanceId, EmbeddedInstance
 } from 'pluginlib/inject-resources';
 
+import { KeybindingService } from './keybinding.service';
+import { KeyCode } from './keycode-enum';
+
 type PluginIdentifier = string;
 const DEFAULT_DESKTOP_SHORT_TITLE = 'Zowe';
 const DEFAULT_DESKTOP_TITLE = 'Zowe Desktop';
@@ -66,12 +69,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private viewportManager: MVDHosting.ViewportManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
-  public screenshotRequestEmitter: Subject<{pluginId: string, windowId: MVDWindowManagement.WindowId}>;
+  public screenshotRequestEmitter: Subject<{pluginId: string, windowId: MVDWindowManagement.WindowId}>; 
 
   constructor(
     private injector: Injector,
     private windowMonitor: WindowMonitor,
-    private componentFactoryResolver: ComponentFactoryResolver
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private appKeyboard: KeybindingService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -121,6 +125,21 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
     document.addEventListener('keyup', tabHandler, false);
     document.addEventListener('keydown', tabHandler, false);
+
+    this.appKeyboard.registerKeyUpEvent();
+    this.appKeyboard.keyUpEvent
+      .subscribe((event:KeyboardEvent) => {
+        if (event.which === KeyCode.DOWN_ARROW) {
+          if(this.focusedWindow) {
+            this.minimizeToggle(this.focusedWindow.windowId);
+          }
+        }
+        else if (event.which === KeyCode.UP_ARROW) {
+          if(this.focusedWindow) {
+            this.maximizeToggle(this.focusedWindow.windowId);
+          }
+        }
+    });
   }
 
   private getViewportIdFromDOM(element: any): Number{
