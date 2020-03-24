@@ -195,7 +195,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
       if (notATurtle && (typeof notATurtle.provideZLUXDispatcherCallbacks == 'function')) {
         ZoweZLUX.dispatcher.registerApplicationCallbacks(plugin.getBasePlugin(), applicationInstance.instanceId, notATurtle.provideZLUXDispatcherCallbacks());
       } else if (!applicationInstance.isIFrame) {
-        this.logger.info(`ZWED5021W`, plugin.getIdentifier(), JSON.stringify(notATurtle))
+        this.logger.info(`ZWED5021W`, plugin.getIdentifier(), notATurtle)
         /*this.logger.info(`App callbacks not registered. Couldn't find instance object or object didn't provide callbacks.`
                         +`App ID=${plugin.getIdentifier()}, Instance Obj=`,notATurtle); */
       }
