@@ -25,7 +25,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public isPersonalizationPanelVisible: boolean;
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
-  private _theme: DesktopTheme = {
+  public _theme: DesktopTheme = {
     color: {
       windowTextActive: '#f4f4f4',
       windowTextInactive: '#828282',
