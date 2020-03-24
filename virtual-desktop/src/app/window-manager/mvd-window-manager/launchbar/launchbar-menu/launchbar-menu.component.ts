@@ -105,9 +105,9 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     public windowManager: WindowManagerService,
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
-    private translation: TranslationService,
-    private desktopComponent: DesktopComponent,
-    private appKeyboard: KeybindingService
+    private appKeyboard: KeybindingService,
+    public translation: TranslationService,
+    private desktopComponent: DesktopComponent
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);

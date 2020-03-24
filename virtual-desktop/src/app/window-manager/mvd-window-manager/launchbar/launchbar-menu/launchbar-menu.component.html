@@ -23,7 +23,7 @@
        [style.width]="menuWidth"
        [style.bottom]="menuBottom">
     <div style="cursor: pointer" class="refresh-plugins" (click)="refresh()">
-      Refresh applications
+      {{translation.translate("Refresh applications")}}
       <i style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></i>
     </div>
     <div style="margin: 20px"></div>
@@ -42,7 +42,7 @@
       </div>
     </div>
     <div class="launch-menu-search">
-      <input class="launch-menu-search-input" type="text" placeholder="Search Applications"
+      <input class="launch-menu-search-input" type="text" placeholder="{{translation.translate('Search Applications')}}"
              [style.font-size]="menuText"
              [style.color]="color.launchbarMenuText"
              [(ngModel)]="appFilter"
