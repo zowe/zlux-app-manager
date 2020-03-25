@@ -217,9 +217,6 @@ export class LoginComponent implements OnInit {
             this.password = this.newPassword;
             this.attemptLogin();
           }
-          if (this.expiredPassword) {
-            this.expiredPassword = false;
-          }
           if (this.changePassword) {
             this.authenticationService.passwordChangeSuccessfulScreen();
           }
@@ -243,7 +240,6 @@ export class LoginComponent implements OnInit {
     this.needLogin = false;
     this.locked = true;
     this.isLoading = true;
-    this.expiredPassword = false;
     // See https://github.com/angular/angular/issues/22426
     this.cdr.detectChanges();
     if (this.username==null || this.username==''){
@@ -256,6 +252,10 @@ export class LoginComponent implements OnInit {
     }
     this.authenticationService.performLogin(this.username!, this.password!).subscribe(
       result => {
+        if (this.expiredPassword) {
+          this.authenticationService.passwordChangeSuccessfulScreen();
+          this.expiredPassword = false;
+        }
         this.password = '';
         this.locked = false;
       },
