@@ -54,9 +54,6 @@ constructor(
     });
   }
 
-  get isLoggedIn(): boolean {
-    return this.authenticationManager.getUsername() != null ? true : false;
-  }
 
   showPersonalizationPanel(): void {
     this.isPersonalizationPanelVisible = true;
