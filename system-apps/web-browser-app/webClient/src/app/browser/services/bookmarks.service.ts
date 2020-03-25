@@ -42,7 +42,7 @@ export class BookmarksService {
   add(url: string): void {
     const bookmark: Bookmark = {
       url,
-      title: url,
+      title: this.getTitleForURL(url),
       proxy: this.proxy.isEnabled(),
     };
     this.bookmarks.push(bookmark);
@@ -65,6 +65,16 @@ export class BookmarksService {
       bookmarks: this.bookmarks
     }
     return this.http.put(this.bookmarksServiceURL, requestBody).pipe(mapTo(undefined));
+  }
+
+  private getTitleForURL(url: string): string {
+    if (url.startsWith('http://')) {
+      return url.substr(('http://').length);
+    }
+    if (url.startsWith('https://')) {
+      return url.substr(('https://').length);
+    }
+    return url;
   }
 }
 

@@ -8,7 +8,9 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<span [title]="title">{{ bookmark.title }}</span>
+<div (click)="navigate()">
+  <span [title]="bookmark.title">{{ bookmark.title }}</span>
+</div>
 
 <!--
   This program and the accompanying materials are

@@ -7,7 +7,24 @@
 
   Copyright Contributors to the Zowe Project.
 */
+$width: 5rem;
 
+div {
+  flex: 0 0 auto;
+  max-width: $width;
+  min-width: $width;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  
+  span {
+    padding: 0.3rem;
+    flex: 1 1 auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
 
 
 /*

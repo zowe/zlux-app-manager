@@ -12,7 +12,7 @@ import { Injectable, Inject, Optional } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 import { ProxyService } from './proxy.service';
 import { switchMap } from 'rxjs/operators';
-import { isLaunchMetadata } from '../shared';
+import { isLaunchMetadata, Bookmark } from '../shared';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 
 @Injectable()
@@ -52,6 +52,15 @@ export class NavigationService {
     this.backStack.push(this.currentURL);
     this.forwardStack = [];
     this.navigateInternal(url);
+  }
+
+  navigateUsingBookmark(bookmark: Bookmark): void {
+    this.backStack.push(this.currentURL);
+    this.forwardStack = [];
+    if (!this.proxy.isEnabled() && bookmark.proxy) {
+      this.proxy.toggle();
+    }
+    this.navigateInternal(bookmark.url);
   }
 
   goBack(): string | undefined {
