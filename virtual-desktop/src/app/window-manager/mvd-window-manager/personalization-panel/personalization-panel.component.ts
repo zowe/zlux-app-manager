@@ -61,7 +61,7 @@ export class PersonalizationComponent {
                             "imgSrc":"foreign_language",
                            },
                            {
-                            "title":CHANGE_PASSWORD,
+                            "title":this.translation.translate(CHANGE_PASSWORD),
                             "imgSrc":"password"
                            },
                           /*  {
