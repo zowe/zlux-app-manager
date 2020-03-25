@@ -28,11 +28,11 @@ export class Viewport {
 
   checkProviders(): void {
     if (!this.providers.has(Angular2InjectionTokens.VIEWPORT_EVENTS)) {
-      this.logger.warn('No VIEWPORT_EVENTS provided to custom viewport. This may cause plugins to behave unexpectedly.');
+      this.logger.warn('ZWED5165W'); //this.logger.warn('No VIEWPORT_EVENTS provided to custom viewport. This may cause plugins to behave unexpectedly.');
     }
 
     if (!this.providers.has(Angular2InjectionTokens.PLUGIN_EMBED_ACTIONS)) {
-      this.logger.warn('No PLUGIN_EMBED_ACTIONS provided to custom viewport. This may cause plugins to behave unexpectedly.');
+      this.logger.warn('ZWED5166W'); //this.logger.warn('No PLUGIN_EMBED_ACTIONS provided to custom viewport. This may cause plugins to behave unexpectedly.');
     }
   }
 }

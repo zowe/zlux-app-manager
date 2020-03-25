@@ -19,7 +19,6 @@ import { Component } from '@angular/core';
 export class MvdComponent {
 
   constructor() {
-
   }
 }
 

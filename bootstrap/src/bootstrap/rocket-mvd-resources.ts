@@ -22,14 +22,32 @@ import { SimpleGlobalization } from '../i18n/simple-globalization'
 declare var window: { ZoweZLUX: typeof ZoweZLUXResources,
                       COM_RS_COMMON_LOGGER: Logger};
 window; /* Suppress TS error */
+
+// This is ithe core logger
 let logger = new Logger();
 logger.addDestination(logger.makeDefaultDestination(true,true,true,true,true));
 window.COM_RS_COMMON_LOGGER = logger;
 
+// component logger
+export var bootstrapLogger : ZLUX.ComponentLogger = logger.makeComponentLogger("_zsf.bootstrap");
+
+fetch('/ZLUX/plugins/org.zowe.zlux.bootstrap/web/assets/i18n/log/messages_en.json')
+  .then((response) => {
+    return response.json();
+  })
+  .then((myJson) => {
+    (bootstrapLogger as any)._messages = myJson;
+  })
+  .catch((e) => {
+    bootstrapLogger.warn("ZWED5000E - Unable to retrieve message resource file: messages_en.json\n", e);
+  });
+
+  PluginManager.logger = bootstrapLogger;
+
 export class ZoweZLUXResources {
   static pluginManager = PluginManager
   static uriBroker:ZLUX.UriBroker = new MvdUri();
-  static dispatcher:Dispatcher = new Dispatcher(logger);
+  static dispatcher:Dispatcher = new Dispatcher(bootstrapLogger);
   static logger:Logger = logger;
   static registry:ZLUX.Registry = new Registry();
   static notificationManager:ZoweNotificationManager = new ZoweNotificationManager();
