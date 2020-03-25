@@ -57,10 +57,10 @@ export class NavigationService {
   navigateUsingBookmark(bookmark: Bookmark): void {
     this.backStack.push(this.currentURL);
     this.forwardStack = [];
+    this.navigateInternal(bookmark.url);
     if (!this.proxy.isEnabled() && bookmark.proxy) {
       this.proxy.toggle();
     }
-    this.navigateInternal(bookmark.url);
   }
 
   goBack(): string | undefined {
