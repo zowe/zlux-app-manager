@@ -19,12 +19,6 @@
   transition: 0.5s filter ease-out;
 }
 
-/* .desktop-cover.active {
-
-} */
-
-
-
 .login-overlay {
   width: 450px;
   position: fixed;
