@@ -10,7 +10,7 @@
 
 import { Component, OnInit, Input } from '@angular/core';
 import { Bookmark } from '../shared';
-import { NavigationService } from '../services';
+import { NavigationService, BookmarksService } from '../services';
 
 @Component({
   selector: 'app-bookmark',
@@ -23,6 +23,7 @@ export class BookmarkComponent implements OnInit {
 
   constructor(
     private navigation: NavigationService,
+    private bookmarks: BookmarksService,
   ) { }
 
   ngOnInit(): void {
@@ -30,6 +31,10 @@ export class BookmarkComponent implements OnInit {
 
   navigate(): void {
     this.navigation.navigateUsingBookmark(this.bookmark);
+  }
+
+  remove(): void {
+    this.bookmarks.remove(this.bookmark.url);
   }
 
 }

@@ -7,7 +7,7 @@
 
   Copyright Contributors to the Zowe Project.
 */
-$width: 5rem;
+$width: 6em;
 
 div {
   flex: 0 0 auto;
@@ -16,14 +16,25 @@ div {
   display: flex;
   justify-content: center;
   cursor: pointer;
+  align-items: center;
   
-  span {
-    padding: 0.3rem;
+  span.title {
+    padding: 0.2rem;
     flex: 1 1 auto;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
   }
+  
+  span.remove {
+    visibility: hidden;
+    font-size: 1.2rem;
+  }
+  
+  &:hover span.remove{
+    visibility: visible;
+  }
+
 }
 
 
