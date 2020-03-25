@@ -12,11 +12,11 @@ import { Component, OnInit, HostBinding } from '@angular/core';
 import { BookmarksService, SettingsService } from '../services';
 
 @Component({
-  selector: 'app-bookmarks',
-  templateUrl: './bookmarks.component.html',
-  styleUrls: ['./bookmarks.component.scss']
+  selector: 'app-bookmark-bar',
+  templateUrl: './bookmark-bar.component.html',
+  styleUrls: ['./bookmark-bar.component.scss']
 })
-export class BookmarksComponent implements OnInit {
+export class BookmarkBarComponent implements OnInit {
 
   constructor(
     private settings: SettingsService,

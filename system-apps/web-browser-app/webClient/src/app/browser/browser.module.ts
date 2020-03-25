@@ -16,7 +16,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddressBarComponent } from './address-bar/address-bar.component';
 import { BrowserWindowComponent } from './browser-window/browser-window.component';
 import { NavigationService, ProxyService, SettingsService, BookmarksService } from './services';
-import { BookmarksComponent } from './bookmarks/bookmarks.component';
+import { BookmarkBarComponent } from './bookmark-bar/bookmark-bar.component';
 import { BookmarkComponent } from './bookmark/bookmark.component';
 import { BookmarkButtonComponent } from './bookmark-button/bookmark-button.component';
 
@@ -30,7 +30,7 @@ import { BookmarkButtonComponent } from './bookmark-button/bookmark-button.compo
   declarations: [
     AddressBarComponent,
     BookmarkComponent,
-    BookmarksComponent,
+    BookmarkBarComponent,
     BrowserComponent,
     BrowserWindowComponent,
     BookmarkButtonComponent,
