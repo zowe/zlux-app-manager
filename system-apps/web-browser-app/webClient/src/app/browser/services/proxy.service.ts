@@ -70,7 +70,7 @@ export class ProxyService {
         map((result: ProxyServerResult) => result.port),
         tap(port => this.currentProxyPort = port),
         tap(port => this.logger.info(`created proxy at port ${port} for url ${url}`)),
-        map(port => `https://${location.hostname}:${port}/`),
+        map(port => this.makeProxyURL(url, port)),
         tap(proxyURL => this.logger.info(`proxy url for iframe is ${proxyURL}`)),
       );
     }
@@ -96,6 +96,14 @@ export class ProxyService {
 
   isEnabled(): boolean {
     return this.enabled;
+  }
+
+  private makeProxyURL(rawURL: string, proxyPort: number): string {
+    const url = new URL(rawURL);
+    url.protocol = 'https:';
+    url.hostname = location.hostname;
+    url.port = proxyPort.toString();
+    return url.toString();
   }
 
 }
