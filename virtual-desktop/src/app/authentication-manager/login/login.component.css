@@ -48,6 +48,7 @@
   height: 100%;
   top: 0;
   left: 0;
+  background: url(../../../assets/images/background.jpg) no-repeat center/cover;
 }
 
 .login-panel.hidden {

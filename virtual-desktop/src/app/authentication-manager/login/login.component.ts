@@ -21,7 +21,6 @@ import { BaseLogger } from 'virtual-desktop-logger';
 
 const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
-const ZSS_AUTH = "org.zowe.zlux.auth.zss"
 
 @Component({
   selector: 'rs-com-login',
@@ -46,6 +45,7 @@ export class LoginComponent implements OnInit {
   private idleWarnModal: any;
   private lastActive: number = 0;
   expiredPassword: boolean;
+  private passwordServices: string[];
 
   constructor(
     private authenticationService: AuthenticationManager,
@@ -63,10 +63,12 @@ export class LoginComponent implements OnInit {
     this.confirmNewPassword = '';
     this.errorMessage = null;
     this.expiredPassword = false;
+    this.passwordServices = [];
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
       switch (eventReason) {
       case LoginScreenChangeReason.UserLogout:
         this.needLogin = true;
+        this.passwordServices = [];
         break;
       case LoginScreenChangeReason.UserLogin:
         this.errorMessage = '';
@@ -210,8 +212,12 @@ export class LoginComponent implements OnInit {
   attemptPasswordReset(): void {
     if (this.newPassword != this.confirmNewPassword) {
       this.errorMessage = "New passwords do not match. Please try again.";
-    }  else {
-      this.authenticationService.performPasswordReset(this.username, this.password, this.newPassword, ZSS_AUTH).subscribe(
+    } else if (this.passwordServices.length == 0) {
+      this.errorMessage = "No password reset auth service available."
+    } else if (this.passwordServices.length != 1) {
+      this.errorMessage = "Multiple password reset services not available at this time.";
+    } else {
+      this.authenticationService.performPasswordReset(this.username, this.password, this.newPassword, this.passwordServices[0]).subscribe(
         result => {
           if (this.needLogin) {
             this.password = this.newPassword;
@@ -242,6 +248,7 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     // See https://github.com/angular/angular/issues/22426
     this.cdr.detectChanges();
+    this.passwordServices = [];
     if (this.username==null || this.username==''){
       this.errorMessage= this.translation.translate('UsernameRequired');
       this.password = '';
@@ -252,6 +259,18 @@ export class LoginComponent implements OnInit {
     }
     this.authenticationService.performLogin(this.username!, this.password!).subscribe(
       result => {
+        let jsonMessage = result.json();
+        if (jsonMessage.categories) {
+          let keys = Object.keys(jsonMessage.categories);
+          for (let i = 0; i < keys.length; i++) {
+            let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
+            for (let j = 0; j < plugins.length; j++) {
+              if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
+                this.passwordServices.push(plugins[j]);
+              }
+            }
+          }
+        }
         if (this.expiredPassword) {
           this.authenticationService.passwordChangeSuccessfulScreen();
           this.expiredPassword = false;
@@ -269,6 +288,12 @@ export class LoginComponent implements OnInit {
             for (let i = 0; i < keys.length; i++) {
               if (!jsonMessage.categories[keys[i]].success) {
                 failedTypes.push(keys[i]);
+              }
+              let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
+              for (let j = 0; j < plugins.length; j++) {
+                if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
+                  this.passwordServices.push(plugins[j]);
+                }
               }
             }
             if (error.status == HTTP_STATUS_PRECONDITION_REQUIRED) {
