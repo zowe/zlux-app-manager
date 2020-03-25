@@ -8,10 +8,11 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<button (click)="toggleBookmark()" [ngClass]="{'bookmarked': bookmarked}"
-  [title]="bookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'">
-  <ng-container *ngIf="bookmarked else notBookmarked">&#10029;</ng-container>
-  <ng-template #notBookmarked>&#10025;</ng-template>
+<button *ngIf="bookmarked" (click)="toggleBookmark()" class="bookmarked" title="Remove from bookmarks" i18n-title="tooltip|Title for 'Remove from bookmarks' button@@remove-from-bookmarks">
+  &#10029;
+</button>
+<button *ngIf="!bookmarked" (click)="toggleBookmark()" title="Add to bookmarks" i18n-title="tooltip|Title for 'Add to bookmarks' button@@add-to-bookmarks">
+  &#10025;
 </button>
 
 

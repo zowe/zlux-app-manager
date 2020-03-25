@@ -2,17 +2,22 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" datatype="plaintext" original="ng2.template" target-language="ru">
     <body>
-      <trans-unit id="paginator" datatype="html">
-        <source>of</source><target state="new">of</target>
+      <trans-unit id="remove-from-bookmarks" datatype="html">
+        <source>Remove from bookmarks</source><target state="new">Удалить из закладок</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">node_modules/@zlux/widgets/components/paginator/paginator.component.d.ts</context>
-          <context context-type="linenumber">40</context>
+          <context context-type="sourcefile">src/app/browser/bookmark-button/bookmark-button.component.ts</context>
+          <context context-type="linenumber">11</context>
         </context-group>
+        <note priority="1" from="description">Title for 'Remove from bookmarks' button</note>
+        <note priority="1" from="meaning">tooltip</note>
+      </trans-unit><trans-unit id="add-to-bookmarks" datatype="html">
+        <source>Add to bookmarks</source><target state="new">Добавить в закладки</target>
         <context-group purpose="location">
-          <context context-type="sourcefile">node_modules/@zlux/widgets/components/paginator/paginator.component.d.ts</context>
-          <context context-type="linenumber">56</context>
+          <context context-type="sourcefile">src/app/browser/bookmark-button/bookmark-button.component.ts</context>
+          <context context-type="linenumber">14</context>
         </context-group>
-        <note priority="1" from="description">of preposition in clause n-m of total</note>
+        <note priority="1" from="description">Title for 'Add to bookmarks' button</note>
+        <note priority="1" from="meaning">tooltip</note>
       </trans-unit>
     </body>
   </file>
