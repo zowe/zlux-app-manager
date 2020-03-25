@@ -7,13 +7,13 @@
 
   Copyright Contributors to the Zowe Project.
 -->
-<button class="icon-button" (click)="goBack()" [disabled]="!canGoBack" title="Go Back">&#8678;</button>
-<button class="icon-button" (click)="goForward()" [disabled]="!canGoForward" title="Go Forward">&#8680;</button>
-<button class="icon-button" (click)="refresh()" title="Refresh">&#8634;</button>
-<input type="url" [formControl]="urlControl" [placeholder]="placeholder" (keyup.enter)="navigate()" title="Go">
+<button class="icon-button" (click)="goBack()" [disabled]="!canGoBack" title="Go Back" i18n-title="tooltip|Title of 'Go Back' button@@go-back">&#8678;</button>
+<button class="icon-button" (click)="goForward()" [disabled]="!canGoForward" title="Go Forward" i18n-title="tooltip|Title of 'Go Forward' button@@go-forward">&#8680;</button>
+<button class="icon-button" (click)="refresh()" title="Refresh" i18n-title="tooltip|Title of 'Refresh' button@@refresh">&#8634;</button>
+<input type="url" [formControl]="urlControl" [placeholder]="placeholder" (keyup.enter)="navigate()">
 <app-bookmark-button [url]="navigation.rawURL$ | async"></app-bookmark-button>
-<div class="proxy" title="Enable/Disable Proxy">
-  <label for="proxy">Proxy</label>
+<div class="proxy" title="Enable/Disable Proxy" i18n-title="tooltip|Title of 'Enable/Disable Proxy' checkbox@@enable-disable-proxy">
+  <label for="proxy" i18n="label|Title of 'Proxy' checkbox@@proxy">Proxy</label>
   <input name="proxy" id="proxy" type="checkbox" [formControl]="proxyControl">
 </div>
 <!--
