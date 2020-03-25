@@ -20,6 +20,8 @@ import { DesktopComponent } from "../../desktop/desktop.component";
 import { TranslationService } from 'angular-l10n';
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
 import { generateInstanceActions } from '../shared/context-utils';
+import { KeybindingService } from '../../shared/keybinding.service';
+import { KeyCode } from '../../shared/keycode-enum';
 
 @Component({
   selector: 'rs-com-launchbar-menu',
@@ -52,7 +54,8 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     private translation: TranslationService,
-    private desktopComponent: DesktopComponent
+    private desktopComponent: DesktopComponent,
+    private appKeyboard: KeybindingService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -73,6 +76,12 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   }
 
   ngOnInit(): void {
+    this.appKeyboard.keyUpEvent
+      .subscribe((event:KeyboardEvent) => {
+        if (event.which === KeyCode.KEY_M) {
+          this.activeToggle();
+        }
+    });
   }
   
   getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{

@@ -66,6 +66,7 @@
             <com-rs-mvd-context-menu
               [xPos]="-2"
               [yPos]="-5"
+              [parentY]="this.newY+(i*this._itemHeight)"
               [menuItems]="menuItem.children"
               [isChildMenu]="true"
               [isParentActive]="i==this.activeIndex"
