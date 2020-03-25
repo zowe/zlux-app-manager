@@ -92,6 +92,9 @@ export class NavigationService {
   private navigateInternal(newURL: string): void {
     this.currentURL = newURL;
     this.rawURLSubject.next(newURL);
+    if (newURL.startsWith('http://') && !this.proxy.isEnabled()) {
+      this.proxy.toggle();
+    }
   }
 }
 
