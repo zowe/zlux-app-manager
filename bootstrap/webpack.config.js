@@ -15,6 +15,7 @@ const ProgressPlugin = require('webpack/lib/ProgressPlugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { NoEmitOnErrorsPlugin } = require('webpack');
 const CompressionPlugin = require('compression-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   "devtool": "source-map",
@@ -69,6 +70,12 @@ module.exports = {
     new HtmlWebpackPlugin({
       "title": "Zowe Desktop"
     }),
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, './src/assets/i18n'),
+        to: path.resolve('./web/assets/i18n')
+      }
+    ]),
     new CompressionPlugin({
       threshold: 100000,
       minRatio: 0.8

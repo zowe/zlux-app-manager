@@ -61,7 +61,7 @@ export interface Angular2PluginWindowEvents {
 
 export interface Angular2PluginViewportEvents {
   readonly resized: Subject<{width: number, height: number}>;
-  readonly spawnContextMenu: (xPos: number, yPos: number, items: ContextMenuItem[]) => boolean;
+  readonly spawnContextMenu: (xPos: number, yPos: number, items: ContextMenuItem[], isAbsolutePos?: boolean) => boolean;
   readonly registerCloseHandler: (handler: () => Promise<any>) => void;
 }
 
@@ -80,7 +80,7 @@ export interface ContextMenuItem {
     "metaKey": boolean;
     "shiftKey": boolean;
   };
-  action: () => void;
+  action?: () => void;
   children?: ContextMenuItem[];
   disabled?: boolean;
   preventCloseMenu?: boolean;

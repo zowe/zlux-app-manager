@@ -15,7 +15,7 @@ import { Injectable, Injector, EventEmitter } from '@angular/core';
 import { ViewportManager } from 'app/application-manager/viewport-manager/viewport-manager.service';
 import { ContextMenuItem, Angular2InjectionTokens, Angular2PluginViewportEvents } from 'pluginlib/inject-resources';
 //import { BaseLogger } from 'virtual-desktop-logger';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class SimpleWindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
@@ -59,7 +59,9 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   }
 
   closeAllWindows(): void {
-    this.closeWindow(1);
+    //Doing this would leave you with nothing at all, so ignore
+    //Also, onLogin logic in authmgr could call this, so if behavior is ever changed keep this in mind.
+    //this.closeWindow(1);
   }
 
   showWindow(windowId: MVDWindowManagement.WindowId): void {
