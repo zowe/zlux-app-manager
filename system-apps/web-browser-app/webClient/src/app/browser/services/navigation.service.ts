@@ -39,7 +39,7 @@ export class NavigationService {
   }
 
   stop(): void {
-    this.proxy.deletePreviousProxyServerIfNeeded().subscribe();
+    this.proxy.stop();
   }
 
   refresh(): void {

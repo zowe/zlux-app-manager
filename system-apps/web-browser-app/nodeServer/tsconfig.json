@@ -9,6 +9,7 @@
     "sourceMap": true,
     "allowJs": true,
     "moduleResolution": "node",
+    "downlevelIteration": true,
     "types": [
       "node",
       "express"

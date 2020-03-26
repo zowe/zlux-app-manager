@@ -39,8 +39,8 @@ export class BrowserWindowComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.urlSubscription && !this.urlSubscription.closed) {
       this.urlSubscription.unsubscribe();
-      this.navigation.stop();
     }
+    this.navigation.stop();
   }
 
 }

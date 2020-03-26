@@ -12,7 +12,7 @@ import { Injectable, Inject, Optional } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
-import { map, tap, catchError, switchMap } from 'rxjs/operators';
+import { map, tap, catchError, switchMap, mapTo } from 'rxjs/operators';
 import { isLaunchMetadata } from '../shared';
 
 
@@ -48,15 +48,30 @@ export class ProxyService {
   }
 
   private delete(port: number): Observable<void> {
-    return this.http.delete<void>(`${this.proxyServiceURL}?port=${port}`);
+    return this.http.delete<void>(`${this.proxyServiceURL}/${port}`);
+  }
+
+  private replace(port: number, urlString: string): Observable<ProxyServerResult> {
+    const url = new URL(urlString);
+    const target = `${url.protocol}//${url.host}`;
+    return this.http.put<ProxyServerResult>(`${this.proxyServiceURL}/${port}`, { url: target });
+  }
+
+  private createOrReplace(urlString: string): Observable<ProxyServerResult> {
+    const port = this.currentProxyPort;
+    if (port) {
+      return this.replace(port, urlString);
+    } else {
+      return this.create(urlString);
+    }
   }
 
   process(url: string): Observable<string> {
     this.logger.info(`process url ${url}`);
     return this.proxyState.pipe(
       tap(state => this.logger.info(`proxy state = ${state ? 'on' : 'off'}`)),
-      switchMap(() => this.deletePreviousProxyServerIfNeeded()),
-      switchMap(() => this.createProxyIfNeeded(url).pipe(catchError(err => {
+      switchMap(state => this.deletePreviousProxyServerIfNeeded(state).pipe(mapTo(state))),
+      switchMap(state => this.createOrReplaceProxy(state, url).pipe(catchError(err => {
         this.enabled = false;
         this.proxyState.next(false);
         return of(url);
@@ -64,9 +79,9 @@ export class ProxyService {
     )
   }
 
-  private createProxyIfNeeded(url: string): Observable<string> {
-    if (this.enabled) {
-      return this.create(url).pipe(
+  private createOrReplaceProxy(proxyState: boolean, url: string): Observable<string> {
+    if (proxyState) {
+      return this.createOrReplace(url).pipe(
         map((result: ProxyServerResult) => result.port),
         tap(port => this.currentProxyPort = port),
         tap(port => this.logger.info(`created proxy at port ${port} for url ${url}`)),
@@ -78,15 +93,15 @@ export class ProxyService {
     return of(url);
   }
 
-  deletePreviousProxyServerIfNeeded(): Observable<void | null> {
-    if (this.currentProxyPort) {
-      this.logger.info(`delete previous proxy at port ${this.currentProxyPort}`);
+  deletePreviousProxyServerIfNeeded(proxyState: boolean): Observable<void | undefined> {
+    if (this.currentProxyPort && !proxyState) {
+      this.logger.info(`delete proxy at port ${this.currentProxyPort}`);
       return this.delete(this.currentProxyPort).pipe(
         tap(() => this.currentProxyPort = undefined)
       );
     }
     this.logger.info(`no allocated proxy`);
-    return of(null);
+    return of(undefined);
   }
 
   toggle(): void {
@@ -104,6 +119,12 @@ export class ProxyService {
     url.hostname = location.hostname;
     url.port = proxyPort.toString();
     return url.toString();
+  }
+
+  stop(): void {
+    if (this.isEnabled() && this.currentProxyPort) {
+      this.delete(this.currentProxyPort).subscribe();
+    }
   }
 
 }

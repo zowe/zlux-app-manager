@@ -12,6 +12,19 @@ tags:
   - name: proxy
 paths:
   /:
+    get:
+      summary: List proxy servers
+      description: List proxy servers
+      operationId: list
+      tags:
+        - proxy
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: List of proxy servers
+          schema:
+            $ref: '#/definitions/ProxyList'
     post:
       summary: Allocate a new Proxy server
       description: Allocate a new Proxy server
@@ -41,6 +54,40 @@ paths:
             $ref: '#/definitions/ProxyResult'
         '503':
           description: Proxy unavailable
+    put:
+      summary: Replace target URL for existing Proxy server
+      description: Replace target URL for existing Proxy server
+      operationId: replace
+      tags:
+        - proxy
+      produces:
+        - application/json
+      consumes:
+        - application/json      
+      parameters:
+        - name: body
+          in: body
+          description: Target URL
+          required: true
+          schema:
+            type: object
+            required: 
+              - url
+            properties:
+              url:
+                type: string
+        - name: port
+          in: path
+          description: Proxy Port
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Proxy target URL replaced
+          schema:
+            $ref: '#/definitions/ProxyResult'
+        '404':
+          description: Proxy not found
     delete:
       summary: Deallocate Proxy server
       description: Deallocate Proxy server
@@ -52,7 +99,7 @@ paths:
       consumes:
         - application/json      
       parameters:
-        - in: query
+        - in: path
           name: port
           description: Proxy Port
           required: true
@@ -70,3 +117,19 @@ definitions:
         type: string
       port:
         type: integer
+  ProxyList:
+    type: object
+    properties:
+      _objectType:
+        type: string
+      _metadataVersion:
+        type: string
+      instances:
+        type: array
+        items:
+          type: object
+          properties:
+            target:
+              type: string
+            port:
+              type: integer

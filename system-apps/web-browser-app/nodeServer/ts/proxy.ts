@@ -65,6 +65,7 @@ class ProxyDataService {
   private readonly keyAndCert: KeyAndCert;
   private readonly portRangeDefault = { start: 16000, end: 16030 };
   private readonly proxyServerByPort = new Map<number, httpProxy>();
+  private readonly targetByPort = new Map<number, string>();
   private portRangeSource: string = 'default';
 
   constructor(context: Context) {
@@ -74,9 +75,20 @@ class ProxyDataService {
     this.startPort = start;
     this.endPort = end;
     context.addBodyParseMiddleware(this.router);
+    this.router.get('/', (req: Request, res: Response) => this.handleListProxyServersRequest(req, res));
     this.router.post('/', (req: Request, res: Response) => this.handleNewProxyServerRequest(req, res));
-    this.router.delete('/', (req: Request, res: Response) => this.handleDeleteProxyServerRequest(req, res));
+    this.router.put('/:port', (req: Request, res: Response) => this.handleReplaceProxyServerRequest(req, res));
+    this.router.delete('/:port', (req: Request, res: Response) => this.handleDeleteProxyServerRequest(req, res));
     this.context.logger.info(`port range is ${this.startPort}..${this.endPort} [${this.portRangeSource}]`);
+  }
+
+  private handleListProxyServersRequest(req: Request, res: Response) {
+    this.context.logger.info(`proxy got get request`);
+    const instances = [];
+    for (const [port, target] of this.targetByPort) {
+      instances.push({ port, target });
+    }
+    res.status(200).json({ instances });
   }
 
   private handleNewProxyServerRequest(req: Request, res: Response) {
@@ -95,6 +107,7 @@ class ProxyDataService {
       }
       const proxyServer = this.startProxyServer(newURL, hostname, port);
       this.proxyServerByPort.set(port, proxyServer);
+      this.targetByPort.set(port, newURL);
       this.context.logger.info(`created proxy for ${url} (${newURL}) on port ${port}`);
       res.status(200).json({ port });
     });
@@ -109,13 +122,39 @@ class ProxyDataService {
     return undefined;
   }
 
+  private handleReplaceProxyServerRequest(req: Request, res: Response) {
+    const port = +req.params.port;
+    const url = req.body.url;
+    this.context.logger.info(`proxy got put request for url=${url} port=${port}`);
+    const hostname = req.hostname;
+    this.checkURL(url).then((redirectResult: CheckURLResult) => {
+      let newURL = url;
+      if (redirectResult.redirect) {
+        newURL = redirectResult.location;
+      }
+      const oldProxy = this.proxyServerByPort.get(port);
+      if (!oldProxy) {
+        res.status(404).json({ error: `proxy at port ${port} not found` });
+        return;
+      }
+      oldProxy.close(() => {
+        const proxyServer = this.startProxyServer(newURL, hostname, port);
+        this.proxyServerByPort.set(port, proxyServer);
+        this.targetByPort.set(port, newURL);
+        this.context.logger.info(`replaced proxy for ${url} (${newURL}) on port ${port}`);
+        res.status(200).json({ port });
+      });
+    });
+  }
+
   private handleDeleteProxyServerRequest(req: Request, res: Response) {
-    const port = +req.query.port;
+    const port = +req.params.port;
     this.context.logger.info(`proxy got delete request for port=${port}`);
     const proxyServer = this.proxyServerByPort.get(port);
     if (proxyServer) {
       proxyServer.close();
       this.proxyServerByPort.delete(port);
+      this.targetByPort.delete(port);
     }
     res.status(204).send();
   }
