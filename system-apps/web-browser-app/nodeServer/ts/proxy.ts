@@ -62,6 +62,11 @@ interface KeyAndCert {
 const X_FRAME_OPTIONS = 'x-frame-options';
 const ZOWE_WEB_BROWSER_PROXY_PORT_RANGE = 'ZOWE_WEB_BROWSER_PROXY_PORT_RANGE';
 
+const metadata = {
+  _objectType: 'org.zowe.zlux.ng2desktop.webbrowser.service.proxy',
+  _metaDataVersion: '1.0.0',
+};
+
 class ProxyDataService {
   private context: Context;
   private router: Router = express.Router();
@@ -92,7 +97,7 @@ class ProxyDataService {
     for (const [port, proxy] of this.proxyServerByPort) {
       instances.push({ port, target: proxy.target });
     }
-    res.status(200).json({ instances });
+    res.status(200).json({ instances, ...metadata });
   }
 
   private handleNewProxyServerRequest(req: Request, res: Response) {
@@ -110,9 +115,9 @@ class ProxyDataService {
         return;
       }
       const proxyServer = this.startProxyServer(newURL, hostname, port);
-      this.proxyServerByPort.set(port, {proxy: proxyServer, target: newURL});
+      this.proxyServerByPort.set(port, { proxy: proxyServer, target: newURL });
       this.context.logger.info(`created proxy for ${url} (${newURL}) on port ${port}`);
-      res.status(200).json({ port });
+      res.status(200).json({ port, ...metadata });
     });
   }
 
@@ -142,9 +147,9 @@ class ProxyDataService {
       }
       oldProxy.proxy.close(() => {
         const proxyServer = this.startProxyServer(newURL, hostname, port);
-        this.proxyServerByPort.set(port, {proxy: proxyServer, target: newURL});
+        this.proxyServerByPort.set(port, { proxy: proxyServer, target: newURL });
         this.context.logger.info(`replaced proxy for ${url} (${newURL}) on port ${port}`);
-        res.status(200).json({ port });
+        res.status(200).json({ port, ...metadata });
       });
     });
   }
