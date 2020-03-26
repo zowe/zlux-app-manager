@@ -24,7 +24,7 @@ export interface ProxyServerResult {
 export class ProxyService {
   readonly proxyServiceURL: string;
   private enabled = false;
-  proxyState = new BehaviorSubject<boolean>(this.enabled);
+  proxyState: BehaviorSubject<boolean>;
   currentProxyPort: number | undefined;
 
   constructor(
@@ -39,6 +39,7 @@ export class ProxyService {
     if (isLaunchMetadata(launchMetadata) && launchMetadata.data.enableProxy) {
       this.enabled = true;
     }
+    this.proxyState = new BehaviorSubject<boolean>(this.enabled);
   }
 
   private create(urlString: string): Observable<ProxyServerResult> {
