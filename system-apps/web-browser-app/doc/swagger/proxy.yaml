@@ -54,6 +54,7 @@ paths:
             $ref: '#/definitions/ProxyResult'
         '503':
           description: Proxy unavailable
+  /{port}:
     put:
       summary: Replace target URL for existing Proxy server
       description: Replace target URL for existing Proxy server
