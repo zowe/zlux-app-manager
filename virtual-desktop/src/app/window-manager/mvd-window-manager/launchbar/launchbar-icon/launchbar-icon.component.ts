@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
+import { Component, Input, Output, EventEmitter, Injector, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { DesktopTheme } from "../../desktop/desktop.component";
 import { LaunchbarItem } from '../shared/launchbar-item';
 
@@ -21,6 +21,7 @@ import { LaunchbarItem } from '../shared/launchbar-item';
 })
 export class LaunchbarIconComponent {
   @Input() launchbarItem: LaunchbarItem;
+  @ViewChild('launchbarIconContainer') componentElement: ElementRef;
   public iconSize: string;
   public indicatorSize: string;
   public indicatorPos: string;
@@ -86,12 +87,15 @@ export class LaunchbarIconComponent {
 
   onMouseEnterInstanceView(event: MouseEvent) {
     this.launchbarItem.showIconLabel = false;
-    this.launchbarItem.showInstanceView = true;
   }
 
-  onMouseLeaveInstanceView(event: MouseEvent) {
-    this.launchbarItem.showInstanceView = false;
-    this.launchbarItem.showIconLabel = false;
+  @HostListener('document:mousedown', ['$event'])
+  onMouseDownInstanceView(event: MouseEvent) {
+    if (this.launchbarItem.showInstanceView && event
+        && !this.componentElement.nativeElement.contains(event.target)) {
+      this.launchbarItem.showInstanceView = false;
+      this.launchbarItem.showIconLabel = false;
+    }
   }
   
   isRunning(): boolean {

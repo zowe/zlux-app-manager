@@ -35,14 +35,22 @@ export class WindowComponent {
   public textPad:string;
   public buttonTop:string;
   public buttonSize:string;
+  public minimizeLeft:string;
+  public maximizeLeft:string;
+  public closeLeft:string;
   
   @Input() set theme(newTheme: DesktopTheme) {
     console.log('Window theme set=',newTheme);
     this.color = newTheme.color;
+    //button left strategy: size*.6 or .66 between each element and sides
+    //therefore (buttonNumber*size*.6)+((buttonNumber-1)*size)
     switch (newTheme.size.window) {
     case 1:
       this.borderSize = '1px';
       this.buttonSize = '10px';
+      this.closeLeft = '6px';
+      this.minimizeLeft = '22px';
+      this.maximizeLeft = '39px';
       this.buttonTop = '6px';
       this.textSize = '12px';
       this.textPad = '3px';
@@ -50,6 +58,9 @@ export class WindowComponent {
     case 3:
       this.borderSize = '3px';
       this.buttonSize = '16px';
+      this.closeLeft = '11px';
+      this.minimizeLeft = '38px';
+      this.maximizeLeft = '66px';
       this.buttonTop = '16px';
       this.textSize = '18px';
       this.textPad = '12px';
@@ -58,6 +69,9 @@ export class WindowComponent {
       //2
       this.borderSize = '2px';
       this.buttonSize = '12px';
+      this.closeLeft = '8px';
+      this.minimizeLeft = '28px';
+      this.maximizeLeft = '49px';
       this.buttonTop = '9px';
       this.textSize = '14px';
       this.textPad = '5px';

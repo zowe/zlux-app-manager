@@ -25,9 +25,10 @@ export class LaunchbarInstanceViewComponent {
   @Input() launchbarItem: LaunchbarItem;
 
   public viewerBottom:string;
+  public color:any;
   
   @Input() set theme(newTheme: DesktopTheme) {
-    console.log('Launchbar instanve view theme set=',newTheme);
+    this.color = newTheme.color;
     switch (newTheme.size.launchbar) {
     case 1:
       this.viewerBottom = '29px';
@@ -51,7 +52,7 @@ export class LaunchbarInstanceViewComponent {
     let bounds = (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).getBoundingClientRect();
     if (bounds != null) {
       if (bounds.left - (INSTANCE_INITIAL_OFFSET + (INSTANCE_ADDITIONAL_OFFSET  * (this.launchbarItem.instanceIds.length - 2)))  < 0 ) {
-        (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 0 + 'px';
+        (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = '4px';
       } else {
         (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 
         bounds.left - (INSTANCE_INITIAL_OFFSET + (INSTANCE_ADDITIONAL_OFFSET  * (this.launchbarItem.instanceIds.length - 2))) + 'px';

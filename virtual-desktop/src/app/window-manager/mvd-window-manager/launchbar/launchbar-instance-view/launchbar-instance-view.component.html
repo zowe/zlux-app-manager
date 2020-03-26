@@ -7,7 +7,9 @@
   
   Copyright Contributors to the Zowe Project.
   -->
-<div class="instance-viewer" [style.bottom]="viewerBottom">
+<div class="instance-viewer" [style.bottom]="viewerBottom"
+     [style.background]="color.launchbarMenuColor"
+     [style.color]="color.launchbarMenuText">
   <div class="all-instances-box">
     <div class="instance-item" (mousedown)="clicked(windowId, launchbarItem)" *ngFor="let windowId of windowManager.getWindowIDs(launchbarItem.plugin); let i = index">
       <div>

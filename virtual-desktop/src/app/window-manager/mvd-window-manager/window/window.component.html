@@ -52,15 +52,19 @@
          [style.color]="hasFocus() ? color.windowTextActive : color.windowTextInactive"
          [style.padding-top]="textPad"
  #dragHandle>{{getTitle()}}</div>
-    <div class="minimize-button" [style.top]="buttonTop"
-         [class.active]="hasFocus()"
-         [style.background-size]="buttonSize" (click)="minimizeToggle()"></div>
-    <div class="maximize-button" [style.top]="buttonTop"
-         [class.active]="hasFocus()"
-         [style.background-size]="buttonSize" (click)="maximizeToggle()" [class.maximized]="isMaximized()"></div>
     <div class="close-button" [style.top]="buttonTop"
          [class.active]="hasFocus()"
+         [style.left]="closeLeft"
          [style.background-size]="buttonSize" (click)="close()"></div>
+    <div class="minimize-button" [style.top]="buttonTop"
+         [class.active]="hasFocus()"
+         [style.background-size]="buttonSize"
+         [style.left]="minimizeLeft"
+         (click)="minimizeToggle()"></div>
+    <div class="maximize-button" [style.top]="buttonTop"
+         [class.active]="hasFocus()"
+         [style.left]="maximizeLeft"
+         [style.background-size]="buttonSize" (click)="maximizeToggle()" [class.maximized]="isMaximized()"></div>
   </div>
 
   <!-- Window body -->
