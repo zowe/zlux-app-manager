@@ -22,6 +22,11 @@ interface CheckURLResult {
   location?: string;
 }
 
+interface Proxy {
+  proxy: httpProxy;
+  target: string;
+}
+
 interface Context {
   serviceDefinition: any;
   serviceConfiguration: any;
@@ -64,8 +69,7 @@ class ProxyDataService {
   private readonly endPort: number;
   private readonly keyAndCert: KeyAndCert;
   private readonly portRangeDefault = { start: 16000, end: 16030 };
-  private readonly proxyServerByPort = new Map<number, httpProxy>();
-  private readonly targetByPort = new Map<number, string>();
+  private readonly proxyServerByPort = new Map<number, Proxy>();
   private portRangeSource: string = 'default';
 
   constructor(context: Context) {
@@ -85,8 +89,8 @@ class ProxyDataService {
   private handleListProxyServersRequest(req: Request, res: Response) {
     this.context.logger.info(`proxy got get request`);
     const instances = [];
-    for (const [port, target] of this.targetByPort) {
-      instances.push({ port, target });
+    for (const [port, proxy] of this.proxyServerByPort) {
+      instances.push({ port, target: proxy.target });
     }
     res.status(200).json({ instances });
   }
@@ -106,8 +110,7 @@ class ProxyDataService {
         return;
       }
       const proxyServer = this.startProxyServer(newURL, hostname, port);
-      this.proxyServerByPort.set(port, proxyServer);
-      this.targetByPort.set(port, newURL);
+      this.proxyServerByPort.set(port, {proxy: proxyServer, target: newURL});
       this.context.logger.info(`created proxy for ${url} (${newURL}) on port ${port}`);
       res.status(200).json({ port });
     });
@@ -137,10 +140,9 @@ class ProxyDataService {
         res.status(404).json({ error: `proxy at port ${port} not found` });
         return;
       }
-      oldProxy.close(() => {
+      oldProxy.proxy.close(() => {
         const proxyServer = this.startProxyServer(newURL, hostname, port);
-        this.proxyServerByPort.set(port, proxyServer);
-        this.targetByPort.set(port, newURL);
+        this.proxyServerByPort.set(port, {proxy: proxyServer, target: newURL});
         this.context.logger.info(`replaced proxy for ${url} (${newURL}) on port ${port}`);
         res.status(200).json({ port });
       });
@@ -152,9 +154,8 @@ class ProxyDataService {
     this.context.logger.info(`proxy got delete request for port=${port}`);
     const proxyServer = this.proxyServerByPort.get(port);
     if (proxyServer) {
-      proxyServer.close();
+      proxyServer.proxy.close();
       this.proxyServerByPort.delete(port);
-      this.targetByPort.delete(port);
     }
     res.status(204).send();
   }
@@ -197,7 +198,7 @@ class ProxyDataService {
       const cspHeaders = proxyRes.headers[CONTENT_SECURITY_POLICY];
       proxyRes.headers[CONTENT_SECURITY_POLICY] = this.fixContentSecurityPolicyHeaders(cspHeaders);
     }
-    this.context.logger.info(`Modified Response headers from target ${JSON.stringify(proxyRes.headers, null, 2)}`);
+    this.context.logger.debug(`Modified Response headers from target ${JSON.stringify(proxyRes.headers, null, 2)}`);
   }
 
   private fixContentSecurityPolicyHeaders(cspHeaders: string | string[]): string | string[] {
