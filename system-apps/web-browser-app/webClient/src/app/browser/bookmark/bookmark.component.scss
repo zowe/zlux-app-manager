@@ -12,26 +12,41 @@ $width: 6em;
 div {
   flex: 0 0 auto;
   max-width: $width;
-  min-width: $width;
   display: flex;
   justify-content: center;
   cursor: pointer;
   align-items: center;
   
   span.title {
-    padding: 0.2rem;
+    padding: 0.1rem 0.2rem;
     flex: 1 1 auto;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    
+    &:hover {
+      font-weight: bold;
+    }
   }
   
   span.remove {
+    border: 1px solid #777777;
+    border-radius: 50%;
+    width: 0.8rem;
+    height: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
     visibility: hidden;
-    font-size: 1.2rem;
+    
+    &:hover {
+      font-weight: bold;
+      border-width: 1.5px;
+    }
   }
   
-  &:hover span.remove{
+  &:hover span.remove {
     visibility: visible;
   }
 
