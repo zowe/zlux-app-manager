@@ -37,8 +37,9 @@
 .login-overlay > div {
   background: white;
   overflow-x: hidden;
-  height: 100%;
-  padding: 20px 50px;
+  max-height: fit-content;
+  padding: 20px 50px 100px;
+  min-height: 500px;
   overflow: auto;
 }
 
