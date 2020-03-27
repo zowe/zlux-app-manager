@@ -55,6 +55,11 @@
   display: none;
 }
 
+.login-group {
+  height: calc(50% + 200px);
+  min-height: 500px;
+}
+
 .login-form {
   margin-top: 20%;
   margin-left: auto;
