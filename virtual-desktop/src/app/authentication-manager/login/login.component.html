@@ -17,32 +17,32 @@
 <div class="login-panel" [class.hidden]="!isLoading && !needLogin && !changePassword">
   <div class="login-overlay" src="'../../../assets/images/login/back-button.png'">
       <button class="back-button" [hidden]="!changePassword && !expiredPassword" (click)="backButton()">Back</button>
-    <div class="login-group">
-      <img class="logo-img" [hidden]="changePassword || expiredPassword" [src]="logo" alt="Zowe - z/OS Lightweight User Experience" />
-      <img class="password-logo-img" [hidden]="!changePassword && !expiredPassword" [src]="passwordLogo" alt="Zowe - z/OS Lightweight User Experience" />
-      <form class="login-form" [class.login-form-expired]="expiredPassword" [class.password-login-form]="changePassword">
-        <p class="login-message">{{loginMessage}}</p>
-        <label [hidden]="changePassword" for="userid" i18n="label|Label for username@@username-label">Username</label>
-        <input [hidden]="changePassword" class="userid" id="usernameInput" aria-labelledby="user id" tabindex="1" type="text" name="userid" [(ngModel)]="username" minlength="1" maxlength="100" autofocus [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
-        <label for="password" i18n="label|Label for password@@password-label">{{this.expiredPassword ? "Old Password" : "Password"}}</label>
-        <input class="password" id="passwordInput" aria-labelledby="password" tabindex="1" type="password" name="password"[(ngModel)]="password" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
-        <label [hidden]="!expiredPassword && !changePassword" for="newPassword" i18n="label|Label for password@@password-label">New Password</label>
-        <input [hidden]="!expiredPassword && !changePassword" class="newPassword" id="newPasswordInput" aria-labelledby="newPassword" tabindex="1" type="password" name="newPassword"[(ngModel)]="newPassword" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
-        <label [hidden]="!expiredPassword && !changePassword" for="confirmNewPassword" i18n="label|Label for password@@password-label">Re-enter new Password</label>
-        <input [hidden]="!expiredPassword && !changePassword" class="confirmNewPassword" id="confirmNewPasswordInput" aria-labelledby="confirmNewPassword" tabindex="1" type="password" name="confirmNewPassword"[(ngModel)]="confirmNewPassword" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
-      </form>
-      <p class="login-error">{{errorMessage || "&nbsp;"}}</p>
-      <div class="fa fa-spinner fa-spin fa-5x" [hidden]="!isLoading"></div>
-      <button [hidden]="!expiredPassword && !changePassword" id="#loginButton" class="login-button" (click)="attemptPasswordReset()" [disabled]="locked">{{this.expiredPassword ? "Change Password" : "Save and return to desktop"}}</button>
-      <div>
-        <button id="#loginButton"
-          class="login-button"
-          (click)="attemptLogin()"
-          [hidden]="!needLogin || expiredPassword"
-          [disabled]="locked">
-          Login
-        </button>
-      </div>
+    <div>
+    <img class="logo-img" [hidden]="changePassword || expiredPassword" [src]="logo" alt="Zowe - z/OS Lightweight User Experience" />
+    <img class="password-logo-img" [hidden]="!changePassword && !expiredPassword" [src]="passwordLogo" alt="Zowe - z/OS Lightweight User Experience" />
+    <form class="login-form" [class.login-form-expired]="expiredPassword" [class.password-login-form]="changePassword">
+      <p class="login-message">{{loginMessage}}</p>
+      <label [hidden]="changePassword" for="userid" i18n="label|Label for username@@username-label">Username</label>
+      <input [hidden]="changePassword" class="userid" id="usernameInput" aria-labelledby="user id" tabindex="1" type="text" name="userid" [(ngModel)]="username" minlength="1" maxlength="100" autofocus [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
+      <label for="password" i18n="label|Label for password@@password-label">{{this.expiredPassword ? "Old Password" : "Password"}}</label>
+      <input class="password" id="passwordInput" aria-labelledby="password" tabindex="1" type="password" name="password"[(ngModel)]="password" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
+      <label [hidden]="!expiredPassword && !changePassword" for="newPassword" i18n="label|Label for password@@password-label">New Password</label>
+      <input [hidden]="!expiredPassword && !changePassword" class="newPassword" id="newPasswordInput" aria-labelledby="newPassword" tabindex="1" type="password" name="newPassword"[(ngModel)]="newPassword" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
+      <label [hidden]="!expiredPassword && !changePassword" for="confirmNewPassword" i18n="label|Label for password@@password-label">Re-enter new Password</label>
+      <input [hidden]="!expiredPassword && !changePassword" class="confirmNewPassword" id="confirmNewPasswordInput" aria-labelledby="confirmNewPassword" tabindex="1" type="password" name="confirmNewPassword"[(ngModel)]="confirmNewPassword" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
+    </form>
+    <p class="login-error">{{errorMessage || "&nbsp;"}}</p>
+    <div class="fa fa-spinner fa-spin fa-5x" [hidden]="!isLoading"></div>
+    <button [hidden]="!expiredPassword && !changePassword" id="#loginButton" class="login-button" (click)="attemptPasswordReset()" [disabled]="locked">{{this.expiredPassword ? "Change Password" : "Save and return to desktop"}}</button>
+    <div>
+      <button id="#loginButton"
+        class="login-button"
+        (click)="attemptLogin()"
+        [hidden]="!needLogin || expiredPassword"
+        [disabled]="locked">
+        Login
+      </button>
+    </div>
     </div>
   </div>
 </div>
