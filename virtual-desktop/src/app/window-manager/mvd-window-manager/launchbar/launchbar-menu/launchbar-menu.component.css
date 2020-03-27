@@ -14,7 +14,7 @@
   margin-left: 5px;
   margin-right: 5px;
   padding: 0;
-  background-image: url("../../../../../assets/images/launchbar/more-apps.png");
+  background-image: url("../../../../../assets/images/launchbar/menu-zowe-icon.png");
 }
 
 .app-label {
@@ -28,17 +28,30 @@
 }
 
 .launch-menu-search-input {
-  width: 95%;
+  width: calc(100% - 10px);
+  border-color: transparent;
   background-color: #ffffff55;
-  border: 0;
-  border-radius: 4px;
+  border-radius: 0px 0px 7px 7px;
+  padding-left: 30px;
+  margin-left: -5px;
+}
+
+.launch-menu-search-input::placeholder {
+  color: white;
+}
+
+.launch-menu-search-icon {
+  padding: 5px;
+  float: left;
+  position: absolute;
+  background-color: transparent;
 }
 
 .launch-menu-scroller {
   overflow-y: scroll;
   width: 315px;
   height: 295px;
-  bottom: 31px;
+  bottom: 35px;
   position: absolute;
   background: #dde8f1;
 }
@@ -99,7 +112,7 @@
 .launch-widget-popup {
   user-select: none;    
   width: 335px;
-  height: 350px;
+  height: 365px;
   position: absolute;
   bottom: 90px;
   left: 5px;

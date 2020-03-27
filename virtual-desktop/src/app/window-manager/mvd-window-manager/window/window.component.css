@@ -36,9 +36,9 @@
   z-index: 1;
   min-width: 180px;
   min-height: 90px;
-  -webkit-box-shadow: 0 0px 13px rgba(0,0,0,0.2);
-  -moz-box-shadow:    0 0px 13px rgba(0,0,0,0.2);
-  box-shadow:         0 0px 13px rgba(0,0,0,0.2);
+  -webkit-box-shadow: 0;
+  -moz-box-shadow:    0;
+  box-shadow:         0;
   border-color: #d4d4d6;
   border-width: 3px;
   border-style: solid;
@@ -85,9 +85,9 @@
 }
 
 .window.active {
-  -webkit-box-shadow: 0 0px 25px rgba(0, 0, 0, 0.3);
-  -moz-box-shadow:    0 0px 25px rgba(0, 0, 0, 0.3);
-  box-shadow:         0 0px 25px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: rgb(51,51,51) 1px 1px 8px 0px;
+  -moz-box-shadow:    rgb(51,51,51) 1px 1px 8px 0px;
+  box-shadow:         rgb(51,51,51) 1px 1px 8px 0px;
   border-color: #659ff9;
   background-color: #659ff9;
 }
