@@ -37,6 +37,7 @@ export class LaunchbarComponent {
   //Always 6+icon size, due to need for space for padding and such
   public barSize: string;
   public applistMargin: string;
+  public applistPadding: string;
   public _theme: DesktopTheme;
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.info('Launchbar theme set=',newTheme);
@@ -45,18 +46,21 @@ export class LaunchbarComponent {
     case 1:
       //16 for icon, 2 for indicator, 1 for bottom and 3 for top
       this.barSize = '25px';
-      this.applistMargin = `0px 20px 0px 20px`;
+      this.applistPadding = '3px';
+      this.applistMargin = `0px 191px 0px 29px`;
       break;
     case 3:
       //64 for icon, 4 for indicator, 2 for pad bottom, 6 for pad top
       this.barSize = '76px';
-      this.applistMargin = `0px 65px 0px 65px`;
+      this.applistPadding = '7px';
+      this.applistMargin = `0px 208px 0px 79px`;
       break;
     default:
       //2
       //32 for icon, 2 for indicator, 2 for pad bottom, 4 for pad top
       this.barSize = '41px';
-      this.applistMargin = `0px 35px 0px 35px`;
+      this.applistPadding = '5px';
+      this.applistMargin = `0px 179px 0px 46px`;
       break;
     }
   }

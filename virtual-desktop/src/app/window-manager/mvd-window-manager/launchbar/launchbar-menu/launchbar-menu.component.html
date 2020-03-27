@@ -8,12 +8,12 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="launch-widget">
+<div class="launch-widget"
+     [style.background]="color.launchbarColor">
   <div class="mvd-launchbar-icon mvd-launchbar-icon-large launchbar-menu-icon"
        [style.width]="menuIconSize"
        [style.height]="menuIconSize"
        (click)="activeToggle()"></div>
-  <div class="launchbar-separator right"></div>
 </div>
 
 <ng-template [ngIf]="isActive">

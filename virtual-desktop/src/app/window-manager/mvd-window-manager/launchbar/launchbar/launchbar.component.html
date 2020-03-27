@@ -11,11 +11,13 @@
 -->
 
 <div class="launchbar-container launchbar-large" id="container"
-     [style.background]="_theme.color.launchbarColor"
      [style.height]="barSize"
      (mouseup)="onMouseUpContainer($event)" [class.active]="isActive" (contextmenu)="showBarOptions($event)">
   <rs-com-launchbar-menu [menuItems]="allItems" [theme]="_theme" (itemClicked)="menuItemClicked($event)"  (refreshClicked)="getNewItems()"></rs-com-launchbar-menu>
-  <div class="applist row container" [style.margin]="applistMargin">
+  
+  <div class="applist row" [style.margin]="applistMargin"
+       [style.background]="_theme.color.launchbarColor"
+       [style.padding-left]="applistPadding">
     <rs-com-launchbar-icon *ngFor="let item of pinnedItems" [launchbarItem]="item" [theme]="_theme" (contextmenu)="onRightClick($event, item)"
     (mousedown)="onMouseDown($event, item)" (mousemove)="onMouseMove($event, item)">
     </rs-com-launchbar-icon>

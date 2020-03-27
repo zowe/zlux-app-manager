@@ -37,11 +37,8 @@
   z-index: 6;
   margin: 0;
   height: 100%;
-  margin-left: 130px; /* Prevent overlap with launch widget on the left */
-  margin-right: 150px; /* Prevent overlap with lauchbar clock and searcb bar on the right */
   padding: 0;
-  padding-left: 25px;
-  padding-top: 0;
+  border-radius: 7px;
 }
 
 

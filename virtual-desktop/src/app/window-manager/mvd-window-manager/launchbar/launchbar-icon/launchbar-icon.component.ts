@@ -31,13 +31,12 @@ export class LaunchbarIconComponent {
   
   @Input() set theme(newTheme: DesktopTheme) {
     this._theme = newTheme;
-    console.log('Launchbar icon theme set=',newTheme);
     switch (newTheme.size.launchbar) {
     case 1:
       this.iconSize="16px";
       this.hoverBottom="14px";
       this.hoverOffset="-22px";
-      this.indicatorPos="1px";
+      this.indicatorPos="2px";
       this.indicatorSize = '2px';
       break;
     case 3:

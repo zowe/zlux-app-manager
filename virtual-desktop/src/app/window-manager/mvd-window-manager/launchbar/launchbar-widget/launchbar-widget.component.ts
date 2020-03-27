@@ -51,13 +51,11 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public widgetSize: string;
   public areaSize: string;
   public popupBottom: string;
-  public popupBackground: string;
-  public popupTextColor: string;
+  public color: any;
   public closeImage: string = require('../../../../../assets/images/window/close-active.png')
 
   @Input() set theme (newTheme: DesktopTheme) {
-    this.popupBackground = newTheme.color.launchbarMenuColor;
-    this.popupTextColor = newTheme.color.launchbarMenuText;
+    this.color = newTheme.color;
     
     switch (newTheme.size.launchbar) {
     case 1:
