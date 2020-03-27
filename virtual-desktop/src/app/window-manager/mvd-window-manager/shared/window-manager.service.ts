@@ -146,13 +146,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   public static _setTheme(newTheme: DesktopTheme) {
     switch (newTheme.size.window) {
     case 1:
-      WindowManagerService.WINDOW_HEADER_HEIGHT = 23;
+      WindowManagerService.WINDOW_HEADER_HEIGHT = 22;
       break;
     case 3:
-      WindowManagerService.WINDOW_HEADER_HEIGHT = 48;
+      WindowManagerService.WINDOW_HEADER_HEIGHT = 47;
       break;
     default:
-      WindowManagerService.WINDOW_HEADER_HEIGHT = 30;
+      WindowManagerService.WINDOW_HEADER_HEIGHT = 29;
       //2
     }
     WindowManagerService.NEW_WINDOW_POSITION_INCREMENT = WindowManagerService.WINDOW_HEADER_HEIGHT;

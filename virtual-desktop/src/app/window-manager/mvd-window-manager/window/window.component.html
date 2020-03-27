@@ -38,7 +38,7 @@
 
   [style.background-color]="hasFocus() ? color.windowColorActive : color.windowColorInactive"
   [style.border-color]="hasFocus() ? color.windowColorActive : color.windowColorInactive"
-  [style.border-width]="borderSize"
+  [style.border-width]="isMaximized() ? '0px' : borderSize"
   class="window">
 
   <div class="border-box-sizing">
