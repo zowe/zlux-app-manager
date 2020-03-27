@@ -44,7 +44,8 @@
 
 <div class="widget-area" [style.padding-top]="widgetOffset"
      [style.min-width]="areaSize"
-     [style.background]="color.launchbarColor">
+     [style.background]="color.launchbarColor"
+     [style.border-radius]="borderRadius">
   <div class="clock two-row" *ngIf="clockTwoRow" [style.font-size]="fontSize" [style.padding-top]="clockOffset">
     <span>{{date | date:'shortTime'}}</span>
     <br>

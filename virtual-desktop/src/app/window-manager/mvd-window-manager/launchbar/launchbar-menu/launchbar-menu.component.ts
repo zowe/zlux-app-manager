@@ -46,6 +46,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public menuText: string;
   public menuWidth: string;
   public menuWidthInner: string;
+  public borderRadius: string;
   /* later
   public launchbarIconSize;
   public launchbarTextSize;
@@ -65,6 +66,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       this.menuWidthInner = '290px';
       this.menuText = '12px';
       this.menuBottom = '29px';
+      this.borderRadius = '3px';
       break;
     case 3:
       menuIcon = 64;
@@ -73,6 +75,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       this.menuWidthInner = '390px';
       this.menuText = '14px';
       this.menuBottom = '80px';
+      this.borderRadius = '7px';
       break;
     default:
       //2
@@ -82,6 +85,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       this.menuWidthInner = '355px';
       this.menuText = '16px';
       this.menuBottom = '45px';
+      this.borderRadius = '5px';
     }
     this.menuIconSize = menuIcon+'px';
     this.appIconSize = appIcon+'px';
