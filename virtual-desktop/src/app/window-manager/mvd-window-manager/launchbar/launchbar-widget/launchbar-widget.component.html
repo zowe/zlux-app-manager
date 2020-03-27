@@ -42,7 +42,7 @@
   </div>
 </div>
 
-<div class="widget-area" [style.padding-top]="widgetOffset"
+<div class="widget-area"
      [style.min-width]="areaSize"
      [style.background]="color.launchbarColor"
      [style.border-radius]="borderRadius">
@@ -55,6 +55,7 @@
     <span>{{date | date:'shortDate'}} {{date | date:'shortTime'}}</span>
   </div>
   <div #notificationicon class="launchbar-tray-icon notification"
+       [style.margin-top]="widgetOffset"
        [style.background-size]="widgetSize+' '+widgetSize"
        [style.height]="widgetSize"
        [style.width]="widgetSize"
@@ -62,11 +63,13 @@
       <div [hidden]="notifications.length == 0"class="launchbar-tray-indicator">{{notifications.length}}</div>
   </div>
   <div #settingsicon class="launchbar-tray-icon settings"
+       [style.margin-top]="widgetOffset"
        [style.background-size]="widgetSize+' '+widgetSize"
        [style.height]="widgetSize"
        [style.width]="widgetSize"
        (click)="togglePersonalizationPanel()"></div>
   <div #usericon class="launchbar-tray-icon user"
+       [style.margin-top]="widgetOffset"
        [style.height]="widgetSize"
        [style.width]="widgetSize"
        [style.background-size]="widgetSize+' '+widgetSize"

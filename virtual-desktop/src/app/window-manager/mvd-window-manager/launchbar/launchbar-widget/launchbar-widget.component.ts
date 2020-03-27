@@ -61,7 +61,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     switch (newTheme.size.launchbar) {
     case 1:
       this.clockTwoRow = false;
-      this.clockOffset = '0px';
+      this.clockOffset = '5px';
       this.widgetOffset = '5px';
       this.areaSize = "188px";
       this.widgetSize="16px";
@@ -72,6 +72,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     case 3:
       this.clockTwoRow = true;
       this.widgetOffset = '24px';
+      this.clockOffset = '20px';
       this.areaSize = "200px";
       this.widgetSize="32px";
       this.fontSize = '16px';
@@ -81,8 +82,8 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     default:
       //2
       this.clockTwoRow = true;
-      this.clockOffset = '0px';
-      this.widgetOffset = '9px';
+      this.clockOffset = '5px';
+      this.widgetOffset = '10px';
       this.areaSize = "175px";
       this.widgetSize="24px";
       this.fontSize = '14px';
