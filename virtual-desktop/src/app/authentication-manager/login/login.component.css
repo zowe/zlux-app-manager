@@ -29,7 +29,7 @@
   text-align: center;
   background: white;
   
-  display: flex;
+  display: grid;
   flex-direction: column;
   justify-content: center;
 }
@@ -57,7 +57,7 @@
 }
 
 .login-form {
-  margin-top: 20%;
+  padding-bottom: 50px;
   margin-left: auto;
   margin-right: auto;
   text-align: left;
@@ -177,6 +177,7 @@
 .password-logo-img {
   width: 60%;
   margin-top: -50px;
+  margin-left: 75px;
 }
 
 .back-button {
