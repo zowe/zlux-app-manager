@@ -36,21 +36,12 @@
 }
 
 .login-overlay > div {
-  /* background: white;
-  overflow-x: hidden;
-  height: 100%;
-  padding: 20px 50px;
-  overflow: auto; */
-
   background: white;
-    overflow-x: hidden;
-    /* height: calc(50% + 0px); */
-    max-height: fit-content;
-    padding: 20px 50px 100px;
-    min-height: 500px;
-    overflow: auto;
-    /* top: 50% !important; */
-    /* margin-top: 50%; */
+  overflow-x: hidden;
+  max-height: fit-content;
+  padding: 20px 50px 100px;
+  min-height: 500px;
+  overflow: auto;
 }
 
 .login-panel {
@@ -64,11 +55,6 @@
 
 .login-panel.hidden {
   display: none;
-}
-
-.login-group {
-  /* height: calc(50% + 200px) !important;
-  min-height: 500px; */
 }
 
 .login-form {
