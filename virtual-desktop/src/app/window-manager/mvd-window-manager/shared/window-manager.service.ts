@@ -146,6 +146,23 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
             this.maximizeToggle(this.focusedWindow.windowId);
           }
         }
+        else if (event.which === KeyCode.LEFT_ARROW) {                  
+          if(this.focusedWindow !== null) {
+            this.switchWindow(-1);
+          }
+        }
+        else if (event.which === KeyCode.RIGHT_ARROW) { 
+          if(this.focusedWindow !== null) {
+            if(event.which === KeyCode.RIGHT_ARROW) {
+              this.switchWindow(1);
+            }
+          }
+        }
+        else if (event.which === KeyCode.KEY_W) {
+          if(this.focusedWindow) {
+            this.closeWindow(this.focusedWindow.windowId);
+          }
+        }
     });
     this.authenticationManager.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       this.sessionSubscriptions.forEach((session: Angular2PluginSessionEvents, windowId: MVDWindowManagement.WindowId) => {
@@ -206,6 +223,37 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       return -1;
     }
     return parentViewportElement.getAttribute(viewportIdAttr);
+  }
+
+  switchWindow(zDistance:number): void {
+    let windows:DesktopWindow[] = this.getAllWindows();
+  
+    if(this.focusedWindow != null) {
+      const focusedWindowId :number = this.focusedWindow.windowId; 
+      windows = windows.filter( (val: DesktopWindow ) => 
+        val.windowId !== focusedWindowId
+      );
+    }  
+
+    if(windows.length>0) {
+      const sortWindows: DesktopWindow[] = windows.sort(
+                          (val1:DesktopWindow, val2:DesktopWindow) => 
+                          ((val1.windowState.zIndex - val2.windowState.zIndex) 
+                          * zDistance)
+                        );
+
+      const windowIds = sortWindows.map((val:DesktopWindow) => val.windowId);
+
+      if(windowIds.length>0) {
+        const selectIdx: number = (Math.abs(zDistance) -1) % (windows.length);
+        const windowId = windowIds[selectIdx];
+        if(this.focusedWindow != null && zDistance<1) {
+          const replaceZIndex = sortWindows[windowIds.length-1].windowState.zIndex-1;
+          this.focusedWindow.windowState.zIndex=replaceZIndex;
+        }
+        this.requestWindowFocus(windowId);
+      }
+    }
   }
 
   /* TODO: https://github.com/angular/angular/issues/17725 gets in the way */
