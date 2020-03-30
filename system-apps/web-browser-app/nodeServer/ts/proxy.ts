@@ -54,9 +54,9 @@ interface Context {
   addBodyParseMiddleware: (router: Router) => void;
 }
 
-interface KeyAndCert {
-  key: string;
-  cert: string;
+interface KeysAndCerts {
+  keys: string[];
+  certs: string[];
 }
 
 const X_FRAME_OPTIONS = 'x-frame-options';
@@ -72,14 +72,14 @@ class ProxyDataService {
   private router: Router = express.Router();
   private readonly startPort: number;
   private readonly endPort: number;
-  private readonly keyAndCert: KeyAndCert;
+  private readonly keysAndCerts: KeysAndCerts;
   private readonly portRangeDefault = { start: 16000, end: 16030 };
   private readonly proxyServerByPort = new Map<number, Proxy>();
   private portRangeSource: string = 'default';
 
   constructor(context: Context) {
     this.context = context;
-    this.keyAndCert = this.getServerKeyAndCert();
+    this.keysAndCerts = this.getServerKeyAndCert();
     const { start, end } = this.getPortRange();
     this.startPort = start;
     this.endPort = end;
@@ -175,8 +175,8 @@ class ProxyDataService {
       ws: true,
       cookieDomainRewrite: `${hostname}:${proxyPort}`,
       ssl: {
-        key: this.keyAndCert.key,
-        cert: this.keyAndCert.cert
+        key: this.keysAndCerts.keys,
+        cert: this.keysAndCerts.certs
       },
     };
     return <httpProxy.ServerOptions>{
@@ -257,20 +257,24 @@ class ProxyDataService {
     }
   }
 
-  private getServerKeyAndCert(): KeyAndCert {
-    let key: string;
-    let cert: string;
+  private getServerKeyAndCert(): KeysAndCerts {
+    let keys: string[] = [];
+    let certs: string[] = [];
     try {
-      const keys = this.context.plugin.server.config.user.node.https.keys;
-      const certs = this.context.plugin.server.config.user.node.https.certificates;
-      key = fs.readFileSync(keys[0], 'utf-8');
-      cert = fs.readFileSync(certs[0], 'utf-8');
+      const keyFiles = this.context.plugin.server.config.user.node.https.keys;
+      const certFiles = this.context.plugin.server.config.user.node.https.certificates;
+      for (const file of keyFiles) {
+        keys.push(fs.readFileSync(file, 'utf-8'));
+      }
+      for (const file of certFiles) {
+        certs.push(fs.readFileSync(file, 'utf-8'));
+      }
     } catch (e) {
-      this.context.logger.error(`unable to find key/cert pair JSON.stringify(e)`);
-      cert = undefined;
-      key = undefined;
+      this.context.logger.error(`unable to find key/cert pair(s) ${JSON.stringify(e)}`);
+      certs = [];
+      keys = [];
     }
-    return { key, cert };
+    return { keys, certs };
   }
 
   getPortRange(): { start: number, end: number } {
