@@ -53,6 +53,8 @@ export class LoginComponent implements OnInit {
     this.password = '';
     this.errorMessage = null;
 
+    // Make login screen showing up an event for apps to use, without exposing the rest of authentication service
+    ZoweZLUX.pluginManager.loginScreenVisibilityChanged = this.authenticationService.loginScreenVisibilityChanged;
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
       switch (eventReason) {
       case LoginScreenChangeReason.UserLogout:
