@@ -76,6 +76,11 @@ let messageHandler = function(message) {
             case 'windowEvents.titleChanged':
                 console.log('titleChanged')
                 return;
+            case 'loginEvents.sessionTimeout':
+                if (ZoweZLUX.iframe.closeOnTimeout) {
+                    windowActions.close();
+                }
+                break;
             default:
                 return;
         }
@@ -124,6 +129,8 @@ function translateFunction(functionString, args){
                     args[0] = {};
                 }
                 break;
+            case 'windowActions.closeOnTimeout':
+                ZoweZLUX.iframe.closeOnTimeout = true;
             default:
                 break;
         }
@@ -168,6 +175,7 @@ var ZoweZLUX = {
         closeHandlers: {},
         pluginDef: undefined,
         launchMetadata: undefined,
+        closeOnTimeout: false,
 
         //True - Standalone, False - We are in regular desktop mode
         isSingleAppMode() {
@@ -331,7 +339,7 @@ var ZoweZLUX = {
         setLocale(locale){
             return translateFunction('ZoweZLUX.globalization.setLocale', [locale])
         }
-    }
+    },
 }
 
 ZoweZLUX.logger = new exports.Logger();
@@ -360,6 +368,9 @@ var windowActions = {
     spawnContextMenu(xPos, yPos, items, isAbsolutePos){
         return translateFunction('windowActions.spawnContextMenu', [xPos, yPos, items, isAbsolutePos])
     },
+    closeOnTimeout(){
+        return translateFunction('windowActions.closeOnTimeout', [])
+    }
 }
 ZoweZLUX.iframe.windowActions = windowActions;
 var viewportEvents = {

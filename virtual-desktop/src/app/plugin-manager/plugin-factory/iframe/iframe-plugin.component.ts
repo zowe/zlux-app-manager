@@ -11,6 +11,7 @@ import { Injectable, Inject, Component, Optional } from '@angular/core';
 import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents } from '../../../../pluginlib/inject-resources';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { BaseLogger } from '../../../../app/shared/logger'
+import { LoginScreenChangeReason } from '../../../authentication-manager/authentication-manager.service'
 
 @Component({
     templateUrl: './iframe-plugin.component.html'
@@ -31,7 +32,8 @@ export class IFramePluginComponent {
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_EVENTS) private windowEvents: Angular2PluginWindowEvents,
     @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) private viewportEvents: Angular2PluginViewportEvents,
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefintion: ZLUX.ContainerPluginDefinition,
-    @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any
+    @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any,
+    @Inject(MVDHosting.Tokens.AuthenticationManagerToken) private authenticationManager: any
   ){
     addEventListener("message", this.postMessageListener.bind(this));
     //The following references are to suppress typescript warnings
@@ -97,6 +99,15 @@ export class IFramePluginComponent {
       this.windowEvents.titleChanged.subscribe(() => {
         this.postWindowEvent('windowEvents.titleChanged');
       });
+      this.authenticationManager.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
+        switch (eventReason) {
+        case LoginScreenChangeReason.SessionExpired:
+          this.postWindowEvent("loginEvents.sessionTimeout");
+          break;
+        default:
+          break;
+      }
+      });      
       return;
     }
     if(data.request.instanceId === this.instanceId){
