@@ -67,7 +67,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       this.widgetSize="16px";
       this.fontSize = '12px';
       this.popupBottom = '30px';
-      this.borderRadius = '3px';
+      this.borderRadius = '3px 3px 0px 3px';
       break;
     case 3:
       this.clockTwoRow = true;
@@ -77,7 +77,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       this.widgetSize="32px";
       this.fontSize = '16px';
       this.popupBottom = '81px';
-      this.borderRadius = '7px';
+      this.borderRadius = '7px 7px 0px 7px';
       break;
     default:
       //2
@@ -88,7 +88,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       this.widgetSize="24px";
       this.fontSize = '14px';
       this.popupBottom = '46px';
-      this.borderRadius = '5px';
+      this.borderRadius = '5px 5px 0px 5px';
       break;      
     }
   }
