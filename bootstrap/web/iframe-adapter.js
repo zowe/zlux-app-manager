@@ -59,13 +59,16 @@ let messageHandler = function(message) {
             //The following cases should be implemented by the user,
             //therefore users will need an eventListener for "message" events
             case 'windowEvents.minimized':
-                window.CustomEvent('windowEvents', {windowEvents: 'minimized'});
+                let minimized = new CustomEvent('windowEvents', {detail: {event:'minimized'}});
+                window.dispatchEvent(minimized);
                 return;
             case 'windowEvents.maximized':
-                window.CustomEvent('windowEvents', {windowEvents: 'maximized'});
+                let maximized = new CustomEvent('windowEvents', {detail: {event:'maximized'}});
+                window.dispatchEvent(maximized);
                 return;
             case 'windowEvents.restored':
-                window.CustomEvent('windowEvents', {windowEvents: 'restored'});
+                let restored = new CustomEvent('windowEvents', {detail: {event:'restored'}});
+                window.dispatchEvent(restored)
                 return;
             case 'windowEvents.moved':
                 //console.log('moved')
@@ -74,16 +77,20 @@ let messageHandler = function(message) {
                 //console.log('resized')
                 return;
             case 'windowEvents.titleChanged':
-                window.CustomEvent('windowEvents', {windowEvents: 'titleChanged'});
+                let titleChanged = new CustomEvent('windowEvents', {detail: {event:'titleChange'}});
+                window.dispatchEvent(titleChanged);
                 return;
             case 'sessionEvents.login':
-                window.CustomEvent('sessionEvents', {sessionEvents: 'login'});
+                let login = new CustomEvent('sessionEvents', {detail: {event:'login'}});
+                window.dispatchEvent(login);
                 return;
             case 'sessionEvents.logout':
-                window.CustomEvent('sessionEvents', {sessionEvents: 'logout'});
+                let logout = new CustomEvent('sessionEvents', {detail: {event:'logout'}});
+                window.dispatchEvent(logout);
                 return;
             case 'sessionEvents.sessionExpire':
-                window.CustomEvent('sessionEvents', {sessionEvents: 'sessionExpire'});
+                let sessionExpire = new CustomEvent('sessionEvents', {detail: {event:'sessionExpire'}});
+                window.dispatchEvent(sessionExpire);
                 return;
             default:
                 return;

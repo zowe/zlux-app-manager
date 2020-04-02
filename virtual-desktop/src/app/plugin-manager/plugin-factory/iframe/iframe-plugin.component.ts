@@ -102,7 +102,6 @@ export class IFramePluginComponent {
         this.postWindowEvent('sessionEvents.login')
       });
       this.sessionEvents.logout.subscribe(() => {
-        console.log("please")
         this.postWindowEvent('sessionEvents.logout')
       });
       this.sessionEvents.sessionExpire.subscribe(() => {
