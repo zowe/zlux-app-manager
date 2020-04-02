@@ -22,12 +22,13 @@ import { DesktopWindow, LocalWindowEvents } from './desktop-window';
 import { WindowPosition } from './window-position';
 import { DesktopWindowState, DesktopWindowStateType } from '../shared/desktop-window-state';
 import { WindowMonitor } from 'app/shared/window-monitor.service';
-import { ContextMenuItem, Angular2PluginWindowActions,
+import { ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEvents,
   Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, InstanceId, EmbeddedInstance
 } from 'pluginlib/inject-resources';
 
 import { KeybindingService } from './keybinding.service';
 import { KeyCode } from './keycode-enum';
+import { LoginScreenChangeReason } from '../../../authentication-manager/authentication-manager.service';
 
 type PluginIdentifier = string;
 const DEFAULT_DESKTOP_SHORT_TITLE = 'Zowe';
@@ -70,6 +71,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private viewportManager: MVDHosting.ViewportManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
   public screenshotRequestEmitter: Subject<{pluginId: string, windowId: MVDWindowManagement.WindowId}>; 
+  private authenticationManager: any;
 
   constructor(
     private injector: Injector,
@@ -79,13 +81,12 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken)
     this.viewportManager = this.injector.get(MVDHosting.Tokens.ViewportManagerToken);
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.nextId = 0;
     this.windowMap = new Map();
-
     this.runningPluginMap = new Map();
-
     this.focusedWindow = null;
     this.topZIndex = 0;
     this.lastWindowPositionMap = new Map();
@@ -290,6 +291,31 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     };
   }
 
+  private generateSessionEventsProvider(): Angular2PluginSessionEvents {
+    let loginSubject = new Subject<void>();
+    let logoutSubject = new Subject<void>();
+    let sessionExpireSubject = new Subject<void>();
+    this.authenticationManager.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
+      switch (eventReason) {
+        case LoginScreenChangeReason.UserLogin:
+          loginSubject.next();
+          break;
+        case LoginScreenChangeReason.UserLogout:
+          logoutSubject.next();
+          break;
+        case LoginScreenChangeReason.SessionExpired:
+          sessionExpireSubject.next();
+          break;
+      default:
+      }
+    });
+    return {
+      login: loginSubject,
+      logout: logoutSubject,
+      sessionExpire: sessionExpireSubject
+    };
+  }
+
   private generateViewportEventsProvider(windowId: MVDWindowManagement.WindowId, viewportId: MVDHosting.ViewportId): Angular2PluginViewportEvents {
     const events = this.getWindowEvents(windowId);
 
@@ -338,6 +364,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     providers.set(Angular2InjectionTokens.WINDOW_EVENTS, this.generateWindowEventsProvider(windowId));
     providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId, viewportId));
     providers.set(Angular2InjectionTokens.PLUGIN_EMBED_ACTIONS, this.generateEmbedAction(windowId));
+    providers.set(Angular2InjectionTokens.SESSION_EVENTS, this.generateSessionEventsProvider());
 
     return providers;
   }

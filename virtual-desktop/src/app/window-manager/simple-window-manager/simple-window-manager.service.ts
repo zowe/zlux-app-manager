@@ -13,9 +13,10 @@
 import { Injectable, Injector, EventEmitter } from '@angular/core';
 // import { DesktopPluginDefinition } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { ViewportManager } from 'app/application-manager/viewport-manager/viewport-manager.service';
-import { ContextMenuItem, Angular2InjectionTokens, Angular2PluginViewportEvents } from 'pluginlib/inject-resources';
+import { ContextMenuItem, Angular2InjectionTokens, Angular2PluginSessionEvents, Angular2PluginViewportEvents } from 'pluginlib/inject-resources';
 //import { BaseLogger } from 'virtual-desktop-logger';
 import { Subject } from 'rxjs';
+import { LoginScreenChangeReason } from '../../authentication-manager/authentication-manager.service';
 
 @Injectable()
 export class SimpleWindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
@@ -24,6 +25,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   readonly windowResized: EventEmitter<{ width: number, height: number }>;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private pluginDef: MVDHosting.DesktopPluginDefinition;
+  private authenticationManager: any;
 
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
   
@@ -32,6 +34,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
     private injector: Injector
   ) {
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken)
     this.windowResized = new EventEmitter<{ width: number, height: number }>(true);
     this.contextMenuRequested = new Subject();
     window.addEventListener('resize', () => this.onResize(), false);
@@ -83,6 +86,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   private generateWindowProviders(windowId: MVDWindowManagement.WindowId, viewportId: MVDHosting.ViewportId): Map<string, any> {
     const providers: Map<string, any> = new Map();
     providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId, viewportId));
+    providers.set(Angular2InjectionTokens.SESSION_EVENTS, this.generateSessionEventsProvider());
 
     return providers;
   }
@@ -92,6 +96,32 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
       resized: this.windowResized,
       spawnContextMenu: (xRel, yRel, items) => this.spawnContextMenu(windowId, xRel, yRel, items),
       registerCloseHandler: (handler: ()=>Promise<any>) => this.viewportManager.registerViewportCloseHandler(viewportId, handler)
+    };
+  }
+
+  private generateSessionEventsProvider(): Angular2PluginSessionEvents {
+    let loginSubject = new Subject<void>();
+    let logoutSubject = new Subject<void>();
+    let sessionExpireSubject = new Subject<void>();
+    this.authenticationManager.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
+      switch (eventReason) {
+        case LoginScreenChangeReason.UserLogin:
+          loginSubject.next();
+          break;
+        case LoginScreenChangeReason.UserLogout:
+          logoutSubject.next();
+          break;
+        case LoginScreenChangeReason.SessionExpired:
+          sessionExpireSubject.next();
+          break;
+      default:
+      }
+    });
+    // this.authenticationManager.loginScreenVisibilityChanged.subscrib(
+    return {
+      login: loginSubject,
+      logout: logoutSubject,
+      sessionExpire: sessionExpireSubject
     };
   }
 

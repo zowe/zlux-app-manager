@@ -11,7 +11,7 @@
 import { ViewChild, ElementRef, AfterViewInit, OnDestroy, InjectionToken, Inject, Component, Optional } from '@angular/core';
 
 import { ReactMVDResources } from 'pluginlib/react-inject-resources';
-import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents } from 'pluginlib/inject-resources';
+import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginSessionEvents, Angular2PluginWindowEvents, Angular2PluginViewportEvents } from 'pluginlib/inject-resources';
 
 interface MvdNativeReactPlugin {
   renderPlugin: (domElement: HTMLElement, resources: ReactMVDResources) => void;
@@ -36,7 +36,8 @@ export class ReactPluginComponent implements AfterViewInit, OnDestroy {
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) pluginDefinition: MVDHosting.DesktopPluginDefinition,
     @Inject(Angular2InjectionTokens.LOGGER) logger: ZLUX.ComponentLogger,
     @Inject(Angular2InjectionTokens.LAUNCH_METADATA) launchMetadata: any,
-    @Inject(Angular2InjectionTokens.INSTANCE_ID) instanceId: MVDHosting.InstanceId
+    @Inject(Angular2InjectionTokens.INSTANCE_ID) instanceId: MVDHosting.InstanceId,
+    @Inject(Angular2InjectionTokens.SESSION_EVENTS) sessionEvents: Angular2PluginSessionEvents
   ) {
     this.resources = {
       mainWindowId: mainWindowId,
@@ -46,7 +47,8 @@ export class ReactPluginComponent implements AfterViewInit, OnDestroy {
       logger: logger,
       pluginDefinition: pluginDefinition,
       launchMetadata: launchMetadata,
-      instanceId: instanceId
+      instanceId: instanceId,
+      sessionEvents: sessionEvents
     };
   }
 

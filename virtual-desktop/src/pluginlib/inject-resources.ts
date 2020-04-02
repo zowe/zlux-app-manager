@@ -37,6 +37,9 @@ export const Angular2InjectionTokens = {
   MAIN_WINDOW_ID: 'virtualdesktop-ng2.0-0-0.window-id', /* optional */
   WINDOW_ACTIONS: 'virtualdesktop-ng2.0-0-0.window-actions', /* optional */
   WINDOW_EVENTS: 'virtualdesktop-ng2.0-0-0.window-events', /* optional */
+
+  SESSION_EVENTS: 'virtualdesktop-ng2.0-0-0.session-events', /* optional */
+
 };
 
 export interface Angular2PluginWindowActions {
@@ -48,6 +51,12 @@ export interface Angular2PluginWindowActions {
   readonly setPosition: (pos: {top: number, left: number, width: number, height: number}) => void;
   readonly spawnContextMenu: (xPos: number, yPos: number, items: ContextMenuItem[], isAbsolutePos?: boolean) => boolean;
   readonly registerCloseHandler: (handler: () => Promise<void>) => void;
+}
+
+export interface Angular2PluginSessionEvents {
+  readonly login: Subject<void>;
+  readonly logout: Subject<void>;
+  readonly sessionExpire: Subject<void>;
 }
 
 export interface Angular2PluginWindowEvents {

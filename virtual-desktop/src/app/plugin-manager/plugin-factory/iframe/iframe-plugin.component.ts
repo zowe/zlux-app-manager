@@ -8,7 +8,7 @@
   Copyright Contributors to the Zowe Project.
 */
 import { Injectable, Inject, Component, Optional } from '@angular/core';
-import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents } from '../../../../pluginlib/inject-resources';
+import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents, Angular2PluginSessionEvents } from '../../../../pluginlib/inject-resources';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { BaseLogger } from '../../../../app/shared/logger'
 
@@ -31,7 +31,8 @@ export class IFramePluginComponent {
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_EVENTS) private windowEvents: Angular2PluginWindowEvents,
     @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) private viewportEvents: Angular2PluginViewportEvents,
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefintion: ZLUX.ContainerPluginDefinition,
-    @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any
+    @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any,
+    @Inject(Angular2InjectionTokens.SESSION_EVENTS) private sessionEvents: Angular2PluginSessionEvents
   ){
     addEventListener("message", this.postMessageListener.bind(this));
     //The following references are to suppress typescript warnings
@@ -96,6 +97,16 @@ export class IFramePluginComponent {
       });
       this.windowEvents.titleChanged.subscribe(() => {
         this.postWindowEvent('windowEvents.titleChanged');
+      });
+      this.sessionEvents.login.subscribe(() => {
+        this.postWindowEvent('sessionEvents.login')
+      });
+      this.sessionEvents.logout.subscribe(() => {
+        console.log("please")
+        this.postWindowEvent('sessionEvents.logout')
+      });
+      this.sessionEvents.sessionExpire.subscribe(() => {
+        this.postWindowEvent('sessionEvents.sessionExpire')
       });
       return;
     }

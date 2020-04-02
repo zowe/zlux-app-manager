@@ -59,13 +59,13 @@ let messageHandler = function(message) {
             //The following cases should be implemented by the user,
             //therefore users will need an eventListener for "message" events
             case 'windowEvents.minimized':
-                console.log('minimized')
+                window.CustomEvent('windowEvents', {windowEvents: 'minimized'});
                 return;
             case 'windowEvents.maximized':
-                console.log('maximized')
+                window.CustomEvent('windowEvents', {windowEvents: 'maximized'});
                 return;
             case 'windowEvents.restored':
-                console.log('restored')
+                window.CustomEvent('windowEvents', {windowEvents: 'restored'});
                 return;
             case 'windowEvents.moved':
                 //console.log('moved')
@@ -74,7 +74,16 @@ let messageHandler = function(message) {
                 //console.log('resized')
                 return;
             case 'windowEvents.titleChanged':
-                console.log('titleChanged')
+                window.CustomEvent('windowEvents', {windowEvents: 'titleChanged'});
+                return;
+            case 'sessionEvents.login':
+                window.CustomEvent('sessionEvents', {sessionEvents: 'login'});
+                return;
+            case 'sessionEvents.logout':
+                window.CustomEvent('sessionEvents', {sessionEvents: 'logout'});
+                return;
+            case 'sessionEvents.sessionExpire':
+                window.CustomEvent('sessionEvents', {sessionEvents: 'sessionExpire'});
                 return;
             default:
                 return;
