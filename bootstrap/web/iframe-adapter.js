@@ -59,22 +59,31 @@ let messageHandler = function(message) {
             //The following cases should be implemented by the user,
             //therefore users will need an eventListener for "message" events
             case 'windowEvents.minimized':
-                console.log('minimized')
+                let minimized = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'minimized'}});
+                window.dispatchEvent(minimized);
                 return;
             case 'windowEvents.maximized':
-                console.log('maximized')
+                let maximized = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'maximized'}});
+                window.dispatchEvent(maximized);
                 return;
             case 'windowEvents.restored':
-                console.log('restored')
-                return;
-            case 'windowEvents.moved':
-                //console.log('moved')
+                let restored = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'restored'}});
+                window.dispatchEvent(restored)
                 return;
             case 'windowEvents.resized':
                 //console.log('resized')
                 return;
             case 'windowEvents.titleChanged':
-                console.log('titleChanged')
+                let titleChanged = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'titleChange'}});
+                window.dispatchEvent(titleChanged);
+                return;
+            case 'sessionEvents.login':
+                let login = new CustomEvent('ZoweZLUX.sessionEvents', {detail: {event:'login'}});
+                window.dispatchEvent(login);
+                return;
+            case 'sessionEvents.sessionExpire':
+                let sessionExpire = new CustomEvent('ZoweZLUX.sessionEvents', {detail: {event:'sessionExpire'}});
+                window.dispatchEvent(sessionExpire);
                 return;
             default:
                 return;
