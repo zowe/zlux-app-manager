@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, ElementRef, HostListener, Input, Output, EventEmitter, Injector } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, Output, EventEmitter, Injector, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { LaunchbarItem } from '../shared/launchbar-item';
@@ -22,6 +22,7 @@ import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-p
 import { generateInstanceActions } from '../shared/context-utils';
 import { KeybindingService } from '../../shared/keybinding.service';
 import { KeyCode } from '../../shared/keycode-enum';
+import { ContextMenuService } from '../../../../context-menu/contextmenu.service';
 
 @Component({
   selector: 'rs-com-launchbar-menu',
@@ -37,6 +38,9 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     this.filterMenuItems();
   }
   
+  @ViewChild('searchapp') searchAppInputRef: ElementRef;
+  @ViewChild('menudiv') menuDivRef: ElementRef;
+
   @Output() refreshClicked: EventEmitter<void>;
   @Output() itemClicked: EventEmitter<LaunchbarItem>;
   @Output() menuStateChanged: EventEmitter<boolean>;
@@ -47,6 +51,8 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   propertyWindowPluginDef : DesktopPluginDefinitionImpl;
   public authenticationManager : MVDHosting.AuthenticationManagerInterface;
   public appFilter:string="";
+  public activeIndex:number;  
+  private isContextMenuPresent:boolean = false;
 
   constructor(
     private elementRef: ElementRef,
@@ -55,7 +61,8 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     private injector: Injector,
     private translation: TranslationService,
     private desktopComponent: DesktopComponent,
-    private appKeyboard: KeybindingService
+    private appKeyboard: KeybindingService,
+    private contextMenuService: ContextMenuService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -65,6 +72,12 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     this.refreshClicked = new EventEmitter();
     this.menuStateChanged = new EventEmitter<boolean>();
     this.authenticationManager.registerPostLoginAction(this);
+    
+    this.activeIndex = 0;
+    this.markContextMenuPresent = this.markContextMenuPresent.bind(this);
+    this.unMarkContextMenuPresent = this.unMarkContextMenuPresent.bind(this);
+    this.contextMenuService.createEvent.subscribe(this.markContextMenuPresent);
+    this.contextMenuService.closeEvent.subscribe(this.unMarkContextMenuPresent);
   }
 
   onLogin(plugins:any): boolean {
@@ -106,16 +119,27 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   
   activeToggle(): void {
     this.isActive = !this.isActive;
+    // gain focus and clear on toggle when active
+    if(this.isActive) {
+      setTimeout(() => {
+        this.searchAppInputRef.nativeElement.focus();
+      },0);
+    }
     this.emitState();
   }
 
   refresh(): void {
-    this.appFilter = '';
-    this.displayItems = this._menuItems;
+    this.resetMenu();
     this.refreshClicked.emit();
   }
 
+  resetMenu(): void {
+    this.appFilter = '';
+    this.displayItems = this._menuItems;
+  }
+
   filterMenuItems(): void {
+    this.activeIndex = 0;
     if (this.appFilter) {
       let filter = this.appFilter.toLowerCase();
       this.displayItems = this._menuItems.filter((item)=> {
@@ -146,9 +170,106 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
     if (this.isActive && event && !this.elementRef.nativeElement.contains(event.target)) {
-      this.isActive = false;
-      this.emitState();
+      this.activeToggle();
     }
+  }
+
+  private markContextMenuPresent():void {
+    this.isContextMenuPresent = true;
+  }
+
+  private unMarkContextMenuPresent():void {
+    setTimeout(()=> {
+      console.log('toggle menu present');
+      this.isContextMenuPresent = false;
+    },1000)
+  }
+
+  @HostListener('keyup', ['$event'])
+  onKeyUp(event: KeyboardEvent) {
+    console.log('menu keyboard event',this.isContextMenuPresent);
+    if(this.isContextMenuPresent) {
+      this.keepSearchCursor();
+      return;
+    }
+    if(!this.isSearchFocus()) return;
+
+    switch(event.which) {
+      case KeyCode.ESCAPE: {
+        // if(this.appFilter>'') {
+        //   this.resetMenu(); 
+        // } else {
+        this.activeToggle();
+        //}
+        break;
+      } 
+      case KeyCode.ENTER: {
+          if(this.activeIndex<this.displayItems.length) {
+            this.clicked(this.displayItems[this.activeIndex]);
+          }
+          break;
+      }
+      case KeyCode.RIGHT_ARROW: {
+        if(this.activeIndex<this.displayItems.length) {
+          this.getContextMenu(this.displayItems[this.activeIndex]);
+        }
+        break;
+      }
+      case KeyCode.UP_ARROW: {
+        this.keepSearchCursor();
+        if(this.activeIndex>0) {
+          this.activeIndex--;
+        } else {
+          this.activeIndex=0;
+        }
+        this.scrollToActiveMenuItem();
+        break;
+      }
+      case KeyCode.DOWN_ARROW: {
+        if(this.activeIndex < this.displayItems.length) {
+          this.activeIndex++;
+        } 
+        this.scrollToActiveMenuItem();
+        break;
+      }
+    }  
+  }
+
+  private getActiveMenuItem():any {
+    return this.menuDivRef.nativeElement.querySelectorAll('.launch-widget-row')[this.activeIndex];
+  }
+
+  private getContextMenu(item:LaunchbarItem):void {
+    const elm = this.getActiveMenuItem();
+    if(elm) {
+      const pos = this.getElementPosition(elm);
+      let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
+      this.windowManager.contextMenuRequested.next({ xPos: pos.x, yPos: pos.y - 20, items: menuItems });
+    }
+  }
+
+  private getElementPosition(elm: any): any {
+    let x = window.scrollX + elm.getBoundingClientRect().left;
+    let y = window.scrollY + elm.getBoundingClientRect().top;
+    return {x:x, y:y};
+  }
+
+  private scrollToActiveMenuItem(): void {
+    const elm = this.getActiveMenuItem();
+    if(elm) {
+      elm.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'start' });
+    }
+  }
+
+  private keepSearchCursor(): void {
+    const el = this.searchAppInputRef.nativeElement;
+    if (typeof el.selectionStart == "number") {
+      el.selectionStart = el.selectionEnd = el.value.length;
+    } 
+  }
+
+  private isSearchFocus(): boolean {
+    return document.activeElement === this.searchAppInputRef.nativeElement;
   }
 
   private emitState(): void {

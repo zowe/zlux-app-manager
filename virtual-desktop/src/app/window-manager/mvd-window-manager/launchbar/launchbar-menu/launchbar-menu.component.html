@@ -20,14 +20,16 @@
       <i style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></i>
     </div>
     <div style="margin: 20px"></div>
-    <div class="launch-menu-scroller">
-      <div class="launch-widget-row" *ngFor="let item of displayItems | sortBy: 'label'" (click)="clicked(item)" [title]="item.tooltip" (contextmenu)="onRightClick($event, item)">
-        <img class="icon" [src]="item.image">
-        <p>{{item.label}}</p>
-      </div>
+    <div #menudiv class="launch-menu-scroller">
+        <div class="launch-widget-row" *ngFor="let item of displayItems | sortBy: 'label'; let i = index;"
+        (click)="clicked(item)" [title]="item.tooltip" (contextmenu)="onRightClick($event, item)"
+          [class.active]="i==this.activeIndex" >
+          <img class="icon" [src]="item.image">
+          <p>{{item.label}}</p>
+        </div>
     </div>
     <div class="launch-menu-search">
-      <input style="width:95%" type="text" placeholder="{{translation.translate('Search')}}" [(ngModel)]="appFilter" (input)="filterMenuItems()">
+      <input #searchapp style="width:95%" type="text" placeholder="{{translation.translate('Search')}}" [(ngModel)]="appFilter" (input)="filterMenuItems()" >
     </div>
   </div>
   <div class="launch-widget-caret caret-down"></div>

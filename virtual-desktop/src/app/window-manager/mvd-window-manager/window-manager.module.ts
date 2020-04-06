@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { SharedModule } from 'app/shared/shared.module';
 import { ApplicationManagerModule } from 'app/application-manager/application-manager.module';
-import { ContextMenuModule } from '../../context-menu/context-menu.module';
+import { ContextMenuModule, ContextMenuService } from '../../context-menu/context-menu.module';
 import { LaunchbarModule } from './launchbar/launchbar.module';
 import { DesktopComponent } from './desktop/desktop.component';
 import { WindowPaneComponent } from './window-pane/window-pane.component';
@@ -54,7 +54,8 @@ import { KeybindingService } from './shared/keybinding.service';
     WindowManagerService,
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
-    KeybindingService
+    KeybindingService,
+    ContextMenuService
   ]
 })
 export class WindowManagerModule {

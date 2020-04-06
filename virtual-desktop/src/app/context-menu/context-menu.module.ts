@@ -13,6 +13,7 @@
 import { NgModule } from '@angular/core';
 import { ContextMenuComponent } from './context-menu.component';
 import { CommonModule } from '@angular/common';
+import { ContextMenuService } from './contextmenu.service';
 
 @NgModule({
   imports: [
@@ -25,12 +26,14 @@ import { CommonModule } from '@angular/common';
     ContextMenuComponent
   ],
   providers: [
+    ContextMenuService
   ]
 })
 export class ContextMenuModule {
 
 }
 
+export { ContextMenuService } from './contextmenu.service';
 
 /*
   This program and the accompanying materials are
