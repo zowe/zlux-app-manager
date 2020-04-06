@@ -133,29 +133,25 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.appKeyboard.keyUpEvent
       .subscribe((event:KeyboardEvent) => {
         if (event.which === KeyCode.DOWN_ARROW) {
-          if(this.focusedWindow) {
+          if(this.focusedWindow !== null) {
             this.minimizeToggle(this.focusedWindow.windowId);
           }
         }
         else if (event.which === KeyCode.UP_ARROW) {
-          if(this.focusedWindow) {
+          if(this.focusedWindow !== null) {
             this.maximizeToggle(this.focusedWindow.windowId);
           }
         }
         else if (event.which === KeyCode.LEFT_ARROW) {                  
-          if(this.focusedWindow !== null) {
             this.switchWindow(-1);
-          }
         }
         else if (event.which === KeyCode.RIGHT_ARROW) { 
-          if(this.focusedWindow !== null) {
-            if(event.which === KeyCode.RIGHT_ARROW) {
-              this.switchWindow(1);
-            }
+          if(event.which === KeyCode.RIGHT_ARROW) {
+            this.switchWindow(1);
           }
         }
         else if (event.which === KeyCode.KEY_W) {
-          if(this.focusedWindow) {
+          if(this.focusedWindow !== null) {
             this.closeWindow(this.focusedWindow.windowId);
           }
         }
@@ -548,6 +544,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       closeViewports();
     }
 
+    this.focusedWindow = null;
   }
 
   closeAllWindows() :void {
