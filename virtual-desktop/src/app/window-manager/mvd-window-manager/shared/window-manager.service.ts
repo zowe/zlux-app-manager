@@ -22,7 +22,7 @@ import { DesktopWindow, LocalWindowEvents } from './desktop-window';
 import { WindowPosition } from './window-position';
 import { DesktopWindowState, DesktopWindowStateType } from '../shared/desktop-window-state';
 import { WindowMonitor } from 'app/shared/window-monitor.service';
-import { ContextMenuItem, Angular2PluginWindowActions,
+import { ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEvents,
   Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, InstanceId, EmbeddedInstance
 } from 'pluginlib/inject-resources';
 
@@ -70,6 +70,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private viewportManager: MVDHosting.ViewportManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
   public screenshotRequestEmitter: Subject<{pluginId: string, windowId: MVDWindowManagement.WindowId}>; 
+  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+  private sessionSubscriptions: Map<MVDWindowManagement.WindowId, Angular2PluginSessionEvents>
 
   constructor(
     private injector: Injector,
@@ -81,9 +83,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.viewportManager = this.injector.get(MVDHosting.Tokens.ViewportManagerToken);
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken)
     this.nextId = 0;
     this.windowMap = new Map();
-
+    this.sessionSubscriptions = new Map();
     this.runningPluginMap = new Map();
 
     this.focusedWindow = null;
@@ -139,6 +142,18 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
             this.maximizeToggle(this.focusedWindow.windowId);
           }
         }
+    });
+    this.authenticationManager.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
+      this.sessionSubscriptions.forEach((session: Angular2PluginSessionEvents, windowId: MVDWindowManagement.WindowId) => {
+        switch (eventReason) {
+          case MVDHosting.LoginScreenChangeReason.UserLogin:
+            session.login.next();
+          case MVDHosting.LoginScreenChangeReason.SessionExpired:
+            session.sessionExpire.next();
+            break;
+        default:
+        }
+      })
     });
   }
 
@@ -332,12 +347,24 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     };
   }
 
+  private generateSessionEventsProvider(windowId: MVDWindowManagement.WindowId): Angular2PluginSessionEvents {
+    const login = new Subject<void>();
+    const sessionExpire = new Subject<void>();
+    const sessionEvents: Angular2PluginSessionEvents = {
+      login,
+      sessionExpire
+    }
+    this.sessionSubscriptions.set(windowId, sessionEvents)
+    return sessionEvents
+  }
+
   private generateWindowProviders(windowId: MVDWindowManagement.WindowId, viewportId: MVDHosting.ViewportId): Map<string, any> {
     const providers: Map<string, any> = new Map();
     providers.set(Angular2InjectionTokens.WINDOW_ACTIONS, this.generateWindowActionsProvider(windowId));
     providers.set(Angular2InjectionTokens.WINDOW_EVENTS, this.generateWindowEventsProvider(windowId));
     providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId, viewportId));
     providers.set(Angular2InjectionTokens.PLUGIN_EMBED_ACTIONS, this.generateEmbedAction(windowId));
+    providers.set(Angular2InjectionTokens.SESSION_EVENTS, this.generateSessionEventsProvider(windowId));
 
     return providers;
   }
@@ -429,6 +456,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   private destroyWindow(windowId: MVDWindowManagement.WindowId): void {
+    this.sessionSubscriptions.delete(windowId);
     this.windowDeregisterEmitter.next(windowId);
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow != undefined) {

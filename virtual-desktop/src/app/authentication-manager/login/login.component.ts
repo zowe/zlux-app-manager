@@ -12,7 +12,6 @@
 
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { AuthenticationManager,
-         LoginScreenChangeReason,
          LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
 //import { Observable } from 'rxjs/Observable';
@@ -53,16 +52,16 @@ export class LoginComponent implements OnInit {
     this.password = '';
     this.errorMessage = null;
 
-    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
+    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
-      case LoginScreenChangeReason.UserLogout:
+      case MVDHosting.LoginScreenChangeReason.UserLogout:
         this.needLogin = true;
         break;
-      case LoginScreenChangeReason.UserLogin:
+      case MVDHosting.LoginScreenChangeReason.UserLogin:
         this.errorMessage = '';
         this.needLogin = false;
         break;
-      case LoginScreenChangeReason.SessionExpired:
+      case MVDHosting.LoginScreenChangeReason.SessionExpired:
         if (this.idleWarnModal) {
           this.popupManager.removeReport(this.idleWarnModal.id); 
           this.idleWarnModal = undefined;
