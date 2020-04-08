@@ -20,14 +20,24 @@ import { DesktopComponent } from "../../desktop/desktop.component";
 import { TranslationService } from 'angular-l10n';
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
 import { generateInstanceActions } from '../shared/context-utils';
+import { KeybindingService } from '../../shared/keybinding.service';
+import { KeyCode } from '../../shared/keycode-enum';
 
 @Component({
   selector: 'rs-com-launchbar-menu',
   templateUrl: './launchbar-menu.component.html',
   styleUrls: ['./launchbar-menu.component.css', '../shared/shared.css']
 })
-export class LaunchbarMenuComponent {
-  @Input() menuItems: LaunchbarItem[];
+export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
+  public displayItems:LaunchbarItem[];
+  private _menuItems:LaunchbarItem[];
+  @Input() set menuItems(items: LaunchbarItem[]) {
+    this._menuItems = items;
+    this.displayItems = items;
+    this.filterMenuItems();
+  }
+  
+  @Output() refreshClicked: EventEmitter<void>;
   @Output() itemClicked: EventEmitter<LaunchbarItem>;
   @Output() menuStateChanged: EventEmitter<boolean>;
   isActive: boolean = false;
@@ -35,6 +45,8 @@ export class LaunchbarMenuComponent {
   pluginManager: MVDHosting.PluginManagerInterface;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
   propertyWindowPluginDef : DesktopPluginDefinitionImpl;
+  public authenticationManager : MVDHosting.AuthenticationManagerInterface;
+  public appFilter:string="";
 
   constructor(
     private elementRef: ElementRef,
@@ -42,31 +54,43 @@ export class LaunchbarMenuComponent {
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     private translation: TranslationService,
-    private desktopComponent: DesktopComponent
-
+    private desktopComponent: DesktopComponent,
+    private appKeyboard: KeybindingService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.itemClicked = new EventEmitter();
+    this.refreshClicked = new EventEmitter();
     this.menuStateChanged = new EventEmitter<boolean>();
+    this.authenticationManager.registerPostLoginAction(this);
   }
 
-  ngOnInit(): void {
-    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.app.propview").then(viewerPlugin => {
+  onLogin(plugins:any): boolean {
+    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.app.propview", false).then(viewerPlugin => {
       const pluginImpl:DesktopPluginDefinitionImpl = viewerPlugin as DesktopPluginDefinitionImpl;
       this.propertyWindowPluginDef=pluginImpl;
     })
+    return true;
+  }
+
+  ngOnInit(): void {
+    this.appKeyboard.keyUpEvent
+      .subscribe((event:KeyboardEvent) => {
+        if (event.which === KeyCode.KEY_M) {
+          this.activeToggle();
+        }
+    });
   }
   
-   getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
-    const pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
-    const basePlugin = pluginImpl.getBasePlugin();
+  getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
+    const basePlugin = plugin.getBasePlugin();
     return {"isPropertyWindow":true,
-    "appName":pluginImpl.defaultWindowTitle,
+    "appName":plugin.defaultWindowTitle,
     "appVersion":basePlugin.getVersion(),
     "appType":basePlugin.getType(),
-    "copyright":pluginImpl.getCopyright(),
+    "copyright":plugin.getCopyright(),
     "image":plugin.image
     };    
   }
@@ -83,6 +107,24 @@ export class LaunchbarMenuComponent {
   activeToggle(): void {
     this.isActive = !this.isActive;
     this.emitState();
+  }
+
+  refresh(): void {
+    this.appFilter = '';
+    this.displayItems = this._menuItems;
+    this.refreshClicked.emit();
+  }
+
+  filterMenuItems(): void {
+    if (this.appFilter) {
+      let filter = this.appFilter.toLowerCase();
+      this.displayItems = this._menuItems.filter((item)=> {
+        return ((item.tooltip.toLowerCase() as any).includes(filter)
+        || (item.label.toLowerCase() as any).includes(filter));
+      });
+    } else {
+      this.displayItems = this._menuItems;
+    }
   }
 
   clicked(item: LaunchbarItem): void {

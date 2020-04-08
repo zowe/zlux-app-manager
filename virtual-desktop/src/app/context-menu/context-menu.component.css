@@ -75,7 +75,7 @@ li.disabled {
   border-left: 5px solid #666;
 }
 
-.context-menu .multi-menu-item .menu-expand-caret.propagateChildLeft {
+.context-menu .multi-menu-item.propagateChildLeft {
   left: 5px;
   margin: auto;
   margin-left: 0;

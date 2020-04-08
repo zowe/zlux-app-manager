@@ -47,7 +47,7 @@ export class MvdUri implements ZLUX.UriBroker {
     });
     let params = this.createParamURL(paramArray);
     let routeParam = route;
-    let absPathParam = encodeURIComponent(absPath);
+    let absPathParam = encodeURIComponent(absPath).replace(/\%2F/gi,'/');
     
     return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`;
   }
@@ -55,7 +55,7 @@ export class MvdUri implements ZLUX.UriBroker {
     return `${this.serverRootUri('omvs')}`;
   }
   datasetContentsUri(dsn: string): string {
-    return `${this.serverRootUri(`datasetContents/${encodeURIComponent(dsn)}`)}`;
+    return `${this.serverRootUri(`datasetContents/${encodeURIComponent(dsn).replace(/\%2F/gi,'/')}`)}`;
   }
   VSAMdatasetContentsUri(dsn: string, closeAfter?: boolean): string {
     let closeAfterParam = closeAfter ? '?closeAfter=' + closeAfter : '';
@@ -99,7 +99,7 @@ export class MvdUri implements ZLUX.UriBroker {
     if (desktopPlugin != null) {
       return this.pluginResourceUri(desktopPlugin, "");
     } else {
-      throw new Error("The desktop plugin has not been bootstrapped");
+      throw new Error("ZWED5014E - The desktop plugin has not been bootstrapped");
     }
   }
 
@@ -114,11 +114,17 @@ export class MvdUri implements ZLUX.UriBroker {
     return `${this.pluginRootUri(pluginDefinition)}web/${relativePath}`;
   }
 
-  pluginListUri(pluginType?: ZLUX.PluginType): string {
+  pluginListUri(pluginType?: ZLUX.PluginType, refresh?: boolean): string {
+    let query;
     if (pluginType === undefined) {
-      return `${this.serverRootUri(`plugins?type=all`)}`;
+      query = `plugins?type=all`;
+    } else {
+      query = `plugins?type=${pluginType}`
     }
-    return `${this.serverRootUri(`plugins?type=${pluginType}`)}`;
+    if (refresh) {
+      query += `&refresh=true`;
+    }
+    return `${this.serverRootUri(query)}`;
   }
 
   pluginWSUri(plugin: ZLUX.Plugin, serviceName: string, relativePath: string,

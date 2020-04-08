@@ -12,7 +12,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { FormsModule } from '@angular/forms';
 import { SharedModule } from 'app/shared/shared.module';
 
 import { LaunchbarComponent } from './launchbar/launchbar.component';
@@ -22,6 +22,7 @@ import { LaunchbarWidgetComponent } from './launchbar-widget/launchbar-widget.co
 import { LaunchbarInstanceViewComponent } from './launchbar-instance-view/launchbar-instance-view.component';
 import { MatSnackBarModule } from '@angular/material';
 import { SnackbarComponent } from './shared/snackbar/snackbar.component'
+import { SortArray } from './shared/sort-array'
 import {MAT_SNACK_BAR_DATA} from '@angular/material';
 
 
@@ -30,6 +31,7 @@ import {MAT_SNACK_BAR_DATA} from '@angular/material';
     CommonModule,
     SharedModule,
     MatSnackBarModule,
+    FormsModule
   ],
   declarations: [
     LaunchbarComponent,
@@ -38,6 +40,7 @@ import {MAT_SNACK_BAR_DATA} from '@angular/material';
     LaunchbarWidgetComponent,
     LaunchbarInstanceViewComponent,
     SnackbarComponent,
+    SortArray
   ],
   entryComponents: [SnackbarComponent],
   exports: [
