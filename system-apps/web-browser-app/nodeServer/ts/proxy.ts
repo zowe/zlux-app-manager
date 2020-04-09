@@ -11,11 +11,11 @@ import { Response, Request } from "express";
 import { Router } from "express-serve-static-core";
 import httpProxy from 'http-proxy';
 import express from 'express';
-import Promise from 'bluebird';
 import http from "http";
 import https from "https";
 import fs from 'fs';
 import { CONTENT_SECURITY_POLICY, CSP } from "./csp";
+const Promise = require('bluebird');
 
 interface CheckURLResult {
   redirect: boolean;
