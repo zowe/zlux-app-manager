@@ -10,7 +10,8 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
+import { Component, Input, Output, EventEmitter, Injector, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { DesktopTheme } from "../../desktop/desktop.component";
 import { LaunchbarItem } from '../shared/launchbar-item';
 
 @Component({
@@ -20,7 +21,41 @@ import { LaunchbarItem } from '../shared/launchbar-item';
 })
 export class LaunchbarIconComponent {
   @Input() launchbarItem: LaunchbarItem;
-
+  @ViewChild('launchbarIconContainer') componentElement: ElementRef;
+  public iconSize: string;
+  public indicatorSize: string;
+  public indicatorPos: string;
+  public hoverOffset: string;
+  public hoverBottom: string;
+  public _theme:DesktopTheme;
+  
+  @Input() set theme(newTheme: DesktopTheme) {
+    this._theme = newTheme;
+    switch (newTheme.size.launchbar) {
+    case 1:
+      this.iconSize="16px";
+      this.hoverBottom="14px";
+      this.hoverOffset="-22px";
+      this.indicatorPos="2px";
+      this.indicatorSize = '2px';
+      break;
+    case 3:
+      this.iconSize="64px";
+      this.hoverOffset="0px";
+      this.hoverBottom="62px";
+      this.indicatorPos="-2px";
+      this.indicatorSize = '4px';
+      break;
+    default:
+      //2
+      this.iconSize="32px";
+      this.hoverOffset="-14px";
+      this.hoverBottom="30px";
+      this.indicatorPos="1px";
+      this.indicatorSize = '2px';
+      break;
+    }
+  }
   @Output() iconClicked: EventEmitter<void>;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   titleVisible: boolean;
@@ -51,12 +86,15 @@ export class LaunchbarIconComponent {
 
   onMouseEnterInstanceView(event: MouseEvent) {
     this.launchbarItem.showIconLabel = false;
-    this.launchbarItem.showInstanceView = true;
   }
 
-  onMouseLeaveInstanceView(event: MouseEvent) {
-    this.launchbarItem.showInstanceView = false;
-    this.launchbarItem.showIconLabel = false;
+  @HostListener('document:mousedown', ['$event'])
+  onMouseDownInstanceView(event: MouseEvent) {
+    if (this.launchbarItem.showInstanceView && event
+        && !this.componentElement.nativeElement.contains(event.target)) {
+      this.launchbarItem.showInstanceView = false;
+      this.launchbarItem.showIconLabel = false;
+    }
   }
   
   isRunning(): boolean {

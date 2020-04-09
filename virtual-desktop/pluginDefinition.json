@@ -11,11 +11,9 @@
   "configurationData": {
     "resources": {
       "recognizers": {
-        "locationType": "relative",
         "aggregationPolicy": "none"
       },
       "actions": {
-        "locationType": "relative",
         "aggregationPolicy": "none"
       },
       "ui": {
@@ -24,21 +22,22 @@
             "subResources": {
               "plugins": {
                 "aggregationPolicy": "override",
-                "variable": false,
-                "locationType": "relative"
+                "variable": false
               }
             }
           },
           "themebin": {
             "binary": true
+          },
+          "theme": {
+            "aggregationPolicy": "none"
           }
         }
       },
       "session": {
         "subResources": {
           "security": {
-            "aggregationPolicy": "none",
-            "locationType":"relative"
+            "aggregationPolicy": "none"
           }
         }
       }

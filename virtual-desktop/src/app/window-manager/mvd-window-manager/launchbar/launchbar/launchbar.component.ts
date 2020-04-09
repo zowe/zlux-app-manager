@@ -10,8 +10,8 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Injector } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Component, Injector, Input, Output, EventEmitter } from '@angular/core';
+import { Subject } from 'rxjs';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { PluginLaunchbarItem } from '../shared/launchbar-items/plugin-launchbar-item';
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
@@ -20,6 +20,9 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { TranslationService } from 'angular-l10n';
 import { generateInstanceActions } from '../shared/context-utils';
+import { DesktopTheme } from '../../desktop/desktop.component';
+import { BaseLogger } from 'virtual-desktop-logger';
+
 
 @Component({
   selector: 'rs-com-launchbar',
@@ -28,6 +31,39 @@ import { generateInstanceActions } from '../shared/context-utils';
   providers: [PluginsDataService]
 })
 export class LaunchbarComponent {
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  @Output() changeTheme = new EventEmitter();
+
+  //Always 6+icon size, due to need for space for padding and such
+  public barSize: string;
+  public applistMargin: string;
+  public applistPadding: string;
+  public _theme: DesktopTheme;
+  @Input() set theme(newTheme: DesktopTheme) {
+    this.logger.info('Launchbar theme set=',newTheme);
+    this._theme = newTheme;
+    switch (newTheme.size.launchbar) {
+    case 1:
+      //16 for icon, 2 for indicator, 1 for bottom and 3 for top
+      this.barSize = '25px';
+      this.applistPadding = '3px';
+      this.applistMargin = `0px 191px 0px 29px`;
+      break;
+    case 3:
+      //64 for icon, 4 for indicator, 2 for pad bottom, 6 for pad top
+      this.barSize = '76px';
+      this.applistPadding = '7px';
+      this.applistMargin = `0px 208px 0px 79px`;
+      break;
+    default:
+      //2
+      //32 for icon, 2 for indicator, 2 for pad bottom, 4 for pad top
+      this.barSize = '41px';
+      this.applistPadding = '5px';
+      this.applistMargin = `0px 179px 0px 46px`;
+      break;
+    }
+  }
   allItems: LaunchbarItem[];
   runItems: LaunchbarItem[];
   isActive: boolean;
@@ -44,6 +80,7 @@ export class LaunchbarComponent {
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
   propertyWindowPluginDef: DesktopPluginDefinitionImpl;
+  public size: number = 2;
   
    constructor(
     private pluginsDataService: PluginsDataService,
@@ -139,6 +176,7 @@ export class LaunchbarComponent {
   }
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
+    event.stopPropagation();
     let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY, items: menuItems});
     return false;
@@ -178,6 +216,118 @@ export class LaunchbarComponent {
     */
   }
 
+  showBarOptions(event: MouseEvent): void {
+    event.preventDefault();
+    this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY, items:
+    [
+      {
+      "text": this.translation.translate('Desktop Size'),
+        "children": [
+        {
+          "text": this.translation.translate('DesktopBigRed'),
+          "disabled": this.size === 3,
+          "action": () => {
+            this.size = 3;
+            this._theme.size.window = 3;
+            this._theme.size.launchbar = 3;
+            this._theme.size.launchbarMenu = 3;
+            const color = "#d00000";
+            const text = "#171616";
+            this._theme.color.windowColorActive = color;
+            this._theme.color.windowTextActive = text;
+            this._theme.color.launchbarColor = color;
+            this._theme.color.launchbarText = text;
+            this._theme.color.launchbarMenuColor = color;
+            this._theme.color.launchbarMenuText = text;
+            this.changeTheme.emit(this._theme);
+            this.logger.info(this.translation.translate('DesktopBig'));
+          }
+        },
+        {
+          "text": this.translation.translate('DesktopMediumBlue'),
+          "disabled": this.size === 2,
+          "action": () => {
+            this.size = 2;
+            this._theme.size.window = 2;
+            this._theme.size.launchbar = 2;
+            this._theme.size.launchbarMenu = 2;
+            const color = "#659ff9";
+            const text = "#171616";
+            this._theme.color.windowColorActive = color;
+            this._theme.color.windowTextActive = text;
+            this._theme.color.launchbarColor = color;
+            this._theme.color.launchbarText = text;
+            this._theme.color.launchbarMenuColor = color;
+            this._theme.color.launchbarMenuText = text;
+            this.changeTheme.emit(this._theme);
+            this.logger.info(this.translation.translate('DesktopMedium'));
+          }
+        },
+        {
+          "text":this.translation.translate('DesktopSmallBlack'),
+          "disabled": this.size === 1,
+          "action": () => {
+            this.size = 1;
+            this._theme.size.window = 1;
+            this._theme.size.launchbar = 1;
+            this._theme.size.launchbarMenu = 1;
+            const color = "#0d0d0d";
+            const text = "#dddee0";
+            this._theme.color.windowColorActive = "#3d3f42";
+            this._theme.color.windowTextActive = "#f4f4f4";
+            this._theme.color.launchbarColor = color+'b2';
+            this._theme.color.launchbarText = text;
+            this._theme.color.launchbarMenuColor = color;
+            this._theme.color.launchbarMenuText = text;
+            this.changeTheme.emit(this._theme);
+            this.logger.info(this.translation.translate('DesktopSmallBlack'));
+          }
+        },
+        {
+          "text":this.translation.translate('DesktopMediumBlack'),
+          "disabled": this.size === 4,
+          "action": () => {
+            this.size = 4;
+            this._theme.size.window = 2;
+            this._theme.size.launchbar = 2;
+            this._theme.size.launchbarMenu = 2;
+            const color = "#0d0d0d";
+            const text = "#dddee0";
+            this._theme.color.windowColorActive = "#3d3f42";
+            this._theme.color.windowTextActive = "#f4f4f4";
+            this._theme.color.launchbarColor = color+'b2';
+            this._theme.color.launchbarText = text;
+            this._theme.color.launchbarMenuColor = color;
+            this._theme.color.launchbarMenuText = text;
+            this.changeTheme.emit(this._theme);
+            this.logger.info(this.translation.translate('DesktopMediumBlack'));
+          }
+        },
+        {
+          "text":this.translation.translate('DesktopBigBlack'),
+          "disabled": this.size === 5,
+          "action": () => {
+            this.size = 5;
+            this._theme.size.window = 3;
+            this._theme.size.launchbar = 3;
+            this._theme.size.launchbarMenu = 3;
+            const color = "#0d0d0d";
+            const text = "#dddee0";
+            this._theme.color.windowColorActive = "#3d3f42";
+            this._theme.color.windowTextActive = "#f4f4f4";
+            this._theme.color.launchbarColor = color+'b2';
+            this._theme.color.launchbarText = text;
+            this._theme.color.launchbarMenuColor = color;
+            this._theme.color.launchbarMenuText = text;
+            this.changeTheme.emit(this._theme);
+            this.logger.info(this.translation.translate('DesktopBigBlack'));
+          }
+        }
+        ]
+      }
+    ]});
+  }
+  
   onMouseUpContainer(event: MouseEvent): void {
     if (this.currentItem != null) {
       this.onMouseUp(event, this.currentItem);

@@ -21,6 +21,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
 import { DesktopWindow, LocalWindowEvents } from './desktop-window';
 import { WindowPosition } from './window-position';
 import { DesktopWindowState, DesktopWindowStateType } from '../shared/desktop-window-state';
+import { DesktopTheme } from "../desktop/desktop.component";
 import { WindowMonitor } from 'app/shared/window-monitor.service';
 import { ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEvents,
   Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, InstanceId, EmbeddedInstance
@@ -40,10 +41,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
    * I'd like to apply this constant to the ".window .header" selector in ../window/window.component.css
    * but I don't know how
    */
-  public static readonly WINDOW_HEADER_HEIGHT = 45;
-  public static readonly LAUNCHBAR_HEIGHT = 70;
-  private static readonly NEW_WINDOW_POSITION_INCREMENT = WindowManagerService.WINDOW_HEADER_HEIGHT;
-  private static readonly MAXIMIZE_WINDOW_HEIGHT_OFFSET = WindowManagerService.WINDOW_HEADER_HEIGHT
+  public static WINDOW_HEADER_HEIGHT = 45;
+  public static LAUNCHBAR_HEIGHT = 70;
+  private static  NEW_WINDOW_POSITION_INCREMENT = WindowManagerService.WINDOW_HEADER_HEIGHT;
+  private static  MAXIMIZE_WINDOW_HEIGHT_OFFSET = WindowManagerService.WINDOW_HEADER_HEIGHT
                                                         + WindowManagerService.LAUNCHBAR_HEIGHT;
 
   private nextId: MVDWindowManagement.WindowId;
@@ -155,6 +156,35 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         }
       })
     });
+  }
+
+  public static _setTheme(newTheme: DesktopTheme) {
+    switch (newTheme.size.window) {
+    case 1:
+      WindowManagerService.WINDOW_HEADER_HEIGHT = 22;
+      break;
+    case 3:
+      WindowManagerService.WINDOW_HEADER_HEIGHT = 47;
+      break;
+    default:
+      WindowManagerService.WINDOW_HEADER_HEIGHT = 29;
+      //2
+    }
+    WindowManagerService.NEW_WINDOW_POSITION_INCREMENT = WindowManagerService.WINDOW_HEADER_HEIGHT;
+    
+    switch (newTheme.size.launchbar) {
+    case 1:
+      WindowManagerService.LAUNCHBAR_HEIGHT = 25;
+      break;
+    case 3:
+      WindowManagerService.LAUNCHBAR_HEIGHT = 76;
+      break;
+    default:
+      //2
+      WindowManagerService.LAUNCHBAR_HEIGHT = 41;
+    }
+    WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET = WindowManagerService.WINDOW_HEADER_HEIGHT
+      + WindowManagerService.LAUNCHBAR_HEIGHT;
   }
 
   private getViewportIdFromDOM(element: any): Number{
