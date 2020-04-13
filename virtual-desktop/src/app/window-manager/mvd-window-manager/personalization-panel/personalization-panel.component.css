@@ -34,6 +34,11 @@
   background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/language_icon.png');
 }
 
+.panel-item-password{
+  background-image: url('../../../../assets/images/login/password-reset.png');
+  background-size: contain;
+}
+
 .personalization-panel-ul {
   height: 100%;
   width: 100%;
