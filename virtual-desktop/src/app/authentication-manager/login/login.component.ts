@@ -157,6 +157,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.passwordServices = [];
     const storedUsername = this.authenticationService.defaultUsername();
     if (storedUsername != null) {
       this.username = storedUsername;
@@ -164,6 +165,18 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.authenticationService.checkSessionValidity().subscribe(
       response => {
+        let jsonMessage = response.json();
+        if (jsonMessage.categories) {
+          let keys = Object.keys(jsonMessage.categories);
+          for (let i = 0; i < keys.length; i++) {
+            let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
+            for (let j = 0; j < plugins.length; j++) {
+              if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
+                this.passwordServices.push(plugins[j]);
+              }
+            }
+          }
+        }
         this.needLogin = false;
       }, errorObservable => {
         let error = errorObservable.error;

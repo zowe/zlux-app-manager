@@ -111,7 +111,7 @@ export class PersonalizationComponent {
   }
 
   openTool (tool:any) {
-    if (tool.title == CHANGE_PASSWORD) {
+    if (tool.title == this.translation.translate(CHANGE_PASSWORD)) {
       this.authenticationManager.requestPasswordChangeScreen();
       return
     }
