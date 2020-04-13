@@ -12,7 +12,6 @@
 
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { AuthenticationManager,
-         LoginScreenChangeReason,
          LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
 //import { Observable } from 'rxjs/Observable';
@@ -64,26 +63,26 @@ export class LoginComponent implements OnInit {
     this.errorMessage = null;
     this.expiredPassword = false;
     this.passwordServices = [];
-    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
+    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
-      case LoginScreenChangeReason.UserLogout:
+      case MVDHosting.LoginScreenChangeReason.UserLogout:
         this.needLogin = true;
         this.passwordServices = [];
         break;
-      case LoginScreenChangeReason.UserLogin:
+      case MVDHosting.LoginScreenChangeReason.UserLogin:
         this.errorMessage = '';
         this.needLogin = false;
         break;
-      case LoginScreenChangeReason.PasswordChange:
+      case MVDHosting.LoginScreenChangeReason.PasswordChange:
         this.changePassword = true;
         break;
-      case LoginScreenChangeReason.PasswordChangeSuccess:
+      case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
         this.changePassword = false;
         break;
-      case LoginScreenChangeReason.HidePasswordChange:
+      case MVDHosting.LoginScreenChangeReason.HidePasswordChange:
         this.changePassword = false;
         break;
-      case LoginScreenChangeReason.SessionExpired:
+      case MVDHosting.LoginScreenChangeReason.SessionExpired:
         this.backButton();
         if (this.idleWarnModal) {
           this.popupManager.removeReport(this.idleWarnModal.id); 
