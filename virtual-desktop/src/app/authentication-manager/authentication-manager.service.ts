@@ -287,15 +287,15 @@ export class AuthenticationManager {
   }
 
   requestPasswordChangeScreen() {
-    this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.PasswordChange);
+    this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.PasswordChange);
   }
 
   hidePasswordChangeScreen() {
-    this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.HidePasswordChange);
+    this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.HidePasswordChange);
   }
 
   passwordChangeSuccessfulScreen() {
-    this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.PasswordChangeSuccess);
+    this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess);
   }
 }
 
