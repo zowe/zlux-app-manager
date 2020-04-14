@@ -26,20 +26,24 @@
       <input [hidden]="changePassword" class="userid" id="usernameInput" aria-labelledby="user id" tabindex="1" type="text" name="userid" [(ngModel)]="username" minlength="1" maxlength="100" autofocus [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
       <label for="password" i18n="label|Label for password@@password-label">{{this.expiredPassword ? "Old Password" : "Password"}}</label>
       <input class="password" id="passwordInput" aria-labelledby="password" tabindex="1" type="password" name="password"[(ngModel)]="password" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
-      <label [hidden]="!expiredPassword && !changePassword" for="newPassword" i18n="label|Label for password@@password-label">New Password</label>
+      <label [hidden]="!expiredPassword && !changePassword" for="newPassword" i18n="label|Label for password@@new-password-label">New Password</label>
       <input [hidden]="!expiredPassword && !changePassword" class="newPassword" id="newPasswordInput" aria-labelledby="newPassword" tabindex="1" type="password" name="newPassword"[(ngModel)]="newPassword" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
-      <label [hidden]="!expiredPassword && !changePassword" for="confirmNewPassword" i18n="label|Label for password@@password-label">Re-enter new Password</label>
+      <label [hidden]="!expiredPassword && !changePassword" for="confirmNewPassword" i18n="label|Label for password@@confirm-new-password-label">Confirm New Password</label>
       <input [hidden]="!expiredPassword && !changePassword" class="confirmNewPassword" id="confirmNewPasswordInput" aria-labelledby="confirmNewPassword" tabindex="1" type="password" name="confirmNewPassword"[(ngModel)]="confirmNewPassword" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
     </form>
     <p class="login-error">{{errorMessage || "&nbsp;"}}</p>
     <div class="fa fa-spinner fa-spin fa-5x" [hidden]="!isLoading"></div>
-    <button [hidden]="!expiredPassword && !changePassword" id="#loginButton" class="login-button" (click)="attemptPasswordReset()" [disabled]="locked">{{this.expiredPassword ? "Change Password" : "Save and return to desktop"}}</button>
+    <button [hidden]="!expiredPassword && !changePassword" id="#loginButton" i18n="label|Label for login@@password-button-title"
+            class="login-button" (click)="attemptPasswordReset()" [disabled]="locked">
+            {{this.expiredPassword ? "Change Password" : "Save and return to desktop"}}
+    </button>
     <div>
       <button id="#loginButton"
         class="login-button"
         (click)="attemptLogin()"
         [hidden]="!needLogin || expiredPassword"
-        [disabled]="locked">
+        [disabled]="locked"
+        i18n="label|Label for login@@login-button-title">
         Login
       </button>
     </div>
