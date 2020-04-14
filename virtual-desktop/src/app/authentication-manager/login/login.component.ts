@@ -20,6 +20,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
 
 const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
+const PASSWORD_EXPIRED = "PasswordExpired";
 
 @Component({
   selector: 'rs-com-login',
@@ -310,7 +311,7 @@ export class LoginComponent implements OnInit {
             }
             if (error.status == HTTP_STATUS_PRECONDITION_REQUIRED) {
               this.expiredPassword = true;
-              this.loginMessage = "Password Expired: Please enter a new password";
+              this.loginMessage = this.translation.translate(PASSWORD_EXPIRED);
             } else {
               this.errorMessage = this.translation.translate('AuthenticationFailed',
               { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });

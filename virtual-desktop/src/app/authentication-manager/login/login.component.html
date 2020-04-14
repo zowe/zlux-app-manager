@@ -33,9 +33,9 @@
     </form>
     <p class="login-error">{{errorMessage || "&nbsp;"}}</p>
     <div class="fa fa-spinner fa-spin fa-5x" [hidden]="!isLoading"></div>
-    <button [hidden]="!expiredPassword && !changePassword" id="#loginButton" i18n="label|Label for login@@password-button-title"
+    <button [hidden]="!expiredPassword && !changePassword" id="#loginButton"
             class="login-button" (click)="attemptPasswordReset()" [disabled]="locked">
-            {{this.expiredPassword ? "Change Password" : "Save and return to desktop"}}
+            {{this.expiredPassword ? this.translation.translate("Change Password") : this.translation.translate("SavePassword")}}
     </button>
     <div>
       <button id="#loginButton"
