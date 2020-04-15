@@ -15,6 +15,7 @@ import { HttpClient } from '@angular/common/http';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { AuthenticationManager } from '../../../authentication-manager/authentication-manager.service';
 
 @Component({
   selector: 'rs-com-mvd-desktop',
@@ -45,6 +46,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   
   constructor(
     public windowManager: WindowManagerService,
+    private authenticationService: AuthenticationManager,
     private http: HttpClient,
     private injector: Injector
   ) {
@@ -52,7 +54,18 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.contextMenuDef = null;
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
-    this.authenticationManager.registerPostLoginAction(this);
+    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
+      switch (eventReason) {
+      case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
+        const notifTitle = "Account Password";
+        const notifMessage = "Password was successfully changed."
+        const desktopPluginId = ZoweZLUX.pluginManager.getDesktopPlugin().getIdentifier();
+        this.hidePersonalizationPanel();
+        ZoweZLUX.notificationManager.notify(ZoweZLUX.notificationManager.createNotification(notifTitle, notifMessage, 1, desktopPluginId));
+        break;
+      default:
+      }
+    });
   }
   ngOnInit(): void {
     this.windowManager.contextMenuRequested.subscribe(menuDef => {

@@ -247,6 +247,14 @@ export class AuthenticationManager {
     });
   }
 
+  performPasswordReset(username: string, password: string, newPassword: string, serviceHandler: string): Observable<Response> {
+    return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-password'),
+                          {username: username, password: password, newPassword: newPassword, serviceHandler: serviceHandler})
+    .map(result => {
+      return result
+    })
+  }
+
   performLogin(username: string, password: string): Observable<Response> {
     if (this.username != null && (username != this.username)) {
       const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
@@ -276,6 +284,18 @@ export class AuthenticationManager {
   private performLogout(): Observable<Response> {
     this.performPreLogoutActions();
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-logout'), {});
+  }
+
+  requestPasswordChangeScreen() {
+    this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.PasswordChange);
+  }
+
+  hidePasswordChangeScreen() {
+    this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.HidePasswordChange);
+  }
+
+  passwordChangeSuccessfulScreen() {
+    this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess);
   }
 }
 
