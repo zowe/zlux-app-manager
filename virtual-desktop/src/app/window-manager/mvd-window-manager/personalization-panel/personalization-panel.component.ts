@@ -34,45 +34,16 @@ export class PersonalizationComponent {
   private pluginManager: MVDHosting.PluginManagerInterface;
   private panelHover: boolean;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
-  public LanguagesTitle: string;
    personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
-                            of the Settings & Personalization app.
-                          {
-                            "title":"Keyboard Controls",
-                            "imgSrc":"keyboard",
-                           },
-                           {
-                            "title":"Date and Time",
-                            "imgSrc":"calendar",
-                           },
-                           {
-                            "title":"Display",
-                            "imgSrc":"resolution",
-                           },
-                           {
-                            "title":"Skins",
-                            "imgSrc":"color_correction",
-                           }, */
+                            of the Settings & Personalization app. */
                            {
                             "title":this.translation.translate("Languages"),
                             "imgSrc":"foreign_language",
                            },
-                          /*  {
-                            "title":"User Profile",
-                            "imgSrc":"management",
-                           },
                            {
-                            "title":"Fonts",
-                            "imgSrc":"font_color",
+                            "title":this.translation.translate("Personalization"),
+                            "imgSrc":"personalization",
                            },
-                           {
-                            "title":"Sounds",
-                            "imgSrc":"audio_volume_medium",
-                           },
-                           {
-                            "title":"Printer",
-                            "imgSrc":"printer",
-                           } */
   ];
 
    constructor(
@@ -83,7 +54,6 @@ export class PersonalizationComponent {
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
-    this.LanguagesTitle = this.translation.translate("Languages");
    }
   
   ngOnInit(): void {
@@ -93,19 +63,20 @@ export class PersonalizationComponent {
     })
   }
 
-  getAppPropertyInformation():any{
+  getAppPropertyInformation(toolName: string):any{
     return {"isPropertyWindow":false,
-    "settingsToolName":this.settingsWindowPluginDef.defaultWindowTitle,
+    "settingsToolName":toolName,
     "copyright":this.settingsWindowPluginDef.getCopyright(),
     "image":this.settingsWindowPluginDef.image
     };
   }
 
-  openTool (tool:any) {
+  openTool(tool: any): void {
+    // console.log(tool)
     let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
     if (propertyWindowID == null) {
       this.desktopComponent.hidePersonalizationPanel();
-      this.applicationManager.spawnApplication(this.settingsWindowPluginDef, this.getAppPropertyInformation());
+      this.applicationManager.spawnApplication(this.settingsWindowPluginDef, this.getAppPropertyInformation(tool.title));
     } else {
       this.windowManager.showWindow(propertyWindowID);
     }

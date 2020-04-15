@@ -53,7 +53,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public launchbarMenuSize;
   */
   @Input() set theme(newTheme: DesktopTheme) {
-    console.log('Launchbar menu theme set=',newTheme);
+    // console.log('Launchbar menu theme set=',newTheme);
     this.color = newTheme.color;
     let menuIcon:number;
     let appIcon:number;

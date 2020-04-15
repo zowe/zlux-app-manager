@@ -40,7 +40,7 @@ export class WindowComponent {
   public closeLeft:string;
   
   @Input() set theme(newTheme: DesktopTheme) {
-    console.log('Window theme set=',newTheme);
+    // console.log('Window theme set=',newTheme);
     this.color = newTheme.color;
     //button left strategy: size*.6 or .66 between each element and sides
     //therefore (buttonNumber*size*.6)+((buttonNumber-1)*size)

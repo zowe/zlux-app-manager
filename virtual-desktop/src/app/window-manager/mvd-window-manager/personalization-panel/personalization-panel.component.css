@@ -34,6 +34,10 @@
   background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/language_icon.png');
 }
 
+.panel-item-personalization{
+  background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/personalization.png');
+}
+
 .personalization-panel-ul {
   height: 100%;
   width: 100%;
