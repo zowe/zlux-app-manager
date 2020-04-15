@@ -49,7 +49,7 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private authenticationService: AuthenticationManager,
-    private translation: TranslationService,
+    public translation: TranslationService,
     private cdr: ChangeDetectorRef,
     private popupManager: ZluxPopupManagerService    
   ) {
