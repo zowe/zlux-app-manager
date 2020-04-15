@@ -1,5 +1,6 @@
 {
   "Account Password": "Konto Passwort",
+  "Back": "Zurück",
   "Apply": "Hinzufügen",
   "AuthenticationFailed": "Authentifizierung für {{numTypes}} Arten fehlgeschlagen. Arten sind: {{types}}",
   "BringToFront": "In den Vordergrund holen",

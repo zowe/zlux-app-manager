@@ -1,6 +1,7 @@
 {
   "Account Password": "アカウントパスワード",
   "Apply": "適用",
+  "Back": "戻る",
   "AuthenticationFailed": "{{numTypes}}個の認証プロバイダー({{types}})に対して認証が失敗しました",
   "BringToFront": "最前面に移動",
   "Change Password": "パスワードを変更する",

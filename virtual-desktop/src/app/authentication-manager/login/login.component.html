@@ -16,7 +16,7 @@
 
 <div class="login-panel" [class.hidden]="!isLoading && !needLogin && !changePassword">
   <div class="login-overlay" src="'../../../assets/images/login/back-button.png'">
-      <button class="back-button" [hidden]="!changePassword && !expiredPassword" (click)="backButton()">Back</button>
+      <button class="back-button" [hidden]="!changePassword && !expiredPassword" (click)="backButton()">{{this.translation.translate("Back")}}</button>
     <div>
     <img class="logo-img" [hidden]="changePassword || expiredPassword" [src]="logo" alt="Zowe - z/OS Lightweight User Experience" />
     <img class="password-logo-img" [hidden]="!changePassword && !expiredPassword" [src]="passwordLogo" alt="Zowe - z/OS Lightweight User Experience" />

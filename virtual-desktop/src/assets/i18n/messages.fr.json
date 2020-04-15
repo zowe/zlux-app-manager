@@ -1,6 +1,7 @@
 {
   "Account Password": "Mot de passe du compte",
   "Apply": "Appliquer",
+  "Back": "Retourner",
   "AuthenticationFailed": "L'authentification a échoué pour {{numTypes}} types. Les types: {{types}}",
   "BringToFront": "Mettre au premier plan",
   "Change Password": "Changer de mot de Passe",

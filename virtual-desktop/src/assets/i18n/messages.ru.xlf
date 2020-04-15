@@ -40,7 +40,7 @@
         <note priority="1" from="meaning">label</note>
       </trans-unit>
       <trans-unit id="new-password-label" datatype="html">
-        <source>New Password</source><target state="new">новый пароль</target>
+        <source>New Password</source><target state="new">Новый пароль</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
           <context context-type="linenumber">24</context>
@@ -49,7 +49,7 @@
         <note priority="1" from="meaning">label</note>
       </trans-unit>
       <trans-unit id="confirm-new-password-label" datatype="html">
-        <source>Confirm New Password</source><target state="new">подтвердите новый пароль</target>
+        <source>Confirm New Password</source><target state="new">Подтвердите новый пароль</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
           <context context-type="linenumber">24</context>

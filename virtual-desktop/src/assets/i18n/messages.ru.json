@@ -1,9 +1,10 @@
 {
   "Account Password": "Пароль от аккаунта",
   "Apply": "Применить",
+  "Back": "Вернитесь",
   "AuthenticationFailed": "Ошибка аутентификации {{numTypes}} для {{types}}",
   "BringToFront": "На передний план",
-  "Change Password": "Изменить пароль",
+  "Change Password": "Изменить Пароль",
   "Chinese": "Китайский",
   "Click here to renew your session.": "Нажмите сюда чтобы возобновить сессию.",
   "Close All": "Закрыть все",

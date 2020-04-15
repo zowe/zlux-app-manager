@@ -1,5 +1,6 @@
 {
   "Account Password": "Account Password",
+  "Back": "Back",
   "Apply": "Apply",
   "AuthenticationFailed": "Authentication failed for {{numTypes}} types. Types: {{types}}",
   "BringToFront": "Bring to Front",
