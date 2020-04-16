@@ -16,18 +16,18 @@
 <ng-template [ngIf]="isActive">
   <div class="launch-widget-popup">
     <div style="cursor: pointer" class="refresh-plugins" (click)="refresh()">
-      Refresh applications
+      {{translation.translate("Refresh Applications")}}
       <i style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></i>
     </div>
     <div style="margin: 20px"></div>
     <div class="launch-menu-scroller">
-      <div class="launch-widget-row" *ngFor="let item of displayItems" (click)="clicked(item)" [title]="item.tooltip" (contextmenu)="onRightClick($event, item)">
+      <div class="launch-widget-row" *ngFor="let item of displayItems | sortBy: 'label'" (click)="clicked(item)" [title]="item.tooltip" (contextmenu)="onRightClick($event, item)">
         <img class="icon" [src]="item.image">
         <p>{{item.label}}</p>
       </div>
     </div>
     <div class="launch-menu-search">
-      <input style="width:95%" type="text" placeholder="Search Applications" [(ngModel)]="appFilter" (input)="filterMenuItems()">
+      <input style="width:95%" type="text" placeholder="{{translation.translate('Search')}}" [(ngModel)]="appFilter" (input)="filterMenuItems()">
     </div>
   </div>
   <div class="launch-widget-caret caret-down"></div>
