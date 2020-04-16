@@ -12,7 +12,6 @@
 
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { AuthenticationManager,
-         LoginScreenChangeReason,
          LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
 //import { Observable } from 'rxjs/Observable';
@@ -20,6 +19,8 @@ import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { BaseLogger } from 'virtual-desktop-logger';
 
 const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
+const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
+const PASSWORD_EXPIRED = "PasswordExpired";
 
 @Component({
   selector: 'rs-com-login',
@@ -30,39 +31,60 @@ export class LoginComponent implements OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   logo: string = require('../../../assets/images/login/Zowe_Logo.png');
+  passwordLogo: string = require('../../../assets/images/login/password-reset.png');
   isLoading:boolean;
   needLogin:boolean;
+  changePassword:boolean;
   locked: boolean;
   username: string;
   password: string;
+  newPassword: string;
+  confirmNewPassword: string;
   errorMessage: string | null;
   loginMessage: string;
   private idleWarnModal: any;
   private lastActive: number = 0;
+  expiredPassword: boolean;
+  private passwordServices: string[];
 
   constructor(
     private authenticationService: AuthenticationManager,
-    private translation: TranslationService,
+    public translation: TranslationService,
     private cdr: ChangeDetectorRef,
     private popupManager: ZluxPopupManagerService    
   ) {
     this.isLoading = true;
     this.needLogin = false;
+    this.changePassword = false;
     this.locked = false;
     this.username = '';
     this.password = '';
+    this.newPassword = '';
+    this.confirmNewPassword = '';
     this.errorMessage = null;
-
-    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: LoginScreenChangeReason) => {
+    this.expiredPassword = false;
+    this.passwordServices = [];
+    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
-      case LoginScreenChangeReason.UserLogout:
+      case MVDHosting.LoginScreenChangeReason.UserLogout:
         this.needLogin = true;
+        this.passwordServices = [];
         break;
-      case LoginScreenChangeReason.UserLogin:
+      case MVDHosting.LoginScreenChangeReason.UserLogin:
         this.errorMessage = '';
         this.needLogin = false;
         break;
-      case LoginScreenChangeReason.SessionExpired:
+      case MVDHosting.LoginScreenChangeReason.PasswordChange:
+        this.changePassword = true;
+        break;
+      case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
+        this.changePassword = false;
+        break;
+      case MVDHosting.LoginScreenChangeReason.HidePasswordChange:
+        this.changePassword = false;
+        break;
+      case MVDHosting.LoginScreenChangeReason.SessionExpired:
+        this.backButton();
         if (this.idleWarnModal) {
           this.popupManager.removeReport(this.idleWarnModal.id); 
           this.idleWarnModal = undefined;
@@ -135,6 +157,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.passwordServices = [];
     const storedUsername = this.authenticationService.defaultUsername();
     if (storedUsername != null) {
       this.username = storedUsername;
@@ -142,6 +165,18 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.authenticationService.checkSessionValidity().subscribe(
       response => {
+        let jsonMessage = response.json();
+        if (jsonMessage.categories) {
+          let keys = Object.keys(jsonMessage.categories);
+          for (let i = 0; i < keys.length; i++) {
+            let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
+            for (let j = 0; j < plugins.length; j++) {
+              if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
+                this.passwordServices.push(plugins[j]);
+              }
+            }
+          }
+        }
         this.needLogin = false;
       }, errorObservable => {
         let error = errorObservable.error;
@@ -170,7 +205,11 @@ export class LoginComponent implements OnInit {
 
   considerSubmit(event: KeyboardEvent): void {
     if (event.keyCode === 13) {
-      this.attemptLogin();
+      if (this.needLogin && !this.expiredPassword) {
+        this.attemptLogin();
+      } else if (this.expiredPassword || this.changePassword) {
+        this.attemptPasswordReset();
+      }
     }
   }
 
@@ -183,6 +222,38 @@ export class LoginComponent implements OnInit {
     }    
   }
 
+  attemptPasswordReset(): void {
+    if (this.newPassword != this.confirmNewPassword) {
+      this.errorMessage = "New passwords do not match. Please try again.";
+    } else if (this.passwordServices.length == 0) {
+      this.errorMessage = "No password reset auth service available."
+    } else if (this.passwordServices.length != 1) {
+      this.errorMessage = "Multiple password reset services not available at this time.";
+    } else {
+      this.authenticationService.performPasswordReset(this.username, this.password, this.newPassword, this.passwordServices[0]).subscribe(
+        result => {
+          if (this.needLogin) {
+            this.password = this.newPassword;
+            this.attemptLogin();
+          }
+          if (this.changePassword) {
+            this.authenticationService.passwordChangeSuccessfulScreen();
+          }
+          this.loginMessage = "";
+          this.errorMessage = "";
+          this.password = '';
+          this.newPassword = '';
+          this.confirmNewPassword = '';
+        },
+        error => {
+          let jsonMessage = error.json();
+          this.loginMessage = "";
+          this.errorMessage = "Error: " + jsonMessage.response;
+        }
+      )
+    }
+  }
+
   attemptLogin(): void {
     this.errorMessage = null;
     this.needLogin = false;
@@ -190,7 +261,7 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     // See https://github.com/angular/angular/issues/22426
     this.cdr.detectChanges();
-
+    this.passwordServices = [];
     if (this.username==null || this.username==''){
       this.errorMessage= this.translation.translate('UsernameRequired');
       this.password = '';
@@ -201,6 +272,22 @@ export class LoginComponent implements OnInit {
     }
     this.authenticationService.performLogin(this.username!, this.password!).subscribe(
       result => {
+        let jsonMessage = result.json();
+        if (jsonMessage.categories) {
+          let keys = Object.keys(jsonMessage.categories);
+          for (let i = 0; i < keys.length; i++) {
+            let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
+            for (let j = 0; j < plugins.length; j++) {
+              if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
+                this.passwordServices.push(plugins[j]);
+              }
+            }
+          }
+        }
+        if (this.expiredPassword) {
+          this.authenticationService.passwordChangeSuccessfulScreen();
+          this.expiredPassword = false;
+        }
         this.password = '';
         this.locked = false;
       },
@@ -215,15 +302,25 @@ export class LoginComponent implements OnInit {
               if (!jsonMessage.categories[keys[i]].success) {
                 failedTypes.push(keys[i]);
               }
+              let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
+              for (let j = 0; j < plugins.length; j++) {
+                if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
+                  this.passwordServices.push(plugins[j]);
+                }
+              }
             }
-            this.errorMessage = this.translation.translate('AuthenticationFailed',
+            if (error.status == HTTP_STATUS_PRECONDITION_REQUIRED) {
+              this.expiredPassword = true;
+              this.loginMessage = this.translation.translate(PASSWORD_EXPIRED);
+            } else {
+              this.errorMessage = this.translation.translate('AuthenticationFailed',
               { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
-
+              this.password = '';
+            }
           }
         } else {
           this.errorMessage = error.text();
         }
-        this.password = '';
         this.locked = false;
         this.isLoading = false;
       }
@@ -232,6 +329,24 @@ export class LoginComponent implements OnInit {
 
   getPluginVersion(): string | null {
     return "v. " + this.plugin.version;
+  }
+
+  backButton(): void {
+    if (this.changePassword) {
+      this.authenticationService.hidePasswordChangeScreen();
+      this.loginMessage = "";
+      this.errorMessage = "";
+      this.password = "";
+      this.newPassword = "";
+      this.confirmNewPassword = "";
+    }
+    if (this.expiredPassword) {
+      this.expiredPassword = false;
+      this.loginMessage = "";
+      this.errorMessage = "";
+      this.newPassword = "";
+      this.confirmNewPassword = "";
+    }
   }
 }
 

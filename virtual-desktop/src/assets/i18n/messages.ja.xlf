@@ -39,6 +39,24 @@
         <note priority="1" from="description">Label for password</note>
         <note priority="1" from="meaning">label</note>
       </trans-unit>
+      <trans-unit id="new-password-label" datatype="html">
+        <source>New Password</source><target state="new">新しいパスワード</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+        <note priority="1" from="description">Label for new password</note>
+        <note priority="1" from="meaning">label</note>
+      </trans-unit>
+      <trans-unit id="confirm-new-password-label" datatype="html">
+        <source>Confirm New Password</source><target state="new">新しいパスワードを確認</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+        <note priority="1" from="description">Label for confirm new password</note>
+        <note priority="1" from="meaning">label</note>
+      </trans-unit>
       <trans-unit id="login-button-title" datatype="html">
         <source>Log in</source><target state="new">ログイン</target>
         <context-group purpose="location">
