@@ -1,0 +1,27 @@
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->
+<button class="zlux-wb-icon-button" (click)="goBack()" [disabled]="!canGoBack" title="Go Back" i18n-title="tooltip|Title of 'Go Back' button@@go-back">&#8678;</button>
+<button class="zlux-wb-icon-button" (click)="goForward()" [disabled]="!canGoForward" title="Go Forward" i18n-title="tooltip|Title of 'Go Forward' button@@go-forward">&#8680;</button>
+<button class="zlux-wb-icon-button" (click)="refresh()" title="Refresh" i18n-title="tooltip|Title of 'Refresh' button@@refresh">&#8634;</button>
+<input class="zlux-wb-url" type="url" [formControl]="urlControl" [placeholder]="placeholder" (keyup.enter)="navigate()">
+<app-bookmark-button [url]="navigation.rawURL$ | async"></app-bookmark-button>
+<div class="zlux-wb-proxy" title="Enable/Disable Proxy" i18n-title="tooltip|Title of 'Enable/Disable Proxy' checkbox@@enable-disable-proxy">
+  <label for="proxy" i18n="label|Title of 'Proxy' checkbox@@proxy">Proxy</label>
+  <input name="proxy" type="checkbox" [formControl]="proxyControl">
+</div>
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->
