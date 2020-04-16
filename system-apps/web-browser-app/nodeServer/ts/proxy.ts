@@ -73,7 +73,7 @@ class ProxyDataService {
   private readonly startPort: number;
   private readonly endPort: number;
   private readonly keysAndCerts: KeysAndCerts;
-  private readonly portRangeDefault = { start: 16000, end: 16030 };
+  private readonly portRangeDefault = { start: 8551, end: 8580 };
   private readonly proxyServerByPort = new Map<number, Proxy>();
   private portRangeSource: string = 'default';
 
