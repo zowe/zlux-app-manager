@@ -24,6 +24,7 @@ export class AddressBarComponent implements OnInit, OnDestroy {
   urlControl: FormControl;
   proxyControl: FormControl;
   placeholder = 'URL';
+  private readonly proxyCheckboxThrottleTimeMs = 500;
   private proxyValueSubscription: Subscription;
   private proxyStateSubscription: Subscription;
   private urlSubscription: Subscription;
@@ -36,7 +37,7 @@ export class AddressBarComponent implements OnInit, OnDestroy {
     this.urlControl = new FormControl(navigation.startURL);
     this.proxyControl = new FormControl(this.proxy.isEnabled());
     this.proxyValueSubscription = this.proxyControl.valueChanges.pipe(
-      throttleTime(300),
+      throttleTime(this.proxyCheckboxThrottleTimeMs),
     ).subscribe(() => this.proxy.toggle());
     this.proxyStateSubscription = this.proxy.proxyState.subscribe(state => this.proxyControl.setValue(state, {emitEvent: false}));
     this.urlSubscription = this.navigation.rawURL$.subscribe(url => this.urlControl.setValue(url, {emitEvent: false}));

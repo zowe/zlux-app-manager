@@ -10,7 +10,6 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
-import { LocaleService, TranslationService } from 'angular-l10n';
 import { WebBrowserLaunchMetadata, isLaunchMetadata } from './browser/shared';
 import { NavigationService, ProxyService, SettingsService } from './browser/services';
 
@@ -22,8 +21,6 @@ import { NavigationService, ProxyService, SettingsService } from './browser/serv
 export class AppComponent implements OnInit {
 
   constructor(
-    public locale: LocaleService,
-    public translation: TranslationService,
     @Inject(Angular2InjectionTokens.LOGGER) public log: ZLUX.ComponentLogger,
     private navigation: NavigationService,
     private proxy: ProxyService,
@@ -32,7 +29,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.log.info(`web browser started`);
+    this.log.debug(`web browser started`);
   }
 
   provideZLUXDispatcherCallbacks(): ZLUX.ApplicationCallbacks {

@@ -20,6 +20,10 @@ import { ProxyService } from './proxy.service';
 export class BookmarksService {
 
   private bookmarksServiceURL: string;
+  private readonly requestMetadata = {
+    _objectType: 'org.zowe.zlux.ng2desktop.webbrowser.settings.bookmarks',
+    _metaDataVersion: '1.0.0',
+  }
   bookmarks: Bookmark[] = [];
 
   constructor(
@@ -60,8 +64,7 @@ export class BookmarksService {
 
   private save(): Observable<void> {
     const requestBody = {
-      _objectType: 'org.zowe.zlux.ng2desktop.webbrowser.settings.bookmarks',
-      _metaDataVersion: '1.0.0',
+      ...this.requestMetadata,
       bookmarks: this.bookmarks
     }
     return this.http.put(this.bookmarksServiceURL, requestBody).pipe(mapTo(undefined));
