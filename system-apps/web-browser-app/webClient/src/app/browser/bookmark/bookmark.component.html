@@ -8,9 +8,9 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div>
-  <span class="title" [title]="bookmark.title" (click)="navigate()">{{ bookmark.title }}</span>
-  <span class="remove" (click)="remove()" title="Remove bookmark" i18n-title="tooltip|Title of 'Remove bookmark' button@@remove-bookmark">x</span>
+<div class="zlux-wb-bookmark">
+  <span class="zlux-wb-title" [title]="bookmark.title" (click)="navigate()">{{ bookmark.title }}</span>
+  <span class="zlux-wb-remove" (click)="remove()" title="Remove bookmark" i18n-title="tooltip|Title of 'Remove bookmark' button@@remove-bookmark">x</span>
 </div>
 
 <!--

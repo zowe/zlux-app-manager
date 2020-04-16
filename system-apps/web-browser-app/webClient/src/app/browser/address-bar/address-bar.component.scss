@@ -17,19 +17,16 @@
   border-bottom: 1px solid #777777;
 }
 
-input[type="url"] {
+.zlux-wb-url {
   flex: 1 1 auto;
 }
 
-button {
+.zlux-wb-icon-button {
   flex: 0 0 3rem;
-}
-
-.icon-button {
   font-weight: 600;
 }
 
-.proxy {
+.zlux-wb-proxy {
   flex: 0 0 auto;
   width: 6rem;
   display: flex;

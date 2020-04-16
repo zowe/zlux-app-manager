@@ -9,7 +9,7 @@
 */
 $width: 6em;
 
-div {
+div.zlux-wb-bookmark {
   flex: 0 0 auto;
   max-width: $width;
   display: flex;
@@ -17,7 +17,7 @@ div {
   cursor: pointer;
   align-items: center;
   
-  span.title {
+  span.zlux-wb-title {
     padding: 0.1rem 0.2rem;
     flex: 1 1 auto;
     text-overflow: ellipsis;
@@ -29,7 +29,7 @@ div {
     }
   }
   
-  span.remove {
+  span.zlux-wb-remove {
     border: 1px solid #777777;
     border-radius: 50%;
     width: 0.8rem;
@@ -46,7 +46,7 @@ div {
     }
   }
   
-  &:hover span.remove {
+  &:hover span.zlux-wb-remove {
     visibility: visible;
   }
 
