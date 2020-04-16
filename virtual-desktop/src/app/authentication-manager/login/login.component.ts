@@ -226,7 +226,7 @@ export class LoginComponent implements OnInit {
     if (this.newPassword != this.confirmNewPassword) {
       this.errorMessage = "New passwords do not match. Please try again.";
     } else if (this.passwordServices.length == 0) {
-      this.errorMessage = "No password reset auth service available."
+      this.errorMessage = "No password reset authorization service available."
     } else if (this.passwordServices.length != 1) {
       this.errorMessage = "Multiple password reset services not available at this time.";
     } else {
@@ -248,7 +248,7 @@ export class LoginComponent implements OnInit {
         error => {
           let jsonMessage = error.json();
           this.loginMessage = "";
-          this.errorMessage = "Error: " + jsonMessage.response;
+          this.errorMessage = jsonMessage.response;
         }
       )
     }

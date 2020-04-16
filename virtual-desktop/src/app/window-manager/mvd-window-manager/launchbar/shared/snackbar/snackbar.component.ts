@@ -12,6 +12,7 @@
 
 import { Component, Inject } from '@angular/core';
 import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material';
+import { TranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'app-snackbar',
@@ -20,6 +21,7 @@ import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material';
 })
 export class SnackbarComponent {
   constructor(
+    public translation: TranslationService,
     public snackBarRef: MatSnackBarRef<SnackbarComponent>,
     @Inject(MAT_SNACK_BAR_DATA) public data: any
   ) {  }
