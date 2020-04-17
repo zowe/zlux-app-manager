@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit {
   password: string;
   newPassword: string;
   confirmNewPassword: string;
-  errorMessage: string | null;
+  errorMessage: string;
   loginMessage: string;
   private idleWarnModal: any;
   private lastActive: number = 0;
@@ -61,7 +61,7 @@ export class LoginComponent implements OnInit {
     this.password = '';
     this.newPassword = '';
     this.confirmNewPassword = '';
-    this.errorMessage = null;
+    this.errorMessage = '';
     this.expiredPassword = false;
     this.passwordServices = [];
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
@@ -226,9 +226,9 @@ export class LoginComponent implements OnInit {
     if (this.newPassword != this.confirmNewPassword) {
       this.errorMessage = "New passwords do not match. Please try again.";
     } else if (this.passwordServices.length == 0) {
-      this.errorMessage = "No password reset auth service available."
+      this.errorMessage = "No password reset service available."
     } else if (this.passwordServices.length != 1) {
-      this.errorMessage = "Multiple password reset services not available at this time.";
+      this.errorMessage = "Multiple password reset is not available.";
     } else {
       this.authenticationService.performPasswordReset(this.username, this.password, this.newPassword, this.passwordServices[0]).subscribe(
         result => {
@@ -248,14 +248,14 @@ export class LoginComponent implements OnInit {
         error => {
           let jsonMessage = error.json();
           this.loginMessage = "";
-          this.errorMessage = "Error: " + jsonMessage.response;
+          this.errorMessage = jsonMessage.response;
         }
       )
     }
   }
 
   attemptLogin(): void {
-    this.errorMessage = null;
+    this.errorMessage = '';
     this.needLogin = false;
     this.locked = true;
     this.isLoading = true;
