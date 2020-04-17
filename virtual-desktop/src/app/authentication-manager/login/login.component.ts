@@ -61,7 +61,7 @@ export class LoginComponent implements OnInit {
     this.password = '';
     this.newPassword = '';
     this.confirmNewPassword = '';
-    this.errorMessage = null;
+    this.errorMessage = '';
     this.expiredPassword = false;
     this.passwordServices = [];
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
