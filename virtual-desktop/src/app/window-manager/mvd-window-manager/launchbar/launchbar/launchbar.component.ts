@@ -53,7 +53,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
       //64 for icon, 4 for indicator, 2 for pad bottom, 6 for pad top
       this.barSize = '76px';
       this.applistPadding = '7px';
-      this.applistMargin = `0px 210px 0px 79px`;
+      this.applistMargin = `0px 205px 0px 79px`;
       break;
     default:
       //2
@@ -321,7 +321,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
             const text = "#dddee0";
             this._theme.color.windowColorActive = "#3d3f42";
             this._theme.color.windowTextActive = "#f4f4f4";
-            this._theme.color.launchbarColor = color+'b2';
+            this._theme.color.launchbarColor = "0d0d0e"+'b2';
             this._theme.color.launchbarText = text;
             this._theme.color.launchbarMenuColor = color;
             this._theme.color.launchbarMenuText = text;
