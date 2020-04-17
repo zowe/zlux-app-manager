@@ -226,9 +226,9 @@ export class LoginComponent implements OnInit {
     if (this.newPassword != this.confirmNewPassword) {
       this.errorMessage = "New passwords do not match. Please try again.";
     } else if (this.passwordServices.length == 0) {
-      this.errorMessage = "No password reset authorization service available."
+      this.errorMessage = "No password reset service available."
     } else if (this.passwordServices.length != 1) {
-      this.errorMessage = "Multiple password reset services not available at this time.";
+      this.errorMessage = "Multiple password reset is not available.";
     } else {
       this.authenticationService.performPasswordReset(this.username, this.password, this.newPassword, this.passwordServices[0]).subscribe(
         result => {
