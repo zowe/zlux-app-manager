@@ -255,7 +255,7 @@ export class LoginComponent implements OnInit {
   }
 
   attemptLogin(): void {
-    this.errorMessage = null;
+    this.errorMessage = '';
     this.needLogin = false;
     this.locked = true;
     this.isLoading = true;
