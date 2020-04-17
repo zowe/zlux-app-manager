@@ -30,7 +30,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
   styleUrls: ['./launchbar.component.css', '../shared/shared.css'],
   providers: [PluginsDataService]
 })
-export class LaunchbarComponent {
+export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   @Output() changeTheme = new EventEmitter();
 
@@ -91,6 +91,7 @@ export class LaunchbarComponent {
      // Workaround for AoT problem with namespaces (see angular/angular#15613)
      this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
      this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
+     this.authenticationManager.registerPreLogoutAction(this);
      this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
      this.allItems = [];
      this.runItems = [];
@@ -113,6 +114,11 @@ export class LaunchbarComponent {
 
   getNewItems(): void {
     this.pluginManager.loadApplicationPluginDefinitions(true);
+  }
+
+  onLogout(): boolean {
+    this.allItems = [];
+    return true;
   }
 
   ngDoCheck(): void {

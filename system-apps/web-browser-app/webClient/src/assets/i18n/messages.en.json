@@ -1,0 +1,7 @@
+{
+    "request_succeeded" : "App request succeeded",
+    "close" : "Close",
+    "invalid_plugin_identifier" : "Invalid Plugin Indentifier",
+    "no_plugin_found_for_identifier" : "No plugin found for identifier",
+    "server_replied_with": "Server replied with "
+}

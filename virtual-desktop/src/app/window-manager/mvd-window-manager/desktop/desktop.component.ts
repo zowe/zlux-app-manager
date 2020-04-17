@@ -16,6 +16,10 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { AuthenticationManager } from '../../../authentication-manager/authentication-manager.service';
+import { TranslationService } from 'angular-l10n';
+
+const ACCOUNT_PASSWORD = "Account Password";
+const PASSWORD_CHANGED = "PasswordChanged"
 
 @Component({
   selector: 'rs-com-mvd-desktop',
@@ -48,7 +52,8 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     public windowManager: WindowManagerService,
     private authenticationService: AuthenticationManager,
     private http: HttpClient,
-    private injector: Injector
+    private injector: Injector,
+    private translation: TranslationService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
@@ -57,8 +62,8 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
       case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
-        const notifTitle = "Account Password";
-        const notifMessage = "Password was successfully changed."
+        const notifTitle = this.translation.translate(ACCOUNT_PASSWORD);
+        const notifMessage = this.translation.translate(PASSWORD_CHANGED);
         const desktopPluginId = ZoweZLUX.pluginManager.getDesktopPlugin().getIdentifier();
         this.hidePersonalizationPanel();
         ZoweZLUX.notificationManager.notify(ZoweZLUX.notificationManager.createNotification(notifTitle, notifMessage, 1, desktopPluginId));
