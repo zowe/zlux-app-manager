@@ -281,7 +281,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
             const text = "#dddee0";
             this._theme.color.windowColorActive = "#3d3f42";
             this._theme.color.windowTextActive = "#f4f4f4";
-            this._theme.color.launchbarColor = color+'b2';
+            this._theme.color.launchbarColor = "0d0d0e"+'b2';
             this._theme.color.launchbarText = text;
             this._theme.color.launchbarMenuColor = color;
             this._theme.color.launchbarMenuText = text;
@@ -301,7 +301,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
             const text = "#dddee0";
             this._theme.color.windowColorActive = "#3d3f42";
             this._theme.color.windowTextActive = "#f4f4f4";
-            this._theme.color.launchbarColor = color+'b2';
+            this._theme.color.launchbarColor = "0d0d0e"+'b2';
             this._theme.color.launchbarText = text;
             this._theme.color.launchbarMenuColor = color;
             this._theme.color.launchbarMenuText = text;

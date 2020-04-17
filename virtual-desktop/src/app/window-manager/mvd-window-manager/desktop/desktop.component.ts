@@ -58,6 +58,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.contextMenuDef = null;
+    this.authenticationManager.registerPostLoginAction(this);
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
@@ -81,17 +82,17 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   onLogin(username:string, plugins: ZLUX.Plugin[]): boolean {
     this.http.get(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'ui/theme', 'config.json')).subscribe((data: any) => {
       if (data) {
-        this.log.info('Desktop config=',data.contents);
+        console.log('Desktop config=',data.contents);
         this._theme = (data.contents as DesktopTheme);
       } else {
-        this.log.info('No Desktop config found. Using defaults.');
+        console.log('No Desktop config found. Using defaults.');
       }
     });
     return true;
   }
 
   setTheme(newTheme: DesktopTheme) {
-    this.log.info('Req to change to=',newTheme);
+    console.log('Req to change to=',newTheme);
     this._theme = Object.assign({},newTheme);
     this.http.put<DesktopTheme>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'ui/theme', 'config.json'), this._theme).subscribe((data: any) => { this.log.info(`Theme saved.`) });
   }
