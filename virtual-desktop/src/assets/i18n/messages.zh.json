@@ -1,8 +1,8 @@
 {
-  "Account Password": "户口密码",
+  "Account Password": "用户密码",
   "Apply": "应用",
   "AuthenticationFailed": "{{numTypes}} 个类型验证失败 类型: {{types}}",
-  "Back": "回去",
+  "Back": "后退",
   "BringToFront": "置顶此程序",
   "Change Password": "更改密码",
   "Chinese": "中文",
