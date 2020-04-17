@@ -25,8 +25,9 @@ import { DraggableDirective } from './shared/draggable.directive';
 import { SizeableDirective } from './shared/sizeable.directive';
 import { MvdComponent } from './mvd.component';
 import { AuthenticationModule } from '../../authentication-manager/authentication-manager.module';
-import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization-panel.component';
+import { PersonalizationPanelComponent } from '../mvd-window-manager/personalization-panel/personalization-panel.component';
 import { KeybindingService } from './shared/keybinding.service';
+import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization/personalization.component';
 
 @NgModule({
   imports: [
@@ -46,6 +47,7 @@ import { KeybindingService } from './shared/keybinding.service';
     DraggableDirective,
     SizeableDirective,
     MvdComponent,
+    PersonalizationPanelComponent,
     PersonalizationComponent
   ],
   exports: [

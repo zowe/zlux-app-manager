@@ -17,6 +17,8 @@ import { DesktopComponent } from "../desktop/desktop.component";
 import { TranslationService } from 'angular-l10n';
 
 const CHANGE_PASSWORD = "Change Password"
+const LANGUAGES = "Languages"
+const PERSONALIZATION = "Personalization"
 
 @Component({
   selector: 'rs-com-personalization-panel',
@@ -24,7 +26,7 @@ const CHANGE_PASSWORD = "Change Password"
   styleUrls: ['./personalization-panel.component.css'],
   providers: [WindowManagerService]
 })
-export class PersonalizationComponent {
+export class PersonalizationPanelComponent {
   @HostListener('document:click', ['$event.target'])
   public onClick(targetElement: any) {
     if (this.panelHover == false)
@@ -35,12 +37,13 @@ export class PersonalizationComponent {
   private settingsWindowPluginDef: DesktopPluginDefinitionImpl;
   private pluginManager: MVDHosting.PluginManagerInterface;
   private panelHover: boolean;
+  public showPanel: boolean;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
   public authenticationManager: MVDHosting.AuthenticationManagerInterface;
    personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
                             of the Settings & Personalization app. */
                            {
-                            "title":this.translation.translate("Languages"),
+                            "title":this.translation.translate(LANGUAGES),
                             "imgSrc":"foreign_language",
                            },
                            {
@@ -50,11 +53,11 @@ export class PersonalizationComponent {
                           /*  {
                             "title":"User Profile",
                             "imgSrc":"management",
-                           },
-                           {
-                            "title":this.translation.translate("Personalization"),
-                            "imgSrc":"personalization",
                            }, */
+                           {
+                            "title":this.translation.translate(PERSONALIZATION),
+                            "imgSrc":"personalization",
+                           },
   ];
 
    constructor(
@@ -66,6 +69,7 @@ export class PersonalizationComponent {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
+    this.goToPanel();
    }
   
   ngOnInit(): void {
@@ -76,10 +80,11 @@ export class PersonalizationComponent {
   }
 
   getAppPropertyInformation(toolName: string):any{
-    return {"isPropertyWindow":false,
-    "settingsToolName":toolName,
-    "copyright":this.settingsWindowPluginDef.getCopyright(),
-    "image":this.settingsWindowPluginDef.image
+    return {
+      "isPropertyWindow":false,
+      "settingsToolName":toolName,
+      "copyright":this.settingsWindowPluginDef.getCopyright(),
+      "image":this.settingsWindowPluginDef.image
     };
   }
 
@@ -100,6 +105,10 @@ export class PersonalizationComponent {
 
   panelMouseLeave(): void {
     this.panelHover = false;
+  }
+
+  goToPanel(): void {
+    this.showPanel = false;
   }
 
 /*

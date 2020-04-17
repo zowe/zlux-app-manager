@@ -18,6 +18,10 @@ li.disabled {
   opacity: 0.3;
 }
 
+.context-menu .menuitem-content.disabled {
+  color: #9b9ea4;
+}
+
 .context-menu {
   position: absolute;
   z-index: 20000;
@@ -29,7 +33,8 @@ li.disabled {
 }
 
 .context-menu .menu-item.active {
-  background-color:#808080;
+  background-color: #55585c;
+  border-color: #f3f4f4;
 }
 
 .context-menu .menu-item.top {
@@ -49,7 +54,7 @@ li.disabled {
 }
 
 .context-menu .menu-item {
-  background-color:#272435;
+  background-color: #1f242d; /* Blue-shifted version of Cool Gray 90 */
   width: 100%;
   height: auto;
   padding:3px;
@@ -57,10 +62,10 @@ li.disabled {
   font-size: 14px;
   font-weight: 400;
   white-space:nowrap;
-  color:#dddee0;
+  color: #f3f4f4;
   border-style: solid;
   border-width: 0 1px 1px 1px;
-  border-color: #ccc;
+  border-color: #3d3f42;
   cursor: pointer;
   position:relative;
 }

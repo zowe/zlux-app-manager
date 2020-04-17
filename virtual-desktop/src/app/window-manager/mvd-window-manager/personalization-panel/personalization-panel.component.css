@@ -34,9 +34,9 @@
   background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/language_icon.png');
 }
 
-/* .panel-item-personalization{
+.panel-item-personalization{
   background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/personalization.png');
-} */
+}
 
 .panel-item-password{
   background-image: url('../../../../assets/images/login/password-reset.png');
