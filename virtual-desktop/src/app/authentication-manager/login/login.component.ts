@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit {
   password: string;
   newPassword: string;
   confirmNewPassword: string;
-  errorMessage: string | null;
+  errorMessage: string;
   loginMessage: string;
   private idleWarnModal: any;
   private lastActive: number = 0;
