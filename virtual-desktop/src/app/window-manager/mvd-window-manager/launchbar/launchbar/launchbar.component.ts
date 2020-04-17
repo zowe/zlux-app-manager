@@ -53,7 +53,7 @@ export class LaunchbarComponent {
       //64 for icon, 4 for indicator, 2 for pad bottom, 6 for pad top
       this.barSize = '76px';
       this.applistPadding = '7px';
-      this.applistMargin = `0px 208px 0px 79px`;
+      this.applistMargin = `0px 210px 0px 79px`;
       break;
     default:
       //2

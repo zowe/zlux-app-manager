@@ -38,6 +38,7 @@ export class PersonalizationPanelComponent {
   private pluginManager: MVDHosting.PluginManagerInterface;
   private panelHover: boolean;
   public showPanel: boolean;
+  public showPersonalization: boolean;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
   public authenticationManager: MVDHosting.AuthenticationManagerInterface;
    personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
@@ -89,13 +90,25 @@ export class PersonalizationPanelComponent {
   }
 
   openTool(tool: any): void {
-    // console.log(tool)
-    let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
-    if (propertyWindowID == null) {
-      this.desktopComponent.hidePersonalizationPanel();
-      this.applicationManager.spawnApplication(this.settingsWindowPluginDef, this.getAppPropertyInformation(tool.title));
-    } else {
-      this.windowManager.showWindow(propertyWindowID);
+    switch(tool.title) { 
+      case this.translation.translate(CHANGE_PASSWORD): { 
+        this.authenticationManager.requestPasswordChangeScreen(); 
+        break; 
+      } 
+      case this.translation.translate(PERSONALIZATION): { 
+        this.goToPersonalization();
+        break; 
+      } 
+      default: { 
+        let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
+        if (propertyWindowID == null) {
+          this.desktopComponent.hidePersonalizationPanel();
+          this.applicationManager.spawnApplication(this.settingsWindowPluginDef, this.getAppPropertyInformation(tool.title));
+        } else {
+          this.windowManager.showWindow(propertyWindowID);
+        } 
+        break; 
+      } 
     }
   }
 
@@ -108,7 +121,12 @@ export class PersonalizationPanelComponent {
   }
 
   goToPanel(): void {
+    this.showPanel = true;
+  }
+
+  goToPersonalization(): void {
     this.showPanel = false;
+    this.showPersonalization = true;
   }
 
 /*
