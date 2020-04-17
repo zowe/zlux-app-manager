@@ -29,19 +29,16 @@ const PERSONALIZATION = "Personalization"
 export class PersonalizationPanelComponent {
   @HostListener('document:click', ['$event.target'])
   public onClick(targetElement: any) {
-    if (this.panelHover == false)
+    if (this.panelMouseHover == false)
     {
       this.desktopComponent.hidePersonalizationPanel();
     }
   }
   private settingsWindowPluginDef: DesktopPluginDefinitionImpl;
   private pluginManager: MVDHosting.PluginManagerInterface;
-  private panelHover: boolean;
-  public showPanel: boolean;
-  public showPersonalization: boolean;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
   public authenticationManager: MVDHosting.AuthenticationManagerInterface;
-   personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
+  public personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
                             of the Settings & Personalization app. */
                            {
                             "title":this.translation.translate(LANGUAGES),
@@ -60,6 +57,11 @@ export class PersonalizationPanelComponent {
                             "imgSrc":"personalization",
                            },
   ];
+  private panelMouseHover: boolean;
+  public showPanel: boolean;
+  public showPersonalization: boolean;
+  public panelWidth: string;
+  public panelMaxWidth: string;
 
    constructor(
     private injector: Injector,
@@ -113,20 +115,24 @@ export class PersonalizationPanelComponent {
   }
 
   panelMouseEnter(): void {
-    this.panelHover = true;
+    this.panelMouseHover = true;
   }
 
   panelMouseLeave(): void {
-    this.panelHover = false;
+    this.panelMouseHover = false;
   }
 
   goToPanel(): void {
     this.showPanel = true;
+    this.panelWidth = "100%";
+    this.panelMaxWidth = "100%";
   }
 
   goToPersonalization(): void {
     this.showPanel = false;
     this.showPersonalization = true;
+    this.panelWidth = "40%";
+    this.panelMaxWidth = "300px";
   }
 
 /*

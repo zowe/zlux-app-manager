@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
  
-.language-separator-hor {
+/* .language-separator-hor {
   border-color: #e58e3e;
   margin-top: 3px;
   margin-bottom: 3px;
@@ -34,13 +34,25 @@
   width: 100px;
   height: 30px;
   cursor: pointer;
-}
+} */
 
 .personalization-label {
   font-size: larger;
   padding: 5px;
   width: 100%;
-  color: white;
+  color:#f3f4f4;
+}
+
+.personalization-label.small {
+  font-size: small;
+}
+
+.personalization-submit {
+  margin-top: 10px;
+}
+
+.personalization-upload {
+  color: #f3f4f4
 }
 
 /* .language-icon {

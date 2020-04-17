@@ -35,11 +35,11 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
       windowTextActive: '#f4f4f4',
       windowTextInactive: '#828282',
       windowColorActive: '#3d3f42',
-      windowColorInactive: '#0d0d0d',
+      windowColorInactive: '#252628',
       launchbarText: '#dddee0',
-      launchbarColor: '#0d0d0db2',
+      launchbarColor: '#0d0d0eb2',
       launchbarMenuText: '#dddee0',
-      launchbarMenuColor: '#0d0d0d'
+      launchbarMenuColor: '#252628'
     },
     size: {
       window: 2,
