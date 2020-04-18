@@ -22,7 +22,6 @@ import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-p
 import { generateInstanceActions } from '../shared/context-utils';
 import { KeybindingService } from '../../shared/keybinding.service';
 import { KeyCode } from '../../shared/keycode-enum';
-import { ContextMenuService } from '../../../../context-menu/contextmenu.service';
 
 @Component({
   selector: 'rs-com-launchbar-menu',
@@ -62,7 +61,6 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     private translation: TranslationService,
     private desktopComponent: DesktopComponent,
     private appKeyboard: KeybindingService,
-    private contextMenuService: ContextMenuService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -74,10 +72,6 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     this.authenticationManager.registerPostLoginAction(this);
     
     this.activeIndex = 0;
-    this.markContextMenuPresent = this.markContextMenuPresent.bind(this);
-    this.unMarkContextMenuPresent = this.unMarkContextMenuPresent.bind(this);
-    this.contextMenuService.createEvent.subscribe(this.markContextMenuPresent);
-    this.contextMenuService.closeEvent.subscribe(this.unMarkContextMenuPresent);
   }
 
   onLogin(plugins:any): boolean {
@@ -128,6 +122,10 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     this.emitState();
   }
 
+  setSearchFocus() {
+    this.searchAppInputRef.nativeElement.focus();
+  }
+
   refresh(): void {
     this.resetMenu();
     this.refreshClicked.emit();
@@ -174,24 +172,21 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     }
   }
 
-  private markContextMenuPresent():void {
-    this.isContextMenuPresent = true;
-  }
 
-  private unMarkContextMenuPresent():void {
-    setTimeout(()=> {
-      console.log('toggle menu present');
-      this.isContextMenuPresent = false;
-    },1000)
-  }
 
   @HostListener('keyup', ['$event'])
   onKeyUp(event: KeyboardEvent) {
-    console.log('menu keyboard event',this.isContextMenuPresent);
-    if(this.isContextMenuPresent) {
+    if(this.isContextMenuInDom()) {
       this.keepSearchCursor();
       return;
     }
+
+    // eating one render cycle
+    if(this.isContextMenuPresent) {
+      this.isContextMenuPresent = false;
+      return;
+    }
+  
     if(!this.isSearchFocus()) return;
 
     switch(event.which) {
@@ -245,12 +240,13 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       const pos = this.getElementPosition(elm);
       let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
       this.windowManager.contextMenuRequested.next({ xPos: pos.x, yPos: pos.y - 20, items: menuItems });
+      this.isContextMenuPresent = true;
     }
   }
 
   private getElementPosition(elm: any): any {
-    let x = window.scrollX + elm.getBoundingClientRect().left;
-    let y = window.scrollY + elm.getBoundingClientRect().top;
+    let x = window.scrollX + elm.getBoundingClientRect().left + 40;
+    let y = window.scrollY + elm.getBoundingClientRect().top + 50;
     return {x:x, y:y};
   }
 
@@ -268,6 +264,10 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     } 
   }
 
+  private isContextMenuInDom(): boolean {
+    return document.querySelector('com-rs-mvd-context-menu') !== null;
+  }
+
   private isSearchFocus(): boolean {
     return document.activeElement === this.searchAppInputRef.nativeElement;
   }
@@ -279,6 +279,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
+    this.isContextMenuPresent = true;
     return false;
   }
 

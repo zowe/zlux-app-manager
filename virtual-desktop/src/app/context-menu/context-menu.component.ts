@@ -21,20 +21,17 @@ import {
   ViewChildren,
   AfterViewInit,
   QueryList,
-  OnDestroy,
-  OnInit
 } from '@angular/core';
 
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ContextMenuService } from './contextmenu.service';
 
 @Component({
   selector: 'com-rs-mvd-context-menu',
   templateUrl: './context-menu.component.html',
   styleUrls: ['./context-menu.component.css'],
 })
-export class ContextMenuComponent implements AfterViewInit, OnDestroy, OnInit {
+export class ContextMenuComponent implements AfterViewInit {
   static ItemHeight:number;
   _itemHeight: number;
   hovering: ContextMenuItem;
@@ -49,10 +46,6 @@ export class ContextMenuComponent implements AfterViewInit, OnDestroy, OnInit {
   _propagateChildLeft: boolean; // True if child menus will appear to the left of their parent.
   _parentText: string; // Text of parent menu item
   children: { [key: string]: any }; // Array of child elements
-
-  ngOnInit() {
-    this.contextMenuService.onCreate();
-  }
 
   @ViewChild('contextmenu')
   set menu(contextmenu: any) {
@@ -144,7 +137,6 @@ export class ContextMenuComponent implements AfterViewInit, OnDestroy, OnInit {
   constructor(
     private elementRef: ElementRef,
     private sanitizer:DomSanitizer,
-    private contextMenuService:ContextMenuService
     ) {
     this.complete = new EventEmitter<void>();
   }
@@ -382,9 +374,6 @@ export class ContextMenuComponent implements AfterViewInit, OnDestroy, OnInit {
     }
   }
 
-  ngOnDestroy() {
-    this.contextMenuService.onClose();
-  }
 }
 
 
