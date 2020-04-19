@@ -125,7 +125,8 @@ export class LoginComponent implements OnInit {
   }
 
   private isIdle(): boolean {
-    let idle = (Date.now() - this.lastActive) > ACTIVITY_IDLE_TIMEOUT_MS;
+    const lastActive = parseInt(window.localStorage.getItem('lastActive') || '0');
+    let idle = (Date.now() - lastActive) > ACTIVITY_IDLE_TIMEOUT_MS;
     this.logger.debug("ZWED5304I", this.lastActive, Date.now(), idle); //this.logger.debug(`User lastActive=${this.lastActive}, now=${Date.now()}, idle={idle}`);
     return idle;
   }
@@ -216,6 +217,7 @@ export class LoginComponent implements OnInit {
   detectActivity(): void {
     this.logger.debug('ZWED5305I'); //this.logger.debug('User activity detected');
     this.lastActive = Date.now();
+    window.localStorage.setItem('lastActive',this.lastActive.toString());
     if (this.idleWarnModal) {
       this.popupManager.removeReport(this.idleWarnModal.id); 
       this.idleWarnModal = undefined;
