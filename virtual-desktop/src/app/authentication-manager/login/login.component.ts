@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit {
   private idleWarnModal: any;
   private lastActive: number = 0;
   expiredPassword: boolean;
-  private passwordServices: string[];
+  private passwordServices: Set<string>;
 
   constructor(
     private authenticationService: AuthenticationManager,
@@ -63,12 +63,12 @@ export class LoginComponent implements OnInit {
     this.confirmNewPassword = '';
     this.errorMessage = '';
     this.expiredPassword = false;
-    this.passwordServices = [];
+    this.passwordServices = new Set<string>();
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
       case MVDHosting.LoginScreenChangeReason.UserLogout:
         this.needLogin = true;
-        this.passwordServices = [];
+        this.passwordServices.clear();
         break;
       case MVDHosting.LoginScreenChangeReason.UserLogin:
         this.errorMessage = '';
@@ -157,7 +157,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.passwordServices = [];
+    this.passwordServices.clear();
     const storedUsername = this.authenticationService.defaultUsername();
     if (storedUsername != null) {
       this.username = storedUsername;
@@ -172,7 +172,7 @@ export class LoginComponent implements OnInit {
             let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
             for (let j = 0; j < plugins.length; j++) {
               if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
-                this.passwordServices.push(plugins[j]);
+                this.passwordServices.add(plugins[j]);
               }
             }
           }
@@ -225,12 +225,12 @@ export class LoginComponent implements OnInit {
   attemptPasswordReset(): void {
     if (this.newPassword != this.confirmNewPassword) {
       this.errorMessage = "New passwords do not match. Please try again.";
-    } else if (this.passwordServices.length == 0) {
+    } else if (this.passwordServices.size == 0) {
       this.errorMessage = "No password reset service available."
-    } else if (this.passwordServices.length != 1) {
+    } else if (this.passwordServices.size != 1) {
       this.errorMessage = "Multiple password reset is not available.";
     } else {
-      this.authenticationService.performPasswordReset(this.username, this.password, this.newPassword, this.passwordServices[0]).subscribe(
+      this.authenticationService.performPasswordReset(this.username, this.password, this.newPassword, this.passwordServices.values().next().value).subscribe(
         result => {
           if (this.needLogin) {
             this.password = this.newPassword;
@@ -261,7 +261,7 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     // See https://github.com/angular/angular/issues/22426
     this.cdr.detectChanges();
-    this.passwordServices = [];
+    this.passwordServices.clear();
     if (this.username==null || this.username==''){
       this.errorMessage= this.translation.translate('UsernameRequired');
       this.password = '';
@@ -279,7 +279,7 @@ export class LoginComponent implements OnInit {
             let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
             for (let j = 0; j < plugins.length; j++) {
               if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
-                this.passwordServices.push(plugins[j]);
+                this.passwordServices.add(plugins[j]);
               }
             }
           }
@@ -305,7 +305,7 @@ export class LoginComponent implements OnInit {
               let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
               for (let j = 0; j < plugins.length; j++) {
                 if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
-                  this.passwordServices.push(plugins[j]);
+                  this.passwordServices.add(plugins[j]);
                 }
               }
             }
