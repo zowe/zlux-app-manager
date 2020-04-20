@@ -51,7 +51,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public authenticationManager : MVDHosting.AuthenticationManagerInterface;
   public appFilter:string="";
   public activeIndex:number;  
-  private isContextMenuPresent:boolean = false;
+  private isContextMenuPresent:boolean;
 
   constructor(
     private elementRef: ElementRef,
@@ -72,6 +72,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     this.authenticationManager.registerPostLoginAction(this);
     
     this.activeIndex = 0;
+    this.isContextMenuPresent = false;
   }
 
   onLogin(plugins:any): boolean {
