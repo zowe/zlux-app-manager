@@ -7,15 +7,41 @@
   
   Copyright Contributors to the Zowe Project.
 -->
+
+<script src="../../../../../../node_modules/dropzone/dist/dropzone.js"></script>
+<link rel="stylesheet" href="https://rawgit.com/enyo/dropzone/master/dist/dropzone.css">
+
 <div class="personalization-main-window">
   <label class="personalization-label small">Back</label>
+
+  <label class="personalization-label small reset-button">Reset to Default</label>
+
   <label class="personalization-label">Background</label>
-  <form action="/action_page.php" class="personalization-upload">
+  <!-- <form action="/action_page.php" class="personalization-upload">
     <input type="file" id="myFile" name="filename">
     <input type="submit" class="personalization-submit">
+  </form> -->
+  <div id="dropzone">
+  <form action="/file-upload" class="dropzone">
+    <div class="fallback">
+      <input name="file" type="file" multiple />
+    </div>
   </form>
+  </div>
+
   <label class="personalization-label">Color</label>
+  <div class="personalization-color-1">
+    <color-circle [color]="this.selectedColor" (onChangeComplete)="colorSelected($event.color)" [width]="380"></color-circle>
+  </div>
+  <div class="personalization-color-2">
+    <color-slider [color]="this.selectedColor" (onChangeComplete)="colorSelected($event.color)"></color-slider>
+  </div>
   <label class="personalization-label">Size</label>
+
+  <img class="personalization-preview-item preview-small" (click)="previewSelected('small')">
+  <img class="personalization-preview-item preview-medium" (click)="previewSelected('medium')">
+  <img class="personalization-preview-item preview-large" (click)="previewSelected('large')">
+
   <label class="personalization-label">Text Size</label>
   <!-- <div class="language-content-left">
       <img class="language-icon"><hr class="language-separator-hor">
@@ -34,8 +60,8 @@
 </div>
 
 <!-- Zowe popup window is immutable by design, so we must pass a style via HTML -->
-<div class="global-veil" *ngIf="isVeilVisible">
-<!-- <zlux-popup-window
+<!-- <div class="global-veil" *ngIf="isVeilVisible">
+<zlux-popup-window
       header="{{LanguageChanges}}"
       (onCloseWindow)="closeRestartWindow()"
       [dark]="true"
@@ -59,8 +85,8 @@
           label="{{RestartLater}}">
         </zlux-button>
       </zlux-popup-window-button-area>
-  </zlux-popup-window> -->
-</div>
+  </zlux-popup-window>
+</div> -->
 
 
 <!-- 

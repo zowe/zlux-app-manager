@@ -13,6 +13,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { ColorCircleModule } from 'ngx-color/circle';
+import { ColorSliderModule } from 'ngx-color/slider';
 import { SharedModule } from 'app/shared/shared.module';
 import { ApplicationManagerModule } from 'app/application-manager/application-manager.module';
 import { ContextMenuModule } from '../../context-menu/context-menu.module';
@@ -28,6 +30,8 @@ import { AuthenticationModule } from '../../authentication-manager/authenticatio
 import { PersonalizationPanelComponent } from '../mvd-window-manager/personalization-panel/personalization-panel.component';
 import { KeybindingService } from './shared/keybinding.service';
 import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization/personalization.component';
+//import { LaunchbarComponent } from './launchbar/launchbar/launchbar.component';
+//import { DesktopThemeService } from './shared/desktop-theme.service';
 
 @NgModule({
   imports: [
@@ -38,7 +42,9 @@ import { PersonalizationComponent } from '../mvd-window-manager/personalization-
     SharedModule,
     LaunchbarModule,
     HttpClientModule,
-    ContextMenuModule
+    ContextMenuModule,
+    ColorCircleModule,
+    ColorSliderModule
   ],
   declarations: [
     DesktopComponent,
@@ -55,6 +61,7 @@ import { PersonalizationComponent } from '../mvd-window-manager/personalization-
   ],
   providers: [
     WindowManagerService,
+    //DesktopThemeService,
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
     KeybindingService

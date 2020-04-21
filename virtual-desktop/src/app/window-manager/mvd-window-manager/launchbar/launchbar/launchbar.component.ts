@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Injector, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Injector, Input, Output, EventEmitter, Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { PluginLaunchbarItem } from '../shared/launchbar-items/plugin-launchbar-item';
@@ -22,6 +22,7 @@ import { TranslationService } from 'angular-l10n';
 import { generateInstanceActions } from '../shared/context-utils';
 import { DesktopTheme } from '../../desktop/desktop.component';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { DesktopThemeService } from './desktop-theme.service';
 
 
 @Component({
@@ -30,6 +31,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
   styleUrls: ['./launchbar.component.css', '../shared/shared.css'],
   providers: [PluginsDataService]
 })
+@Injectable()
 export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   @Output() changeTheme = new EventEmitter();
@@ -83,6 +85,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   public size: number = 2;
   
    constructor(
+    private themeService: DesktopThemeService,
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     public windowManager: WindowManagerService,
@@ -111,6 +114,29 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
        this.pluginsDataService.refreshPinnedPlugins(this.allItems);
      });
    }
+
+  ngOnInit() {
+    this.themeService.onColorChanged
+      .subscribe((color:any) => {
+        this._theme.color.windowColorActive = color.themeColor;
+        this._theme.color.windowTextActive = color.textColor;
+        this._theme.color.launchbarColor = color.themeColor+'b2'; // Adds some transparency to bottom app bar
+        this._theme.color.launchbarText = color.textColor;
+        this._theme.color.launchbarMenuColor = color.themeColor;
+        this._theme.color.launchbarMenuText = color.textColor;
+
+        this.changeTheme.emit(this._theme);
+    });
+
+    this.themeService.onSizeChanged
+      .subscribe((size:any) => {
+        this._theme.size.window = size.windowSize;
+        this._theme.size.launchbar = size.launchbarSize;
+        this._theme.size.launchbarMenu = size.launchbarMenuSize;
+
+        this.changeTheme.emit(this._theme);
+    });
+  }
 
   getNewItems(): void {
     this.pluginManager.loadApplicationPluginDefinitions(true);

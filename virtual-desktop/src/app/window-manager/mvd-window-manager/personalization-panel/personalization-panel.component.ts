@@ -131,8 +131,8 @@ export class PersonalizationPanelComponent {
   goToPersonalization(): void {
     this.showPanel = false;
     this.showPersonalization = true;
-    this.panelWidth = "40%";
-    this.panelMaxWidth = "300px";
+    this.panelWidth = "420px";
+    this.panelMaxWidth = "420px";
   }
 
 /*

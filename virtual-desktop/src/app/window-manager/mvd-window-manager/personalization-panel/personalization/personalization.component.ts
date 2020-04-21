@@ -10,10 +10,11 @@
 */
 import { Component, Inject, Optional } from '@angular/core';
 import { BaseLogger } from '../../../../shared/logger';
-import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
 import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
 import { TranslationService } from 'angular-l10n';
-import { LaunchbarComponent } from '../../launchbar/launchbar/launchbar.component'
+import { DesktopThemeService } from '../../launchbar/launchbar/desktop-theme.service';
+// import { LaunchbarComponent } from '../../launchbar/launchbar/launchbar.component'
+// import { DesktopThemeService } from '../../shared/desktop-theme.service';
 
 @Component({
   selector: 'personalization-component',
@@ -22,9 +23,9 @@ import { LaunchbarComponent } from '../../launchbar/launchbar/launchbar.componen
   providers: [],
 })
 
-export class PersonalizationComponent { 
+export class PersonalizationComponent {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
-  public selectedLanguage: string;
+  private selectedColor: string;
   private idLanguage: string;
   public isRestartWindowVisible: boolean;
   public isVeilVisible: boolean;
@@ -40,32 +41,18 @@ export class PersonalizationComponent {
   public LanguageChanges: string;
   public Select: string;
 
-  public launchbarComponent: LaunchbarComponent;
-
   constructor(
-    private languageLocaleService: LanguageLocaleService,
     private translation: TranslationService,
+    private desktopThemeService: DesktopThemeService,
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
 
   ) {
     this.isRestartWindowVisible = false;
     this.isVeilVisible = false;
-    this.updateLanguageSelection();
     this.updateLanguageStrings();
+    this.selectedColor = "#252628";
+    console.log("THEME SERVICE 2", this.desktopThemeService);
     if (this.windowActions) {this.windowActions.setTitle(this.Personalization);}
-  }
-
-  applyLanguage(): void {
-    this.languageLocaleService.setLanguage(this.idLanguage).subscribe(
-      arg => { 
-        this.logger.debug("ZWED5323I",arg); //this.logger.debug(`setLanguage, arg=`,arg);
-        this.isRestartWindowVisible = true;
-        this.isVeilVisible = true;
-       },
-      err => {
-        this.logger.warn("ZWED5192W",err); //this.logger.warn("setLanguage error=",err);
-      }
-    )
   }
 
   closeRestartWindow(): void {
@@ -77,83 +64,7 @@ export class PersonalizationComponent {
     window.location.reload();
   }
 
-  //TODO: Ideally, when selecting a language in the panel we would adjust the language strings to the chosen
-  //language in real-time (contrary to restarting the desktop) but this doesn't work yet as this.translation
-  //only loads translations for the currently loaded language (that of which data is coming from a cookie)
-
-  selectEnglish(): void {
-    this.selectedLanguage = "English";
-    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
-    this.idLanguage = "en";
-  }
-
-  selectFrench(): void {
-    this.selectedLanguage = "French";
-    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
-    this.idLanguage = "fr";
-  }
-
-  selectRussian(): void {
-    this.selectedLanguage = "Russian";
-    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
-    this.idLanguage = "ru";
-  }
-
-  selectChinese(): void {
-    this.selectedLanguage = "Chinese";
-    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
-    this.idLanguage = "zh";
-  }
-
-  selectJapanese(): void {
-    this.selectedLanguage = "Japanese";
-    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
-    this.idLanguage = "ja";
-  }
-
-  selectGerman(): void {
-    this.selectedLanguage = "German";
-    this.selectedLanguage = this.translation.translate(this.selectedLanguage);
-    this.idLanguage = "de";
-  }
-
-  updateLanguageSelection(): void {
-    this.idLanguage = this.languageLocaleService.getLanguage();
-
-    switch(this.idLanguage) {
-      case "en": {
-        this.selectEnglish();
-        break;
-      }
-      case "fr": {
-        this.selectFrench();
-        break;
-      }
-      case "ja": {
-        this.selectJapanese();
-        break;
-      }
-      case "ru": {
-        this.selectRussian();
-        break;
-      }
-      case "zh": {
-        this.selectChinese();
-        break;
-      }
-      case "de": {
-        this.selectGerman();
-        break;
-      }
-      default: {
-        this.selectEnglish();
-        break;
-      }
-    }
-  }
-
   updateLanguageStrings(): void {
-    this.selectedLanguage = this.translation.translate(this.selectedLanguage, null, this.idLanguage+"-");
     this.Personalization = this.translation.translate('Personalization', null, this.idLanguage+"-");
     this.Apply = this.translation.translate('Apply', null, this.idLanguage+"-");
     this.LanguageChanges = this.translation.translate('Language Changes', null, this.idLanguage+"-");
@@ -164,6 +75,48 @@ export class PersonalizationComponent {
     this.RestartNow = this.translation.translate('Restart Now', null, this.idLanguage+"-");
     this.Select = this.translation.translate('Select', null, this.idLanguage+"-");
 
+  }
+
+  colorSelected(color: any): void { //$event = color
+    this.selectedColor = color.hex;
+    let textColor = "#f3f4f4"
+    console.log(this.selectedColor); //$event.hex
+    if (color.hsl.l >= .65) {
+      textColor = "#252628"
+    }
+    this.desktopThemeService.changeColor(this.selectedColor, textColor);
+
+    // this.launchbarComponent.size = 4;
+    //         this.launchbarComponent._theme.size.window = 2;
+    //         this.launchbarComponent._theme.size.launchbar = 2;
+    //         this.launchbarComponent._theme.size.launchbarMenu = 2;
+    //         const newColor = color.hex;
+    //         const text = "#dddee0";
+    //         this.launchbarComponent._theme.color.windowColorActive = "#3d3f42";
+    //         this.launchbarComponent._theme.color.windowTextActive = "#f4f4f4";
+    //         this.launchbarComponent._theme.color.launchbarColor = "0d0d0e"+'b2';
+    //         this.launchbarComponent._theme.color.launchbarText = text;
+    //         this.launchbarComponent._theme.color.launchbarMenuColor = newColor;
+    //         this.launchbarComponent._theme.color.launchbarMenuText = text;
+    //         this.launchbarComponent.changeTheme.emit(this.launchbarComponent._theme);
+            this.logger.info(this.translation.translate('Theme changed!'));
+  }
+
+  previewSelected(size: string): void {
+    switch(size) {
+      case "small": {
+        this.desktopThemeService.changeSize(1, 1, 1);
+        break;
+      }
+      case "large": {
+        this.desktopThemeService.changeSize(3, 3, 3);
+        break;
+      }
+      default: {
+        this.desktopThemeService.changeSize(2, 2, 2);
+        break;
+      }
+    }
   }
 
 }
