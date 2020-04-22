@@ -175,8 +175,8 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
 
 
 
-  @HostListener('keyup', ['$event'])
-  onKeyUp(event: KeyboardEvent) {
+  @HostListener('keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
     if(this.isContextMenuInDom()) {
       this.keepSearchCursor();
       return;
