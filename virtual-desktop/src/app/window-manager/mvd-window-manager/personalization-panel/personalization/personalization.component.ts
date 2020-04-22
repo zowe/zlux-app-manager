@@ -13,8 +13,8 @@ import { BaseLogger } from '../../../../shared/logger';
 import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
 import { TranslationService } from 'angular-l10n';
 import { DesktopThemeService } from '../../launchbar/launchbar/desktop-theme.service';
-// import { LaunchbarComponent } from '../../launchbar/launchbar/launchbar.component'
-// import { DesktopThemeService } from '../../shared/desktop-theme.service';
+import { NgxFileDropEntry, FileSystemFileEntry, FileSystemDirectoryEntry } from 'ngx-file-drop';
+ 
 
 @Component({
   selector: 'personalization-component',
@@ -41,27 +41,17 @@ export class PersonalizationComponent {
   public LanguageChanges: string;
   public Select: string;
 
+  public files: NgxFileDropEntry[] = [];
+
   constructor(
     private translation: TranslationService,
     private desktopThemeService: DesktopThemeService,
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
 
   ) {
-    this.isRestartWindowVisible = false;
-    this.isVeilVisible = false;
     this.updateLanguageStrings();
     this.selectedColor = "#252628";
-    console.log("THEME SERVICE 2", this.desktopThemeService);
     if (this.windowActions) {this.windowActions.setTitle(this.Personalization);}
-  }
-
-  closeRestartWindow(): void {
-    this.isRestartWindowVisible = false;
-    this.isVeilVisible = false;
-  }
-
-  restartZowe(): void {
-    window.location.reload();
   }
 
   updateLanguageStrings(): void {
@@ -85,21 +75,7 @@ export class PersonalizationComponent {
       textColor = "#252628"
     }
     this.desktopThemeService.changeColor(this.selectedColor, textColor);
-
-    // this.launchbarComponent.size = 4;
-    //         this.launchbarComponent._theme.size.window = 2;
-    //         this.launchbarComponent._theme.size.launchbar = 2;
-    //         this.launchbarComponent._theme.size.launchbarMenu = 2;
-    //         const newColor = color.hex;
-    //         const text = "#dddee0";
-    //         this.launchbarComponent._theme.color.windowColorActive = "#3d3f42";
-    //         this.launchbarComponent._theme.color.windowTextActive = "#f4f4f4";
-    //         this.launchbarComponent._theme.color.launchbarColor = "0d0d0e"+'b2';
-    //         this.launchbarComponent._theme.color.launchbarText = text;
-    //         this.launchbarComponent._theme.color.launchbarMenuColor = newColor;
-    //         this.launchbarComponent._theme.color.launchbarMenuText = text;
-    //         this.launchbarComponent.changeTheme.emit(this.launchbarComponent._theme);
-            this.logger.info(this.translation.translate('Theme changed!'));
+    this.logger.info(this.translation.translate('Theme changed!'));
   }
 
   previewSelected(size: string): void {
@@ -115,6 +91,43 @@ export class PersonalizationComponent {
       default: {
         this.desktopThemeService.changeSize(2, 2, 2);
         break;
+      }
+    }
+  }
+
+  dropped(files: NgxFileDropEntry[]) {
+    this.files = files;
+    for (const droppedFile of files) {
+
+      // Is it a file?
+      if (droppedFile.fileEntry.isFile) {
+        const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
+        fileEntry.file((file: File) => {
+
+          // Here you can access the real file
+          console.log(droppedFile.relativePath, file);
+
+          /**
+          // You could upload it like this:
+          const formData = new FormData()
+          formData.append('logo', file, relativePath)
+
+          // Headers
+          const headers = new HttpHeaders({
+            'security-token': 'mytoken'
+          })
+
+          this.http.post('https://mybackend.com/api/upload/sanitize-and-save-logo', formData, { headers: headers, responseType: 'blob' })
+          .subscribe(data => {
+            // Sanitized logo returned from backend
+          })
+          **/
+
+        });
+      } else {
+        // It was a directory (empty directories are added, otherwise only files)
+        const fileEntry = droppedFile.fileEntry as FileSystemDirectoryEntry;
+        console.log(droppedFile.relativePath, fileEntry);
       }
     }
   }

@@ -12,22 +12,39 @@
 <link rel="stylesheet" href="https://rawgit.com/enyo/dropzone/master/dist/dropzone.css">
 
 <div class="personalization-main-window">
-  <label class="personalization-label small">Back</label>
+  <label class="personalization-label small top">Back</label>
 
-  <label class="personalization-label small reset-button">Reset to Default</label>
+  <label class="personalization-label small reset-button top">Reset to Default</label>
 
   <label class="personalization-label">Background</label>
   <!-- <form action="/action_page.php" class="personalization-upload">
     <input type="file" id="myFile" name="filename">
     <input type="submit" class="personalization-submit">
   </form> -->
-  <div id="dropzone">
+
+  <!-- <div id="dropzone">
   <form action="/file-upload" class="dropzone">
     <div class="fallback">
       <input name="file" type="file" multiple />
     </div>
   </form>
-  </div>
+  </div> -->
+
+  <ngx-file-drop 
+    dropZoneLabel="Drop wallpaper here" 
+    (onFileDrop)="dropped($event)" 
+    (onFileOver)="fileOver($event)" 
+    (onFileLeave)="fileLeave($event)"
+    multiple="false"
+    directory="false"
+    style="color: white !important;"
+    
+    >
+      <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
+        Drop or  &nbsp;<a href="#" (click)="openFileSelector()">upload</a>&nbsp;  wallpaper here.
+        <!-- <button type="button" (click)="openFileSelector()">Upload</button> -->
+      </ng-template>
+    </ngx-file-drop>
 
   <label class="personalization-label">Color</label>
   <div class="personalization-color-1">

@@ -9,43 +9,21 @@
   
   Copyright Contributors to the Zowe Project.
 */
- 
-/* .language-separator-hor {
-  border-color: #e58e3e;
-  margin-top: 3px;
-  margin-bottom: 3px;
-  padding: 1px;
-}
-
-.language-button {
-  padding: 10px;
-  color: #36617a;
-  background-color: #0000000a;
-  border: transparent;
-  width: 100%;
-  cursor: pointer;
-}
-
-.language-submit {
-  background-color: #a875ad;
-  color: #ffffff;
-  font-size: 16px;
-  border: none;
-  width: 100px;
-  height: 30px;
-  cursor: pointer;
-} */
 
 .personalization-label {
   font-size: larger;
   padding: 5px;
   width: 100%;
   color:#f3f4f4;
-  padding-top: 20px;
+  padding-top: 10px;
 }
 
 .personalization-label.small {
   font-size: small;
+}
+
+.personalization-label.top {
+  padding-top: 0px;
 }
 
 .personalization-label.small.reset-button {
@@ -85,18 +63,6 @@
   margin-right: 0px;
 }
 
-/* .language-icon {
-  width: 80px;
-  height: 80px;
-  background-image: url("../../assets/language_icon.png");
-  background-size: 80px 80px;
-  margin-top: 20px;
-  margin-left: 20px;
-  margin-right: 20px;
-  padding-bottom: 90px;
-  background-repeat: no-repeat;
-} */
-
 .personalization-main-window {
   height: 100%;
   width: 100%;
@@ -113,27 +79,20 @@
   padding-right: 30px;
 }
 
-/* .language-content-left{
-  flex-direction: column;
-  width: 30%;
-  background-color: #ecc8f0;
-  text-align: center;
+.personalization-file-drop-content {
+  display: flex !important; 
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100px !important;
+  color: #f3f4f4 !important;
 }
 
-.language-content-right{
-  width: 70%;
-  padding: 5px;
-  text-align: center;
+.personalization-file-drop-border {
+  height: 100px !important;
+  margin: auto !important;
+  border: 2px dotted #f3f4f4 !important;
+  border-radius: 15px !important;
 }
-
-.global-veil {
-  width: 300%;
-  height: 400%;
-  background-color: #00000091;
-  position: fixed;
-  margin-left: -100%;
-  margin-top: -150%;
-} */
 
 /*
   This program and the accompanying materials are
