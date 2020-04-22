@@ -38,7 +38,7 @@
             {{this.expiredPassword ? this.translation.translate("Change Password") : this.translation.translate("SavePassword")}}
     </button>
     <div>
-      <button
+      <button id="#org.zowe.zlux.ng2desktop_loginButton"
         class="login-button"
         (click)="attemptLogin()"
         [hidden]="!needLogin || expiredPassword"
