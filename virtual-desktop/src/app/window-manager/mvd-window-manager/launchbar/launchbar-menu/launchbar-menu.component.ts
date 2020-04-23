@@ -222,7 +222,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
         break;
       }
       case KeyCode.DOWN_ARROW: {
-        if(this.activeIndex < this.displayItems.length) {
+        if(this.activeIndex < this.displayItems.length-1) {
           this.activeIndex++;
         } 
         this.scrollToActiveMenuItem();

@@ -319,6 +319,7 @@ export class ContextMenuComponent implements AfterViewInit {
           }
           this.activeIndex = newIndex;
           event.stopPropagation();
+          event.preventDefault();
           break;
         case 'ArrowDown':
           newIndex = mod(this.activeIndex + 1, this.menuItems.length)
@@ -327,6 +328,7 @@ export class ContextMenuComponent implements AfterViewInit {
           }
           this.activeIndex = newIndex;
           event.stopPropagation();
+          event.preventDefault();
           break;
         case 'ArrowRight':
           if (this._propagateChildLeft) {
@@ -344,6 +346,7 @@ export class ContextMenuComponent implements AfterViewInit {
             }
           }
           event.stopPropagation();
+          event.preventDefault();
           break;
         case 'ArrowLeft':
           if (this._propagateChildLeft) {
@@ -361,6 +364,7 @@ export class ContextMenuComponent implements AfterViewInit {
             }
           }
           event.stopPropagation();
+          event.preventDefault();
           break;
         case 'Enter':
           let item = this.menuItems[this.activeIndex];
@@ -371,10 +375,12 @@ export class ContextMenuComponent implements AfterViewInit {
             this.closeContextMenu();
           }
           event.stopPropagation();
+          event.preventDefault();
           break;
         case 'Escape':
           this.closeContextMenu();
           event.stopPropagation();
+          event.preventDefault();
           break;  
       }
     }
