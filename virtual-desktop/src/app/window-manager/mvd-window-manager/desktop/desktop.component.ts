@@ -75,7 +75,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   }
   ngOnInit(): void {
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
-      this.contextMenuDef = menuDef;
+    this.contextMenuDef = menuDef;
     });
   }
 

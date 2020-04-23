@@ -23,7 +23,12 @@ import { generateInstanceActions } from '../shared/context-utils';
 import { DesktopTheme } from '../../desktop/desktop.component';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { DesktopThemeService } from './desktop-theme.service';
+import { Colors } from '../../shared/colors'
 
+/* Current default theme is dark grey, with light text */
+const DEFAULT_COLOR = "#252628"
+const DEFAULT_TEXT_COLOR = "#dddee0"
+const DEFAULT_SIZE = 2;
 
 @Component({
   selector: 'rs-com-launchbar',
@@ -41,9 +46,11 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   public applistMargin: string;
   public applistPadding: string;
   public _theme: DesktopTheme;
+
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.info('Launchbar theme set=',newTheme);
     this._theme = newTheme;
+
     switch (newTheme.size.launchbar) {
     case 1:
       //16 for icon, 2 for indicator, 1 for bottom and 3 for top
@@ -116,7 +123,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
    }
 
   ngOnInit() {
-    this.themeService.onColorChanged
+    this.themeService.onColorChange
       .subscribe((color:any) => {
         this._theme.color.windowColorActive = color.themeColor;
         this._theme.color.windowTextActive = color.textColor;
@@ -128,7 +135,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
         this.changeTheme.emit(this._theme);
     });
 
-    this.themeService.onSizeChanged
+    this.themeService.onSizeChange
       .subscribe((size:any) => {
         this._theme.size.window = size.windowSize;
         this._theme.size.launchbar = size.launchbarSize;
@@ -136,6 +143,27 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
 
         this.changeTheme.emit(this._theme);
     });
+
+    this.themeService.onResetAllDefault
+      .subscribe(() => {
+        this.resetThemeDefault();
+      });
+  }
+
+  resetThemeDefault(): void { // Current default theme is dark grey, with light text
+    this._theme.size.window = DEFAULT_SIZE;
+    this._theme.size.launchbar = DEFAULT_SIZE;
+    this._theme.size.launchbarMenu = DEFAULT_SIZE;
+
+    this._theme.color.windowColorActive = Colors.COOLGREY_80;
+    this._theme.color.windowTextActive = "#f4f4f4";
+    this._theme.color.launchbarColor = "#0d0d0e"+'b2';
+    //this._theme.color.launchbarColor = "0d0d0e"+'b2';
+    this._theme.color.launchbarText = DEFAULT_TEXT_COLOR;
+    this._theme.color.launchbarMenuColor = DEFAULT_COLOR;
+    this._theme.color.launchbarMenuText = DEFAULT_TEXT_COLOR;
+    
+    this.changeTheme.emit(this._theme);
   }
 
   getNewItems(): void {
@@ -303,9 +331,9 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
             this._theme.size.window = 1;
             this._theme.size.launchbar = 1;
             this._theme.size.launchbarMenu = 1;
-            const color = "#252628";
-            const text = "#dddee0";
-            this._theme.color.windowColorActive = "#3d3f42";
+            const color = DEFAULT_COLOR;
+            const text = DEFAULT_TEXT_COLOR;
+            this._theme.color.windowColorActive = Colors.COOLGREY_80;
             this._theme.color.windowTextActive = "#f4f4f4";
             this._theme.color.launchbarColor = "0d0d0e"+'b2';
             this._theme.color.launchbarText = text;
@@ -323,9 +351,9 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
             this._theme.size.window = 2;
             this._theme.size.launchbar = 2;
             this._theme.size.launchbarMenu = 2;
-            const color = "#252628";
-            const text = "#dddee0";
-            this._theme.color.windowColorActive = "#3d3f42";
+            const color = DEFAULT_COLOR;
+            const text = DEFAULT_TEXT_COLOR;
+            this._theme.color.windowColorActive = Colors.COOLGREY_80;
             this._theme.color.windowTextActive = "#f4f4f4";
             this._theme.color.launchbarColor = "0d0d0e"+'b2';
             this._theme.color.launchbarText = text;
@@ -343,9 +371,9 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
             this._theme.size.window = 3;
             this._theme.size.launchbar = 3;
             this._theme.size.launchbarMenu = 3;
-            const color = "#252628";
-            const text = "#dddee0";
-            this._theme.color.windowColorActive = "#3d3f42";
+            const color = DEFAULT_COLOR;
+            const text = DEFAULT_TEXT_COLOR;
+            this._theme.color.windowColorActive = Colors.COOLGREY_80;
             this._theme.color.windowTextActive = "#f4f4f4";
             this._theme.color.launchbarColor = "0d0d0e"+'b2';
             this._theme.color.launchbarText = text;

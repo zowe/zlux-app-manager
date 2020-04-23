@@ -31,6 +31,7 @@ import { PersonalizationPanelComponent } from '../mvd-window-manager/personaliza
 import { KeybindingService } from './shared/keybinding.service';
 import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization/personalization.component';
 import { NgxFileDropModule } from 'ngx-file-drop';
+import { DesktopThemeService } from './launchbar/launchbar/desktop-theme.service';
 
 @NgModule({
   imports: [
@@ -61,7 +62,7 @@ import { NgxFileDropModule } from 'ngx-file-drop';
   ],
   providers: [
     WindowManagerService,
-    //DesktopThemeService,
+    DesktopThemeService,
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
     KeybindingService

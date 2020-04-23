@@ -30,7 +30,14 @@
   float: right;
   position: absolute;
   margin-left: -105px;
-  margin-top: 0px;
+  margin-top: -5px;
+  cursor: pointer;
+}
+
+.personalization-label.small.back-button {
+  margin-top: -6px;
+  margin-left: -15px;
+  cursor: pointer;
 }
 
 .personalization-submit {

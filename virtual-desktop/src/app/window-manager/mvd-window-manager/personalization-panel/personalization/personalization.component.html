@@ -8,13 +8,14 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<script src="../../../../../../node_modules/dropzone/dist/dropzone.js"></script>
-<link rel="stylesheet" href="https://rawgit.com/enyo/dropzone/master/dist/dropzone.css">
-
 <div class="personalization-main-window">
-  <label class="personalization-label small top">Back</label>
+  <label class="personalization-label small back-button top">
+    <i class="fa fa-chevron-left" style="padding: 5px; font-size: large; padding-right: 7px; margin-top: 2px;">
+    </i>Back</label>
 
-  <label class="personalization-label small reset-button top">Reset to Default</label>
+  <label class="personalization-label small reset-button top" (click)="resetAllDefault()">Reset to Default
+    <i class="fa fa-trash" style="padding: 5px; font-size: large;"></i>
+  </label>
 
   <label class="personalization-label">Background</label>
   <!-- <form action="/action_page.php" class="personalization-upload">
@@ -34,12 +35,12 @@
     dropZoneLabel="Drop wallpaper here" 
     (onFileDrop)="dropped($event)" 
     multiple="false"
-    directory="false"
+    directory="true"
     style="color: white !important;"
     
     >
       <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-        Drop or  &nbsp;<a href="#" (click)="openFileSelector()">upload</a>&nbsp;  wallpaper here.
+        <div *ngIf="files != []">Drop or  &nbsp;<a href="#" (click)="openFileSelector()">upload</a>&nbsp;  wallpaper here.</div>
         <!-- <button type="button" (click)="openFileSelector()">Upload</button> -->
       </ng-template>
     </ngx-file-drop>

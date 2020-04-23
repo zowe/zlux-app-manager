@@ -13,16 +13,15 @@
 import { Injectable, EventEmitter } from '@angular/core';
 //import { LaunchbarComponent } from './launchbar.component';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class DesktopThemeService {
-  public currentTheme = 'default';
   public keyUpEvent = new EventEmitter<KeyboardEvent>();
-  public onColorChanged = new EventEmitter<any>();
-  public onSizeChanged = new EventEmitter<any>();
+  public onColorChange = new EventEmitter<any>();
+  public onSizeChange = new EventEmitter<any>();
+  public onWallpaperChange = new EventEmitter<any>();
+  public onResetAllDefault = new EventEmitter<any>();
+
   constructor() {
-    console.log("BAR SIZE", this.currentTheme);
     this.keyUpHandler = this.keyUpHandler.bind(this);
   }
 
@@ -40,19 +39,27 @@ export class DesktopThemeService {
   // Expected input in 'hex' format
   changeColor(themeColor: any, textColor: any) {
     let colorObj = {
-      themeColor: themeColor || "#3d3f42", // Default is dark grey
-      textColor: textColor || "#dddee0" // Default is nearly white
+      themeColor: themeColor || "#3d3f42", // Fallback is dark grey
+      textColor: textColor || "#dddee0" // Fallback is nearly white
     }
-    this.onColorChanged.emit(colorObj);
+    this.onColorChange.emit(colorObj);
   }
 
   changeSize(windowSize: any, launchbarSize: any, launchbarMenuSize: any) {
-    let sizeObj = { // Default is medium
+    let sizeObj = { // Fallback is medium
       windowSize: windowSize || 2,
       launchbarSize: launchbarSize || 2,
       launchbarMenuSize: launchbarMenuSize || 2
     }
-    this.onSizeChanged.emit(sizeObj);
+    this.onSizeChange.emit(sizeObj);
+  }
+
+  changeWallpaper(image: any) { //Fallback is default
+    this.onWallpaperChange.emit(image);
+  }
+
+  resetAllDefault(): void {
+    this.onResetAllDefault.emit();
   }
 }
 
