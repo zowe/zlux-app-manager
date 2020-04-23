@@ -23,14 +23,11 @@ import { CommonModule } from '@angular/common';
   ],
   exports: [
     ContextMenuComponent
-  ],
-  providers: [
   ]
 })
 export class ContextMenuModule {
 
 }
-
 
 /*
   This program and the accompanying materials are

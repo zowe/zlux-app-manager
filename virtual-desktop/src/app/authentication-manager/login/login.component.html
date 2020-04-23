@@ -31,14 +31,14 @@
       <label [hidden]="!expiredPassword && !changePassword" for="confirmNewPassword" i18n="label|Label for password@@confirm-new-password-label">Confirm New Password</label>
       <input [hidden]="!expiredPassword && !changePassword" class="confirmNewPassword" id="confirmNewPasswordInput" aria-labelledby="confirmNewPassword" tabindex="1" type="password" name="confirmNewPassword"[(ngModel)]="confirmNewPassword" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
     </form>
-    <p class="login-error">{{errorMessage || "&nbsp;"}}</p>
+    <p class="login-error">{{this.translation.translate(errorMessage)}}</p>
     <div class="fa fa-spinner fa-spin fa-5x" [hidden]="!isLoading"></div>
     <button [hidden]="!expiredPassword && !changePassword"
             class="login-button" (click)="attemptPasswordReset()" [disabled]="locked">
             {{this.expiredPassword ? this.translation.translate("Change Password") : this.translation.translate("SavePassword")}}
     </button>
     <div>
-      <button
+      <button id="#org.zowe.zlux.ng2desktop_loginButton"
         class="login-button"
         (click)="attemptLogin()"
         [hidden]="!needLogin || expiredPassword"
