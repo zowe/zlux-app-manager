@@ -25,7 +25,7 @@ import { NgxFileDropEntry, FileSystemFileEntry, FileSystemDirectoryEntry } from 
 
 export class PersonalizationComponent {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
-  private selectedColor: string;
+  public selectedColor: string;
   public files: NgxFileDropEntry[] = [];
 
   constructor(
