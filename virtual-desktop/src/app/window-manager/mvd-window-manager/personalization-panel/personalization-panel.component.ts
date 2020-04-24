@@ -15,6 +15,7 @@ import { WindowManagerService } from '../shared/window-manager.service';
 import { DesktopPluginDefinitionImpl } from "../../../../app/plugin-manager/shared/desktop-plugin-definition";
 import { DesktopComponent } from "../desktop/desktop.component";
 import { TranslationService } from 'angular-l10n';
+import { DesktopThemeService } from '../launchbar/launchbar/desktop-theme.service';
 
 const CHANGE_PASSWORD = "Change Password"
 const LANGUAGES = "Languages"
@@ -67,7 +68,8 @@ export class PersonalizationPanelComponent {
     private injector: Injector,
     private windowManager: WindowManagerService,
     private desktopComponent: DesktopComponent,
-    private translation: TranslationService
+    private translation: TranslationService,
+    private themeService: DesktopThemeService
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -80,6 +82,10 @@ export class PersonalizationPanelComponent {
       const pluginImpl:DesktopPluginDefinitionImpl = personalizationsPlugin as DesktopPluginDefinitionImpl;
       this.settingsWindowPluginDef=pluginImpl;
     })
+    this.themeService.onGoBack
+      .subscribe(() => {
+        this.goToPanel();
+      });
   }
 
   getAppPropertyInformation(toolName: string):any{

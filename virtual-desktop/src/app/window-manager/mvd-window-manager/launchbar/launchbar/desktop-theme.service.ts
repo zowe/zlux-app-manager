@@ -20,6 +20,7 @@ export class DesktopThemeService {
   public onSizeChange = new EventEmitter<any>();
   public onWallpaperChange = new EventEmitter<any>();
   public onResetAllDefault = new EventEmitter<any>();
+  public onGoBack = new EventEmitter<any>();
 
   constructor() {
     this.keyUpHandler = this.keyUpHandler.bind(this);
@@ -60,6 +61,10 @@ export class DesktopThemeService {
 
   resetAllDefault(): void {
     this.onResetAllDefault.emit();
+  }
+
+  goBack(): void {
+    this.onGoBack.emit();
   }
 }
 

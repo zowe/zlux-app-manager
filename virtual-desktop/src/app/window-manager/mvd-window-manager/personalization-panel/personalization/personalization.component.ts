@@ -121,6 +121,10 @@ export class PersonalizationComponent {
     this.desktopThemeService.resetAllDefault();
   }
 
+  goBack(): void {
+    this.desktopThemeService.goBack();
+  }
+
 }
 /*
   This program and the accompanying materials are
