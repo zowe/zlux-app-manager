@@ -143,6 +143,9 @@
   left: 45px;
 }
 
+.launch-widget-row.active {
+  background-color: #a6a6a6;
+}
 
 /*
   This program and the accompanying materials are

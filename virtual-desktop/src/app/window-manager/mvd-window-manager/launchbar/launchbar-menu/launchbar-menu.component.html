@@ -22,7 +22,8 @@
        [style.background]="color.launchbarMenuColor"
        [style.color]="color.launchbarMenuText"
        [style.width]="menuWidth"
-       [style.bottom]="menuBottom">
+       [style.bottom]="menuBottom"
+       (click)="setSearchFocus();">
     <div style="cursor: pointer" class="refresh-plugins" (click)="refresh()">
       {{translation.translate("Refresh Applications")}}
       <i style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></i>
@@ -32,23 +33,29 @@
          [style.background]="color.launchbarMenuColor"
          [style.width]="menuWidthInner"
          [style.color]="color.launchbarMenuText">
-      <div class="launch-widget-row" *ngFor="let item of displayItems" (click)="clicked(item)" [title]="item.tooltip" (contextmenu)="onRightClick($event, item)">
-        <div class="icon"
-             [style.width]="appIconSize"
-             [style.height]="appIconSize"
-             [style.background-image]="'url('+item.image+')'"></div>
-        <div class="app-label"
-             [style.padding-top]="appLabelPadding"
-             [style.font-size]="menuText">{{item.label}}</div>
+      <div class="launch-widget-row" 
+        *ngFor="let item of displayItems | sortBy: 'label'; let i = index;" 
+        (click)="clicked(item)" 
+        [title]="item.tooltip" 
+        (contextmenu)="onRightClick($event, item)"
+        [class.active]="i==this.activeIndex" 
+        (mouseover)="this.activeIndex=i">
+          <div class="icon"
+              [style.width]="appIconSize"
+              [style.height]="appIconSize"
+              [style.background-image]="'url('+item.image+')'"></div>
+          <div class="app-label"
+              [style.padding-top]="appLabelPadding"
+              [style.font-size]="menuText">{{item.label}}</div>
       </div>
     </div>
     <div class="launch-menu-search">
       <i class="launch-menu-search-icon fa fa-search"></i>
-      <input class="launch-menu-search-input" type="text" placeholder="{{translation.translate('Search')}}"
-             [style.font-size]="menuText"
-             [style.color]="color.launchbarMenuText"
-             [(ngModel)]="appFilter"
-             (input)="filterMenuItems()">
+      <input #searchapp class="launch-menu-search-input" type="text" placeholder="{{translation.translate('Search')}}"
+        [style.font-size]="menuText"
+        [style.color]="color.launchbarMenuText"
+        [(ngModel)]="appFilter"
+        (input)="filterMenuItems()">
     </div>
   </div>
 </ng-template>
