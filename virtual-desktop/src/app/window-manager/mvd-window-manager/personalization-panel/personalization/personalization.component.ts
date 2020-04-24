@@ -102,8 +102,8 @@ export class PersonalizationComponent {
         fileEntry.file((file: File) => {
 
           // Here you can access the real file
-          console.log("Files: ", this.files);
-          console.log(droppedFile.relativePath, file);
+          this.logger.debug("Files: ", this.files);
+          this.logger.debug(droppedFile.relativePath, file);
           this.desktopThemeService.changeWallpaper(file);
 
 
@@ -111,7 +111,7 @@ export class PersonalizationComponent {
       } else {
         // It was a directory (empty directories are added, otherwise only files)
         const fileEntry = droppedFile.fileEntry as FileSystemDirectoryEntry;
-        console.log(droppedFile.relativePath, fileEntry);
+        this.logger.debug(droppedFile.relativePath, fileEntry);
       }
     }
   }

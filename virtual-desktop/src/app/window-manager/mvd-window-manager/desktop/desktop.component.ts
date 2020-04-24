@@ -82,17 +82,17 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   onLogin(username:string, plugins: ZLUX.Plugin[]): boolean {
     this.http.get(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'ui/theme', 'config.json')).subscribe((data: any) => {
       if (data) {
-        console.log('Desktop config=',data.contents);
+        this.log.debug('Desktop config=',data.contents);
         this._theme = (data.contents as DesktopTheme);
       } else {
-        console.log('No Desktop config found. Using defaults.');
+        this.log.debug('No Desktop config found. Using defaults.');
       }
     });
     return true;
   }
 
   setTheme(newTheme: DesktopTheme) {
-    console.log('Req to change to=',newTheme);
+    this.log.debug('Req to change to=',newTheme);
     this._theme = Object.assign({},newTheme);
     this.http.put<DesktopTheme>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'ui/theme', 'config.json'), this._theme).subscribe((data: any) => { this.log.info(`Theme saved.`) });
   }
