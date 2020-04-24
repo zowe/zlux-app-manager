@@ -29,7 +29,7 @@
       <i style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></i>
     </div>
     <div style="margin: 20px"></div>
-    <div class="launch-menu-scroller"
+    <div #menudiv class="launch-menu-scroller"
          [style.background]="color.launchbarMenuColor"
          [style.width]="menuWidthInner"
          [style.color]="color.launchbarMenuText">
@@ -51,7 +51,8 @@
     </div>
     <div class="launch-menu-search">
       <i class="launch-menu-search-icon fa fa-search"></i>
-      <input #searchapp class="launch-menu-search-input" type="text" placeholder="{{translation.translate('Search')}}"
+      <input #searchapp class="launch-menu-search-input" type="text" 
+        placeholder="{{translation.translate('Search')}}"
         [style.font-size]="menuText"
         [style.color]="color.launchbarMenuText"
         [(ngModel)]="appFilter"
