@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Injector, Input, Output, EventEmitter, Injectable } from '@angular/core';
+import { Component, Injector, Input, Output, EventEmitter } from '@angular/core';
 import { Subject } from 'rxjs';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { PluginLaunchbarItem } from '../shared/launchbar-items/plugin-launchbar-item';
@@ -22,7 +22,7 @@ import { TranslationService } from 'angular-l10n';
 import { generateInstanceActions } from '../shared/context-utils';
 import { DesktopTheme } from '../../desktop/desktop.component';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { DesktopThemeService } from './desktop-theme.service';
+import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { Colors } from '../../shared/colors'
 
 /* Current default theme is dark grey, with light text */
@@ -36,7 +36,6 @@ const DEFAULT_SIZE = 2;
   styleUrls: ['./launchbar.component.css', '../shared/shared.css'],
   providers: [PluginsDataService]
 })
-@Injectable()
 export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   @Output() changeTheme = new EventEmitter();
@@ -64,8 +63,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
       this.applistPadding = '7px';
       this.applistMargin = `0px 205px 0px 79px`;
       break;
-    default:
-      //2
+    default: //Default is medium size - 2
       //32 for icon, 2 for indicator, 2 for pad bottom, 4 for pad top
       this.barSize = '41px';
       this.applistPadding = '5px';
@@ -73,32 +71,34 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
       break;
     }
   }
-  allItems: LaunchbarItem[];
-  runItems: LaunchbarItem[];
-  isActive: boolean;
-  contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
-  originalX: number;
-  mouseOriginalX: number;
-  currentEvent: EventTarget | null;
+
+  public allItems: LaunchbarItem[];
+  public runItems: LaunchbarItem[];
+  public isActive: boolean;
+  public contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
+  public originalX: number;
+  public mouseOriginalX: number;
+  public currentEvent: EventTarget | null;
   private currentItem: LaunchbarItem | null;
-  moving: boolean;
-  newPosition: number;
-  loggedIn: boolean;
-  helperLoggedIn: boolean;
+  public moving: boolean;
+  public newPosition: number;
+  public loggedIn: boolean;
+  public helperLoggedIn: boolean;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
-  propertyWindowPluginDef: DesktopPluginDefinitionImpl;
-  public size: number = 2;
+  public propertyWindowPluginDef: DesktopPluginDefinitionImpl;
+  public size: number;
   
    constructor(
-    private themeService: DesktopThemeService,
+    private themeService: ThemeEmitterService,
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     public windowManager: WindowManagerService,
     private translation: TranslationService
   ) {
      // Workaround for AoT problem with namespaces (see angular/angular#15613)
+     this.size = 2;
      this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
      this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
      this.authenticationManager.registerPreLogoutAction(this);

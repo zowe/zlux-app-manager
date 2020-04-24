@@ -22,11 +22,11 @@ const INSTANCE_ADDITIONAL_OFFSET = 105
   styleUrls: ['./launchbar-instance-view.component.css']
 })
 export class LaunchbarInstanceViewComponent {
-  @Input() launchbarItem: LaunchbarItem;
 
   public viewerBottom:string;
   public color:any;
   
+  @Input() launchbarItem: LaunchbarItem;
   @Input() set theme(newTheme: DesktopTheme) {
     this.color = newTheme.color;
     switch (newTheme.size.launchbar) {
@@ -36,8 +36,7 @@ export class LaunchbarInstanceViewComponent {
     case 3:
       this.viewerBottom = '80px';
       break;
-    default:
-      //2
+    default: // Default size is medium - 2
       this.viewerBottom = '45px';
     }
   }

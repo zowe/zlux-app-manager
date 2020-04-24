@@ -17,7 +17,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { DesktopWindow } from '../shared/desktop-window';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { DesktopThemeService } from '../launchbar/launchbar/desktop-theme.service';
+import { ThemeEmitterService } from '../services/theme-emitter.service';
 
 const DESKTOP_PLUGIN = ZoweZLUX.pluginManager.getDesktopPlugin();
 const DESKTOP_WALLPAPER_URI = ZoweZLUX.uriBroker.pluginConfigUri(DESKTOP_PLUGIN,'ui/themebin', 'wallpaper');
@@ -39,7 +39,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     public windowManager: WindowManagerService,
     private injector: Injector,
     private http: HttpClient,
-    private themeService: DesktopThemeService,
+    private themeService: ThemeEmitterService,
   ) {
     this.logger.debug("ZWED5320I", windowManager); //this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;

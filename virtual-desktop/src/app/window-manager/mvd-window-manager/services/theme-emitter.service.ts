@@ -14,7 +14,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 //import { LaunchbarComponent } from './launchbar.component';
 
 @Injectable()
-export class DesktopThemeService {
+export class ThemeEmitterService {
   public keyUpEvent = new EventEmitter<KeyboardEvent>();
   public onColorChange = new EventEmitter<any>();
   public onSizeChange = new EventEmitter<any>();

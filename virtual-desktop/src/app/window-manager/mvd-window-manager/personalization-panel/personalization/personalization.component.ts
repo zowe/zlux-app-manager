@@ -12,7 +12,7 @@ import { Component } from '@angular/core';
 import { BaseLogger } from '../../../../shared/logger';
 // import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
 import { TranslationService } from 'angular-l10n';
-import { DesktopThemeService } from '../../launchbar/launchbar/desktop-theme.service';
+import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { NgxFileDropEntry, FileSystemFileEntry, FileSystemDirectoryEntry } from 'ngx-file-drop';
  
 
@@ -30,7 +30,7 @@ export class PersonalizationComponent {
 
   constructor(
     private translation: TranslationService,
-    private desktopThemeService: DesktopThemeService,
+    private desktopThemeService: ThemeEmitterService,
 
   ) {
     this.selectedColor = "#252628";

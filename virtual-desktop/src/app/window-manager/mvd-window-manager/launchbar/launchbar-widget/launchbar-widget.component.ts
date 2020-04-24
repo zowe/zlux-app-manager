@@ -43,8 +43,6 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public popupVisible: boolean;
   public fontSize:string;
   
-  @Output() popupStateChanged = new EventEmitter<boolean>();
-  
   public clockTwoRow: boolean = true;
   public clockOffset: string;
   public widgetOffset: string;
@@ -58,64 +56,67 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public notifLeftOffset: string;
   public closeImage: string = require('../../../../../assets/images/window/close-active.png')
 
+  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+  public notificationsVisible: boolean;
+  private info: any[];
+  private applicationManager: MVDHosting.ApplicationManagerInterface;
+  public notifications: any[];
+
   @Input() set theme (newTheme: DesktopTheme) {
     this.color = newTheme.color;
     
     switch (newTheme.size.launchbar) {
-    case 1:
-      this.clockTwoRow = false;
-      this.clockOffset = '5px';
-      this.widgetOffset = '5px';
-      this.areaSize = "188px";
-      this.widgetSize="16px";
-      this.fontSize = '12px';
-      this.popupBottom = '30px';
-      this.borderRadius = '3px 3px 0px 3px';
-      this.notifCountSize = '15px';
-      this.notifTopOffset = '-9px';
-      this.notifLeftOffset = '7px';
-      break;
-    case 3:
-      this.clockTwoRow = true;
-      this.widgetOffset = '24px';
-      this.clockOffset = '20px';
-      this.areaSize = "200px";
-      this.widgetSize="32px";
-      this.fontSize = '16px';
-      this.popupBottom = '81px';
-      this.borderRadius = '7px 7px 0px 7px';
-      this.notifCountSize = '22px';
-      this.notifTopOffset = '-13px';
-      this.notifLeftOffset = '17px';
-      break;
-    default:
-      //2
-      this.clockTwoRow = true;
-      this.clockOffset = '5px';
-      this.widgetOffset = '10px';
-      this.areaSize = "175px";
-      this.widgetSize="24px";
-      this.fontSize = '14px';
-      this.popupBottom = '46px';
-      this.borderRadius = '5px 5px 0px 5px';
-      this.notifCountSize = '18px';
-      this.notifTopOffset = '-11px';
-      this.notifLeftOffset = '10px';
-      break;      
+      case 1:
+        this.clockTwoRow = false;
+        this.clockOffset = '5px';
+        this.widgetOffset = '5px';
+        this.areaSize = "188px";
+        this.widgetSize="16px";
+        this.fontSize = '12px';
+        this.popupBottom = '30px';
+        this.borderRadius = '3px 3px 0px 3px';
+        this.notifCountSize = '15px';
+        this.notifTopOffset = '-9px';
+        this.notifLeftOffset = '7px';
+        break;
+      case 3:
+        this.clockTwoRow = true;
+        this.widgetOffset = '24px';
+        this.clockOffset = '20px';
+        this.areaSize = "200px";
+        this.widgetSize="32px";
+        this.fontSize = '16px';
+        this.popupBottom = '81px';
+        this.borderRadius = '7px 7px 0px 7px';
+        this.notifCountSize = '22px';
+        this.notifTopOffset = '-13px';
+        this.notifLeftOffset = '17px';
+        break;
+      default: //Default size is medium - 2
+        this.clockTwoRow = true;
+        this.clockOffset = '5px';
+        this.widgetOffset = '10px';
+        this.areaSize = "175px";
+        this.widgetSize="24px";
+        this.fontSize = '14px';
+        this.popupBottom = '46px';
+        this.borderRadius = '5px 5px 0px 5px';
+        this.notifCountSize = '18px';
+        this.notifTopOffset = '-11px';
+        this.notifLeftOffset = '10px';
+        break;      
     }
   }
-  
+
+  @Output() popupStateChanged = new EventEmitter<boolean>(); 
   
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
   @ViewChild('notificationarea') notificationArea: ElementRef;
   @ViewChild('notificationicon') notificationIcon: ElementRef;
-  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
-  public notificationsVisible: boolean;
-  private info: any[];
+
   @Input() menuItems: LaunchbarItem[];
-  private applicationManager: MVDHosting.ApplicationManagerInterface;
-  public notifications: any[];
+  
   // Convenience widgets for testing the i18n work
   // @ViewChild('languagebutton') languageButton: ElementRef;
   // @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;

@@ -20,15 +20,16 @@ import { LaunchbarItem } from '../shared/launchbar-item';
   styleUrls: ['./launchbar-icon.component.css', '../shared/shared.css']
 })
 export class LaunchbarIconComponent {
-  @Input() launchbarItem: LaunchbarItem;
-  @ViewChild('launchbarIconContainer') componentElement: ElementRef;
   public iconSize: string;
   public indicatorSize: string;
   public indicatorPos: string;
   public hoverOffset: string;
   public hoverBottom: string;
   public _theme:DesktopTheme;
-  
+  private applicationManager: MVDHosting.ApplicationManagerInterface;
+
+  @Input() launchbarItem: LaunchbarItem;
+  @ViewChild('launchbarIconContainer') componentElement: ElementRef;
   @Input() set theme(newTheme: DesktopTheme) {
     this._theme = newTheme;
     switch (newTheme.size.launchbar) {
@@ -57,8 +58,6 @@ export class LaunchbarIconComponent {
     }
   }
   @Output() iconClicked: EventEmitter<void>;
-  private applicationManager: MVDHosting.ApplicationManagerInterface;
-  titleVisible: boolean;
 
   constructor(private injector: Injector) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)

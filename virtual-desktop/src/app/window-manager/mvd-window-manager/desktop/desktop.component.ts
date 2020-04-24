@@ -30,6 +30,8 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public isPersonalizationPanelVisible: boolean;
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
+
+  /* Default theme is a dark grey, with white text, on medium size desktop */
   public _theme: DesktopTheme = {
     color: {
       windowTextActive: '#f4f4f4',
@@ -73,6 +75,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
       }
     });
   }
+
   ngOnInit(): void {
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
     this.contextMenuDef = menuDef;
@@ -80,6 +83,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   }
 
   onLogin(username:string, plugins: ZLUX.Plugin[]): boolean {
+    // When the user logs in, we attempt to retrieve their theme settings from the configuration dataservice
     this.http.get(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'ui/theme', 'config.json')).subscribe((data: any) => {
       if (data) {
         this.log.debug('Desktop config=',data.contents);
@@ -96,6 +100,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     this._theme = Object.assign({},newTheme);
     this.http.put<DesktopTheme>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'ui/theme', 'config.json'), this._theme).subscribe((data: any) => { this.log.info(`Theme saved.`) });
   }
+
   getTheme() {
     return this._theme;
   }
