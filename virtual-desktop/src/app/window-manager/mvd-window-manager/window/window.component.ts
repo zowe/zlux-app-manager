@@ -16,6 +16,7 @@ import { DesktopTheme } from "../desktop/desktop.component";
 import { DesktopWindowStateType } from '../shared/desktop-window-state';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { WindowPosition } from '../shared/window-position';
+import { BaseLogger } from '../../../shared/logger';
 
 const SCREEN_EDGE_BORDER = 2;
 
@@ -38,9 +39,10 @@ export class WindowComponent {
   public minimizeLeft:string;
   public maximizeLeft:string;
   public closeLeft:string;
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   
   @Input() set theme(newTheme: DesktopTheme) {
-    // console.log('Window theme set=',newTheme);
+    this.logger.debug('Window theme set=',newTheme);
     this.color = newTheme.color;
     //button left strategy: size*.6 or .66 between each element and sides
     //therefore (buttonNumber*size*.6)+((buttonNumber-1)*size)
@@ -65,8 +67,7 @@ export class WindowComponent {
       this.textSize = '18px';
       this.textPad = '12px';
       break;
-    default:
-      //2
+    default: //Default size is medium - 2
       this.borderSize = '2px';
       this.buttonSize = '12px';
       this.closeLeft = '8px';
@@ -89,7 +90,7 @@ export class WindowComponent {
 
   constructor(
     public windowManager: WindowManagerService,
-    private injector: Injector
+    private injector: Injector,
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);

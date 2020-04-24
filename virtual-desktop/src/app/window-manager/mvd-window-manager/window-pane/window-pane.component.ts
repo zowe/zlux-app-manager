@@ -75,11 +75,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
 
     this.themeService.onWallpaperChange
       .subscribe((image:any) => {
-        // this.http.delete<DesktopTheme>(DESKTOP_WALLPAPER_URI)
-        //   .subscribe((data: any) => { 
-        //     console.log("Attempted to delete image with status: ", data);
-        //     this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
-        //   });
+        // TODO: Fix bug where sometimes uploading one image after another, fails to render new image (but works after restart)
         this.http.put<DesktopTheme>(DESKTOP_WALLPAPER_URI, image)
           .subscribe((data: any) => { 
             this.resetWallpaperDefault();

@@ -13,7 +13,7 @@ import { BaseLogger } from '../../../../shared/logger';
 // import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
 import { TranslationService } from 'angular-l10n';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
-import { NgxFileDropEntry, FileSystemFileEntry, FileSystemDirectoryEntry } from 'ngx-file-drop';
+import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
  
 
 @Component({
@@ -36,38 +36,10 @@ export class PersonalizationComponent {
     this.selectedColor = "#252628";
   }
 
-  colorSelected(color: any): void { //$event = color
+  colorSelected(color: any): void {
     this.selectedColor = color.hex;
     let textColor = "#f3f4f4"
-
-    // console.log("lightness: ", color.hsl.l)
-
-    // switch(true) { // The lightness of the color
-    //   case color.hsl.l <= 0.2: {
-    //     color.hsl.l = 0.2;
-    //     break;
-    //   }
-    //   case color.hsl.l <= 0.35: {
-    //     color.hsl.l = 0.35;
-    //     break;
-    //   }
-    //   case color.hsl.l <= 0.5: {
-    //     color.hsl.l = 0.5;
-    //     break;
-    //   }
-    //   case color.hsl.l <= 0.65: {
-    //     color.hsl.l = 0.65;
-    //     break;
-    //   }
-    //   default: {
-    //     color.hsl.l = 0.8;
-    //     break;
-    //   }
-    // }
     
-    //this.selectedColor = {h: color.hsl.h, s: color.hsl.s, l: color.hsl.l}
-
-    //console.log("lightness: ", color.hsl.l)
     if (color.hsl.l >= .65) { // If lightness of color is too high, we change the text to be dark
       textColor = "#252628"
     }
@@ -102,16 +74,14 @@ export class PersonalizationComponent {
         fileEntry.file((file: File) => {
 
           // Here you can access the real file
-          this.logger.debug("Files: ", this.files);
           this.logger.debug(droppedFile.relativePath, file);
           this.desktopThemeService.changeWallpaper(file);
 
 
         });
-      } else {
-        // It was a directory (empty directories are added, otherwise only files)
-        const fileEntry = droppedFile.fileEntry as FileSystemDirectoryEntry;
-        this.logger.debug(droppedFile.relativePath, fileEntry);
+      } else { // It was a directory
+        // TODO: Folders are disabled by default, so not sure how this would trigger, but maybe notification for fail?
+        return
       }
     }
   }
