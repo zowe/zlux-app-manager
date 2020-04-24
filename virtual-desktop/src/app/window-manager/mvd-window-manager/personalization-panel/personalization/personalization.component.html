@@ -35,7 +35,6 @@
     dropZoneLabel="Drop wallpaper here" 
     (onFileDrop)="dropped($event)" 
     multiple="false"
-    directory="true"
     style="color: white !important;"
     
     >
@@ -47,7 +46,11 @@
 
   <label class="personalization-label">Color</label>
   <div class="personalization-color-1">
-    <color-circle [color]="this.selectedColor" (onChangeComplete)="colorSelected($event.color)" [width]="380"></color-circle>
+    <color-circle [color]="this.selectedColor" (onChangeComplete)="colorSelected($event.color)" 
+    [width]="380" [colors]='["#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", 
+    "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39", "#ffeb3b", "#ffc107", 
+    "#ff9800", "#ff5722", "#795548", "#607d8b"]'
+    ></color-circle>
   </div>
   <div class="personalization-color-2">
     <color-slider [color]="this.selectedColor" (onChangeComplete)="colorSelected($event.color)"></color-slider>

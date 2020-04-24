@@ -51,7 +51,7 @@ export class LaunchbarIconComponent {
       this.iconSize="32px";
       this.hoverOffset="-14px";
       this.hoverBottom="30px";
-      this.indicatorPos="1px";
+      this.indicatorPos="2px";
       this.indicatorSize = '2px';
       break;
     }

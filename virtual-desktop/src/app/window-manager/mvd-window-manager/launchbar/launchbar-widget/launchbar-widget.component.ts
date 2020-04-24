@@ -53,6 +53,9 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public popupBottom: string;
   public color: any;
   public borderRadius: string;
+  public notifCountSize: string;
+  public notifTopOffset: string;
+  public notifLeftOffset: string;
   public closeImage: string = require('../../../../../assets/images/window/close-active.png')
 
   @Input() set theme (newTheme: DesktopTheme) {
@@ -68,6 +71,9 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       this.fontSize = '12px';
       this.popupBottom = '30px';
       this.borderRadius = '3px 3px 0px 3px';
+      this.notifCountSize = '15px';
+      this.notifTopOffset = '-9px';
+      this.notifLeftOffset = '7px';
       break;
     case 3:
       this.clockTwoRow = true;
@@ -78,6 +84,9 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       this.fontSize = '16px';
       this.popupBottom = '81px';
       this.borderRadius = '7px 7px 0px 7px';
+      this.notifCountSize = '22px';
+      this.notifTopOffset = '-13px';
+      this.notifLeftOffset = '17px';
       break;
     default:
       //2
@@ -89,6 +98,9 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       this.fontSize = '14px';
       this.popupBottom = '46px';
       this.borderRadius = '5px 5px 0px 5px';
+      this.notifCountSize = '18px';
+      this.notifTopOffset = '-11px';
+      this.notifLeftOffset = '10px';
       break;      
     }
   }

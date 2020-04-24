@@ -25,7 +25,7 @@ import { NgxFileDropEntry, FileSystemFileEntry, FileSystemDirectoryEntry } from 
 
 export class PersonalizationComponent {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
-  public selectedColor: string;
+  public selectedColor: string | Object;
   public files: NgxFileDropEntry[] = [];
 
   constructor(
@@ -39,6 +39,35 @@ export class PersonalizationComponent {
   colorSelected(color: any): void { //$event = color
     this.selectedColor = color.hex;
     let textColor = "#f3f4f4"
+
+    // console.log("lightness: ", color.hsl.l)
+
+    // switch(true) { // The lightness of the color
+    //   case color.hsl.l <= 0.2: {
+    //     color.hsl.l = 0.2;
+    //     break;
+    //   }
+    //   case color.hsl.l <= 0.35: {
+    //     color.hsl.l = 0.35;
+    //     break;
+    //   }
+    //   case color.hsl.l <= 0.5: {
+    //     color.hsl.l = 0.5;
+    //     break;
+    //   }
+    //   case color.hsl.l <= 0.65: {
+    //     color.hsl.l = 0.65;
+    //     break;
+    //   }
+    //   default: {
+    //     color.hsl.l = 0.8;
+    //     break;
+    //   }
+    // }
+    
+    //this.selectedColor = {h: color.hsl.h, s: color.hsl.s, l: color.hsl.l}
+
+    //console.log("lightness: ", color.hsl.l)
     if (color.hsl.l >= .65) { // If lightness of color is too high, we change the text to be dark
       textColor = "#252628"
     }
