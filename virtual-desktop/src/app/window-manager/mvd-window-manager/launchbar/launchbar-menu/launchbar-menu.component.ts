@@ -178,12 +178,13 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
     if(this.isContextMenuInDom()) {
-      this.keepSearchCursor();
+      event.preventDefault();
       return;
     }
 
     // eating one render cycle
     if(this.isContextMenuPresent) {
+      event.preventDefault();
       this.isContextMenuPresent = false;
       return;
     }
@@ -192,11 +193,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
 
     switch(event.which) {
       case KeyCode.ESCAPE: {
-        // if(this.appFilter>'') {
-        //   this.resetMenu(); 
-        // } else {
         this.activeToggle();
-        //}
         break;
       } 
       case KeyCode.ENTER: {
@@ -212,7 +209,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
         break;
       }
       case KeyCode.UP_ARROW: {
-        this.keepSearchCursor();
+        event.preventDefault();
         if(this.activeIndex>0) {
           this.activeIndex--;
         } else {
@@ -256,13 +253,6 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     if(elm) {
       elm.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'start' });
     }
-  }
-
-  private keepSearchCursor(): void {
-    const el = this.searchAppInputRef.nativeElement;
-    if (typeof el.selectionStart == "number") {
-      el.selectionStart = el.selectionEnd = el.value.length;
-    } 
   }
 
   private isContextMenuInDom(): boolean {
