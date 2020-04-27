@@ -48,6 +48,9 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
 
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.info('Launchbar theme set=',newTheme);
+    // Used to update the emitter service to sync up personalization panel with loaded theme color upon startup
+    this.themeService.mainColor = newTheme.color.launchbarMenuColor;
+    this.themeService.mainSize = newTheme.size.window;
     this._theme = newTheme;
 
     switch (newTheme.size.launchbar) {
@@ -61,7 +64,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
       //64 for icon, 4 for indicator, 2 for pad bottom, 6 for pad top
       this.barSize = '76px';
       this.applistPadding = '7px';
-      this.applistMargin = `0px 205px 0px 79px`;
+      this.applistMargin = `0px 210px 0px 79px`;
       break;
     default: //Default is medium size - 2
       //32 for icon, 2 for indicator, 2 for pad bottom, 4 for pad top
@@ -125,9 +128,9 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   ngOnInit() {
     this.themeService.onColorChange
       .subscribe((color:any) => {
-        this._theme.color.windowColorActive = color.themeColor;
+        this._theme.color.windowColorActive = this.adjustColorByLightness(color.themeColor, 20);
         this._theme.color.windowTextActive = color.textColor;
-        this._theme.color.launchbarColor = color.themeColor+'b2'; // Adds some transparency to bottom app bar
+        this._theme.color.launchbarColor = this.adjustColorByLightness(color.themeColor, -20)+'b2'; // Adds some transparency to bottom app bar
         this._theme.color.launchbarText = color.textColor;
         this._theme.color.launchbarMenuColor = color.themeColor;
         this._theme.color.launchbarMenuText = color.textColor;
@@ -164,6 +167,11 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
     this._theme.color.launchbarMenuText = DEFAULT_TEXT_COLOR;
     
     this.changeTheme.emit(this._theme);
+  }
+
+  // A regex expression roughly equating to lighten (positive num) vs darken (negative num)
+  adjustColorByLightness(color: string, amount: number): string {
+    return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
   }
 
   getNewItems(): void {

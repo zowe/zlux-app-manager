@@ -11,7 +11,7 @@
 */
 
 import { Injectable, EventEmitter } from '@angular/core';
-//import { LaunchbarComponent } from './launchbar.component';
+import { Colors } from '../shared/colors';
 
 @Injectable()
 export class ThemeEmitterService {
@@ -21,9 +21,13 @@ export class ThemeEmitterService {
   public onWallpaperChange = new EventEmitter<any>();
   public onResetAllDefault = new EventEmitter<any>();
   public onGoBack = new EventEmitter<any>();
+  public mainColor: string;
+  public mainSize: number;
 
   constructor() {
     this.keyUpHandler = this.keyUpHandler.bind(this);
+    this.mainColor = Colors.COOLGREY_80;
+    this.mainSize = 2;
   }
 
   registerKeyUpEvent() {
@@ -40,9 +44,10 @@ export class ThemeEmitterService {
   // Expected input in 'hex' format
   changeColor(themeColor: any, textColor: any) {
     let colorObj = {
-      themeColor: themeColor || "#3d3f42", // Fallback is dark grey
-      textColor: textColor || "#dddee0" // Fallback is nearly white
+      themeColor: themeColor || Colors.COOLGREY_80, // Fallback is dark grey
+      textColor: textColor || Colors.COOLGREY_20 // Fallback is nearly white
     }
+    this.mainColor = colorObj.themeColor;
     this.onColorChange.emit(colorObj);
   }
 
@@ -52,6 +57,7 @@ export class ThemeEmitterService {
       launchbarSize: launchbarSize || 2,
       launchbarMenuSize: launchbarMenuSize || 2
     }
+    this.mainSize = sizeObj.windowSize;
     this.onSizeChange.emit(sizeObj);
   }
 

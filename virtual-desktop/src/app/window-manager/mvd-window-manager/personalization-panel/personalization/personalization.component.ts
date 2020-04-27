@@ -8,12 +8,13 @@
   
   Copyright Contributors to the Zowe Project.
 */
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BaseLogger } from '../../../../shared/logger';
 // import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
 import { TranslationService } from 'angular-l10n';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
+import { Colors } from '../../shared/colors';
  
 
 @Component({
@@ -23,9 +24,10 @@ import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
   providers: [],
 })
 
-export class PersonalizationComponent {
+export class PersonalizationComponent implements OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   public selectedColor: string | Object;
+  public selectedSize: string | Object;
   public files: NgxFileDropEntry[] = [];
 
   constructor(
@@ -33,32 +35,41 @@ export class PersonalizationComponent {
     private desktopThemeService: ThemeEmitterService,
 
   ) {
-    this.selectedColor = "#252628";
+    this.selectedColor = Colors.COOLGREY_90;
+    this.selectedSize = 2;
+  }
+
+  ngOnInit(): void {
+    this.selectedColor = this.desktopThemeService.mainColor;
+    this.selectedSize = this.desktopThemeService.mainSize;
   }
 
   colorSelected(color: any): void {
-    this.selectedColor = color.hex;
-    let textColor = "#f3f4f4"
+    this.selectedColor = color.hsl;
+    let textColor = Colors.COOLGREY_10
     
     if (color.hsl.l >= .65) { // If lightness of color is too high, we change the text to be dark
-      textColor = "#252628"
+      textColor = Colors.COOLGREY_90
     }
-    this.desktopThemeService.changeColor(this.selectedColor, textColor);
-    this.logger.debug(this.translation.translate('Theme changed to: ', this.selectedColor, textColor));
+    this.desktopThemeService.changeColor(color.hex, textColor);
+    this.logger.debug(this.translation.translate('Theme changed to: ', color.hex, textColor));
   }
 
-  previewSelected(size: string): void {
+  sizeSelected(size: string): void {
     switch(size) {
       case "small": {
         this.desktopThemeService.changeSize(1, 1, 1);
+        this.selectedSize = 1;
         break;
       }
       case "large": {
         this.desktopThemeService.changeSize(3, 3, 3);
+        this.selectedSize = 3;
         break;
       }
       default: {
         this.desktopThemeService.changeSize(2, 2, 2);
+        this.selectedSize = 2;
         break;
       }
     }
@@ -89,6 +100,8 @@ export class PersonalizationComponent {
   resetAllDefault(): void {
     this.files = [];
     this.desktopThemeService.resetAllDefault();
+    this.selectedColor = Colors.COOLGREY_90;
+    this.selectedSize = 2;
   }
 
   goBack(): void {

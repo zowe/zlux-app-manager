@@ -53,8 +53,11 @@
   cursor: pointer;
   border: none;
   padding: 60px;
-  border: 2px solid white;
   margin-right: 8px;
+}
+
+.personalization-preview-item.selected {
+  border: 2px solid white;
 }
 
 .personalization-preview-item.preview-small{

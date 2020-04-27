@@ -18,18 +18,6 @@
   </label>
 
   <label class="personalization-label">Background</label>
-  <!-- <form action="/action_page.php" class="personalization-upload">
-    <input type="file" id="myFile" name="filename">
-    <input type="submit" class="personalization-submit">
-  </form> -->
-
-  <!-- <div id="dropzone">
-  <form action="/file-upload" class="dropzone">
-    <div class="fallback">
-      <input name="file" type="file" multiple />
-    </div>
-  </form>
-  </div> -->
 
   <ngx-file-drop 
     dropZoneLabel="Drop wallpaper here" 
@@ -46,20 +34,29 @@
 
   <label class="personalization-label">Color</label>
   <div class="personalization-color-1">
-    <color-circle [color]="this.selectedColor" (onChangeComplete)="colorSelected($event.color)" 
-    [width]="380" [colors]='["#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", 
-    "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39", "#ffeb3b", "#ffc107", 
-    "#ff9800", "#252628", "#6d7176", "#f3f4f4"]'
+    <color-circle 
+      [color]="selectedColor" 
+      (onChangeComplete)="colorSelected($event.color)" 
+      [width]="380" 
+      [colors]='["#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", 
+      "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39", "#ffeb3b", "#ffc107", 
+      "#ff9800", "#252628", "#6d7176", "#f3f4f4"]'
     ></color-circle>
   </div>
   <div class="personalization-color-2">
-    <color-slider [color]="this.selectedColor" (onChangeComplete)="colorSelected($event.color)"></color-slider>
+    <color-slider 
+      [color]="selectedColor" 
+      (onChange)="colorSelected($event.color)"
+    ></color-slider>
   </div>
   <label class="personalization-label">Size</label>
 
-  <img class="personalization-preview-item preview-small" (click)="previewSelected('small')">
-  <img class="personalization-preview-item preview-medium" (click)="previewSelected('medium')">
-  <img class="personalization-preview-item preview-large" (click)="previewSelected('large')">
+  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 1,
+    'personalization-preview-item preview-small': true}" (click)="sizeSelected('small')">
+  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 2,
+    'personalization-preview-item preview-medium': true}" (click)="sizeSelected('medium')">
+  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 3,
+    'personalization-preview-item preview-large': true}" (click)="sizeSelected('large')">
 
   <label class="personalization-label">Text Size</label>
   <!-- <div class="language-content-left">
