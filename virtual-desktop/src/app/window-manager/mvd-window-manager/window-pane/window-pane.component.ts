@@ -79,7 +79,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
         this.http.put<DesktopTheme>(DESKTOP_WALLPAPER_URI, image)
           .subscribe((data: any) => { 
             this.resetWallpaperDefault();
-            console.log("Attempted to post image with status: ", data);
+            this.logger.debug("Attempted to post image with status: ", data);
             this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
           });
       });

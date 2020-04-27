@@ -13,6 +13,7 @@
 import { Component, Input, Output, EventEmitter, Injector, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { DesktopTheme } from "../../desktop/desktop.component";
 import { LaunchbarItem } from '../shared/launchbar-item';
+import { BaseLogger } from '../../../../shared/logger';
 
 @Component({
   selector: 'rs-com-launchbar-icon',
@@ -25,36 +26,37 @@ export class LaunchbarIconComponent {
   public indicatorPos: string;
   public hoverOffset: string;
   public hoverBottom: string;
-  public _theme:DesktopTheme;
+  private _theme:DesktopTheme;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   @Input() launchbarItem: LaunchbarItem;
   @ViewChild('launchbarIconContainer') componentElement: ElementRef;
   @Input() set theme(newTheme: DesktopTheme) {
     this._theme = newTheme;
+    this.logger.debug("Set new launchbar icon theme with: ", this._theme);
     switch (newTheme.size.launchbar) {
-    case 1:
-      this.iconSize="16px";
-      this.hoverBottom="14px";
-      this.hoverOffset="-22px";
-      this.indicatorPos="2px";
-      this.indicatorSize = '2px';
-      break;
-    case 3:
-      this.iconSize="64px";
-      this.hoverOffset="0px";
-      this.hoverBottom="62px";
-      this.indicatorPos="-2px";
-      this.indicatorSize = '4px';
-      break;
-    default:
-      //2
-      this.iconSize="32px";
-      this.hoverOffset="-14px";
-      this.hoverBottom="30px";
-      this.indicatorPos="2px";
-      this.indicatorSize = '2px';
-      break;
+      case 1:
+        this.iconSize="16px";
+        this.hoverBottom="14px";
+        this.hoverOffset="-22px";
+        this.indicatorPos="2px";
+        this.indicatorSize = '2px';
+        break;
+      case 3:
+        this.iconSize="64px";
+        this.hoverOffset="0px";
+        this.hoverBottom="62px";
+        this.indicatorPos="-2px";
+        this.indicatorSize = '4px';
+        break;
+      default: //Medium size - 2
+        this.iconSize="32px";
+        this.hoverOffset="-14px";
+        this.hoverBottom="30px";
+        this.indicatorPos="2px";
+        this.indicatorSize = '2px';
+        break;
     }
   }
   @Output() iconClicked: EventEmitter<void>;

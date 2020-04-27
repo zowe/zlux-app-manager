@@ -17,6 +17,7 @@ import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { AuthenticationManager } from '../../../authentication-manager/authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
+import { Colors } from '../shared/colors';
 
 const ACCOUNT_PASSWORD = "Account Password";
 const PASSWORD_CHANGED = "PasswordChanged"
@@ -32,16 +33,16 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
 
   /* Default theme is a dark grey, with white text, on medium size desktop */
-  public _theme: DesktopTheme = {
+  private _theme: DesktopTheme = {
     color: {
       windowTextActive: '#f4f4f4',
       windowTextInactive: '#828282',
-      windowColorActive: '#3d3f42',
-      windowColorInactive: '#252628',
-      launchbarText: '#dddee0',
+      windowColorActive: Colors.COOLGREY_80,
+      windowColorInactive: Colors.COOLGREY_90,
+      launchbarText: Colors.COOLGREY_20,
       launchbarColor: '#0d0d0eb2',
-      launchbarMenuText: '#dddee0',
-      launchbarMenuColor: '#252628'
+      launchbarMenuText: Colors.COOLGREY_20,
+      launchbarMenuColor: Colors.COOLGREY_90
     },
     size: {
       window: 2,

@@ -98,9 +98,10 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
         this.menuBottom = '45px';
         this.borderRadius = '5px 5px 5px 0px';
     }
+    
     this.menuIconSize = menuIcon+'px';
     this.appIconSize = appIcon+'px';
-    let appLabel:number = Math.round((appIcon/2) - (FONT_SIZE/2))|0;
+    let appLabel:number = Math.round((appIcon/2) - (FONT_SIZE/2));
     this.appLabelPadding = appLabel+'px';
   };
   

@@ -17,6 +17,7 @@ import { DesktopWindowStateType } from '../shared/desktop-window-state';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { WindowPosition } from '../shared/window-position';
 import { BaseLogger } from '../../../shared/logger';
+import { Colors } from '../shared/colors';
 
 const SCREEN_EDGE_BORDER = 2;
 
@@ -29,16 +30,17 @@ export class WindowComponent {
   @ViewChild('windowBody')
   public windowBodyRef: ElementRef;
 
-  public color:any = {};
-  public headerSize:number;
-  public borderSize:string;
-  public textSize:string;
-  public textPad:string;
-  public buttonTop:string;
-  public buttonSize:string;
-  public minimizeLeft:string;
-  public maximizeLeft:string;
-  public closeLeft:string;
+  public color: any = {};
+  public headerSize: number;
+  public borderSize: string;
+  public textSize: string;
+  public textPad: string;
+  public buttonTop: string;
+  public buttonSize: string;
+  public buttonFilter: string;
+  public minimizeLeft: string;
+  public maximizeLeft: string;
+  public closeLeft: string;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   
   @Input() set theme(newTheme: DesktopTheme) {
@@ -47,35 +49,43 @@ export class WindowComponent {
     //button left strategy: size*.6 or .66 between each element and sides
     //therefore (buttonNumber*size*.6)+((buttonNumber-1)*size)
     switch (newTheme.size.window) {
-    case 1:
-      this.borderSize = '1px';
-      this.buttonSize = '10px';
-      this.closeLeft = '6px';
-      this.minimizeLeft = '22px';
-      this.maximizeLeft = '39px';
-      this.buttonTop = '6px';
-      this.textSize = '12px';
-      this.textPad = '3px';
-      break;
-    case 3:
-      this.borderSize = '3px';
-      this.buttonSize = '16px';
-      this.closeLeft = '11px';
-      this.minimizeLeft = '38px';
-      this.maximizeLeft = '66px';
-      this.buttonTop = '16px';
-      this.textSize = '18px';
-      this.textPad = '12px';
-      break;
-    default: //Default size is medium - 2
-      this.borderSize = '2px';
-      this.buttonSize = '12px';
-      this.closeLeft = '8px';
-      this.minimizeLeft = '28px';
-      this.maximizeLeft = '49px';
-      this.buttonTop = '9px';
-      this.textSize = '14px';
-      this.textPad = '5px';
+      case 1:
+        this.borderSize = '1px';
+        this.buttonSize = '10px';
+        this.closeLeft = '6px';
+        this.minimizeLeft = '22px';
+        this.maximizeLeft = '39px';
+        this.buttonTop = '6px';
+        this.textSize = '12px';
+        this.textPad = '3px';
+        break;
+      case 3:
+        this.borderSize = '3px';
+        this.buttonSize = '16px';
+        this.closeLeft = '11px';
+        this.minimizeLeft = '38px';
+        this.maximizeLeft = '66px';
+        this.buttonTop = '16px';
+        this.textSize = '18px';
+        this.textPad = '12px';
+        break;
+      default: //Default size is medium - 2
+        this.borderSize = '2px';
+        this.buttonSize = '12px';
+        this.closeLeft = '8px';
+        this.minimizeLeft = '28px';
+        this.maximizeLeft = '49px';
+        this.buttonTop = '9px';
+        this.textSize = '14px';
+        this.textPad = '5px';
+    }
+    switch (newTheme.color.windowTextActive) {
+      case Colors.COOLGREY_90:
+        this.buttonFilter = 'brightness(0.2)';
+        break;
+      default:
+        this.buttonFilter = 'brightness(1)';
+        break;
     }
     (WindowManagerService as any)._setTheme(newTheme);
     this.headerSize = WindowManagerService.WINDOW_HEADER_HEIGHT;
