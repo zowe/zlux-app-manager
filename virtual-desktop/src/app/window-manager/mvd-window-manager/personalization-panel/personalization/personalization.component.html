@@ -21,7 +21,7 @@
 
   <ngx-file-drop 
     dropZoneLabel="Drop wallpaper here" 
-    (onFileDrop)="dropped($event)" 
+    (onFileDrop)="fileDrop($event)" 
     multiple="false"
     style="color: white !important;"
     
@@ -59,51 +59,7 @@
     'personalization-preview-item preview-large': true}" (click)="sizeSelected('large')">
 
   <label class="personalization-label">Text Size</label>
-  <!-- <div class="language-content-left">
-      <img class="language-icon"><hr class="language-separator-hor">
-      <button class="language-button" (click)="selectEnglish()" title="{{Select}}">English</button><hr class="language-separator-hor">
-      <button class="language-button" (click)="selectChinese()" title="{{Select}}">中文</button><hr class="language-separator-hor">
-      <button class="language-button" (click)="selectFrench()" title="{{Select}}">Français</button><hr class="language-separator-hor">
-      <button class="language-button" (click)="selectJapanese()" title="{{Select}}">日本語</button><hr class="language-separator-hor">
-      <button class="language-button" (click)="selectRussian()" title="{{Select}}">Pусский</button><hr class="language-separator-hor">
-      <button class="language-button" (click)="selectGerman()" title="{{Select}}">Deutsch</button><hr class="language-separator-hor">
-  </div>
-  <div class="language-content-right">
-    
-    <label class="language-label"> {{LanguageSelected}}: {{selectedLanguage}}</label>
-    <button type="submit" class="language-submit" (click)="applyLanguage()">{{Apply}}</button>
-  </div> -->
 </div>
-
-<!-- Zowe popup window is immutable by design, so we must pass a style via HTML -->
-<!-- <div class="global-veil" *ngIf="isVeilVisible">
-<zlux-popup-window
-      header="{{LanguageChanges}}"
-      (onCloseWindow)="closeRestartWindow()"
-      [dark]="true"
-      [currentStyle]="{ 'width': '700px',
-      'height': '230px' , 
-      'background-color': 'rgb(236, 200, 240)', 
-      'font-size': 'large', 
-      'padding': '5px', 
-      'margin': 'auto' ,
-      'text-align': 'center', 
-      'margin-top': '15%', 
-      'color': '#36617a' }"
-      *ngIf="isRestartWindowVisible">
-      <div class="content-close"><br>{{RestartDescr1}}<br>{{RestartDescr2}}</div>
-      <zlux-popup-window-button-area [ngStyle]="{'background-color':'rgb(236, 200, 240)'}">
-        <zlux-button (click)="restartZowe(); exit();"
-          label="{{RestartNow}}"
-          callToAction="true">
-        </zlux-button>
-        <zlux-button (click)="closeRestartWindow()"
-          label="{{RestartLater}}">
-        </zlux-button>
-      </zlux-popup-window-button-area>
-  </zlux-popup-window>
-</div> -->
-
 
 <!-- 
   This program and the accompanying materials are

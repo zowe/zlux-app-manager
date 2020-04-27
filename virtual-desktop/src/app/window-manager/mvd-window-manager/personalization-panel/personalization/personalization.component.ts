@@ -75,7 +75,7 @@ export class PersonalizationComponent implements OnInit {
     }
   }
 
-  dropped(files: NgxFileDropEntry[]): void {
+  fileDrop(files: NgxFileDropEntry[]): void {
     this.files = files;
     for (const droppedFile of files) {
 
