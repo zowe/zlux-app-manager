@@ -17,7 +17,7 @@
     <i class="fa fa-trash" style="padding: 5px; font-size: large;"></i>
   </label>
 
-  <label class="personalization-label">Background</label>
+  <label class="personalization-label" style="padding-top: 10px;">Background</label>
 
   <ngx-file-drop 
     dropZoneLabel="Drop wallpaper here" 
@@ -27,7 +27,7 @@
     
     >
       <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-        <div *ngIf="files != []">Drop or  &nbsp;<a href="#" (click)="openFileSelector()">upload</a>&nbsp;  wallpaper here.</div>
+        <div *ngIf="files != []" style="color: white !important;">Drop or  &nbsp;<a href="#" (click)="openFileSelector()">upload</a>&nbsp;  wallpaper here.</div>
         <!-- <button type="button" (click)="openFileSelector()">Upload</button> -->
       </ng-template>
     </ngx-file-drop>
@@ -58,7 +58,8 @@
   <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 3,
     'personalization-preview-item preview-large': true}" (click)="sizeSelected('large')">
 
-  <label class="personalization-label">Text Size</label>
+    <!-- TODO: Add text re-sizing functionality -->
+  <!-- <label class="personalization-label">Text Size</label> -->
 </div>
 
 <!-- 

@@ -15,7 +15,7 @@
   padding: 5px;
   width: 100%;
   color:#f3f4f4;
-  padding-top: 10px;
+  padding-top: 15px;
 }
 
 .personalization-label.small {
@@ -52,8 +52,8 @@
   background-repeat: round;
   cursor: pointer;
   border: none;
-  padding: 60px;
-  margin-right: 8px;
+  padding: 62px;
+  margin-right: 6px;
 }
 
 .personalization-preview-item.selected {
@@ -83,10 +83,12 @@
 
 .personalization-color-1 {
   padding-bottom: 20px;
+  padding-left: 15px;
 }
 
 .personalization-color-2 {
   padding-right: 30px;
+  width: 420px;
 }
 
 .personalization-file-drop-content {
