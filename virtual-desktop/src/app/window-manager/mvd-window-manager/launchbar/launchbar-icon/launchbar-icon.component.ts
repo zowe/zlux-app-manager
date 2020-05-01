@@ -26,7 +26,7 @@ export class LaunchbarIconComponent {
   public indicatorPos: string;
   public hoverOffset: string;
   public hoverBottom: string;
-  private _theme:DesktopTheme;
+  public _theme:DesktopTheme;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 

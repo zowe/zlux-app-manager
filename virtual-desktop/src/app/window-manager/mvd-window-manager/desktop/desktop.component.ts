@@ -33,7 +33,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
 
   /* Default theme is a dark grey, with white text, on medium size desktop */
-  private _theme: DesktopTheme = {
+  public _theme: DesktopTheme = {
     color: {
       windowTextActive: '#f4f4f4',
       windowTextInactive: '#828282',

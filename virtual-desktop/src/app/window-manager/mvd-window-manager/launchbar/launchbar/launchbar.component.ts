@@ -44,7 +44,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   public barSize: string;
   public applistMargin: string;
   public applistPadding: string;
-  private _theme: DesktopTheme;
+  public _theme: DesktopTheme;
 
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.info('Launchbar theme set=',newTheme);
