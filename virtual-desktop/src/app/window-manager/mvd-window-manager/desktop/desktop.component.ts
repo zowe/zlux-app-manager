@@ -15,6 +15,11 @@ import { Http, Response } from '@angular/http';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { AuthenticationManager } from '../../../authentication-manager/authentication-manager.service';
+import { TranslationService } from 'angular-l10n';
+
+const ACCOUNT_PASSWORD = "Account Password";
+const PASSWORD_CHANGED = "PasswordChanged"
 
 @Component({
   selector: 'rs-com-mvd-desktop',
@@ -26,19 +31,34 @@ private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 public isPersonalizationPanelVisible: boolean;
 constructor(
     public windowManager: WindowManagerService,
+    private authenticationService: AuthenticationManager,
     private http: Http,
-    private injector: Injector
+    private injector: Injector,
+    private translation: TranslationService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.contextMenuDef = null;
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
+    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
+      switch (eventReason) {
+      case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
+        const notifTitle = this.translation.translate(ACCOUNT_PASSWORD);
+        const notifMessage = this.translation.translate(PASSWORD_CHANGED);
+        const desktopPluginId = ZoweZLUX.pluginManager.getDesktopPlugin().getIdentifier();
+        this.hidePersonalizationPanel();
+        ZoweZLUX.notificationManager.notify(ZoweZLUX.notificationManager.createNotification(notifTitle, notifMessage, 1, desktopPluginId));
+        break;
+      default:
+      }
+    });
   }
   ngOnInit(): void {
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
   }
+
 
   showPersonalizationPanel(): void {
     this.isPersonalizationPanelVisible = true;
