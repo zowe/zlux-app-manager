@@ -386,6 +386,10 @@ export class ContextMenuComponent implements AfterViewInit {
     }
   }
 
+  mouseLeave(event: any) {
+    this.activeIndex = -1; // When cursor leaves, no item is selected.
+  }
+
 }
 
 
