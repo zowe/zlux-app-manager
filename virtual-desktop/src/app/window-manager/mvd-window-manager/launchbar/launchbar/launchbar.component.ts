@@ -39,6 +39,7 @@ const DEFAULT_SIZE = 2;
 export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   @Output() changeTheme = new EventEmitter();
+  @Output() previewTheme = new EventEmitter();
 
   //Always 6+icon size, due to need for space for padding and such
   public barSize: string;
@@ -64,7 +65,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
       //64 for icon, 4 for indicator, 2 for pad bottom, 6 for pad top
       this.barSize = '76px';
       this.applistPadding = '7px';
-      this.applistMargin = `0px 210px 0px 79px`;
+      this.applistMargin = `0px 205px 0px 79px`;
       break;
     default: //Default is medium size - 2
       //32 for icon, 2 for indicator, 2 for pad bottom, 4 for pad top
@@ -136,6 +137,18 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
         this._theme.color.launchbarMenuText = color.textColor;
 
         this.changeTheme.emit(this._theme);
+    });
+
+    this.themeService.onColorPreview
+      .subscribe((color:any) => {
+        this._theme.color.windowColorActive = this.adjustColorByLightness(color.themeColor, 20);
+        this._theme.color.windowTextActive = color.textColor;
+        this._theme.color.launchbarColor = this.adjustColorByLightness(color.themeColor, -20)+'b2'; // Adds some transparency to bottom app bar
+        this._theme.color.launchbarText = color.textColor;
+        this._theme.color.launchbarMenuColor = color.themeColor;
+        this._theme.color.launchbarMenuText = color.textColor;
+
+        this.previewTheme.emit(this._theme);
     });
 
     this.themeService.onSizeChange

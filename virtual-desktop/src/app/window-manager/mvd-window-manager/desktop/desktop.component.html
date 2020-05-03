@@ -15,7 +15,7 @@
 </ng-container>
 
 <rs-com-window-pane [theme]="_theme"></rs-com-window-pane>
-<rs-com-launchbar (changeTheme)="setTheme($event)" [theme]="_theme"></rs-com-launchbar>
+<rs-com-launchbar (changeTheme)="setTheme($event)" (previewTheme)="previewTheme($event)" [theme]="_theme"></rs-com-launchbar>
 <rs-com-personalization-panel *ngIf="isPersonalizationPanelVisible"></rs-com-personalization-panel>
 
 <!-- 

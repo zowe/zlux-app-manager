@@ -46,7 +46,8 @@
   <div class="personalization-color-2">
     <color-slider 
       [color]="selectedColor" 
-      (onChange)="colorSelected($event.color)"
+      (onChange)="colorPreview($event.color)"
+      (onChangeComplete)="colorSelected($event.color)"
     ></color-slider>
   </div>
   <label class="personalization-label">Size</label>

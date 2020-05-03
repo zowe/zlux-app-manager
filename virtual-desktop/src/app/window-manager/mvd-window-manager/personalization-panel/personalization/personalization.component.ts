@@ -11,7 +11,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseLogger } from '../../../../shared/logger';
 // import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
-import { TranslationService } from 'angular-l10n';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
 import { Colors } from '../../shared/colors';
@@ -31,7 +30,6 @@ export class PersonalizationComponent implements OnInit {
   public files: NgxFileDropEntry[] = [];
 
   constructor(
-    private translation: TranslationService,
     private desktopThemeService: ThemeEmitterService,
 
   ) {
@@ -52,7 +50,16 @@ export class PersonalizationComponent implements OnInit {
       textColor = Colors.COOLGREY_90
     }
     this.desktopThemeService.changeColor(color.hex, textColor);
-    this.logger.debug(this.translation.translate('Theme changed to: ', color.hex, textColor));
+  }
+
+  colorPreview(color: any): void {
+    this.selectedColor = color.hsl;
+    let textColor = Colors.COOLGREY_10
+    
+    if (color.hsl.l >= .65) { // If lightness of color is too high, we change the text to be dark
+      textColor = Colors.COOLGREY_90
+    }
+    this.desktopThemeService.previewColor(color.hex, textColor);
   }
 
   sizeSelected(size: string): void {

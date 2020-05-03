@@ -88,7 +88,9 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     this.http.get(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'ui/theme', 'config.json')).subscribe((data: any) => {
       if (data) {
         this.log.debug('Desktop config=',data.contents);
-        this._theme = (data.contents as DesktopTheme);
+        if (Object.keys(data.contents).length !== 0) { //If the retrived theme became blank, we don't replace existing one with a corrupt object
+          this._theme = (data.contents as DesktopTheme);
+        }
       } else {
         this.log.debug('No Desktop config found. Using defaults.');
       }
@@ -97,9 +99,14 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   }
 
   setTheme(newTheme: DesktopTheme) {
-    this.log.debug('Req to change to=',newTheme);
-    this._theme = Object.assign({},newTheme);
+    this.log.debug('Req to change to =', newTheme);
+    this._theme = Object.assign({}, newTheme);
     this.http.put<DesktopTheme>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'ui/theme', 'config.json'), this._theme).subscribe((data: any) => { this.log.info(`Theme saved.`) });
+  }
+
+  previewTheme(newTheme: DesktopTheme) {
+    this.log.debug('Previewing (not saved yet) to =', newTheme);
+    this._theme = Object.assign({}, newTheme);
   }
 
   getTheme() {

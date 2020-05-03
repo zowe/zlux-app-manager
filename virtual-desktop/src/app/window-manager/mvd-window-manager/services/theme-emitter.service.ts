@@ -17,6 +17,7 @@ import { Colors } from '../shared/colors';
 export class ThemeEmitterService {
   public keyUpEvent = new EventEmitter<KeyboardEvent>();
   public onColorChange = new EventEmitter<any>();
+  public onColorPreview = new EventEmitter<any>();
   public onSizeChange = new EventEmitter<any>();
   public onWallpaperChange = new EventEmitter<any>();
   public onResetAllDefault = new EventEmitter<any>();
@@ -41,7 +42,7 @@ export class ThemeEmitterService {
     }
   }
 
-  // Expected input in 'hex' format
+  /* Expected input in 'hex' format */
   changeColor(themeColor: any, textColor: any) {
     let colorObj = {
       themeColor: themeColor || Colors.COOLGREY_80, // Fallback is dark grey
@@ -51,7 +52,18 @@ export class ThemeEmitterService {
     this.onColorChange.emit(colorObj);
   }
 
-  changeSize(windowSize: any, launchbarSize: any, launchbarMenuSize: any) {
+  /* Expected input in 'hex' format */
+  previewColor(themeColor: any, textColor: any) {
+    let colorObj = {
+      themeColor: themeColor || Colors.COOLGREY_80, // Fallback is dark grey
+      textColor: textColor || Colors.COOLGREY_20 // Fallback is nearly white
+    }
+    this.mainColor = colorObj.themeColor;
+    this.onColorPreview.emit(colorObj);
+  }
+
+  /* 1 - small, 2 - medium, 3 - large */
+  changeSize(windowSize: number, launchbarSize: number, launchbarMenuSize: number) {
     let sizeObj = { // Fallback is medium
       windowSize: windowSize || 2,
       launchbarSize: launchbarSize || 2,
@@ -61,7 +73,7 @@ export class ThemeEmitterService {
     this.onSizeChange.emit(sizeObj);
   }
 
-  changeWallpaper(image: any) { //Fallback is default
+  changeWallpaper(image: any) { //Fallback is default Zowe blue background
     this.onWallpaperChange.emit(image);
   }
 
