@@ -99,12 +99,14 @@
   overflow-y: scroll
 }
 
-::selection {
-  background: #ffffff40 !important; /* WebKit/Blink Browsers */
+::selection { /* WebKit/Blink Browsers */
+  background: #ffffffa6 !important;
+  color: black !important;
 }
 
-::-moz-selection {
-  background: #ffffff40 !important; /* Gecko Browsers */
+::-moz-selection { /* Gecko Browsers */
+  background: #ffffffa6 !important;
+  color: black !important;
 }
 
 /*
