@@ -23,12 +23,14 @@ import { WindowPosition } from './window-position';
 import { DesktopWindowState, DesktopWindowStateType } from '../shared/desktop-window-state';
 import { DesktopTheme } from "../desktop/desktop.component";
 import { WindowMonitor } from 'app/shared/window-monitor.service';
-import { ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEvents,
-  Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, InstanceId, EmbeddedInstance
+import { ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEvents, Angular2PluginThemeEvents,
+  Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, 
+  InstanceId, EmbeddedInstance
 } from 'pluginlib/inject-resources';
 
 import { KeybindingService } from './keybinding.service';
 import { KeyCode } from './keycode-enum';
+import { ThemeEmitterService } from '../services/theme-emitter.service';
 
 type PluginIdentifier = string;
 const DEFAULT_DESKTOP_SHORT_TITLE = 'Zowe';
@@ -78,7 +80,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     private injector: Injector,
     private windowMonitor: WindowMonitor,
     private componentFactoryResolver: ComponentFactoryResolver,
-    private appKeyboard: KeybindingService
+    private appKeyboard: KeybindingService,
+    private themeService: ThemeEmitterService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -395,8 +398,21 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId, viewportId));
     providers.set(Angular2InjectionTokens.PLUGIN_EMBED_ACTIONS, this.generateEmbedAction(windowId));
     providers.set(Angular2InjectionTokens.SESSION_EVENTS, this.generateSessionEventsProvider(windowId));
+    providers.set(Angular2InjectionTokens.THEME_EVENTS, this.generateThemeEventsProvider());
 
     return providers;
+  }
+
+  // We don't use windowID's here because each app lifecycle points to one master theme service, they're indistinguishable
+  private generateThemeEventsProvider(): Angular2PluginThemeEvents {
+    return {
+      colorChanged: this.themeService.onColorChange,
+      sizeChanged: this.themeService.onSizeChange,
+      wallpaperChanged: this.themeService.onWallpaperChange,
+      currentColor: this.themeService.mainColor,
+      currentSize: this.themeService.mainSize,
+      revertedDefault: this.themeService.onResetAllDefault
+    };
   }
 
   createWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId {
