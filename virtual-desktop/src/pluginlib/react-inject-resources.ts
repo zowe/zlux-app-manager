@@ -30,7 +30,7 @@ export interface ReactMVDResources {
   readonly launchMetadata: any;
   readonly instanceId: MVDHosting.InstanceId;
   readonly sessionEvents: ReactPluginSessionEvents;
-  readonly themeEvents: ReactPluginThemeEvents;
+  readonly themeEvents: ReactPluginThemeEvents | null;
 };
 
 /* TODO

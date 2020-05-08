@@ -34,7 +34,7 @@ export class IFramePluginComponent {
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefintion: ZLUX.ContainerPluginDefinition,
     @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any,
     @Inject(Angular2InjectionTokens.SESSION_EVENTS) private sessionEvents: Angular2PluginSessionEvents,
-    @Inject(Angular2InjectionTokens.THEME_EVENTS) private themeEvents: Angular2PluginThemeEvents
+    @Optional() @Inject(Angular2InjectionTokens.THEME_EVENTS) private themeEvents: Angular2PluginThemeEvents
   ){
     addEventListener("message", this.postMessageListener.bind(this));
     //The following references are to suppress typescript warnings

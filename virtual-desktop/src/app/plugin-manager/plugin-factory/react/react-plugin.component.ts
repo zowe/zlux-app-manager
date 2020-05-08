@@ -39,7 +39,7 @@ export class ReactPluginComponent implements AfterViewInit, OnDestroy {
     @Inject(Angular2InjectionTokens.LAUNCH_METADATA) launchMetadata: any,
     @Inject(Angular2InjectionTokens.INSTANCE_ID) instanceId: MVDHosting.InstanceId,
     @Inject(Angular2InjectionTokens.SESSION_EVENTS) sessionEvents: Angular2PluginSessionEvents,
-    @Inject(Angular2InjectionTokens.THEME_EVENTS) themeEvents: Angular2PluginThemeEvents
+    @Optional() @Inject(Angular2InjectionTokens.THEME_EVENTS) themeEvents: Angular2PluginThemeEvents
   ) {
     this.resources = {
       mainWindowId: mainWindowId,
