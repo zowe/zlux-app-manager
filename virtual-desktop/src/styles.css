@@ -100,13 +100,13 @@
 }
 
 ::selection { /* WebKit/Blink Browsers */
-  background: #ffffffa6 !important;
-  color: black !important;
+  background: grey;
+  color: white;
 }
 
 ::-moz-selection { /* Gecko Browsers */
-  background: #ffffffa6 !important;
-  color: black !important;
+  background: grey;
+  color: white;
 }
 
 /*

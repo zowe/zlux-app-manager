@@ -30,8 +30,7 @@ export class PersonalizationComponent implements OnInit {
   public files: NgxFileDropEntry[] = [];
 
   constructor(
-    private desktopThemeService: ThemeEmitterService,
-
+    private desktopThemeService: ThemeEmitterService
   ) {
     this.selectedColor = Colors.COOLGREY_90;
     this.selectedSize = 2;

@@ -17,6 +17,8 @@ import { TranslationService } from 'angular-l10n';
 //import { Observable } from 'rxjs/Observable';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { ThemeEmitterService } from '../../window-manager/mvd-window-manager/services/theme-emitter.service';
+import * as moment from 'moment';
 
 const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
@@ -51,7 +53,8 @@ export class LoginComponent implements OnInit {
     private authenticationService: AuthenticationManager,
     public translation: TranslationService,
     private cdr: ChangeDetectorRef,
-    private popupManager: ZluxPopupManagerService    
+    private popupManager: ZluxPopupManagerService,
+    private desktopThemeService: ThemeEmitterService    
   ) {
     this.isLoading = true;
     this.needLogin = false;
@@ -104,22 +107,7 @@ export class LoginComponent implements OnInit {
         this.renewSession();
       } else {
         this.logger.info('ZWED5048I'); /*this.logger.info('Near session expiration. No activity detected, prompting to renew session');*/
-        this.idleWarnModal = this.popupManager.createErrorReport(
-          ZluxErrorSeverity.WARNING,
-          this.translation.translate('Session Expiring Soon'),
-          this.translation.translate('Session will expire unless renewed.',
-                { expirationInMS: e.expirationInMS/1000 })
-          +this.translation.translate('Click here to renew your session.'),
-          {
-            blocking: false,
-            buttons: [this.translation.translate('Continue')]
-          });
-        this.idleWarnModal.subject.subscribe((buttonName:any)=> {
-          if (buttonName == this.translation.translate('Continue')) {
-            //may fail, so don't touch timers yet
-            this.renewSession();
-          }
-        });
+        this.spawnExpirationPrompt(e.expirationInMS);
       }
     });
   }
@@ -153,6 +141,57 @@ export class LoginComponent implements OnInit {
             this.renewSession();
           }
         });        
+      }
+    });
+  }
+
+  spawnExpirationPrompt(expirationInMS: number): void {
+    let desktopSize = this.desktopThemeService.mainSize;
+    let popupStyle;
+
+    /* According to the size of the desktop, we move the expiration prompt to align with the app bar */
+    switch (desktopSize) {
+      case 3: {
+        popupStyle = {
+          'margin-bottom': '70px',
+          'margin-right': '-5px'
+        };
+        break;
+      }
+      case 1: {
+        popupStyle = {
+          'margin-bottom': '15px',
+          'margin-right': '-10px'
+        };
+        break;
+      }
+      default: {
+        popupStyle = {
+          'margin-bottom': '35px',
+          'margin-right': '-5px'
+        };
+        break;
+      }
+    }
+
+    this.idleWarnModal = this.popupManager.createErrorReport(
+      ZluxErrorSeverity.WARNING,
+      this.translation.translate('Session Expiring Soon'),
+      //TODO: Add translation
+      //this.translation.translate('You will be logged out at ', { expirationInMS: moment().add(expirationInMS/1000, 'seconds').format('LT') }),
+      this.translation.translate('You will be logged out at ' + moment().add(expirationInMS/1000, 'seconds').format('LT')),
+      {
+        blocking: false,
+        buttons: [this.translation.translate('Continue session')],
+        timestamp: false,
+        theme: "dark",
+        style: popupStyle
+      });
+
+    this.idleWarnModal.subject.subscribe((buttonName:any)=> {
+      if (buttonName == this.translation.translate('Continue')) {
+        //may fail, so don't touch timers yet
+        this.renewSession();
       }
     });
   }
