@@ -144,14 +144,14 @@ export class IFramePluginComponent {
     return (objCopy === undefined) ? undefined : objCopy;
   }
 
-  private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>){
+  private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>, type: string){
     try{
       let copy = JSON.parse(JSON.stringify(itemsArray));
       for(let i = 0; i < copy.length; i++){
         copy[i].action = () => {
           source.postMessage({
             key: key,
-            originCall: 'windowActions.spawnContextMenu',
+            originCall: type+'.spawnContextMenu',
             instanceId: this.instanceId,
             contextMenuItemIndex: i
           }, '*')
@@ -175,7 +175,7 @@ export class IFramePluginComponent {
         fnRet = fn();
       } else {
         if(fnString == 'windowActions.spawnContextMenu' && Array.isArray(args[2])){
-          args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2])
+          args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2], 'windowActions')
         }
         fnRet = fn(...args);
       }
@@ -210,6 +210,9 @@ export class IFramePluginComponent {
             }, that.DEFAULT_CLOSE_TIMEOUT)
           }.bind(this))
         }
+        return fn(...args);
+      } else if(fnString == 'viewportEvents.spawnContextMenu' && Array.isArray(args[2])){
+        args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2], 'viewportEvents');
         return fn(...args);
       }
       return undefined;
