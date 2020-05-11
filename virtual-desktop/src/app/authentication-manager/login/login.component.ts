@@ -186,7 +186,8 @@ export class LoginComponent implements OnInit {
         buttons: [this.translation.translate('Continue session')],
         timestamp: false,
         theme: "dark",
-        style: popupStyle
+        style: popupStyle,
+        callToAction: true
       });
 
     this.idleWarnModal.subject.subscribe((buttonName:any)=> {
