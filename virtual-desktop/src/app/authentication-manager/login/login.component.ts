@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, ChangeDetectorRef, Inject, Optional } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Injector } from '@angular/core';
 import { AuthenticationManager,
          LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
@@ -18,7 +18,6 @@ import { TranslationService } from 'angular-l10n';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { BaseLogger } from 'virtual-desktop-logger';
 import * as moment from 'moment';
-import { Angular2PluginThemeEvents, Angular2InjectionTokens } from 'pluginlib/inject-resources';
 
 const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
@@ -48,14 +47,16 @@ export class LoginComponent implements OnInit {
   private lastActive: number = 0;
   expiredPassword: boolean;
   private passwordServices: Set<string>;
+  private themeManager: any;
 
   constructor(
     private authenticationService: AuthenticationManager,
     public translation: TranslationService,
     private cdr: ChangeDetectorRef,
     private popupManager: ZluxPopupManagerService,
-    @Optional() @Inject(Angular2InjectionTokens.THEME_EVENTS) private themeEvents: Angular2PluginThemeEvents
+    private injector: Injector
   ) {
+    this.themeManager = this.injector.get(MVDHosting.Tokens.ThemeEmitterToken);
     this.isLoading = true;
     this.needLogin = false;
     this.changePassword = false;
@@ -146,10 +147,7 @@ export class LoginComponent implements OnInit {
   }
 
   spawnExpirationPrompt(expirationInMS: number): void {
-    let desktopSize = 2;
-    if (this.themeEvents) {
-      desktopSize = this.themeEvents.currentSize;
-    }
+    let desktopSize = this.themeManager.mainSize || 2;
     let popupStyle;
 
     /* According to the size of the desktop, we move the expiration prompt to align with the app bar */

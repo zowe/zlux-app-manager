@@ -65,6 +65,7 @@ import { ThemeEmitterService } from './services/theme-emitter.service';
     ThemeEmitterService,
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
+    { provide: MVDHosting.Tokens.ThemeEmitterToken, useExisting: ThemeEmitterService },
     KeybindingService
   ]
 })
