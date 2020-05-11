@@ -146,7 +146,10 @@ export class LoginComponent implements OnInit {
   }
 
   spawnExpirationPrompt(expirationInMS: number): void {
-    let desktopSize = this.themeEvents.currentSize;
+    let desktopSize = 2;
+    if (this.themeEvents) {
+      desktopSize = this.themeEvents.currentSize;
+    }
     let popupStyle;
 
     /* According to the size of the desktop, we move the expiration prompt to align with the app bar */
