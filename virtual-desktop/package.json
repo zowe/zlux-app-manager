@@ -28,7 +28,7 @@
     "@angular/platform-browser-dynamic": "~6.0.9",
     "@angular/router": "~6.0.9",
     "@types/html2canvas": "~0.0.35",
-    "@zlux/widgets": "git+https://github.com/zowe/zlux-widgets.git",
+    "@zlux/widgets": "git+https://github.com/DivergentEuropeans/zlux-widgets.git#feature/add-styling-dark-theme-popup",
     "angular-l10n": "~5.2.0",
     "angular2-template-loader": "~0.6.2",
     "bootstrap": "~4.3.1",
