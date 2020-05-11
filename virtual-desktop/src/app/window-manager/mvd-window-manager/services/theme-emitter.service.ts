@@ -15,7 +15,6 @@ import { Colors } from '../shared/colors';
 
 @Injectable()
 export class ThemeEmitterService {
-  public keyUpEvent = new EventEmitter<KeyboardEvent>();
   public onColorChange = new EventEmitter<any>();
   public onColorPreview = new EventEmitter<any>();
   public onSizeChange = new EventEmitter<any>();
@@ -26,20 +25,8 @@ export class ThemeEmitterService {
   public mainSize: number;
 
   constructor() {
-    this.keyUpHandler = this.keyUpHandler.bind(this);
     this.mainColor = Colors.COOLGREY_80;
     this.mainSize = 2;
-  }
-
-  registerKeyUpEvent() {
-    document.addEventListener('keyup', this.keyUpHandler, true);
-  }
-
-  keyUpHandler(event: KeyboardEvent) {
-    if(event.altKey && event.ctrlKey) {
-      event.stopImmediatePropagation();
-      this.keyUpEvent.emit(event);
-    }
   }
 
   /* Expected input in 'hex' format */
