@@ -14,20 +14,23 @@
 </div>
 
 <ng-template [ngIf]="isActive">
-  <div class="launch-widget-popup">
+  <div class="launch-widget-popup" (click)="setSearchFocus();">
     <div style="cursor: pointer" class="refresh-plugins" (click)="refresh()">
-      Refresh applications
+      {{translation.translate("Refresh Applications")}}
       <em style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></em>
     </div>
     <div style="margin: 20px"></div>
-    <div class="launch-menu-scroller">
-      <div class="launch-widget-row" *ngFor="let item of displayItems" (click)="clicked(item)" [title]="item.tooltip" (contextmenu)="onRightClick($event, item)">
-        <img class="icon" [src]="item.image">
-        <p>{{item.label}}</p>
-      </div>
+    <div #menudiv class="launch-menu-scroller">
+        <div class="launch-widget-row" *ngFor="let item of displayItems | sortBy: 'label'; let i = index;"
+        (click)="clicked(item)" [title]="item.tooltip" (contextmenu)="onRightClick($event, item)"
+          [class.active]="i==this.activeIndex" 
+          (mouseover)="this.activeIndex=i" >
+          <img class="icon" [src]="item.image">
+          <p>{{item.label}}</p>
+        </div>
     </div>
     <div class="launch-menu-search">
-      <input style="width:95%" type="text" placeholder="Search Applications" [(ngModel)]="appFilter" (input)="filterMenuItems()">
+      <input #searchapp style="width:95%" type="text" placeholder="{{translation.translate('Search')}}" [(ngModel)]="appFilter" (input)="filterMenuItems()" >
     </div>
   </div>
   <div class="launch-widget-caret caret-down"></div>

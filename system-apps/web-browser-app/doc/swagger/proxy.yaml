@@ -1,0 +1,156 @@
+#  This program and the accompanying materials are
+#  made available under the terms of the Eclipse Public License v2.0 which accompanies
+#  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+#
+#  SPDX-License-Identifier: EPL-2.0
+#
+#  Copyright Contributors to the Zowe Project.
+
+swagger: '2.0'
+info:
+  description: Proxy Server management API
+  version: 1.0.0
+  title: Proxy Server management API
+host: localhost
+basePath: /
+schemes:
+  - http
+  - https
+tags:
+  - name: proxy
+paths:
+  /:
+    get:
+      summary: List proxy servers
+      description: List proxy servers
+      operationId: list
+      tags:
+        - proxy
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: List of proxy servers
+          schema:
+            $ref: '#/definitions/ProxyList'
+    post:
+      summary: Allocate a new Proxy server
+      description: Allocate a new Proxy server
+      operationId: create
+      tags:
+        - proxy
+      produces:
+        - application/json
+      consumes:
+        - application/json      
+      parameters:
+        - name: body
+          in: body
+          description: Target URL
+          required: true
+          schema:
+            type: object
+            required: 
+              - url
+            properties:
+              url:
+                type: string
+      responses:
+        '200':
+          description: Proxy allocated
+          schema:
+            $ref: '#/definitions/ProxyResult'
+        '503':
+          description: Proxy unavailable
+  /{port}:
+    put:
+      summary: Replace target URL for existing Proxy server
+      description: Replace target URL for existing Proxy server
+      operationId: replace
+      tags:
+        - proxy
+      produces:
+        - application/json
+      consumes:
+        - application/json      
+      parameters:
+        - name: body
+          in: body
+          description: Target URL
+          required: true
+          schema:
+            type: object
+            required: 
+              - url
+            properties:
+              url:
+                type: string
+        - name: port
+          in: path
+          description: Proxy Port
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Proxy target URL replaced
+          schema:
+            $ref: '#/definitions/ProxyResult'
+        '404':
+          description: Proxy not found
+    delete:
+      summary: Deallocate Proxy server
+      description: Deallocate Proxy server
+      operationId: delete
+      tags:
+        - proxy
+      produces:
+        - application/json
+      consumes:
+        - application/json      
+      parameters:
+        - in: path
+          name: port
+          description: Proxy Port
+          required: true
+          type: integer
+      responses:
+        '204':
+          description: Proxy deallocated
+definitions:
+  ProxyResult:
+    type: object
+    properties:
+      _objectType:
+        type: string
+      _metadataVersion:
+        type: string
+      port:
+        type: integer
+  ProxyList:
+    type: object
+    properties:
+      _objectType:
+        type: string
+      _metadataVersion:
+        type: string
+      instances:
+        type: array
+        items:
+          type: object
+          properties:
+            target:
+              type: string
+            port:
+              type: integer
+
+externalDocs:
+  description: "Find out more about Zowe"
+  url: "https://www.zowe.org/"
+
+#  This program and the accompanying materials are
+#  made available under the terms of the Eclipse Public License v2.0 which accompanies
+#  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+#
+#  SPDX-License-Identifier: EPL-2.0
+#
+#  Copyright Contributors to the Zowe Project.

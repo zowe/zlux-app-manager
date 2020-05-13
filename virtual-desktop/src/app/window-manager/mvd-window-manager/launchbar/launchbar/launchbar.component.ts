@@ -27,7 +27,7 @@ import { generateInstanceActions } from '../shared/context-utils';
   styleUrls: ['./launchbar.component.css', '../shared/shared.css'],
   providers: [PluginsDataService]
 })
-export class LaunchbarComponent {
+export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   allItems: LaunchbarItem[];
   runItems: LaunchbarItem[];
   isActive: boolean;
@@ -54,6 +54,7 @@ export class LaunchbarComponent {
      // Workaround for AoT problem with namespaces (see angular/angular#15613)
      this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
      this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
+     this.authenticationManager.registerPreLogoutAction(this);
      this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
      this.allItems = [];
      this.runItems = [];
@@ -76,6 +77,11 @@ export class LaunchbarComponent {
 
   getNewItems(): void {
     this.pluginManager.loadApplicationPluginDefinitions(true);
+  }
+
+  onLogout(): boolean {
+    this.allItems = [];
+    return true;
   }
 
   ngDoCheck(): void {

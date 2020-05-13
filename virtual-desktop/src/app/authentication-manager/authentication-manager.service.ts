@@ -44,18 +44,12 @@ export type LoginExpirationIdleCheckEvent = {
   expirationInMS: number;
 };
 
-export enum LoginScreenChangeReason {
-  UserLogout,
-  UserLogin,
-  SessionExpired
-};
-
 @Injectable()
 export class AuthenticationManager {
   username: string | null;
   private postLoginActions: Array<MVDHosting.LoginActionInterface>;
   private preLogoutActions: Array<MVDHosting.LogoutActionInterface>;
-  readonly loginScreenVisibilityChanged: EventEmitter<LoginScreenChangeReason>;
+  readonly loginScreenVisibilityChanged: EventEmitter<MVDHosting.LoginScreenChangeReason>;
   readonly loginExpirationIdleCheck: EventEmitter<LoginExpirationIdleCheckEvent>;
   private nearestExpiration: number;
   private expirations: Map<string,number>;
@@ -128,7 +122,7 @@ export class AuthenticationManager {
           this.performPostLoginActions().subscribe(
             ()=> {
               this.log.debug('ZWED5298I'); //this.log.debug('Done performing post-login actions');
-              this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogin);
+              this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.UserLogin);
             }
           );
           return result;
@@ -141,15 +135,15 @@ export class AuthenticationManager {
   //requestLogin() used to exist here but it was counter-intuitive in behavior to requestLogout.
   //This was not documented and therefore has been removed to prevent misuse and confusion.
  
-  private doLogoutInner(reason: LoginScreenChangeReason): void {
+  private doLogoutInner(reason: MVDHosting.LoginScreenChangeReason): void {
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
       this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
-    if (reason == LoginScreenChangeReason.UserLogout) {
+    if (reason == MVDHosting.LoginScreenChangeReason.UserLogout) {
       windowManager.closeAllWindows();
     }
     this.performLogout().subscribe(
       response => {
-        if (reason == LoginScreenChangeReason.UserLogout) {
+        if (reason == MVDHosting.LoginScreenChangeReason.UserLogout) {
           this.username = null;
           (ZoweZLUX.logger as any)._setBrowserUsername('N/A');
         }
@@ -163,7 +157,7 @@ export class AuthenticationManager {
   }
 
   requestLogout(): void {
-    this.doLogoutInner(LoginScreenChangeReason.UserLogout);
+    this.doLogoutInner(MVDHosting.LoginScreenChangeReason.UserLogout);
   }
 
   private performPostLoginActions(): Observable<any> {
@@ -231,7 +225,7 @@ export class AuthenticationManager {
                                             expirationInMS: logoutAfterWarnTimer});
         this.expirationWarning = setTimeout(()=> {
           this.log.warn("ZWED5162W"); //this.log.warn(`Session timeout reached. Clearing desktop for new login.`);
-          this.doLogoutInner(LoginScreenChangeReason.SessionExpired);
+          this.doLogoutInner(MVDHosting.LoginScreenChangeReason.SessionExpired);
         },logoutAfterWarnTimer);
       },warnTimer);
       this.log.debug("ZWED5302I", warnTimer); //this.log.debug(`Set session timeout watcher to notify ${warnTimer}ms before expiration`);
@@ -253,6 +247,14 @@ export class AuthenticationManager {
     });
   }
 
+  performPasswordReset(username: string, password: string, newPassword: string, serviceHandler: string): Observable<Response> {
+    return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-password'),
+                          {username: username, password: password, newPassword: newPassword, serviceHandler: serviceHandler})
+    .map(result => {
+      return result
+    })
+  }
+
   performLogin(username: string, password: string): Observable<Response> {
     if (this.username != null && (username != this.username)) {
       const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
@@ -270,7 +272,7 @@ export class AuthenticationManager {
         this.performPostLoginActions().subscribe(
           ()=> {
             this.log.debug('ZWED5303I'); //this.log.debug('Done performing post-login actions');
-            this.loginScreenVisibilityChanged.emit(LoginScreenChangeReason.UserLogin);              
+            this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.UserLogin);
           });
         return result;
       } else {
@@ -282,6 +284,18 @@ export class AuthenticationManager {
   private performLogout(): Observable<Response> {
     this.performPreLogoutActions();
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-logout'), {});
+  }
+
+  requestPasswordChangeScreen() {
+    this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.PasswordChange);
+  }
+
+  hidePasswordChangeScreen() {
+    this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.HidePasswordChange);
+  }
+
+  passwordChangeSuccessfulScreen() {
+    this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess);
   }
 }
 
