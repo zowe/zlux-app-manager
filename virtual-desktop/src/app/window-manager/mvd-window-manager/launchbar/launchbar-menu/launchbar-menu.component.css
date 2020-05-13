@@ -17,6 +17,25 @@
   background-image: url("../../../../../assets/images/launchbar/more-apps.png");
 }
 
+.launch-menu-search {
+  position:absolute;
+  bottom: 5px;
+  width: 100%;
+}
+
+.launch-menu-scroller {
+  overflow-y: scroll;
+  width: 315px;
+  height: 295px;
+  bottom: 31px;
+  position: absolute;
+  background: #dde8f1;
+}
+
+.refresh-plugins {
+  float:right;  
+}
+
 .launch-widget {
   height: 100%;
   width: 125px;
@@ -71,9 +90,9 @@
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
   background: #dde8f1;
-  padding: 30px;
-  overflow-y: scroll;
+  padding: 5px 10px 0px 10px;
 }
+
 
 .launchbar-separator-hor {
   color: #36617a;
@@ -103,6 +122,9 @@
   left: 45px;
 }
 
+.launch-widget-row.active {
+  background-color: #a6a6a6;
+}
 
 /*
   This program and the accompanying materials are

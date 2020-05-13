@@ -1,0 +1,13 @@
+{
+   
+
+    "ZWED0000I":"RESERVED: Message sent to %s",
+    "ZWED0001I":"Saw Websocket request, method=%s",
+    "ZWED0002I":"RESERVED: Message sent to %s",
+
+    "ZWED0002E":"RESERVED: Recipient input cannot be blank",
+    "ZWED0003E":"RESERVED: %s is not a valid user or is not online",
+    "ZWED0004E":"RESERVED: Server error",
+    "ZWED0005E":"RESERVED: Message was not sent",
+    "ZWED0006E":"RESERVED: RBAC is not enabled"
+}

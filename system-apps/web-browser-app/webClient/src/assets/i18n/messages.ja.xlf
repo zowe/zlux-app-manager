@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template" target-language="ja">
+    <body>
+      <trans-unit id="go-back" datatype="html">
+        <source>Go Back</source><target state="new">Go Back</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/browser/address-bar/address-bar.component.ts</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+        <note priority="1" from="description">Title of 'Go Back' button</note>
+        <note priority="1" from="meaning">tooltip</note>
+      </trans-unit><trans-unit id="go-forward" datatype="html">
+        <source>Go Forward</source><target state="new">Go Forward</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/browser/address-bar/address-bar.component.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+        <note priority="1" from="description">Title of 'Go Forward' button</note>
+        <note priority="1" from="meaning">tooltip</note>
+      </trans-unit><trans-unit id="refresh" datatype="html">
+        <source>Refresh</source><target state="new">Refresh</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/browser/address-bar/address-bar.component.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+        <note priority="1" from="description">Title of 'Refresh' button</note>
+        <note priority="1" from="meaning">tooltip</note>
+      </trans-unit><trans-unit id="proxy" datatype="html">
+        <source>Proxy</source><target state="new">Proxy</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/browser/address-bar/address-bar.component.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+        <note priority="1" from="description">Title of 'Proxy' checkbox</note>
+        <note priority="1" from="meaning">label</note>
+      </trans-unit><trans-unit id="enable-disable-proxy" datatype="html">
+        <source>Enable/Disable Proxy</source><target state="new">Enable/Disable Proxy</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/browser/address-bar/address-bar.component.ts</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+        <note priority="1" from="description">Title of 'Enable/Disable Proxy' checkbox</note>
+        <note priority="1" from="meaning">tooltip</note>
+      </trans-unit><trans-unit id="remove-bookmark" datatype="html">
+        <source>Remove bookmark</source><target state="new">Remove bookmark</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/browser/bookmark/bookmark.component.ts</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <note priority="1" from="description">Title of 'Remove bookmark' button</note>
+        <note priority="1" from="meaning">tooltip</note>
+      </trans-unit><trans-unit id="remove-from-bookmarks" datatype="html">
+        <source>Remove from bookmarks</source><target state="new">Remove from bookmarks</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/browser/bookmark-button/bookmark-button.component.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+        <note priority="1" from="description">Title for 'Remove from bookmarks' button</note>
+        <note priority="1" from="meaning">tooltip</note>
+      </trans-unit><trans-unit id="add-to-bookmarks" datatype="html">
+        <source>Add to bookmarks</source><target state="new">Add to bookmarks</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/browser/bookmark-button/bookmark-button.component.ts</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+        <note priority="1" from="description">Title for 'Add to bookmarks' button</note>
+        <note priority="1" from="meaning">tooltip</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

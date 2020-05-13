@@ -17,12 +17,14 @@ import { SimpleWindowManagerService } from './simple-window-manager.service';
 import { SimpleComponent } from './simple.component';
 import { ApplicationManagerModule } from '../../application-manager/application-manager.module';
 import { AuthenticationModule } from '../../authentication-manager/authentication-manager.module';
+import { ContextMenuModule } from '../../context-menu/context-menu.module';
 
 @NgModule({
   imports: [
     ApplicationManagerModule,
     AuthenticationModule,
     CommonModule,
+    ContextMenuModule
   ],
   declarations: [
     SimpleComponent

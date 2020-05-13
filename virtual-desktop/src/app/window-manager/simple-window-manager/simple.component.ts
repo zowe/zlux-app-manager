@@ -14,6 +14,8 @@ import { Component, Injector, OnInit } from '@angular/core';
 import { ApplicationManager } from "app/application-manager/application-manager.service";
 import { PluginManager } from "app/plugin-manager/shared/plugin-manager";
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
+import { SimpleWindowManagerService } from "./simple-window-manager.service";
+import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
 
 @Component({
@@ -22,9 +24,10 @@ import { BaseLogger } from 'virtual-desktop-logger';
   styleUrls: ['./simple.component.css'],
 })
 export class SimpleComponent implements OnInit {
+  contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   viewportId: MVDHosting.ViewportId;
-  private windowManager: MVDWindowManagement.WindowManagerServiceInterface;
+  private windowManager: SimpleWindowManagerService;
   public showLogin:boolean = (window as any).ZOWE_SWM_SHOW_LOGIN == 1 ? true : false;
   public error:string='';
 
@@ -37,13 +40,20 @@ export class SimpleComponent implements OnInit {
     this.windowManager = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
   }
 
-  ngOnInit(): void {
+  closeContextMenu(): void {
+    this.contextMenuDef = null;
+  }
 
+  ngOnInit(): void {
+    this.windowManager.contextMenuRequested.subscribe(menuDef => {
+      this.contextMenuDef = menuDef;
+    });
+    
     let requestedPluginID: string = (window as any)['GIZA_PLUGIN_TO_BE_LOADED'];
 
     if (!requestedPluginID) {
       let message = "Plugin ID required. Use query parameter ?pluginId";
-      this.logger.severe(message);
+      this.logger.severe("ZWED5143E"); //this.logger.severe(message);
       this.error = message;
       return;
     }
@@ -71,12 +81,12 @@ export class SimpleComponent implements OnInit {
         this.viewportId = this.windowManager.getViewportId(1);
       } else {
         let message = "Cannot find plugin with ID="+pluginID;
-        this.logger.severe(message);
+        this.logger.severe("ZWED5144E", pluginID); //this.logger.severe(message);
         this.error = message;
       }
     }).catch((x) => {
       let message = "Plugin promise not returned, cannot continue";
-      this.logger.severe(message);
+      this.logger.severe("ZWED5145E"); //this.logger.severe(message);
       this.error = message;
       return;
     });

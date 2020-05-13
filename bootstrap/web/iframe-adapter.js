@@ -23,7 +23,7 @@ let messageHandler = function(message) {
             translateFunction('registerAdapterInstance', []);
         } else if(ZoweZLUX.iframe.instanceId !== -1 && data.dispatchData.instanceId !== undefined 
                     && data.dispatchData.instanceId !== ZoweZLUX.iframe.instanceId){
-            console.warn('Desktop attempted to change instanceId for iframe instance=', ZoweZLUX.iframe.instanceId, 'message=', message);
+            console.warn('ZWED5000W - Desktop attempted to change instanceId for iframe instance=', ZoweZLUX.iframe.instanceId, 'message=', message);
         }
     }
     if(data.key === undefined || data.instanceId != ZoweZLUX.iframe.instanceId) return;
@@ -59,22 +59,31 @@ let messageHandler = function(message) {
             //The following cases should be implemented by the user,
             //therefore users will need an eventListener for "message" events
             case 'windowEvents.minimized':
-                console.log('minimized')
+                let minimized = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'minimized'}});
+                window.dispatchEvent(minimized);
                 return;
             case 'windowEvents.maximized':
-                console.log('maximized')
+                let maximized = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'maximized'}});
+                window.dispatchEvent(maximized);
                 return;
             case 'windowEvents.restored':
-                console.log('restored')
-                return;
-            case 'windowEvents.moved':
-                //console.log('moved')
+                let restored = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'restored'}});
+                window.dispatchEvent(restored)
                 return;
             case 'windowEvents.resized':
                 //console.log('resized')
                 return;
             case 'windowEvents.titleChanged':
-                console.log('titleChanged')
+                let titleChanged = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'titleChange'}});
+                window.dispatchEvent(titleChanged);
+                return;
+            case 'sessionEvents.login':
+                let login = new CustomEvent('ZoweZLUX.sessionEvents', {detail: {event:'login'}});
+                window.dispatchEvent(login);
+                return;
+            case 'sessionEvents.sessionExpire':
+                let sessionExpire = new CustomEvent('ZoweZLUX.sessionEvents', {detail: {event:'sessionExpire'}});
+                window.dispatchEvent(sessionExpire);
                 return;
             default:
                 return;
@@ -88,7 +97,7 @@ let messageHandler = function(message) {
 window.addEventListener('message', messageHandler);
 
 window.addEventListener("load", function () {
-    console.log('iFrame Adapter has loaded!');
+    console.log('ZWED5009I - iFrame Adapter has loaded!');
     window.top.postMessage('iframeload', '*');
 });
 
@@ -101,7 +110,7 @@ function translateFunction(functionString, args){
     return new Promise((resolve, reject) => {
         if(typeof functionString !== 'string' || !Array.isArray(args)){
             reject({
-                error: "functionString must be of type string, args must be an array of type object"
+                error: "ZWED5013E - functionString must be of type string, args must be an array of type object"
             })
         }
         const key = ZoweZLUX.iframe.__iframeAdapter.__curResponseKey++;
@@ -198,9 +207,10 @@ var ZoweZLUX = {
         getPlugin(id){
             return translateFunction('ZoweZLUX.pluginManager.getPlugin', [id])
         },
-        loadPlugins(pluginType){
-
+        loadPlugins(pluginType, update){
+            return translateFunction('ZoweZLUX.pluginManager.loadPlugins', Array.prototype.slice.call(arguments))
         },
+      /*  These are omitted because they do not seem like something an iframe should modify
         setDesktopPlugin(plugin){
 
         },
@@ -210,54 +220,55 @@ var ZoweZLUX = {
         getDesktopPlugin(){
 
         }
+      */
     },
     uriBroker: {
         desktopRootUri(){
             return translateFunction('ZoweZLUX.uriBroker.desktopRootUri', [])
         },
         datasetMetadataHlqUri(updateCache, types, workAreaSize, resumeName, resumeCatalogName){
-
+            return translateFunction('ZoweZLUX.uriBroker.datasetMetadataHlqUri', Array.prototype.slice.call(arguments))
         },
         datasetMetadataUri(dsn, detail, types, listMembers, workAreaSize, includeMigrated, includeUnprintable,
                                     resumeName, resumeCatalogName, addQualifiers){
-            
+          return translateFunction('ZoweZLUX.uriBroker.datasetMetadataUri', Array.prototype.slice.call(arguments))
         },
         datasetContentsUri(dsn){
-
+          return translateFunction('ZoweZLUX.uriBroker.datasetContentsUri', Array.prototype.slice.call(arguments))
         },
         VSAMdatasetContentsUri(dsn, closeAfter){
-
+          return translateFunction('ZoweZLUX.uriBroker.VSAMdatasetContentsUri', Array.prototype.slice.call(arguments))
         },
         unixFileUri(route, absPath, sourceEncodingOrOptions,
                             targetEncoding, newName, forceOverwrite, sessionID, lastChunk, responseType){
-
+          return translateFunction('ZoweZLUX.uriBroker.unixFileUri', Array.prototype.slice.call(arguments))
         },
         omvsSegmentUri(){
-
+          return translateFunction('ZoweZLUX.uriBroker.omvsSegmentUri', Array.prototype.slice.call(arguments))
         },
         rasUri(uri){
-
+          return translateFunction('ZoweZLUX.uriBroker.rasUri', Array.prototype.slice.call(arguments))
         },
         serverRootUri(uri){
-
+          return translateFunction('ZoweZLUX.uriBroker.serverRootUri', Array.prototype.slice.call(arguments))
         },
         pluginResourceUri(pluginDefinition, relativePath){
-
+          return translateFunction('ZoweZLUX.uriBroker.pluginResourceUri', Array.prototype.slice.call(arguments))
         },
-        pluginListUri(pluginType){
-
+        pluginListUri(pluginType, update){
+          return translateFunction('ZoweZLUX.uriBroker.pluginListUri', Array.prototype.slice.call(arguments))
         },
         pluginConfigForScopeUri(pluginDefinition, scope, resourcePath, resourceName){
-
+          return translateFunction('ZoweZLUX.uriBroker.pluginConfigForScopeUri', Array.prototype.slice.call(arguments))
         },
         pluginConfigUri(pluginDefinition, resourcePath, resourceName){
-            return translateFunction('ZoweZLUX.uriBroker.pluginConfigUri', [pluginDefinition, resourcePath, resourceName])
+            return translateFunction('ZoweZLUX.uriBroker.pluginConfigUri', Array.prototype.slice.call(arguments))
         },
         pluginWSUri(pluginDefinition, serviceName, relativePath, version){
-
+            return translateFunction('ZoweZLUX.uriBroker.pluginWSUri', Array.prototype.slice.call(arguments))
         },
         pluginRESTUri(pluginDefinition, serviceName, relativePath, version){
-            return translateFunction('ZoweZLUX.uriBroker.pluginRESTUri', [pluginDefinition, serviceName, relativePath, version])
+            return translateFunction('ZoweZLUX.uriBroker.pluginRESTUri', Array.prototype.slice.call(arguments))
         }
     },
     dispatcher: {
@@ -350,7 +361,7 @@ var windowActions = {
         return translateFunction('windowActions.restore', [])
     },
     setTitle(title){
-        return translateFunction('windowActions.setTitle', [title])
+        return translateFunction('windowActions.setTitle', Array.prototype.slice.call(arguments))
     },
     setPosition(pos){
         return translateFunction('windowActions.setPosition', [pos])
@@ -359,9 +370,10 @@ var windowActions = {
         return translateFunction('windowActions.spawnContextMenu', [xPos, yPos, items, isAbsolutePos])
     },
 }
-
+ZoweZLUX.iframe.windowActions = windowActions;
 var viewportEvents = {
     registerCloseHandler(handler){
         return translateFunction('viewportEvents.registerCloseHandler', [handler])
     }
 }
+ZoweZLUX.iframe.viewportEvents = viewportEvents;

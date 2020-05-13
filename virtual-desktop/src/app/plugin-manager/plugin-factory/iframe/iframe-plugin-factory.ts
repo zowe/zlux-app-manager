@@ -58,16 +58,16 @@ export class IFramePluginFactory extends PluginFactory {
   private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Type<any> {
     const basePlugin = pluginDefinition.getBasePlugin();
     const startingPage = basePlugin.getWebContent().startingPage || 'index.html';
-    this.logger.debug('iframe startingPage', startingPage);
+    this.logger.debug('ZWED5307I', startingPage); //this.logger.debug('iframe startingPage', startingPage);
     let startingPageUri;
     if (startingPage.startsWith('http://') || startingPage.startsWith('https://')) {
       startingPageUri = startingPage;
     } else {
       startingPageUri = (window as any).ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
     }
-    this.logger.debug('iframe startingPageUri', startingPageUri);
+    this.logger.debug('ZWED5308I', startingPageUri); //this.logger.debug('iframe startingPageUri', startingPageUri);
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
-    this.logger.info(`Loading iframe, URI=${startingPageUri}`);
+    this.logger.info(`ZWED5053I`, startingPageUri); //this.logger.info(`Loading iframe, URI=${startingPageUri}`);
     const theIframeId = IFRAME_NAME_PREFIX + (instanceId); //Syncs the IFrame ID with its instance ID counterpart
     class IFrameComponentClass extends IFramePluginComponent {
       startingPage: SafeResourceUrl = safeStartingPageUri;
@@ -86,8 +86,9 @@ export class IFramePluginFactory extends PluginFactory {
   }
 
   loadComponentFactories(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<void> {
-    this.logger.info(`IFrame component factories currently unsupported. `
-                    +`Skipping for plugin ID=${pluginDefinition.getIdentifier()}`);
+    this.logger.info(`ZWED5054I`, pluginDefinition.getIdentifier());
+    /*this.logger.info(`IFrame component factories currently unsupported. `
+                    +`Skipping for plugin ID=${pluginDefinition.getIdentifier()}`);*/
 
     return Promise.resolve();
   }

@@ -30,7 +30,7 @@ export class DirectEmbedComponent {
     if (changes['component']) {
       this.viewContainerRef.clear();
 
-      this.logger.debug(`ngOnChanges=`,this.component);
+      this.logger.debug("ZWED5322I", this.component); //this.logger.debug(`ngOnChanges=`,this.component);
       if (this.component != null) {
         this.viewContainerRef.insert(this.component.hostView);
       }

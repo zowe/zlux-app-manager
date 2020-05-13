@@ -28,7 +28,7 @@ exports.adminNotificationWebsocketRouter = function(context) {
       }
 
       router.use(function abc(req,res,next) {
-        context.logger.info('Saw Websocket request, method='+req.method);
+        context.logger.info('ZWED0001I'+req.method);
         next();
       });
       context.addBodyParseMiddleware(router);
@@ -43,15 +43,15 @@ exports.adminNotificationWebsocketRouter = function(context) {
                         sent = true;
                     })
                     if (sent) {
-                        res.status(201).json({"Response" : "Message sent to " + req.body.recipient});
+                        res.status(201).json({"Response" : "ZWED0000I - Message sent to " + req.body.recipient});
                     } else {
-                        res.status(500).json({"Response" : "Server error"});
+                        res.status(500).json({"Response" : "ZWED0004E - Server error"});
                     }
                 } else {
                     if (req.body.username === "") {
-                        res.status(404).json({"Response" : "Recipient input cannot be blank"});
+                        res.status(404).json({"Response" : "ZWED0002E - Recipient input cannot be blank"});
                     } else {
-                        res.status(404).json({"Response" : req.body.username + " is not a valid user or is not online"});
+                        res.status(404).json({"Response" : "ZWED0003E - " + req.body.username + " is not a valid user or is not online"});
                     }
                 }
             } else if (req.body.recipient === EVERYONE){
@@ -63,15 +63,15 @@ exports.adminNotificationWebsocketRouter = function(context) {
                     })
                 })
                 if (sent) {
-                    res.status(201).json({"Response" : "Message sent to " + req.body.recipient});
+                    res.status(201).json({"Response" : "ZWED0002I - Message sent to " + req.body.recipient});
                 } else {
-                    res.status(500).json({"Response" : "Server error"});
+                    res.status(500).json({"Response" : "ZWED0004E - Server error"});
                 }
             } else {
-                res.status(400).json({"Response": "Message was not sent"})
+                res.status(400).json({"Response": "ZWED0005E - Message was not sent"})
             }
         } else {
-            res.status(403).json({"Response": "RBAC is not enabled"})
+            res.status(403).json({"Response": "ZWED0006E - RBAC is not enabled"})
         }
       });
       router.ws('/',function(ws,req) {

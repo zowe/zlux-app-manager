@@ -15,6 +15,11 @@ import { Http, Response } from '@angular/http';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { AuthenticationManager } from '../../../authentication-manager/authentication-manager.service';
+import { TranslationService } from 'angular-l10n';
+
+const ACCOUNT_PASSWORD = "Account Password";
+const PASSWORD_CHANGED = "PasswordChanged"
 
 @Component({
   selector: 'rs-com-mvd-desktop',
@@ -26,19 +31,34 @@ private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 public isPersonalizationPanelVisible: boolean;
 constructor(
     public windowManager: WindowManagerService,
+    private authenticationService: AuthenticationManager,
     private http: Http,
-    private injector: Injector
+    private injector: Injector,
+    private translation: TranslationService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.contextMenuDef = null;
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
+    this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
+      switch (eventReason) {
+      case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
+        const notifTitle = this.translation.translate(ACCOUNT_PASSWORD);
+        const notifMessage = this.translation.translate(PASSWORD_CHANGED);
+        const desktopPluginId = ZoweZLUX.pluginManager.getDesktopPlugin().getIdentifier();
+        this.hidePersonalizationPanel();
+        ZoweZLUX.notificationManager.notify(ZoweZLUX.notificationManager.createNotification(notifTitle, notifMessage, 1, desktopPluginId));
+        break;
+      default:
+      }
+    });
   }
   ngOnInit(): void {
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
   }
+
 
   showPersonalizationPanel(): void {
     this.isPersonalizationPanelVisible = true;
@@ -70,7 +90,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
     let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
     let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'recognizers');
     let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
-    this.log.debug(`Getting recognizers from "${recognizersUri}", actions from "${actionsUri}"`);
+    this.log.debug("ZWED5309I", recognizersUri, actionsUri); //this.log.debug(`Getting recognizers from "${recognizersUri}", actions from "${actionsUri}"`);
     this.http.get(recognizersUri).map((res:Response)=>res.json()).subscribe((config: any)=> {
       if (config) {
         let appContents = config.contents;
@@ -85,7 +105,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
           appContents[appWithRecognizer].recognizers.forEach((recognizerObject:ZLUX.RecognizerObject)=> {
             ZoweZLUX.dispatcher.addRecognizerObject(recognizerObject);
           });
-          this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);
+          this.log.info(`ZWED5055I`, appContents[appWithRecognizer].recognizers.length, appWithRecognizer); //this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);
         });
       }
     });
@@ -105,7 +125,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
               ZoweZLUX.dispatcher.registerAbstractAction(ZoweZLUX.dispatcher.makeActionFromObject(actionObject));
             }
           });
-          this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);
+          this.log.info(`ZWED5056I`, appContents[appWithAction].actions.length, appWithAction); //this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);
         });
       }
     });

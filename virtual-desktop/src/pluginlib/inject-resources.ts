@@ -27,6 +27,7 @@ export const Angular2InjectionTokens = {
   PLUGIN_DEFINITION: 'virtualdesktop-ng2.0-0-0.plugin-definition',
   LAUNCH_METADATA: 'virtualdesktop-ng2.0-0-0.launch-metadata',
   L10N_CONFIG: 'virtualdesktop-ng2.0-0-0.l10n-config',
+  INSTANCE_ID: 'virtualdesktop-ng2.0-0-0.instance-id',
 
   /* Component Level Resources */
   PLUGIN_EMBED_ACTIONS: 'virtualdesktop-ng2.0-0-0.plugin-embed-actions',
@@ -36,6 +37,7 @@ export const Angular2InjectionTokens = {
   MAIN_WINDOW_ID: 'virtualdesktop-ng2.0-0-0.window-id', /* optional */
   WINDOW_ACTIONS: 'virtualdesktop-ng2.0-0-0.window-actions', /* optional */
   WINDOW_EVENTS: 'virtualdesktop-ng2.0-0-0.window-events', /* optional */
+  SESSION_EVENTS: 'virtualdesktop-ng2.0-0-0.session-events', /* optional */
 };
 
 export interface Angular2PluginWindowActions {
@@ -49,6 +51,11 @@ export interface Angular2PluginWindowActions {
   readonly registerCloseHandler: (handler: () => Promise<void>) => void;
 }
 
+export interface Angular2PluginSessionEvents {
+  readonly login: Subject<void>;
+  readonly sessionExpire: Subject<void>;
+}
+
 export interface Angular2PluginWindowEvents {
   readonly maximized: Subject<void>;
   readonly minimized: Subject<void>;
@@ -60,7 +67,7 @@ export interface Angular2PluginWindowEvents {
 
 export interface Angular2PluginViewportEvents {
   readonly resized: Subject<{width: number, height: number}>;
-  readonly spawnContextMenu: (xPos: number, yPos: number, items: ContextMenuItem[]) => boolean;
+  readonly spawnContextMenu: (xPos: number, yPos: number, items: ContextMenuItem[], isAbsolutePos?: boolean) => boolean;
   readonly registerCloseHandler: (handler: () => Promise<any>) => void;
 }
 
@@ -70,15 +77,25 @@ export interface Angular2PluginEmbedActions {
 
 export interface ContextMenuItem {
   text: string;
-  action: () => void;
+  icon?: string;
+  shortcutText?: string;
+  shortcutProps?: {
+    "code": string;
+    "altKey": boolean;
+    "ctrlKey": boolean;
+    "metaKey": boolean;
+    "shiftKey": boolean;
+  };
+  action?: () => void;
   children?: ContextMenuItem[];
+  disabled?: boolean;
+  preventCloseMenu?: boolean;
 }
 
 export interface Angular2L10nConfig {
   readonly defaultLocale: { languageCode: string; countryCode?: string; };
   readonly providers: any[];
 }
-
 
 /*
   This program and the accompanying materials are

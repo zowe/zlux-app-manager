@@ -18,25 +18,28 @@ let messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin, `assets/i18n/log/m
 fetch(messageLoc) // Attempt to find log messages for global language
 .then((resp) => resp.json())
 .then(function(messages) {
-    BaseLogger._messages = messages;
+    BaseLogger._setMessages(messages);
     afterBaseLoggerInit();
 })
-.catch(function() { // If it doesn't work...
-    lang = "en"; // Try English log messages (default)
-    messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin, `assets/i18n/log/messages_${lang}.json`);
+  .catch(function() { // If it doesn't work...
+    if (lang != 'en') {
+      lang = "en"; // Try English log messages (default)
+      messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin, `assets/i18n/log/messages_${lang}.json`);
 
-    fetch(messageLoc)
-    .then((resp) => resp.json())
-    .then(function(messages) {
-        BaseLogger._messages = messages;
-        afterBaseLoggerInit();
-    })
-    .catch(function() { // If that still doesn't work, just do nothing...
+      fetch(messageLoc)
+        .then((resp) => resp.json())
+        .then(function(messages) {
+          BaseLogger._setMessages(messages);
+          afterBaseLoggerInit();
+        })
+        .catch(function() { // If that still doesn't work, just do nothing...
+          afterBaseLoggerInit();
+        });
+    } else {
       afterBaseLoggerInit();
-    });
-
+    }
 });
 
 function afterBaseLoggerInit() {
-  BaseLogger.info(`App framework initializing. User agent=${navigator.userAgent}`);
+  BaseLogger.info(`ZWED5321I`, navigator.userAgent); //BaseLogger.info(`App framework initializing. User agent=${navigator.userAgent}`);
 }

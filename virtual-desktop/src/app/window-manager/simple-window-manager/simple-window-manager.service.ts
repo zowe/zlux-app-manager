@@ -13,17 +13,18 @@
 import { Injectable, Injector, EventEmitter } from '@angular/core';
 // import { DesktopPluginDefinition } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { ViewportManager } from 'app/application-manager/viewport-manager/viewport-manager.service';
-import { ContextMenuItem, Angular2InjectionTokens, Angular2PluginViewportEvents } from 'pluginlib/inject-resources';
-import { BaseLogger } from 'virtual-desktop-logger';
-import { Subject } from 'rxjs/Subject';
+import { ContextMenuItem, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginSessionEvents } from 'pluginlib/inject-resources';
+//import { BaseLogger } from 'virtual-desktop-logger';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class SimpleWindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
-  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  //private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private theViewportId: MVDHosting.ViewportId;
   readonly windowResized: EventEmitter<{ width: number, height: number }>;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private pluginDef: MVDHosting.DesktopPluginDefinition;
+  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
   
@@ -32,6 +33,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
     private injector: Injector
   ) {
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken)
     this.windowResized = new EventEmitter<{ width: number, height: number }>(true);
     this.contextMenuRequested = new Subject();
     window.addEventListener('resize', () => this.onResize(), false);
@@ -59,7 +61,9 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   }
 
   closeAllWindows(): void {
-    this.closeWindow(1);
+    //Doing this would leave you with nothing at all, so ignore
+    //Also, onLogin logic in authmgr could call this, so if behavior is ever changed keep this in mind.
+    //this.closeWindow(1);
   }
 
   showWindow(windowId: MVDWindowManagement.WindowId): void {
@@ -81,8 +85,29 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   private generateWindowProviders(windowId: MVDWindowManagement.WindowId, viewportId: MVDHosting.ViewportId): Map<string, any> {
     const providers: Map<string, any> = new Map();
     providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId, viewportId));
+    providers.set(Angular2InjectionTokens.SESSION_EVENTS, this.generateSessionEventsProvider());
 
     return providers;
+  }
+
+  private generateSessionEventsProvider(): Angular2PluginSessionEvents {
+    const loginSubject = new Subject<void>();
+    const sessionExpireSubject = new Subject<void>();
+    this.authenticationManager.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
+      switch (eventReason) {
+        case MVDHosting.LoginScreenChangeReason.UserLogin:
+          loginSubject.next();
+          break;
+        case MVDHosting.LoginScreenChangeReason.SessionExpired:
+          sessionExpireSubject.next();
+          break;
+      default:
+      }
+    });
+    return {
+      login: loginSubject,
+      sessionExpire: sessionExpireSubject
+    };
   }
 
   private generateViewportEventsProvider(windowId: MVDWindowManagement.WindowId, viewportId: MVDHosting.ViewportId): Angular2PluginViewportEvents {
@@ -95,7 +120,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
 
   private onResize() {
     const wh = { width: document.body.clientWidth, height: document.body.clientHeight };
-    this.logger.debug('onresize', JSON.stringify(wh));
+    //this.logger.debug('onresize', JSON.stringify(wh));
     this.windowResized.emit(wh);
   }
 

@@ -15,11 +15,10 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { SharedModule } from 'app/shared/shared.module';
 import { ApplicationManagerModule } from 'app/application-manager/application-manager.module';
-
+import { ContextMenuModule } from '../../context-menu/context-menu.module';
 import { LaunchbarModule } from './launchbar/launchbar.module';
 import { DesktopComponent } from './desktop/desktop.component';
 import { WindowPaneComponent } from './window-pane/window-pane.component';
-import { ContextMenuComponent } from './context-menu/context-menu.component';
 import { WindowComponent } from './window/window.component';
 import { WindowManagerService } from './shared/window-manager.service';
 import { DraggableDirective } from './shared/draggable.directive';
@@ -27,6 +26,7 @@ import { SizeableDirective } from './shared/sizeable.directive';
 import { MvdComponent } from './mvd.component';
 import { AuthenticationModule } from '../../authentication-manager/authentication-manager.module';
 import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization-panel.component';
+import { KeybindingService } from './shared/keybinding.service';
 
 @NgModule({
   imports: [
@@ -35,7 +35,8 @@ import { PersonalizationComponent } from '../mvd-window-manager/personalization-
     CommonModule,
     SharedModule,
     LaunchbarModule,
-    HttpClientModule
+    HttpClientModule,
+    ContextMenuModule
   ],
   declarations: [
     DesktopComponent,
@@ -43,7 +44,6 @@ import { PersonalizationComponent } from '../mvd-window-manager/personalization-
     WindowComponent,
     DraggableDirective,
     SizeableDirective,
-    ContextMenuComponent,
     MvdComponent,
     PersonalizationComponent
   ],
@@ -53,7 +53,8 @@ import { PersonalizationComponent } from '../mvd-window-manager/personalization-
   providers: [
     WindowManagerService,
     /* Expose to the rest of the desktop */
-    { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService }
+    { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
+    KeybindingService
   ]
 })
 export class WindowManagerModule {

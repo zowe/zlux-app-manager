@@ -16,6 +16,8 @@ import { DesktopPluginDefinitionImpl } from "../../../../app/plugin-manager/shar
 import { DesktopComponent } from "../desktop/desktop.component";
 import { TranslationService } from 'angular-l10n';
 
+const CHANGE_PASSWORD = "Change Password"
+
 @Component({
   selector: 'rs-com-personalization-panel',
   templateUrl: './personalization-panel.component.html',
@@ -34,6 +36,7 @@ export class PersonalizationComponent {
   private pluginManager: MVDHosting.PluginManagerInterface;
   private panelHover: boolean;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
+  public authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public LanguagesTitle: string;
    personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
                             of the Settings & Personalization app.
@@ -56,6 +59,10 @@ export class PersonalizationComponent {
                            {
                             "title":this.translation.translate("Languages"),
                             "imgSrc":"foreign_language",
+                           },
+                           {
+                            "title":this.translation.translate(CHANGE_PASSWORD),
+                            "imgSrc":"password"
                            },
                           /*  {
                             "title":"User Profile",
@@ -84,6 +91,7 @@ export class PersonalizationComponent {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.LanguagesTitle = this.translation.translate("Languages");
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
    }
   
   ngOnInit(): void {
@@ -92,6 +100,7 @@ export class PersonalizationComponent {
       this.settingsWindowPluginDef=pluginImpl;
     })
   }
+
 
   getAppPropertyInformation():any{
     return {"isPropertyWindow":false,
@@ -102,7 +111,10 @@ export class PersonalizationComponent {
   }
 
   openTool (tool:any) {
-    console.log("Tool: " + tool);
+    if (tool.title == this.translation.translate(CHANGE_PASSWORD)) {
+      this.authenticationManager.requestPasswordChangeScreen();
+      return
+    }
     let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
     if (propertyWindowID == null) {
       this.desktopComponent.hidePersonalizationPanel();

@@ -14,6 +14,10 @@
   <h1 style="text-align:center" *ngIf="error.length > 0">
     {{error}}
   </h1>
+  <ng-container *ngIf="contextMenuDef != null">
+    <com-rs-mvd-context-menu [xPos]="contextMenuDef.xPos" [yPos]="contextMenuDef.yPos" [menuItems]="contextMenuDef.items" (complete)="closeContextMenu()"></com-rs-mvd-context-menu>
+  </ng-container>
+
   <rs-com-login *ngIf="error.length == 0 && showLogin">
     <com-rs-mvd-viewport [viewportId]="viewportId">
       <!-- Loading display -->

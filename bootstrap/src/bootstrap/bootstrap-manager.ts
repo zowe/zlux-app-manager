@@ -23,8 +23,8 @@ export class BootstrapManager {
 
   private static bootstrapGlobalResources(simpleContainerRequested: boolean) {
     const uriBroker = (window as any)['GIZA_ENVIRONMENT'];
-    console.log("bootstrapGlobalResources simpleContainerRequested flag value: ", simpleContainerRequested);
-    console.log("bootstrapGlobalResources GIZA_ENVIRONMENT value: ", uriBroker);
+    console.log("ZWED5004I - bootstrapGlobalResources simpleContainerRequested flag value: ", simpleContainerRequested);
+    console.log("ZWED5005I - bootstrapGlobalResources GIZA_ENVIRONMENT value: ", uriBroker);
     if (simpleContainerRequested && uriBroker.toUpperCase() === 'DSM') {
       window.ZoweZLUX = DSMResources;
     } else {
@@ -34,18 +34,18 @@ export class BootstrapManager {
 
   private static bootstrapDesktopPlugin(desktop: ZLUX.Plugin, injectionCallback: (plugin: ZLUX.Plugin) => Promise<void>) {
     if (BootstrapManager.bootstrapPerformed) {
-      throw new Error("The desktop has already been bootstrapped");
+      throw new Error("ZWED5009E - The desktop has already been bootstrapped");
     }
     if (desktop.getType() != ZLUX.PluginType.Desktop) {
-      throw new Error("Cannot bootstrap a non-desktop plugin as a desktop");
+      throw new Error("ZWED5010E - Cannot bootstrap a non-desktop plugin as a desktop");
     }
 
     PluginManager.setDesktopPlugin(desktop as Plugin);
 
     injectionCallback(desktop).then(() => {
-      console.log(`${desktop.getIdentifier()} has been bootstrapped successfully`);
+      console.log(`ZWED5006I - ${desktop.getIdentifier()} has been bootstrapped successfully`);
     }).catch(() => {
-      throw new Error("Unable to load main script of desktop");
+      throw new Error("ZWED5011E - Unable to load main script of desktop");
     });
   }
 
@@ -61,11 +61,11 @@ export class BootstrapManager {
     BootstrapManager.bootstrapGlobalResources(simpleContainerRequested);
 
     PluginManager.loadPlugins(ZLUX.PluginType.Desktop).then(desktops => {
-      console.log(`${desktops.length} desktops available`);
-      console.log('desktops: ', desktops);
+      console.log(`ZWED5007I - ${desktops.length} desktops available`);
+      console.log('ZWED5008I - desktops: ', desktops);
 
       if (desktops.length == 0) {
-        console.error("No desktops available to bootstrap.");
+        console.error("ZWED5012E - No desktops available to bootstrap.");
       } else {
         BootstrapManager.bootstrapDesktopPlugin(desktops[0], injectionCallback);
       }

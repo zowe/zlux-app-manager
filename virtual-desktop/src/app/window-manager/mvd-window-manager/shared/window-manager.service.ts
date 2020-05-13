@@ -22,9 +22,12 @@ import { DesktopWindow, LocalWindowEvents } from './desktop-window';
 import { WindowPosition } from './window-position';
 import { DesktopWindowState, DesktopWindowStateType } from '../shared/desktop-window-state';
 import { WindowMonitor } from 'app/shared/window-monitor.service';
-import { ContextMenuItem, Angular2PluginWindowActions,
+import { ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEvents,
   Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, InstanceId, EmbeddedInstance
 } from 'pluginlib/inject-resources';
+
+import { KeybindingService } from './keybinding.service';
+import { KeyCode } from './keycode-enum';
 
 type PluginIdentifier = string;
 const DEFAULT_DESKTOP_SHORT_TITLE = 'Zowe';
@@ -66,20 +69,24 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private viewportManager: MVDHosting.ViewportManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
-  public screenshotRequestEmitter: Subject<{pluginId: string, windowId: MVDWindowManagement.WindowId}>;
+  public screenshotRequestEmitter: Subject<{pluginId: string, windowId: MVDWindowManagement.WindowId}>; 
+  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+  private sessionSubscriptions: Map<MVDWindowManagement.WindowId, Angular2PluginSessionEvents>
 
   constructor(
     private injector: Injector,
     private windowMonitor: WindowMonitor,
-    private componentFactoryResolver: ComponentFactoryResolver
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private appKeyboard: KeybindingService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.viewportManager = this.injector.get(MVDHosting.Tokens.ViewportManagerToken);
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+    this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken)
     this.nextId = 0;
     this.windowMap = new Map();
-
+    this.sessionSubscriptions = new Map();
     this.runningPluginMap = new Map();
 
     this.focusedWindow = null;
@@ -93,6 +100,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       },
       "minimize" : (id: MVDWindowManagement.WindowId) => {
         this.minimize(id);
+      },
+      "focus": (id: MVDWindowManagement.WindowId) => {
+        this.requestWindowFocus(id);
       }
     });
     this.screenshotRequestEmitter = new Subject();
@@ -118,6 +128,33 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
     document.addEventListener('keyup', tabHandler, false);
     document.addEventListener('keydown', tabHandler, false);
+
+    this.appKeyboard.registerKeyUpEvent();
+    this.appKeyboard.keyUpEvent
+      .subscribe((event:KeyboardEvent) => {
+        if (event.which === KeyCode.DOWN_ARROW) {
+          if(this.focusedWindow) {
+            this.minimizeToggle(this.focusedWindow.windowId);
+          }
+        }
+        else if (event.which === KeyCode.UP_ARROW) {
+          if(this.focusedWindow) {
+            this.maximizeToggle(this.focusedWindow.windowId);
+          }
+        }
+    });
+    this.authenticationManager.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
+      this.sessionSubscriptions.forEach((session: Angular2PluginSessionEvents, windowId: MVDWindowManagement.WindowId) => {
+        switch (eventReason) {
+          case MVDHosting.LoginScreenChangeReason.UserLogin:
+            session.login.next();
+          case MVDHosting.LoginScreenChangeReason.SessionExpired:
+            session.sessionExpire.next();
+            break;
+        default:
+        }
+      })
+    });
   }
 
   private getViewportIdFromDOM(element: any): Number{
@@ -222,13 +259,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     if (nextLeft > rightMostPosition) {
       const newWidth = innerWidth - nextLeft;
-      this.logger.debug(`reducing width from ${dtWindowWidth} to ${newWidth} based on nextLeft ${nextLeft} and innerWidth ${innerWidth}`);
+      this.logger.debug("ZWED5318I", dtWindowWidth, newWidth, nextLeft, innerWidth); //this.logger.debug(`reducing width from ${dtWindowWidth} to ${newWidth} based on nextLeft ${nextLeft} and innerWidth ${innerWidth}`);
       dtWindowWidth = newWidth;
     }
 
     if (nextTop > bottomMostPosition) {
       const newHeight = innerHeight - nextTop;
-      this.logger.debug(`reducing height from ${dtWindowHeight} to ${newHeight} based on nextTop ${nextTop} and innerHeight ${innerHeight}`);
+      this.logger.debug("ZWED5319I", dtWindowHeight, newHeight, nextTop, innerHeight); //this.logger.debug(`reducing height from ${dtWindowHeight} to ${newHeight} based on nextTop ${nextTop} and innerHeight ${innerHeight}`);
       dtWindowHeight = newHeight;
     }
 
@@ -273,7 +310,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     return {
       resized: events.windowResized,
-      spawnContextMenu: (xRel, yRel, items) => this.spawnContextMenu(windowId, xRel, yRel, items),
+      spawnContextMenu: (xPos, yPos, items, isAbsolutePos?:boolean) => this.spawnContextMenu(windowId, xPos, yPos, items, isAbsolutePos),
       registerCloseHandler: (handler) => this.viewportManager.registerViewportCloseHandler(viewportId, handler)
     };
   }
@@ -283,7 +320,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       createEmbeddedInstance: (identifier: string, launchMetadata: any, viewContainer: ViewContainerRef): Promise<EmbeddedInstance> => {
         return this.pluginManager.findPluginDefinition(identifier).then((plugin): InstanceId => {
           if (plugin == null) {
-            throw new Error('No matching plugin definition found');
+            throw new Error('ZWED5154E - No matching plugin definition found');
           }
 
           const factory = this.componentFactoryResolver.resolveComponentFactory(ViewportComponent);
@@ -310,12 +347,24 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     };
   }
 
+  private generateSessionEventsProvider(windowId: MVDWindowManagement.WindowId): Angular2PluginSessionEvents {
+    const login = new Subject<void>();
+    const sessionExpire = new Subject<void>();
+    const sessionEvents: Angular2PluginSessionEvents = {
+      login,
+      sessionExpire
+    }
+    this.sessionSubscriptions.set(windowId, sessionEvents)
+    return sessionEvents
+  }
+
   private generateWindowProviders(windowId: MVDWindowManagement.WindowId, viewportId: MVDHosting.ViewportId): Map<string, any> {
     const providers: Map<string, any> = new Map();
     providers.set(Angular2InjectionTokens.WINDOW_ACTIONS, this.generateWindowActionsProvider(windowId));
     providers.set(Angular2InjectionTokens.WINDOW_EVENTS, this.generateWindowEventsProvider(windowId));
     providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId, viewportId));
     providers.set(Angular2InjectionTokens.PLUGIN_EMBED_ACTIONS, this.generateEmbedAction(windowId));
+    providers.set(Angular2InjectionTokens.SESSION_EVENTS, this.generateSessionEventsProvider(windowId));
 
     return providers;
   }
@@ -388,7 +437,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   getViewportId(windowId: MVDWindowManagement.WindowId): MVDHosting.ViewportId {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('Attempted to retrieve viewport id of null window');
+      throw new Error('ZWED5155E - Attempted to retrieve viewport id of null window');
     }
 
     return desktopWindow.viewportId;
@@ -407,6 +456,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   private destroyWindow(windowId: MVDWindowManagement.WindowId): void {
+    this.sessionSubscriptions.delete(windowId);
     this.windowDeregisterEmitter.next(windowId);
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow != undefined) {
@@ -425,7 +475,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   closeWindow(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      this.logger.warn(`Attempted to close null window, ID=${windowId}`); 
+      this.logger.warn("ZWED5181W", windowId); //this.logger.warn(`Attempted to close null window, ID=${windowId}`);
      return;
     }
     this.updateLastWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
@@ -438,7 +488,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         this.destroyWindow(windowId);
         this.setDesktopTitle();
       }).catch((info:any)=> {
-        this.logger.warn(`Window could not be closed because of viewport. Details=`,info);
+        this.logger.warn("ZWED5182W", info); //this.logger.warn(`Window could not be closed because of viewport. Details=`,info);
         return;
       }); 
     }
@@ -461,10 +511,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   registerCloseHandler(windowId: MVDWindowManagement.WindowId, handler: () => Promise<void>): void {
-    this.logger.warn(`windowActions.registerCloseHandler is deprecated. Please use viewportEvents.registerCloseHandler instead.`);
+    this.logger.warn("ZWED5183W"); //this.logger.warn(`windowActions.registerCloseHandler is deprecated. Please use viewportEvents.registerCloseHandler instead.`);
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      this.logger.warn('Attempted to register close handler for null window, ID=${windowId}');
+      this.logger.warn("ZWED5184W", windowId); //this.logger.warn('Attempted to register close handler for null window, ID=${windowId}');
       return;
     }
 
@@ -474,7 +524,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   getWindowTitle(windowId: MVDWindowManagement.WindowId): string | null {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      this.logger.warn('Attempted to set window title for null window, ID=${windowId}');
+      this.logger.warn("ZWED5185W", windowId); //this.logger.warn('Attempted to set window title for null window, ID=${windowId}');
       return null;
     }
     return desktopWindow.windowTitle;
@@ -483,7 +533,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   setWindowTitle(windowId: MVDWindowManagement.WindowId, title: string): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      this.logger.warn('Attempted to set window title for null window, ID=${windowId}');
+      this.logger.warn("ZWED5186W", windowId); //this.logger.warn('Attempted to set window title for null window, ID=${windowId}');
       return;
     }
 
@@ -494,7 +544,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   requestWindowFocus(destination: MVDWindowManagement.WindowId): boolean {
     const desktopWindow = this.windowMap.get(destination);
     if (desktopWindow == null) {
-      this.logger.warn('Attempted to request focus for null window, ID=${destination}');
+      this.logger.warn("ZWED5187W", destination); //this.logger.warn('Attempted to request focus for null window, ID=${destination}');
       return false;
     }
     let requestScreenshot = false;
@@ -531,7 +581,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   getWindowEvents(windowId: MVDWindowManagement.WindowId): LocalWindowEvents {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('Attempted to get window events for null window');
+      throw new Error('ZWED5156E - Attempted to get window events for null window');
     }
 
     return desktopWindow.localWindowEvents;
@@ -540,7 +590,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   maximize(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('Attempted to maximize null window');
+      throw new Error('ZWED5157E - Attempted to maximize null window');
     }
 
     desktopWindow.windowState.maximize();
@@ -550,7 +600,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   minimize(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('Attempted to minimize null window');
+      throw new Error('ZWED5158E - Attempted to minimize null window');
     }
 
     desktopWindow.windowState.minimize();
@@ -559,7 +609,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   restore(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('Attempted to restore null window');
+      throw new Error('ZWED5159E - Attempted to restore null window');
     }
     desktopWindow.windowState.restore();
     this.updateLastWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
@@ -568,7 +618,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   setPosition(windowId: MVDWindowManagement.WindowId, pos: WindowPosition): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('Attempted to set position for null window');
+      throw new Error('ZWED5160E - Attempted to set position for null window');
     }
     //TODO(?): It seems like this method is never being used. The only method used to set position of a
     //window is positionStyle() in window.component.ts --- this.logger.info("Set position used here!");
@@ -626,7 +676,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   maximizeToggle(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('Attempted to maximize toggle null window');
+      throw new Error('ZWED5161E - Attempted to maximize toggle null window');
     }
 
     const stateType = desktopWindow.windowState.stateType;
@@ -647,7 +697,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   minimizeToggle(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('Attempted to minimize toggle null window');
+      throw new Error('ZWED5162E - Attempted to minimize toggle null window');
     }
 
     const stateType = desktopWindow.windowState.stateType;
@@ -668,19 +718,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   spawnContextMenu(windowId: MVDWindowManagement.WindowId, x: number, y: number, items: ContextMenuItem[], isAbsolutePos?: boolean): boolean {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
-      throw new Error('Attempted to spawn context menu for null window');
+      throw new Error('ZWED5163E - Attempted to spawn context menu for null window');
     }
     const windowPos = desktopWindow.windowState.position;
     const newX = isAbsolutePos ? x : windowPos.left + x;
     const newY = isAbsolutePos ? y : windowPos.top + y + WindowManagerService.WINDOW_HEADER_HEIGHT;
-    if ((newX >= windowPos.left && newX <= (windowPos.left+windowPos.width))
-         && (newY >= windowPos.top && newY <= (windowPos.top+windowPos.height))) {
-      this.contextMenuRequested.next({xPos: newX, yPos: newY, items: items});   
-      return true; 
-    } else {
-      this.logger.warn(`Rejecting context menu due to invalid coord ${newX},${newY} for app at ${windowPos.left},${windowPos.top} w=${windowPos.width}, h=${windowPos.height}`);
-      return false;
-    }
+    this.contextMenuRequested.next({xPos: newX, yPos: newY, items: items});   
+    return true; 
   }
 
   setDesktopTitle(title?:String) {
