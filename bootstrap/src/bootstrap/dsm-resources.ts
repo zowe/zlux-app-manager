@@ -21,6 +21,7 @@ import { SimpleGlobalization } from '../i18n/simple-globalization'
 
 declare var window: { ZoweZLUX: typeof DSMResources };
 window; /* Suppress TS error */
+window;
 let logger = new Logger();
 logger.addDestination(logger.makeDefaultDestination(true,true,true));
 
