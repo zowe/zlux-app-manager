@@ -20,11 +20,7 @@ import { SimpleGlobalization } from '../i18n/simple-globalization'
 // import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
 
 declare var window: { ZoweZLUX: typeof DSMResources };
-window; /* Suppress TS error */
-
-declare var yeet: number;
-yeet;
-
+if (window) { } /* Suppress TS error */
 let logger = new Logger();
 logger.addDestination(logger.makeDefaultDestination(true,true,true));
 
