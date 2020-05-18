@@ -9,13 +9,19 @@
 -->
 
 
-<div class="personalization-panel" (mouseenter)="panelMouseEnter()" (mouseleave)="panelMouseLeave()">
-    <ul class="personalization-panel-ul">
+<div class="personalization-panel" 
+  (mouseenter)="panelMouseEnter()" 
+  (mouseleave)="panelMouseLeave()"
+  [style.width]='this.panelWidth'
+  [style.maxWidth]='this.panelMaxWidth'>
+    <ul class="personalization-panel-ul" *ngIf="showPanel">
       <li class="personalization-panel-li" *ngFor="let tool of personalizationTools" (click)="openTool(tool)">
         <img class="personalization-panel-item panel-item-{{tool.imgSrc}}"><br>
         <span class="personalization-panel-span">{{tool.title}}</span>
       </li>
     </ul>
+
+    <personalization-component *ngIf="showPersonalization"></personalization-component>
 </div>
 
 <!-- 

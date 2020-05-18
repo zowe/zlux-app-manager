@@ -13,18 +13,17 @@
 .instance-item {
     width: 200px;
     height: 120px;
-    margin-left: 5px;
-    margin-right: 5px;
-    margin-top: 5px;
+    margin-left: 3px;
+    margin-right: 3px;
 }
 
 .instance-viewer {
     position: fixed;
-    top: 0px;
-    height: 190px;
+    height: 156px;
     padding: 5px 5px 5px 5px;
     background-color: rgb(51,75,107, 0.7);
     z-index: 0;
+    border-radius: 10px;
 }
 
 .all-instances-box {

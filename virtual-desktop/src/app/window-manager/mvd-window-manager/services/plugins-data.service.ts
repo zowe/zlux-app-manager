@@ -10,7 +10,7 @@
 
 import { Injectable, Injector } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import 'rxjs/add/operator/catch';
 import { LaunchbarItem } from '../launchbar/shared/launchbar-item';
 import { PluginLaunchbarItem } from '../launchbar/shared/launchbar-items/plugin-launchbar-item';

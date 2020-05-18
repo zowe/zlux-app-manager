@@ -15,8 +15,11 @@ import { WindowManagerService } from '../shared/window-manager.service';
 import { DesktopPluginDefinitionImpl } from "../../../../app/plugin-manager/shared/desktop-plugin-definition";
 import { DesktopComponent } from "../desktop/desktop.component";
 import { TranslationService } from 'angular-l10n';
+import { ThemeEmitterService } from '../services/theme-emitter.service';
 
 const CHANGE_PASSWORD = "Change Password"
+const LANGUAGES = "Languages"
+const PERSONALIZATION = "Personalization"
 
 @Component({
   selector: 'rs-com-personalization-panel',
@@ -24,40 +27,22 @@ const CHANGE_PASSWORD = "Change Password"
   styleUrls: ['./personalization-panel.component.css'],
   providers: [WindowManagerService]
 })
-export class PersonalizationComponent {
+export class PersonalizationPanelComponent {
   @HostListener('document:click', ['$event.target'])
   public onClick(targetElement: any) {
-    if (this.panelHover == false)
+    if (this.panelMouseHover == false)
     {
       this.desktopComponent.hidePersonalizationPanel();
     }
   }
   private settingsWindowPluginDef: DesktopPluginDefinitionImpl;
   private pluginManager: MVDHosting.PluginManagerInterface;
-  private panelHover: boolean;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
   public authenticationManager: MVDHosting.AuthenticationManagerInterface;
-  public LanguagesTitle: string;
-   personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
-                            of the Settings & Personalization app.
-                          {
-                            "title":"Keyboard Controls",
-                            "imgSrc":"keyboard",
-                           },
+  public personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
+                            of the Settings & Personalization app. */
                            {
-                            "title":"Date and Time",
-                            "imgSrc":"calendar",
-                           },
-                           {
-                            "title":"Display",
-                            "imgSrc":"resolution",
-                           },
-                           {
-                            "title":"Skins",
-                            "imgSrc":"color_correction",
-                           }, */
-                           {
-                            "title":this.translation.translate("Languages"),
+                            "title":this.translation.translate(LANGUAGES),
                             "imgSrc":"foreign_language",
                            },
                            {
@@ -67,31 +52,29 @@ export class PersonalizationComponent {
                           /*  {
                             "title":"User Profile",
                             "imgSrc":"management",
-                           },
+                           }, */
                            {
-                            "title":"Fonts",
-                            "imgSrc":"font_color",
+                            "title":this.translation.translate(PERSONALIZATION),
+                            "imgSrc":"personalization",
                            },
-                           {
-                            "title":"Sounds",
-                            "imgSrc":"audio_volume_medium",
-                           },
-                           {
-                            "title":"Printer",
-                            "imgSrc":"printer",
-                           } */
   ];
+  private panelMouseHover: boolean;
+  public showPanel: boolean;
+  public showPersonalization: boolean;
+  public panelWidth: string;
+  public panelMaxWidth: string;
 
    constructor(
     private injector: Injector,
     private windowManager: WindowManagerService,
     private desktopComponent: DesktopComponent,
-    private translation: TranslationService
+    private translation: TranslationService,
+    private themeService: ThemeEmitterService
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
-    this.LanguagesTitle = this.translation.translate("Languages");
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
+    this.goToPanel();
    }
   
   ngOnInit(): void {
@@ -99,37 +82,63 @@ export class PersonalizationComponent {
       const pluginImpl:DesktopPluginDefinitionImpl = personalizationsPlugin as DesktopPluginDefinitionImpl;
       this.settingsWindowPluginDef=pluginImpl;
     })
+    this.themeService.onGoBack
+      .subscribe(() => {
+        this.goToPanel();
+      });
   }
 
-
-  getAppPropertyInformation():any{
-    return {"isPropertyWindow":false,
-    "settingsToolName":this.settingsWindowPluginDef.defaultWindowTitle,
-    "copyright":this.settingsWindowPluginDef.getCopyright(),
-    "image":this.settingsWindowPluginDef.image
+  getAppPropertyInformation(toolName: string):any{
+    return {
+      "isPropertyWindow":false,
+      "settingsToolName":toolName,
+      "copyright":this.settingsWindowPluginDef.getCopyright(),
+      "image":this.settingsWindowPluginDef.image
     };
   }
 
-  openTool (tool:any) {
-    if (tool.title == this.translation.translate(CHANGE_PASSWORD)) {
-      this.authenticationManager.requestPasswordChangeScreen();
-      return
-    }
-    let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
-    if (propertyWindowID == null) {
-      this.desktopComponent.hidePersonalizationPanel();
-      this.applicationManager.spawnApplication(this.settingsWindowPluginDef, this.getAppPropertyInformation());
-    } else {
-      this.windowManager.showWindow(propertyWindowID);
+  openTool(tool: any): void {
+    switch(tool.title) { 
+      case this.translation.translate(CHANGE_PASSWORD): { 
+        this.authenticationManager.requestPasswordChangeScreen(); 
+        break; 
+      } 
+      case this.translation.translate(PERSONALIZATION): { 
+        this.goToPersonalization();
+        break; 
+      } 
+      default: { 
+        let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
+        if (propertyWindowID == null) {
+          this.desktopComponent.hidePersonalizationPanel();
+          this.applicationManager.spawnApplication(this.settingsWindowPluginDef, this.getAppPropertyInformation(tool.title));
+        } else {
+          this.windowManager.showWindow(propertyWindowID);
+        } 
+        break; 
+      } 
     }
   }
 
   panelMouseEnter(): void {
-    this.panelHover = true;
+    this.panelMouseHover = true;
   }
 
   panelMouseLeave(): void {
-    this.panelHover = false;
+    this.panelMouseHover = false;
+  }
+
+  goToPanel(): void {
+    this.showPanel = true;
+    this.panelWidth = "100%";
+    this.panelMaxWidth = "100%";
+  }
+
+  goToPersonalization(): void {
+    this.showPanel = false;
+    this.showPersonalization = true;
+    this.panelWidth = "420px";
+    this.panelMaxWidth = "420px";
   }
 
 /*

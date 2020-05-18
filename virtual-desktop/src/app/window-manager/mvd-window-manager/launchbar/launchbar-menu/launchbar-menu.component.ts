@@ -16,12 +16,14 @@ import { PluginsDataService } from '../../services/plugins-data.service';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
-import { DesktopComponent } from "../../desktop/desktop.component";
+import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
 import { TranslationService } from 'angular-l10n';
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
 import { generateInstanceActions } from '../shared/context-utils';
 import { KeybindingService } from '../../shared/keybinding.service';
 import { KeyCode } from '../../shared/keycode-enum';
+
+const FONT_SIZE=12;
 
 @Component({
   selector: 'rs-com-launchbar-menu',
@@ -31,11 +33,77 @@ import { KeyCode } from '../../shared/keycode-enum';
 export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public displayItems:LaunchbarItem[];
   private _menuItems:LaunchbarItem[];
+  public color: any = {};
+  public menuIconSize: string;
+  public appIconSize: string;
+  public appLabelPadding: string;
+  public menuBottom: string;
+  public menuText: string;
+  public menuWidth: string;
+  public menuWidthInner: string;
+  public borderRadius: string;
+  /* TODO: Implement later
+  public launchbarIconSize;
+  public launchbarTextSize;
+  public launchbarMenuSize;
+  */
+
+  public isActive: boolean = false;
+  public contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
+  public pluginManager: MVDHosting.PluginManagerInterface;
+  public applicationManager: MVDHosting.ApplicationManagerInterface;
+  public propertyWindowPluginDef : DesktopPluginDefinitionImpl;
+  public authenticationManager : MVDHosting.AuthenticationManagerInterface;
+  public appFilter:string="";
+  public activeIndex:number;  
+  private isContextMenuPresent:boolean;
+
   @Input() set menuItems(items: LaunchbarItem[]) {
     this._menuItems = items;
     this.displayItems = items;
     this.filterMenuItems();
   }
+ 
+  @Input() set theme(newTheme: DesktopTheme) {
+    this.color = newTheme.color;
+    let menuIcon:number;
+    let appIcon:number;
+
+    switch (newTheme.size.launchbarMenu) {
+      case 1:
+        //dont go smaller than 32 for apps
+        menuIcon = 16;
+        appIcon = 32;
+        this.menuWidth = '300px';
+        this.menuWidthInner = '290px';
+        this.menuText = '12px';
+        this.menuBottom = '29px';
+        this.borderRadius = '3px 3px 3px 0px';
+        break;
+      case 3:
+        menuIcon = 64;
+        appIcon = menuIcon;
+        this.menuWidth = '410px';
+        this.menuWidthInner = '400px';
+        this.menuText = '16px';
+        this.menuBottom = '80px';
+        this.borderRadius = '7px 7px 7px 0px';
+        break;
+      default: // Default is medium size - 2
+        menuIcon = 32;
+        appIcon = menuIcon;
+        this.menuWidth = '335px';
+        this.menuWidthInner = '325px';
+        this.menuText = '14px';
+        this.menuBottom = '45px';
+        this.borderRadius = '5px 5px 5px 0px';
+    }
+    
+    this.menuIconSize = menuIcon+'px';
+    this.appIconSize = appIcon+'px';
+    let appLabel:number = Math.round((appIcon/2) - (FONT_SIZE/2));
+    this.appLabelPadding = appLabel+'px';
+  };
   
   @ViewChild('searchapp') searchAppInputRef: ElementRef;
   @ViewChild('menudiv') menuDivRef: ElementRef;
@@ -43,15 +111,6 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   @Output() refreshClicked: EventEmitter<void>;
   @Output() itemClicked: EventEmitter<LaunchbarItem>;
   @Output() menuStateChanged: EventEmitter<boolean>;
-  isActive: boolean = false;
-  contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
-  pluginManager: MVDHosting.PluginManagerInterface;
-  public applicationManager: MVDHosting.ApplicationManagerInterface;
-  propertyWindowPluginDef : DesktopPluginDefinitionImpl;
-  public authenticationManager : MVDHosting.AuthenticationManagerInterface;
-  public appFilter:string="";
-  public activeIndex:number;  
-  private isContextMenuPresent:boolean;
 
   constructor(
     private elementRef: ElementRef,
@@ -278,6 +337,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   }
 
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
+    event.stopPropagation();
     let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     this.isContextMenuPresent = true;

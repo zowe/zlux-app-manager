@@ -23,6 +23,7 @@ import { ContextMenuModule } from '../../context-menu/context-menu.module';
   imports: [
     ApplicationManagerModule,
     AuthenticationModule,
+    ContextMenuModule,
     CommonModule,
     ContextMenuModule
   ],

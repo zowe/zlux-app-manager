@@ -10,8 +10,8 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Injector } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Component, Injector, Input, Output, EventEmitter } from '@angular/core';
+import { Subject } from 'rxjs';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { PluginLaunchbarItem } from '../shared/launchbar-items/plugin-launchbar-item';
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
@@ -20,6 +20,15 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { TranslationService } from 'angular-l10n';
 import { generateInstanceActions } from '../shared/context-utils';
+import { DesktopTheme } from '../../desktop/desktop.component';
+import { BaseLogger } from 'virtual-desktop-logger';
+import { ThemeEmitterService } from '../../services/theme-emitter.service';
+import { Colors } from '../../shared/colors'
+
+/* Current default theme is dark grey, with light text */
+const DEFAULT_COLOR = "#252628"
+const DEFAULT_TEXT_COLOR = "#dddee0"
+const DEFAULT_SIZE = 2;
 
 @Component({
   selector: 'rs-com-launchbar',
@@ -28,30 +37,72 @@ import { generateInstanceActions } from '../shared/context-utils';
   providers: [PluginsDataService]
 })
 export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
-  allItems: LaunchbarItem[];
-  runItems: LaunchbarItem[];
-  isActive: boolean;
-  contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
-  originalX: number;
-  mouseOriginalX: number;
-  currentEvent: EventTarget | null;
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  @Output() changeTheme = new EventEmitter();
+  @Output() previewTheme = new EventEmitter();
+
+  //Always 6+icon size, due to need for space for padding and such
+  public barSize: string;
+  public applistMargin: string;
+  public applistPadding: string;
+  public _theme: DesktopTheme;
+
+  @Input() set theme(newTheme: DesktopTheme) {
+    this.logger.info('Launchbar theme set=',newTheme);
+    // Used to update the emitter service to sync up personalization panel with loaded theme color upon startup
+    this.themeService.mainColor = newTheme.color.launchbarMenuColor;
+    this.themeService.mainSize = newTheme.size.window;
+    this._theme = newTheme;
+
+    switch (newTheme.size.launchbar) {
+    case 1:
+      //16 for icon, 2 for indicator, 1 for bottom and 3 for top
+      this.barSize = '25px';
+      this.applistPadding = '3px';
+      this.applistMargin = `0px 191px 0px 29px`;
+      break;
+    case 3:
+      //64 for icon, 4 for indicator, 2 for pad bottom, 6 for pad top
+      this.barSize = '76px';
+      this.applistPadding = '7px';
+      this.applistMargin = `0px 205px 0px 79px`;
+      break;
+    default: //Default is medium size - 2
+      //32 for icon, 2 for indicator, 2 for pad bottom, 4 for pad top
+      this.barSize = '41px';
+      this.applistPadding = '5px';
+      this.applistMargin = `0px 179px 0px 46px`;
+      break;
+    }
+  }
+
+  public allItems: LaunchbarItem[];
+  public runItems: LaunchbarItem[];
+  public isActive: boolean;
+  public contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
+  public originalX: number;
+  public mouseOriginalX: number;
+  public currentEvent: EventTarget | null;
   private currentItem: LaunchbarItem | null;
-  moving: boolean;
-  newPosition: number;
-  loggedIn: boolean;
-  helperLoggedIn: boolean;
+  public moving: boolean;
+  public newPosition: number;
+  public loggedIn: boolean;
+  public helperLoggedIn: boolean;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
-  propertyWindowPluginDef: DesktopPluginDefinitionImpl;
+  public propertyWindowPluginDef: DesktopPluginDefinitionImpl;
+  public size: number;
   
    constructor(
+    private themeService: ThemeEmitterService,
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     public windowManager: WindowManagerService,
     private translation: TranslationService
   ) {
      // Workaround for AoT problem with namespaces (see angular/angular#15613)
+     this.size = 2;
      this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
      this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
      this.authenticationManager.registerPreLogoutAction(this);
@@ -74,6 +125,67 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
        this.pluginsDataService.refreshPinnedPlugins(this.allItems);
      });
    }
+
+  ngOnInit() {
+    this.themeService.onColorChange
+      .subscribe((color:any) => {
+        this._theme.color.windowColorActive = this.adjustColorByLightness(color.themeColor, 20);
+        this._theme.color.windowTextActive = color.textColor;
+        this._theme.color.launchbarColor = this.adjustColorByLightness(color.themeColor, -20)+'b2'; // Adds some transparency to bottom app bar
+        this._theme.color.launchbarText = color.textColor;
+        this._theme.color.launchbarMenuColor = color.themeColor;
+        this._theme.color.launchbarMenuText = color.textColor;
+
+        this.changeTheme.emit(this._theme);
+    });
+
+    this.themeService.onColorPreview
+      .subscribe((color:any) => {
+        this._theme.color.windowColorActive = this.adjustColorByLightness(color.themeColor, 20);
+        this._theme.color.windowTextActive = color.textColor;
+        this._theme.color.launchbarColor = this.adjustColorByLightness(color.themeColor, -20)+'b2'; // Adds some transparency to bottom app bar
+        this._theme.color.launchbarText = color.textColor;
+        this._theme.color.launchbarMenuColor = color.themeColor;
+        this._theme.color.launchbarMenuText = color.textColor;
+
+        this.previewTheme.emit(this._theme);
+    });
+
+    this.themeService.onSizeChange
+      .subscribe((size:any) => {
+        this._theme.size.window = size.windowSize;
+        this._theme.size.launchbar = size.launchbarSize;
+        this._theme.size.launchbarMenu = size.launchbarMenuSize;
+
+        this.changeTheme.emit(this._theme);
+    });
+
+    this.themeService.onResetAllDefault
+      .subscribe(() => {
+        this.resetThemeDefault();
+      });
+  }
+
+  resetThemeDefault(): void { // Current default theme is dark grey, with light text
+    this._theme.size.window = DEFAULT_SIZE;
+    this._theme.size.launchbar = DEFAULT_SIZE;
+    this._theme.size.launchbarMenu = DEFAULT_SIZE;
+
+    this._theme.color.windowColorActive = Colors.COOLGREY_80;
+    this._theme.color.windowTextActive = "#f4f4f4";
+    this._theme.color.launchbarColor = "#0d0d0e"+'b2';
+    //this._theme.color.launchbarColor = "0d0d0e"+'b2';
+    this._theme.color.launchbarText = DEFAULT_TEXT_COLOR;
+    this._theme.color.launchbarMenuColor = DEFAULT_COLOR;
+    this._theme.color.launchbarMenuText = DEFAULT_TEXT_COLOR;
+    
+    this.changeTheme.emit(this._theme);
+  }
+
+  // A regex expression roughly equating to lighten (positive num) vs darken (negative num)
+  adjustColorByLightness(color: string, amount: number): string {
+    return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+  }
 
   getNewItems(): void {
     this.pluginManager.loadApplicationPluginDefinitions(true);
@@ -145,6 +257,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   }
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
+    event.stopPropagation();
     let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY, items: menuItems});
     return false;
@@ -183,7 +296,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
     }
     */
   }
-
+  
   onMouseUpContainer(event: MouseEvent): void {
     if (this.currentItem != null) {
       this.onMouseUp(event, this.currentItem);

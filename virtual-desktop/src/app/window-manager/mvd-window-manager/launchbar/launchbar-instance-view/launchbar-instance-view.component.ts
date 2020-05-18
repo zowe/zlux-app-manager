@@ -9,11 +9,10 @@
 */
 
 import { Component, Input } from '@angular/core';
-
+import { DesktopTheme } from "../../desktop/desktop.component";
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { WindowManagerService } from '../../shared/window-manager.service';
 
-const INSTANCE_TOP_HEIGHT = 250 //Height of the instance viewer plus the height of the taskbar
 const INSTANCE_INITIAL_OFFSET = 180
 const INSTANCE_ADDITIONAL_OFFSET = 105
 
@@ -23,8 +22,24 @@ const INSTANCE_ADDITIONAL_OFFSET = 105
   styleUrls: ['./launchbar-instance-view.component.css']
 })
 export class LaunchbarInstanceViewComponent {
-  @Input() launchbarItem: LaunchbarItem;
 
+  public viewerBottom:string;
+  public color:any;
+  
+  @Input() launchbarItem: LaunchbarItem;
+  @Input() set theme(newTheme: DesktopTheme) {
+    this.color = newTheme.color;
+    switch (newTheme.size.launchbar) {
+    case 1:
+      this.viewerBottom = '29px';
+      break;
+    case 3:
+      this.viewerBottom = '80px';
+      break;
+    default: // Default size is medium - 2
+      this.viewerBottom = '45px';
+    }
+  }
   constructor(/*@Inject(MVDHosting.Tokens.ApplicationManagerToken) private applicationManager: MVDHosting.ApplicationManagerInterface*/
   public windowManager: WindowManagerService) {
   }
@@ -34,10 +49,9 @@ export class LaunchbarInstanceViewComponent {
     //and not sure why at this time
     this.launchbarItem.showIconLabel = false;
     let bounds = (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).getBoundingClientRect();
-    (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.top = (document.body.clientHeight - INSTANCE_TOP_HEIGHT) + 'px';
     if (bounds != null) {
       if (bounds.left - (INSTANCE_INITIAL_OFFSET + (INSTANCE_ADDITIONAL_OFFSET  * (this.launchbarItem.instanceIds.length - 2)))  < 0 ) {
-        (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 0 + 'px';
+        (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = '4px';
       } else {
         (<HTMLImageElement>document.getElementsByClassName("instance-viewer")[0]).style.left = 
         bounds.left - (INSTANCE_INITIAL_OFFSET + (INSTANCE_ADDITIONAL_OFFSET  * (this.launchbarItem.instanceIds.length - 2))) + 'px';
