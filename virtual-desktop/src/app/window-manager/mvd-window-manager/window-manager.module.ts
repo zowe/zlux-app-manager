@@ -30,7 +30,7 @@ import { AuthenticationModule } from '../../authentication-manager/authenticatio
 import { PersonalizationPanelComponent } from '../mvd-window-manager/personalization-panel/personalization-panel.component';
 import { KeybindingService } from './shared/keybinding.service';
 import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization/personalization.component';
-import { NgxFileDropModule } from 'ngx-file-drop';
+import { FileDropModule } from 'ngx-file-drop';
 import { ThemeEmitterService } from './services/theme-emitter.service';
 
 @NgModule({
@@ -45,7 +45,7 @@ import { ThemeEmitterService } from './services/theme-emitter.service';
     ContextMenuModule,
     ColorCircleModule,
     ColorSliderModule,
-    NgxFileDropModule
+    FileDropModule
   ],
   declarations: [
     DesktopComponent,

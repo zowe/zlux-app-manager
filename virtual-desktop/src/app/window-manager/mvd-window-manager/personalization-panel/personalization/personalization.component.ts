@@ -12,7 +12,7 @@ import { Component, OnInit } from '@angular/core';
 import { BaseLogger } from '../../../../shared/logger';
 // import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
-import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
+import { UploadEvent, UploadFile, FileSystemFileEntry } from 'ngx-file-drop';
 import { Colors } from '../../shared/colors';
  
 
@@ -27,7 +27,7 @@ export class PersonalizationComponent implements OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   public selectedColor: string | Object;
   public selectedSize: string | Object;
-  public files: NgxFileDropEntry[] = [];
+  public files: UploadFile[] = [];
 
   constructor(
     private desktopThemeService: ThemeEmitterService
@@ -81,9 +81,9 @@ export class PersonalizationComponent implements OnInit {
     }
   }
 
-  fileDrop(files: NgxFileDropEntry[]): void {
-    this.files = files;
-    for (const droppedFile of files) {
+  fileDrop(event: UploadEvent): void {
+    this.files = event.files;
+    for (const droppedFile of event.files) {
 
       // Is it a file?
       if (droppedFile.fileEntry.isFile) {

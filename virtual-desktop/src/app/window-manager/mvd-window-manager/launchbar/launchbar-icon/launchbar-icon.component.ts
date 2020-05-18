@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Input, Output, EventEmitter, Injector, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, Injector, ElementRef, ViewChild } from '@angular/core';
 import { DesktopTheme } from "../../desktop/desktop.component";
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { BaseLogger } from '../../../../shared/logger';
@@ -29,6 +29,7 @@ export class LaunchbarIconComponent {
   public _theme:DesktopTheme;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  private mouseDownListener: boolean;
 
   @Input() launchbarItem: LaunchbarItem;
   @ViewChild('launchbarIconContainer') componentElement: ElementRef;
@@ -65,6 +66,7 @@ export class LaunchbarIconComponent {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.iconClicked = new EventEmitter();
+    this.mouseDownListener = false;
   }
 
 /*
@@ -85,16 +87,28 @@ export class LaunchbarIconComponent {
     this.launchbarItem.showIconLabel = false;
   }
 
-  onMouseEnterInstanceView(event: MouseEvent) {
-    this.launchbarItem.showIconLabel = false;
+  onMouseLeaveInstanceView(event: MouseEvent) {
+    if (!this.mouseDownListener) {
+      window.addEventListener('mousedown', () => this.onMouseDownInstanceView());
+      this.mouseDownListener = true;
+    }
   }
 
-  @HostListener('document:mousedown', ['$event'])
-  onMouseDownInstanceView(event: MouseEvent) {
+  onMouseEnterInstanceView(event: MouseEvent) {
+    this.launchbarItem.showIconLabel = false;
+    if (!this.mouseDownListener) {
+      window.addEventListener('mousedown', () => this.onMouseDownInstanceView());
+      this.mouseDownListener = true;
+    }
+  }
+
+  onMouseDownInstanceView() {
     if (this.launchbarItem.showInstanceView && event
         && !this.componentElement.nativeElement.contains(event.target)) {
       this.launchbarItem.showInstanceView = false;
       this.launchbarItem.showIconLabel = false;
+      this.mouseDownListener = false;
+      window.removeEventListener('mousedown', () => this.onMouseDownInstanceView());
     }
   }
   

@@ -45,7 +45,7 @@
     "json-loader": "~0.5.7",
     "ngx-i18nsupport": "~0.17.1",
     "ngx-color": "~5.0.3",
-    "ngx-file-drop": "~9.0.1",
+    "ngx-file-drop": "~6.0.1",
     "moment": "~2.25.3",
     "popper.js": "~1.14.3",
     "raw-loader": "~0.5.1",

@@ -19,18 +19,15 @@
 
   <label class="personalization-label" style="padding-top: 10px;">Background</label>
 
-  <ngx-file-drop 
-    dropZoneLabel="Drop wallpaper here" 
+  <file-drop 
     (onFileDrop)="fileDrop($event)" 
     multiple="false"
     style="color: white !important;"
-    
-    >
-      <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-        <div *ngIf="files != []" style="color: white !important;">Drop or  &nbsp;<a href="javascript:void(0);" (click)="openFileSelector()">upload</a>&nbsp;  wallpaper here.</div>
-        <!-- <button type="button" (click)="openFileSelector()">Upload</button> -->
-      </ng-template>
-    </ngx-file-drop>
+    [showBrowseBtn]="true"
+    browseBtnLabel="upload."
+    >   <!-- Full string says "Drag wallpaper here or [button]upload. -->
+        <div style="color: white !important;">Drag wallpaper here or &nbsp;</div> 
+    </file-drop>
 
   <label class="personalization-label">Color</label>
   <div class="personalization-color-1">

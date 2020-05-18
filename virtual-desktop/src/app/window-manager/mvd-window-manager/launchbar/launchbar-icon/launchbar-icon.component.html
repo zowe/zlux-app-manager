@@ -14,18 +14,26 @@
     *ngIf="launchbarItem.showInstanceView"
     [theme]="_theme"
     [launchbarItem]="launchbarItem"
-    (mouseenter)="onMouseEnterInstanceView($event)">
+    (mouseenter)="onMouseEnterInstanceView($event)"
+    (mouseleave)="onMouseLeaveInstanceView($event)">
   </zowe-launchbar-instance-view>
-<p *ngIf="launchbarItem.showIconLabel" class="launchbar-caption truncate"
-   [style.bottom]="hoverBottom"
-   [style.left]="hoverOffset">{{launchbarItem.label}}</p>
-<div class="mvd-launchbar-icon launchbar-icon-image mvd-launchbar-icon-large"
-     [style.width]="iconSize" [style.height]="iconSize" (mouseenter)="onMouseEnter($event)" (mouseleave)="onMouseLeave($event)" [title]="launchbarItem.tooltip" [style.background-image]="launchbarItem.image == null ? undefined : launchbarItem.image | cssUrl">
-</div>
-<div class="launchbar-icon-marker" *ngIf="launchbarItem.instanceIds.length > 0"
-     [style.height]="indicatorSize"
-     [style.width]="iconSize"
-     [style.bottom]="indicatorPos"></div>
+  <p *ngIf="launchbarItem.showIconLabel" class="launchbar-caption truncate"
+    [style.bottom]="hoverBottom"
+    [style.left]="hoverOffset">{{launchbarItem.label}}
+  </p>
+  <div class="mvd-launchbar-icon launchbar-icon-image mvd-launchbar-icon-large"
+    [style.width]="iconSize" 
+    [style.height]="iconSize" 
+    (mouseenter)="onMouseEnter($event)" 
+    (mouseleave)="onMouseLeave($event)" 
+    [title]="launchbarItem.tooltip" 
+    [style.background-image]="launchbarItem.image == null ? undefined : launchbarItem.image | cssUrl">
+  </div>
+  <div class="launchbar-icon-marker" *ngIf="launchbarItem.instanceIds.length > 0"
+    [style.height]="indicatorSize"
+    [style.width]="iconSize"
+    [style.bottom]="indicatorPos">
+  </div>
 </div>
 
 <!-- 

@@ -19,18 +19,6 @@ if (process.env.MVD_DESKTOP_DIR == null) {
 }
 
 var config = {
-  "resolve": {
-    "alias": {
-      // Uncomment these to use virtual desktop relative pathing modules, because even importing the tsconfig
-      // will still lead to Typescript errors. So we need to supply the relative path manually for any needed aliases
-      // "app": path.resolve(__dirname, "src/app"),
-      // "pluginlib": path.resolve(__dirname, "src/pluginlib"),
-      // "app/application-manager/viewport-manager/viewport/viewport.component": path.resolve(__dirname, "../../../virtual-desktop/src/app/application-manager/viewport-manager/viewport/viewport.component.ts"),
-      // "virtual-desktop-logger": path.resolve(__dirname, "../../../virtual-desktop/src/app/shared/logger.ts"),
-      // "zlux-base": path.resolve(__dirname, "../../zlux-platform/base/src"),
-      // "zlux-interface": path.resolve(__dirname, "../../zlux-platform/interface/src")
-    }
-  },
   'entry': [
     path.resolve(__dirname, './src/plugin.ts')
   ],
