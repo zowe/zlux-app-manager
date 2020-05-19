@@ -30,6 +30,7 @@
           [class.disabled]="menuItem.disabled"
           (click)='itemClicked(menuItem); $event.stopPropagation();'
           (mouseover)="this.activeIndex=i; makeNavigable(); $event.stopPropagation();"
+          (mouseleave)="mouseLeave($event)"
         >
         <div
           class="menuitem-content"

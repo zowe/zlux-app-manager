@@ -10,18 +10,23 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="launchbar-container launchbar-large" id="container" (mouseup)="onMouseUpContainer($event)" [class.active]="isActive">
-  <rs-com-launchbar-menu [menuItems]="allItems" (itemClicked)="menuItemClicked($event)"  (refreshClicked)="getNewItems()" (menuStateChanged)="onStateChanged($event)"></rs-com-launchbar-menu>
-  <div class="launchbar">
-    <rs-com-launchbar-icon *ngFor="let item of pinnedItems" [launchbarItem]="item" (contextmenu)="onRightClick($event, item)"
+<div class="launchbar-container launchbar-large" id="container"
+     [style.height]="barSize"
+     (mouseup)="onMouseUpContainer($event)" [class.active]="isActive">
+  <rs-com-launchbar-menu [menuItems]="allItems" [theme]="_theme" (itemClicked)="menuItemClicked($event)"  (refreshClicked)="getNewItems()"></rs-com-launchbar-menu>
+  
+  <div class="applist row" [style.margin]="applistMargin"
+       [style.background]="_theme.color.launchbarColor"
+       [style.padding-left]="applistPadding"
+       [style.border-radius]="applistPadding">
+    <rs-com-launchbar-icon *ngFor="let item of pinnedItems" [launchbarItem]="item" [theme]="_theme" (contextmenu)="onRightClick($event, item)"
     (mousedown)="onMouseDown($event, item)" (mousemove)="onMouseMove($event, item)">
     </rs-com-launchbar-icon>
-    <rs-com-launchbar-icon *ngFor="let item of runningItems" [launchbarItem]="item" (contextmenu)="onRightClick($event, item)"
+    <rs-com-launchbar-icon *ngFor="let item of runningItems" [launchbarItem]="item" [theme]="_theme" (contextmenu)="onRightClick($event, item)"
     (mousedown)="onMouseDown($event, item)">
     </rs-com-launchbar-icon>
   </div>
-  <rs-com-launchbar-widget [menuItems]="allItems" (popupStateChanged)="onStateChanged($event)"></rs-com-launchbar-widget>
-  <div class="launchbar-basement"></div>
+  <rs-com-launchbar-widget [menuItems]="allItems" [theme]="_theme" (popupStateChanged)="onStateChanged($event)"></rs-com-launchbar-widget>
 </div>
 
 <!-- 

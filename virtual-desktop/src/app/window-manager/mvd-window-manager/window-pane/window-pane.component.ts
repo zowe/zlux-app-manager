@@ -10,12 +10,17 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, Injector } from '@angular/core';
+import { Component, OnInit, Injector, Input } from '@angular/core';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
-import {HttpClient, HttpResponse} from '@angular/common/http';
+import { DesktopTheme } from "../desktop/desktop.component";
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { DesktopWindow } from '../shared/desktop-window';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { ThemeEmitterService } from '../services/theme-emitter.service';
+
+const DESKTOP_PLUGIN = ZoweZLUX.pluginManager.getDesktopPlugin();
+const DESKTOP_WALLPAPER_URI = ZoweZLUX.uriBroker.pluginConfigUri(DESKTOP_PLUGIN,'ui/themebin', 'wallpaper');
 
 @Component({
   selector: 'rs-com-window-pane',
@@ -24,14 +29,17 @@ import { BaseLogger } from 'virtual-desktop-logger';
 })
 export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterface, MVDHosting.LogoutActionInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
-  contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
+  public contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
   public wallpaper: any = { };
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 
+  @Input() theme: DesktopTheme;
+  
   constructor(
     public windowManager: WindowManagerService,
     private injector: Injector,
-    private http : HttpClient
+    private http: HttpClient,
+    private themeService: ThemeEmitterService,
   ) {
     this.logger.debug("ZWED5320I", windowManager); //this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;
@@ -46,20 +54,17 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
         this.wallpaper.background = `url(${url}) no-repeat center/cover`;
       }
     }, error => {
-      //no wallpaper found
+      this.resetWallpaperDefault();
     });
-
   }
 
   onLogout(username: string) {
-    this.wallpaper.background = '';
+    this.resetWallpaperDefault();
     return true;
   }
 
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
-    let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
-    let desktopUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'ui/themebin', 'wallpaper');
-    this.replaceWallpaper(desktopUri);
+    this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
     return true;
   }
 
@@ -67,10 +72,35 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
+
+    this.themeService.onWallpaperChange
+      .subscribe((image:any) => {
+        // TODO: Fix bug where sometimes uploading one image after another, fails to render new image (but works after restart)
+        this.http.put<DesktopTheme>(DESKTOP_WALLPAPER_URI, image)
+          .subscribe((data: any) => { 
+            this.resetWallpaperDefault();
+            this.logger.debug("Attempted to post image with status: ", data);
+            this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
+          });
+      });
+
+    this.themeService.onResetAllDefault
+      .subscribe(() => {
+        this.resetWallpaperDefault();
+        this.http.delete<DesktopTheme>(DESKTOP_WALLPAPER_URI)
+          .subscribe((data: any) => { 
+            this.logger.debug("Attempted to delete image with status: ", data);
+            this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
+          });
+      });
   }
 
   closeContextMenu(): void {
     this.contextMenuDef = null;
+  }
+
+  resetWallpaperDefault(): void {
+    this.wallpaper.background = '';
   }
 
   get windows(): DesktopWindow[] {

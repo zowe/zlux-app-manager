@@ -1,0 +1,71 @@
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+
+<div class="personalization-main-window">
+  <label class="personalization-label small back-button top" (click)="goBack()">
+    <i class="fa fa-chevron-left" style="padding: 5px; font-size: large; padding-right: 7px; margin-top: 2px;">
+    </i>Back</label>
+
+  <label class="personalization-label small reset-button top" (click)="resetAllDefault()">Reset to Default
+    <i class="fa fa-trash" style="padding: 5px; font-size: large;"></i>
+  </label>
+
+  <label class="personalization-label" style="padding-top: 10px;">Background</label>
+
+  <file-drop 
+    (onFileDrop)="fileDrop($event)" 
+    multiple="false"
+    style="color: white !important;"
+    [showBrowseBtn]="true"
+    browseBtnLabel="upload."
+    >   <!-- Full string says "Drag wallpaper here or [button]upload. -->
+        <div style="color: white !important;">Drag wallpaper here or &nbsp;</div> 
+    </file-drop>
+
+  <label class="personalization-label">Color</label>
+  <div class="personalization-color-1">
+    <color-circle 
+      [color]="selectedColor" 
+      (onChangeComplete)="colorSelected($event.color)" 
+      [width]="380" 
+      [colors]='["#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", 
+      "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39", "#ffeb3b", "#ffc107", 
+      "#ff9800", "#252628", "#6d7176", "#f3f4f4"]'
+    ></color-circle>
+  </div>
+  <div class="personalization-color-2">
+    <color-slider 
+      [color]="selectedColor" 
+      (onChange)="colorPreview($event.color)"
+      (onChangeComplete)="colorSelected($event.color)"
+    ></color-slider>
+  </div>
+  <label class="personalization-label">Size</label>
+
+  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 1,
+    'personalization-preview-item preview-small': true}" (click)="sizeSelected('small')">
+  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 2,
+    'personalization-preview-item preview-medium': true}" (click)="sizeSelected('medium')">
+  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 3,
+    'personalization-preview-item preview-large': true}" (click)="sizeSelected('large')">
+
+    <!-- TODO: Add text re-sizing functionality -->
+  <!-- <label class="personalization-label">Text Size</label> -->
+</div>
+
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
