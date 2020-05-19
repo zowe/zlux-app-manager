@@ -171,6 +171,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       var h = Math.floor(seconds / 3600);
       var m = Math.floor(seconds % 3600 / 60);
   
+      //TODO: This whole section needs internationalization
       var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
       var mDisplay = m > 0 ? m + (m == 1 ? " minute " : " minutes ") : "";
 

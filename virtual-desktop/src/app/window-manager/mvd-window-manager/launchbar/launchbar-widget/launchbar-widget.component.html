@@ -20,13 +20,13 @@
   <div class="notification-item" *ngFor="let item of notifications; let i = index" [attr.data-index]="i">
       <div class="outer-container" (click)="focusApplication(i)">
           <div class="notification-icon-container">
-            <img class="notification-icon" [src]="info[i].imgSrc">
+            <img class="notification-icon" [src]="info[i].imgSrc" alt="">
           </div>
           <div class="notification-content">
             <div class="notification-title">{{item['notification'].title}}</div>
             <div class="notification-message">{{item['notification'].message}}</div>
           </div>
-          <img class="delete-notification" (click)="deleteNotification(item);$event.stopPropagation()" [src]="closeImage">
+          <img class="delete-notification" (click)="deleteNotification(item);$event.stopPropagation()" [src]="closeImage" alt="Delete notification">
           <div class="time-container">
             <div class="time">{{item.recievedDate.toLocaleTimeString()}}</div>
             <div class="timeAgo">{{timeSince[i]}}</div>

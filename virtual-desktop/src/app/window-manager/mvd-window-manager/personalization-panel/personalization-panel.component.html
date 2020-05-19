@@ -12,7 +12,7 @@
 <div class="personalization-panel" (mouseenter)="panelMouseEnter()" (mouseleave)="panelMouseLeave()">
     <ul class="personalization-panel-ul">
       <li class="personalization-panel-li" *ngFor="let tool of personalizationTools" (click)="openTool(tool)">
-        <img class="personalization-panel-item panel-item-{{tool.imgSrc}}"><br>
+        <img class="personalization-panel-item panel-item-{{tool.imgSrc}}" alt="Select {{tool.title}}"><br>
         <span class="personalization-panel-span">{{tool.title}}</span>
       </li>
     </ul>
