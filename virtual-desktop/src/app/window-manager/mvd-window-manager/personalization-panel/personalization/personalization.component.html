@@ -8,13 +8,14 @@
   Copyright Contributors to the Zowe Project.
 -->
 
+<!-- TODO: This page needs internationalization support -->
 <div class="personalization-main-window">
   <label class="personalization-label small back-button top" (click)="goBack()">
-    <i class="fa fa-chevron-left" style="padding: 5px; font-size: large; padding-right: 7px; margin-top: 2px;">
-    </i>Back</label>
+    <em class="fa fa-chevron-left" style="padding: 5px; font-size: large; padding-right: 7px; margin-top: 2px;"></em>Back
+  </label>
 
   <label class="personalization-label small reset-button top" (click)="resetAllDefault()">Reset to Default
-    <i class="fa fa-trash" style="padding: 5px; font-size: large;"></i>
+    <em class="fa fa-trash" style="padding: 5px; font-size: large;"></em>
   </label>
 
   <label class="personalization-label" style="padding-top: 10px;">Background</label>
@@ -49,12 +50,13 @@
   </div>
   <label class="personalization-label">Size</label>
 
+  <!-- Ideally, this would say something like alt="Select Size small" but alt attribute adds a weird artifact -->
   <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 1,
-    'personalization-preview-item preview-small': true}" (click)="sizeSelected('small')">
+    'personalization-preview-item preview-small': true}" (click)="sizeSelected('small')" alt="">
   <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 2,
-    'personalization-preview-item preview-medium': true}" (click)="sizeSelected('medium')">
+    'personalization-preview-item preview-medium': true}" (click)="sizeSelected('medium')" alt="">
   <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 3,
-    'personalization-preview-item preview-large': true}" (click)="sizeSelected('large')">
+    'personalization-preview-item preview-large': true}" (click)="sizeSelected('large')" alt="">
 
     <!-- TODO: Add text re-sizing functionality -->
   <!-- <label class="personalization-label">Text Size</label> -->
