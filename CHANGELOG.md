@@ -4,6 +4,7 @@ All notable changes to the Zlux App Manager will be documented in this file.
 
 ## `1.12.0`
 
+- Added iframe support for spawning a context menu when in single-app mode (via viewportevents instead of windowactions
 - Added support for changing desktop color theme
 - Added support for changing desktop size
 - Support for changing wallpaper (with drag & drop)
