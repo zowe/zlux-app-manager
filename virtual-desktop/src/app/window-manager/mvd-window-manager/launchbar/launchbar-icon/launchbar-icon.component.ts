@@ -10,8 +10,10 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Input, Output, EventEmitter, Injector } from '@angular/core';
+import { Component, Input, Output, EventEmitter, Injector, ElementRef, ViewChild } from '@angular/core';
+import { DesktopTheme } from "../../desktop/desktop.component";
 import { LaunchbarItem } from '../shared/launchbar-item';
+import { BaseLogger } from '../../../../shared/logger';
 
 @Component({
   selector: 'rs-com-launchbar-icon',
@@ -19,16 +21,52 @@ import { LaunchbarItem } from '../shared/launchbar-item';
   styleUrls: ['./launchbar-icon.component.css', '../shared/shared.css']
 })
 export class LaunchbarIconComponent {
-  @Input() launchbarItem: LaunchbarItem;
-
-  @Output() iconClicked: EventEmitter<void>;
+  public iconSize: string;
+  public indicatorSize: string;
+  public indicatorPos: string;
+  public hoverOffset: string;
+  public hoverBottom: string;
+  public _theme:DesktopTheme;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
-  titleVisible: boolean;
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  private mouseDownListener: boolean;
+
+  @Input() launchbarItem: LaunchbarItem;
+  @ViewChild('launchbarIconContainer') componentElement: ElementRef;
+  @Input() set theme(newTheme: DesktopTheme) {
+    this._theme = newTheme;
+    this.logger.debug("Set new launchbar icon theme with: ", this._theme);
+    switch (newTheme.size.launchbar) {
+      case 1:
+        this.iconSize="16px";
+        this.hoverBottom="14px";
+        this.hoverOffset="-22px";
+        this.indicatorPos="2px";
+        this.indicatorSize = '2px';
+        break;
+      case 3:
+        this.iconSize="64px";
+        this.hoverOffset="0px";
+        this.hoverBottom="62px";
+        this.indicatorPos="-2px";
+        this.indicatorSize = '4px';
+        break;
+      default: //Medium size - 2
+        this.iconSize="32px";
+        this.hoverOffset="-14px";
+        this.hoverBottom="30px";
+        this.indicatorPos="2px";
+        this.indicatorSize = '2px';
+        break;
+    }
+  }
+  @Output() iconClicked: EventEmitter<void>;
 
   constructor(private injector: Injector) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.iconClicked = new EventEmitter();
+    this.mouseDownListener = false;
   }
 
 /*
@@ -49,14 +87,29 @@ export class LaunchbarIconComponent {
     this.launchbarItem.showIconLabel = false;
   }
 
-  onMouseEnterInstanceView(event: MouseEvent) {
-    this.launchbarItem.showIconLabel = false;
-    this.launchbarItem.showInstanceView = true;
+  onMouseLeaveInstanceView(event: MouseEvent) {
+    if (!this.mouseDownListener) {
+      window.addEventListener('mousedown', () => this.onMouseDownInstanceView());
+      this.mouseDownListener = true;
+    }
   }
 
-  onMouseLeaveInstanceView(event: MouseEvent) {
-    this.launchbarItem.showInstanceView = false;
+  onMouseEnterInstanceView(event: MouseEvent) {
     this.launchbarItem.showIconLabel = false;
+    if (!this.mouseDownListener) {
+      window.addEventListener('mousedown', () => this.onMouseDownInstanceView());
+      this.mouseDownListener = true;
+    }
+  }
+
+  onMouseDownInstanceView() {
+    if (this.launchbarItem.showInstanceView && event
+        && !this.componentElement.nativeElement.contains(event.target)) {
+      this.launchbarItem.showInstanceView = false;
+      this.launchbarItem.showIconLabel = false;
+      this.mouseDownListener = false;
+      window.removeEventListener('mousedown', () => this.onMouseDownInstanceView());
+    }
   }
   
   isRunning(): boolean {

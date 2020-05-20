@@ -10,13 +10,15 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents, Angular2PluginSessionEvents } from './inject-resources';
+import { Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginViewportEvents, 
+  Angular2PluginSessionEvents, Angular2PluginThemeEvents } from './inject-resources';
 
 
 type ReactPluginWindowActions = Angular2PluginWindowActions;
 type ReactPluginWindowEvents = Angular2PluginWindowEvents;
 type ReactPluginViewportEvents = Angular2PluginViewportEvents;
 type ReactPluginSessionEvents = Angular2PluginSessionEvents;
+type ReactPluginThemeEvents = Angular2PluginThemeEvents;
 
 export interface ReactMVDResources {
   readonly mainWindowId: MVDWindowManagement.WindowId | null;
@@ -28,6 +30,7 @@ export interface ReactMVDResources {
   readonly launchMetadata: any;
   readonly instanceId: MVDHosting.InstanceId;
   readonly sessionEvents: ReactPluginSessionEvents;
+  readonly themeEvents: ReactPluginThemeEvents | null;
 };
 
 /* TODO
