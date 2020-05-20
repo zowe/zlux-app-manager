@@ -16,7 +16,7 @@
   [style.maxWidth]='this.panelMaxWidth'>
     <ul class="personalization-panel-ul" *ngIf="showPanel">
       <li class="personalization-panel-li" *ngFor="let tool of personalizationTools" (click)="openTool(tool)">
-        <img class="personalization-panel-item panel-item-{{tool.imgSrc}}" alt="Select {{tool.title}}"><br>
+        <img class="personalization-panel-item panel-item-{{tool.imgSrc}}" alt=""><br>
         <span class="personalization-panel-span">{{tool.title}}</span>
       </li>
     </ul>
