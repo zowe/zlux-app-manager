@@ -137,13 +137,24 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.appKeyboard.keyUpEvent
       .subscribe((event:KeyboardEvent) => {
         if (event.which === KeyCode.DOWN_ARROW) {
-          if(this.focusedWindow) {
+          if(this.focusedWindow !== null) {
             this.minimizeToggle(this.focusedWindow.windowId);
           }
         }
         else if (event.which === KeyCode.UP_ARROW) {
-          if(this.focusedWindow) {
+          if(this.focusedWindow !== null) {
             this.maximizeToggle(this.focusedWindow.windowId);
+          }
+        }
+        else if (event.which === KeyCode.COMMA) {                  
+            this.switchWindow(-1);
+        }
+        else if (event.which === KeyCode.PERIOD) { 
+            this.switchWindow(1);
+        }
+        else if (event.which === KeyCode.KEY_W) {
+          if(this.focusedWindow !== null) {
+            this.closeWindow(this.focusedWindow.windowId);
           }
         }
     });
@@ -206,6 +217,44 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       return -1;
     }
     return parentViewportElement.getAttribute(viewportIdAttr);
+  }
+
+  switchWindow(zDistance:number): void {
+    let windows:DesktopWindow[] = this.getAllWindows();
+  
+    if(this.focusedWindow != null) {
+      const focusedWindowId :number = this.focusedWindow.windowId; 
+      windows = windows.filter( (val: DesktopWindow ) => 
+        val.windowId !== focusedWindowId
+      );
+    }  
+
+    if(windows.length>0) {
+      const sortWindows: DesktopWindow[] = windows.sort(
+                          (val1:DesktopWindow, val2:DesktopWindow) => 
+                          ((val1.windowState.zIndex - val2.windowState.zIndex) 
+                          * zDistance)
+                        );
+
+      const windowIds = sortWindows.map((val:DesktopWindow) => val.windowId);
+
+      if(windowIds.length>0) {
+        const selectIdx: number = (Math.abs(zDistance) -1) % (windows.length);
+        const windowId = windowIds[selectIdx];
+        if(this.focusedWindow != null && zDistance<1) {
+          const replaceZIndex = Math.abs(sortWindows[windowIds.length-1].windowState.zIndex)-1;
+          if(replaceZIndex>0) {
+            this.focusedWindow.windowState.zIndex=replaceZIndex;
+          } else {
+            sortWindows.forEach((w,i)=>{
+              w.windowState.zIndex+=30;
+            })
+            this.focusedWindow.windowState.zIndex=sortWindows[windowIds.length-1].windowState.zIndex-1;
+          }
+        }
+        this.requestWindowFocus(windowId);
+      }
+    }
   }
 
   /* TODO: https://github.com/angular/angular/issues/17725 gets in the way */
@@ -546,6 +595,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       closeViewports();
     }
 
+    this.focusedWindow = null;
   }
 
   closeAllWindows() :void {
