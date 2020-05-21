@@ -150,9 +150,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
             this.switchWindow(-1);
         }
         else if (event.which === KeyCode.RIGHT_ARROW) { 
-          if(event.which === KeyCode.RIGHT_ARROW) {
             this.switchWindow(1);
-          }
         }
         else if (event.which === KeyCode.KEY_W) {
           if(this.focusedWindow !== null) {
@@ -244,8 +242,18 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         const selectIdx: number = (Math.abs(zDistance) -1) % (windows.length);
         const windowId = windowIds[selectIdx];
         if(this.focusedWindow != null && zDistance<1) {
-          const replaceZIndex = sortWindows[windowIds.length-1].windowState.zIndex-1;
-          this.focusedWindow.windowState.zIndex=replaceZIndex;
+          const replaceZIndex = Math.abs(sortWindows[windowIds.length-1].windowState.zIndex)-1;
+          if(replaceZIndex>0) {
+            this.focusedWindow.windowState.zIndex=replaceZIndex;
+          } else {
+            sortWindows.forEach((w,i)=>{
+              w.windowState.zIndex+=30;
+            })
+            this.focusedWindow.windowState.zIndex=sortWindows[windowIds.length-1].windowState.zIndex-1;
+          }
+          
+          console.log('sortWindows', sortWindows.map((w)=>w.windowState.zIndex));
+          console.log('replaceZIndex', this.focusedWindow.windowState.zIndex);
         }
         this.requestWindowFocus(windowId);
       }
