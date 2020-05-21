@@ -251,9 +251,6 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
             })
             this.focusedWindow.windowState.zIndex=sortWindows[windowIds.length-1].windowState.zIndex-1;
           }
-          
-          console.log('sortWindows', sortWindows.map((w)=>w.windowState.zIndex));
-          console.log('replaceZIndex', this.focusedWindow.windowState.zIndex);
         }
         this.requestWindowFocus(windowId);
       }
