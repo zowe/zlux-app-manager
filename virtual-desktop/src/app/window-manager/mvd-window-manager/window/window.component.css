@@ -11,6 +11,7 @@
 */
 
 .caption.handle {
+  user-select: none;
   cursor: grab;
   cursor: -moz-grab;
   cursor: -webkit-grab;
@@ -35,9 +36,9 @@
   z-index: 1;
   min-width: 180px;
   min-height: 90px;
-  -webkit-box-shadow: 0 0px 13px rgba(0,0,0,0.2);
-  -moz-box-shadow:    0 0px 13px rgba(0,0,0,0.2);
-  box-shadow:         0 0px 13px rgba(0,0,0,0.2);
+  -webkit-box-shadow: 0;
+  -moz-box-shadow:    0;
+  box-shadow:         0;
   border-color: #d4d4d6;
   border-width: 3px;
   border-style: solid;
@@ -84,9 +85,9 @@
 }
 
 .window.active {
-  -webkit-box-shadow: 0 0px 25px rgba(0, 0, 0, 0.3);
-  -moz-box-shadow:    0 0px 25px rgba(0, 0, 0, 0.3);
-  box-shadow:         0 0px 25px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: rgb(51,51,51) 1px 1px 8px 0px;
+  -moz-box-shadow:    rgb(51,51,51) 1px 1px 8px 0px;
+  box-shadow:         rgb(51,51,51) 1px 1px 8px 0px;
   border-color: #659ff9;
   background-color: #659ff9;
 }
@@ -97,8 +98,8 @@
   font-size: 20px;
   cursor: default;
   position: absolute;
-  padding-left:83px;
-  padding-right:83px;
+  padding-left:100px;
+  padding-right:80px;
   padding-top: 10px;
   top: 0px;
   left: 0px;
@@ -134,64 +135,77 @@
   height: 19px;
   background-color: transparent;
   background-repeat: no-repeat;
-  transition: 0.5s;
 }
 
 .maximize-button {
   left: 73px;
-  background-image: url(../../../../assets/images/window/expand-normal.png);
+  background-image: url(../../../../assets/images/window/expand-inactive.png);
 }
 
 .maximize-button.maximized {
   left: 73px;
-  background-image: url(../../../../assets/images/window/expanded-normal.png);
+  background-image: url(../../../../assets/images/window/expanded-inactive.png);
 }
 
 .minimize-button {
   left: 42px;
-  background-image: url(../../../../assets/images/window/minimize-normal.png);
+  background-image: url(../../../../assets/images/window/minimize-inactive.png);
 }
 
 .close-button {
   left: 12px;
-  background-image: url(../../../../assets/images/window/close-normal.png);
+  background-image: url(../../../../assets/images/window/close-inactive.png);
 }
 
-.link-button {
-  right: 15px;
-  background-size: 19px 19px;
-  background-image: url(../../../../assets/images/window/link-button.png);
+.maximize-button.active:hover {
+  background-image: url(../../../../assets/images/window/expand-hover-active.png);
 }
 
-.maximize-button:hover {
-  background-image: url(../../../../assets/images/window/expand-hover.png);
+.maximize-button.maximized.active:hover {
+  background-image: url(../../../../assets/images/window/expanded-hover-active.png);
 }
 
-.maximize-button.maximized:hover {
-  background-image: url(../../../../assets/images/window/expanded-hover.png);
+.minimize-button.active:hover {
+  background-image: url(../../../../assets/images/window/minimize-hover-active.png);
 }
 
-.minimize-button:hover {
-  background-image: url(../../../../assets/images/window/minimize-hover.png);
+.close-button.active:hover {
+  background-image: url(../../../../assets/images/window/close-hover-active.png);
 }
 
-.close-button:hover {
-  background-image: url(../../../../assets/images/window/close-hover.png);
+.maximize-button.active {
+  background-image: url(../../../../assets/images/window/expand-active.png);
 }
 
-.maximize-button:active {
+.maximize-button.maximized.active {
+  background-image: url(../../../../assets/images/window/expanded-active.png);
+}
+
+.minimize-button.active {
+  background-image: url(../../../../assets/images/window/minimize-active.png);
+}
+
+.close-button.active {
+  background-image: url(../../../../assets/images/window/close-active.png);
+}
+
+.close-button.active:active {
+  background-image: url(../../../../assets/images/window/close-pressed.png);
+}
+
+.maximize-button.active:active {
   background-image: url(../../../../assets/images/window/expand-pressed.png);
 }
 
-.maximize-button.maximized:active {
+.maximize-button.maximized.active:active {
   background-image: url(../../../../assets/images/window/expanded-pressed.png);
 }
 
-.minimize-button:active {
+.minimize-button.active:active {
   background-image: url(../../../../assets/images/window/minimize-pressed.png);
 }
 
-.close-button:active {
+.close-button.active:active {
   background-image: url(../../../../assets/images/window/close-pressed.png);
 }
 

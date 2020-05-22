@@ -38,6 +38,8 @@ export const Angular2InjectionTokens = {
   WINDOW_ACTIONS: 'virtualdesktop-ng2.0-0-0.window-actions', /* optional */
   WINDOW_EVENTS: 'virtualdesktop-ng2.0-0-0.window-events', /* optional */
   SESSION_EVENTS: 'virtualdesktop-ng2.0-0-0.session-events', /* optional */
+
+  THEME_EVENTS:  'virtualdesktop-ng2.0-0-0.theme-events', /* optional */
 };
 
 export interface Angular2PluginWindowActions {
@@ -54,6 +56,15 @@ export interface Angular2PluginWindowActions {
 export interface Angular2PluginSessionEvents {
   readonly login: Subject<void>;
   readonly sessionExpire: Subject<void>;
+}
+
+export interface Angular2PluginThemeEvents {
+  readonly colorChanged: Subject<any>;
+  readonly sizeChanged: Subject<any>;
+  readonly wallpaperChanged: Subject<any>;
+  readonly revertedDefault: Subject<any>;
+  readonly currentColor: string;
+  readonly currentSize: number;
 }
 
 export interface Angular2PluginWindowEvents {
