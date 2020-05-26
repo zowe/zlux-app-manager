@@ -12,13 +12,14 @@
 
 import { Component, Injector, ElementRef, ViewChild, Input } from '@angular/core';
 import { DesktopWindow } from '../shared/desktop-window';
+import { DesktopTheme } from "../desktop/desktop.component";
 import { DesktopWindowStateType } from '../shared/desktop-window-state';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { WindowPosition } from '../shared/window-position';
+import { BaseLogger } from '../../../shared/logger';
+import { Colors } from '../shared/colors';
 
 const SCREEN_EDGE_BORDER = 2;
-const WINDOW_HEADER_HEIGHT = WindowManagerService.WINDOW_HEADER_HEIGHT;
-const LAUNCHBAR_HEIGHT = WindowManagerService.LAUNCHBAR_HEIGHT;
 
 @Component({
   selector: 'rs-com-mvd-window',
@@ -29,6 +30,67 @@ export class WindowComponent {
   @ViewChild('windowBody')
   public windowBodyRef: ElementRef;
 
+  public color: any = {};
+  public headerSize: number;
+  public borderSize: string;
+  public textSize: string;
+  public textPad: string;
+  public buttonTop: string;
+  public buttonSize: string;
+  public buttonFilter: string;
+  public minimizeLeft: string;
+  public maximizeLeft: string;
+  public closeLeft: string;
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  
+  @Input() set theme(newTheme: DesktopTheme) {
+    this.logger.debug('Window theme set=',newTheme);
+    this.color = newTheme.color;
+    //button left strategy: size*.6 or .66 between each element and sides
+    //therefore (buttonNumber*size*.6)+((buttonNumber-1)*size)
+    switch (newTheme.size.window) {
+      case 1:
+        this.borderSize = '1px';
+        this.buttonSize = '10px';
+        this.closeLeft = '6px';
+        this.minimizeLeft = '22px';
+        this.maximizeLeft = '39px';
+        this.buttonTop = '6px';
+        this.textSize = '12px';
+        this.textPad = '3px';
+        break;
+      case 3:
+        this.borderSize = '3px';
+        this.buttonSize = '16px';
+        this.closeLeft = '11px';
+        this.minimizeLeft = '38px';
+        this.maximizeLeft = '66px';
+        this.buttonTop = '16px';
+        this.textSize = '18px';
+        this.textPad = '12px';
+        break;
+      default: //Default size is medium - 2
+        this.borderSize = '2px';
+        this.buttonSize = '12px';
+        this.closeLeft = '8px';
+        this.minimizeLeft = '28px';
+        this.maximizeLeft = '49px';
+        this.buttonTop = '9px';
+        this.textSize = '14px';
+        this.textPad = '5px';
+    }
+    switch (newTheme.color.windowTextActive) {
+      case Colors.COOLGREY_90:
+        this.buttonFilter = 'brightness(0.2)';
+        break;
+      default:
+        this.buttonFilter = 'brightness(1)';
+        break;
+    }
+    (WindowManagerService as any)._setTheme(newTheme);
+    this.headerSize = WindowManagerService.WINDOW_HEADER_HEIGHT;
+  };
+  
   MIN_WIDTH = 180;
   MIN_HEIGHT = 100;
 
@@ -38,7 +100,7 @@ export class WindowComponent {
 
   constructor(
     public windowManager: WindowManagerService,
-    private injector: Injector
+    private injector: Injector,
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -70,14 +132,14 @@ export class WindowComponent {
     if (position.top < 0) {
       position.top = SCREEN_EDGE_BORDER;
     }
-    if (position.left + position.width - WINDOW_HEADER_HEIGHT < 0) {
-      position.left = -position.width + WINDOW_HEADER_HEIGHT;
+    if (position.left + position.width - this.headerSize < 0) {
+      position.left = -position.width + this.headerSize;
     }
-    if ((position.top + WINDOW_HEADER_HEIGHT) > DESKTOP_HEIGHT - LAUNCHBAR_HEIGHT) {
-      position.top = DESKTOP_HEIGHT - WINDOW_HEADER_HEIGHT - LAUNCHBAR_HEIGHT;
+    if ((position.top + this.headerSize) > DESKTOP_HEIGHT - WindowManagerService.LAUNCHBAR_HEIGHT) {
+      position.top = DESKTOP_HEIGHT - this.headerSize - WindowManagerService.LAUNCHBAR_HEIGHT;
     }
-    if ((position.left + WINDOW_HEADER_HEIGHT) > DESKTOP_WIDTH) {
-      position.left = DESKTOP_WIDTH - WINDOW_HEADER_HEIGHT;
+    if ((position.left + this.headerSize) > DESKTOP_WIDTH) {
+      position.left = DESKTOP_WIDTH - this.headerSize;
     }
 
     return {
@@ -85,7 +147,7 @@ export class WindowComponent {
       'left': position.left + 'px',
       'width': position.width + 'px',
       'max-width': 'calc(100%)',
-      'height': (position.height + WindowManagerService.WINDOW_HEADER_HEIGHT) + 'px',
+      'height': (position.height + this.headerSize) + 'px',
       'max-height': 'calc(100%)',
       'z-index': this.desktopWindow.windowState.zIndex,
       'inner-height': position.height + 'px'

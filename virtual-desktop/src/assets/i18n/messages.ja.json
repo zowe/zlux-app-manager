@@ -32,6 +32,7 @@
   "PasswordExpired": "パスワードの期限切れ：新しいパスワードを入力してください",
   "PasswordChanged": "パスワードが変更されました",
   "PinToTaskbar": "アプリケーションをピン留めする",
+  "Refresh applications": "アプリケーションを再ロード",
   "Properties":"プロパティー",
   "Refresh Applications": "アプリケーションを再ロード",
   "Restart Later":  "後で再起動",

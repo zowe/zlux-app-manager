@@ -8,7 +8,8 @@
   Copyright Contributors to the Zowe Project.
 */
 import { Injectable, Inject, Component, Optional } from '@angular/core';
-import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, Angular2PluginSessionEvents, Angular2PluginViewportEvents } from '../../../../pluginlib/inject-resources';
+import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, 
+  Angular2PluginSessionEvents, Angular2PluginViewportEvents, Angular2PluginThemeEvents } from '../../../../pluginlib/inject-resources';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { BaseLogger } from '../../../../app/shared/logger'
 
@@ -32,7 +33,8 @@ export class IFramePluginComponent {
     @Inject(Angular2InjectionTokens.VIEWPORT_EVENTS) private viewportEvents: Angular2PluginViewportEvents,
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefintion: ZLUX.ContainerPluginDefinition,
     @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any,
-    @Inject(Angular2InjectionTokens.SESSION_EVENTS) private sessionEvents: Angular2PluginSessionEvents
+    @Inject(Angular2InjectionTokens.SESSION_EVENTS) private sessionEvents: Angular2PluginSessionEvents,
+    @Optional() @Inject(Angular2InjectionTokens.THEME_EVENTS) private themeEvents: Angular2PluginThemeEvents
   ){
     addEventListener("message", this.postMessageListener.bind(this));
     //The following references are to suppress typescript warnings
@@ -104,6 +106,15 @@ export class IFramePluginComponent {
       this.sessionEvents.sessionExpire.subscribe(() => {
         this.postWindowEvent('sessionEvents.sessionExpire')
       });
+      this.themeEvents.colorChanged.subscribe(() => {
+        this.postWindowEvent('themeEvents.colorChanged')
+      })
+      this.themeEvents.sizeChanged.subscribe(() => {
+        this.postWindowEvent('themeEvents.sizeChanged')
+      })
+      this.themeEvents.wallpaperChanged.subscribe(() => {
+        this.postWindowEvent('themeEvents.wallpaperChanged')
+      })
       return;
     }
     if(data.request.instanceId === this.instanceId){
@@ -144,14 +155,14 @@ export class IFramePluginComponent {
     return (objCopy === undefined) ? undefined : objCopy;
   }
 
-  private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>){
+  private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>, type: string){
     try{
       let copy = JSON.parse(JSON.stringify(itemsArray));
       for(let i = 0; i < copy.length; i++){
         copy[i].action = () => {
           source.postMessage({
             key: key,
-            originCall: 'windowActions.spawnContextMenu',
+            originCall: type+'.spawnContextMenu',
             instanceId: this.instanceId,
             contextMenuItemIndex: i
           }, '*')
@@ -175,7 +186,7 @@ export class IFramePluginComponent {
         fnRet = fn();
       } else {
         if(fnString == 'windowActions.spawnContextMenu' && Array.isArray(args[2])){
-          args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2])
+          args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2], 'windowActions')
         }
         fnRet = fn(...args);
       }
@@ -210,6 +221,9 @@ export class IFramePluginComponent {
             }, that.DEFAULT_CLOSE_TIMEOUT)
           }.bind(this))
         }
+        return fn(...args);
+      } else if(fnString == 'viewportEvents.spawnContextMenu' && Array.isArray(args[2])){
+        args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2], 'viewportEvents');
         return fn(...args);
       }
       return undefined;

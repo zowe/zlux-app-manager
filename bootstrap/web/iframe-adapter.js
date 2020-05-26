@@ -50,6 +50,12 @@ let messageHandler = function(message) {
                     delete ZoweZLUX.iframe.contextMenuActions[key];
                 }
                 return;
+            case 'viewportEvents.spawnContextMenu':
+                if(data.contextMenuItemIndex !== undefined){
+                    ZoweZLUX.iframe.contextMenuActions[key][data.contextMenuItemIndex].action();
+                    delete ZoweZLUX.iframe.contextMenuActions[key];
+                }
+                return;
             case 'viewportEvents.callCloseHandler':
                 ZoweZLUX.iframe.closeHandlers[key]().then((res) => {
                     delete ZoweZLUX.iframe.closeHandlers[key]

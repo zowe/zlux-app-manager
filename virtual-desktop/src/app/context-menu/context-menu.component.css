@@ -18,15 +18,23 @@ li.disabled {
   opacity: 0.3;
 }
 
+.context-menu .menuitem-content.disabled {
+  color: #9b9ea4;
+}
+
 .context-menu {
   position: absolute;
   z-index: 20000;
   min-width: 180px;
   width: auto;
+  -webkit-box-shadow: 3px 3px 2px 1px #0000004a;
+  -moz-box-shadow: 3px 3px 2px 1px #0000004a;
+  box-shadow: 3px 3px 2px 1px #0000004a;
 }
 
 .context-menu .menu-item.active {
-  background-color:#a6a6a6;
+  background-color: #55585c;
+  border-color: #f3f4f4;
 }
 
 .context-menu .menu-item.top {
@@ -46,18 +54,18 @@ li.disabled {
 }
 
 .context-menu .menu-item {
-  background-color:#f6f0f0;
+  background-color: #1f242d; /* Blue-shifted version of Cool Gray 90 */
   width: 100%;
   height: auto;
   padding:3px;
-  font-family: 'Helvetica';
+  font-family: 'Helvetica', sans-serif;
   font-size: 14px;
   font-weight: 400;
   white-space:nowrap;
-  color:#404040;
+  color: #f3f4f4;
   border-style: solid;
-  border-width: 0 1px 1px 1px;
-  border-color: #ccc;
+  border-width: 1px 1px 1px 1px;
+  border-color: #3d3f42;
   cursor: pointer;
   position:relative;
 }
@@ -104,12 +112,12 @@ li.disabled {
   left: 0px;
 }
 
-.context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu>.context-menu {
+.context-menu .multi-menu-item>.submenu>.mvd-context-menu>.context-menu {
   left: 0;
   top: 0;
 }
 
-.context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu>.context-menu.propagateChildLeft>ul {
+.context-menu .multi-menu-item>.submenu>.mvd-context-menu>.context-menu.propagateChildLeft>ul {
   position: absolute;
   right: 100%;
 }

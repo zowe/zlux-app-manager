@@ -10,29 +10,35 @@
   Copyright Contributors to the Zowe Project.
 */
 
-.launchbar-clock {
+.clock {
+  float: right;
+  user-select: none;
+}
+
+.two-row {
+  line-height: 1.25;
+}
+
+.widget-area {
   float: right;
   position: absolute;
   bottom: 0;
   right: 0;
   width: fit-content;
-  min-width: 210px; /* fit-content seems to fail at times with Safari, min-width here as a safety */
+  min-width: 175px; /* fit-content seems to fail at times with Safari, min-width here as a safety */
   height: 100%;
   z-index: 7;
   color: #eee;
-  padding-left: 18px;
-  padding-top: 16px;
+  padding-left: 5px;
   padding-right: 10px;
   text-align: right;
+  display: block;
 }
 
 .launchbar-tray-icon {
   float: left;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: #dde8f1;
-  margin-top: -16px;
+  width: 32px;
+  height: 32px;
   margin-right: 7px;
   background-size: 32px 32px;
   background-repeat: no-repeat;
@@ -42,18 +48,15 @@
 
 .launchbar-tray-icon.user {
   background-image: url('../../../../../assets/images/launchbar/person.png');
-  background-size: 26px 26px;
-  margin-right: 18px;
+  margin-right: 12px;
 }
 
 .launchbar-tray-icon.settings {
   background-image: url('../../../../../assets/images/launchbar/settings.png');
-  background-size: 30px 30px;
 }
 
 .launchbar-tray-icon.notification {
   background-image: url('../../../../../assets/images/launchbar/notifications/notification.png');
-  background-size: 26px 26px;
 }
 
 .launchbar-user:hover {
@@ -65,8 +68,8 @@
   min-height: 120px;
   position: absolute;
   bottom: 70px;
-  right: 0;
-  border-top-left-radius: 10px;
+  border-radius: 10px;
+  right: 5px;
   background: #dde8f1;
   padding: 10px 15px;
   z-index: 7;
@@ -97,34 +100,15 @@
   text-align: center;
 }
 
-.launchbar-separator {
-  position: absolute;
-  bottom: 0;
-  height: 60px;
-  width: 5px;
-  background-color: #36617a;
-}
-
-.launchbar-separator.right {
-  right: 0;
-}
-
-.launchbar-separator.left {
-  left: 0;
-}
-
 .notifications {
   width: 335px;
   height: 350px;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-  border-top-left-radius: 10px;
-  border-bottom-left-radius: 10px;
+  border-radius: 10px;
   background: #dde8f1;
   overflow-y: auto;
-  margin-top: -440px;
-  margin-right: 100px;
-  float: right;
+  position: absolute;
+  right: 5px;
+  bottom: 46px;
 }
 
 .caret-up {
@@ -155,8 +139,8 @@
   transition: 0.3s;
 }
 
-.notification-item:hover {
-  background-color: #B1BAC1;
+.notification-item:after:hover {
+  background: rgba(255,255,255,0.1);
 }
 
 .notification-icon-container {
@@ -169,7 +153,6 @@
 
 .notification-icon {
   max-width: 40px;
-  max-width: 40px;
   margin-left: 2px;
   margin-top: 2px;
 }
@@ -180,18 +163,18 @@
 }
 
 .notification-title {
-  color: black;
   font-weight: 600;
   font-size: 16px;
 }
 
 .notification-message {
   word-break: break-word;
-  color: black;
 }
 
 .delete-notification {
   display: inline-block;
+  width: 12px;
+  height: 12px;
   color: black;
   vertical-align: top;
   float: right;
@@ -205,13 +188,11 @@
 }
 
 .time {
-  color: black;
   font-size: 12px;
   float: left;
 }
 
 .timeAgo {
-  color: black;
   font-size: 12px;
   float: right;
 }

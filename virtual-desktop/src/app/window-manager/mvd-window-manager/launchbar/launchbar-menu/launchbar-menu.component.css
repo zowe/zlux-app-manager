@@ -14,22 +14,51 @@
   margin-left: 5px;
   margin-right: 5px;
   padding: 0;
-  background-image: url("../../../../../assets/images/launchbar/more-apps.png");
+  background-image: url("../../../../../assets/images/launchbar/menu-zowe-icon.png");
+}
+
+.app-label {
+    display: inherit;
 }
 
 .launch-menu-search {
   position:absolute;
   bottom: 5px;
+  left: 10px;
   width: 100%;
+}
+
+.launch-menu-search-input {
+  width: calc(100% - 10px);
+  border-color: transparent;
+  background-color: #ffffff55;
+  border-radius: 0px 0px 7px 7px;
+  padding-left: 30px;
+  margin-left: -5px;
+}
+
+.launch-menu-search-input::placeholder {
+  color: white;
+}
+
+.launch-menu-search-icon {
+  padding: 5px;
+  float: left;
+  position: absolute;
+  background-color: transparent;
 }
 
 .launch-menu-scroller {
   overflow-y: scroll;
   width: 315px;
   height: 295px;
-  bottom: 31px;
+  bottom: 35px;
   position: absolute;
   background: #dde8f1;
+}
+
+.launch-menu-scroller::-webkit-scrollbar:enabled {
+    background: #ffffff55;
 }
 
 .refresh-plugins {
@@ -38,7 +67,6 @@
 
 .launch-widget {
   height: 100%;
-  width: 125px;
   text-align: center;
   display: inline-block;
   position: absolute;
@@ -49,10 +77,10 @@
 
 .icon {
   box-sizing: border-box;
-  margin: 0;
+  margin: 5px 10px 5px 0px;
   padding: 0;
-  position: absolute;
   background: transparent;
+  background-size: 100%;
 }
 
 .launch-widget-row-settings p {
@@ -63,10 +91,10 @@
 
 .launch-widget-row {
   list-style: none;
-  height: 60px;
   margin: 0px 5px;
   text-align: left;
   cursor: pointer;
+  display: flex;
 }
 
 .launch-widget-row .icon {
@@ -80,22 +108,15 @@
 }
 
 .launch-widget-popup {
+  user-select: none;    
   width: 335px;
-  height: 350px;
+  height: 365px;
   position: absolute;
   bottom: 90px;
-  left: 10px;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-  border-top-left-radius: 10px;
-  border-bottom-left-radius: 10px;
+  left: 5px;
+  border-radius: 10px;
   background: #dde8f1;
-  padding: 5px 10px 0px 10px;
-}
-
-
-.launchbar-separator-hor {
-  color: #36617a;
+  padding: 5px 10px 0px 5px;
 }
 
 .caret-up {
@@ -123,7 +144,7 @@
 }
 
 .launch-widget-row.active {
-  background-color: #a6a6a6;
+  background-color: #ffffff61;
 }
 
 /*

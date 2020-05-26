@@ -21,13 +21,16 @@ import { BaseLogger } from 'virtual-desktop-logger';
 import { DesktopWindow, LocalWindowEvents } from './desktop-window';
 import { WindowPosition } from './window-position';
 import { DesktopWindowState, DesktopWindowStateType } from '../shared/desktop-window-state';
+import { DesktopTheme } from "../desktop/desktop.component";
 import { WindowMonitor } from 'app/shared/window-monitor.service';
-import { ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEvents,
-  Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, InstanceId, EmbeddedInstance
+import { ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEvents, Angular2PluginThemeEvents,
+  Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, 
+  InstanceId, EmbeddedInstance
 } from 'pluginlib/inject-resources';
 
 import { KeybindingService } from './keybinding.service';
 import { KeyCode } from './keycode-enum';
+import { ThemeEmitterService } from '../services/theme-emitter.service';
 
 type PluginIdentifier = string;
 const DEFAULT_DESKTOP_SHORT_TITLE = 'Zowe';
@@ -40,10 +43,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
    * I'd like to apply this constant to the ".window .header" selector in ../window/window.component.css
    * but I don't know how
    */
-  public static readonly WINDOW_HEADER_HEIGHT = 45;
-  public static readonly LAUNCHBAR_HEIGHT = 70;
-  private static readonly NEW_WINDOW_POSITION_INCREMENT = WindowManagerService.WINDOW_HEADER_HEIGHT;
-  private static readonly MAXIMIZE_WINDOW_HEIGHT_OFFSET = WindowManagerService.WINDOW_HEADER_HEIGHT
+  public static WINDOW_HEADER_HEIGHT = 45;
+  public static LAUNCHBAR_HEIGHT = 70;
+  private static  NEW_WINDOW_POSITION_INCREMENT = WindowManagerService.WINDOW_HEADER_HEIGHT;
+  private static  MAXIMIZE_WINDOW_HEIGHT_OFFSET = WindowManagerService.WINDOW_HEADER_HEIGHT
                                                         + WindowManagerService.LAUNCHBAR_HEIGHT;
 
   private nextId: MVDWindowManagement.WindowId;
@@ -77,7 +80,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     private injector: Injector,
     private windowMonitor: WindowMonitor,
     private componentFactoryResolver: ComponentFactoryResolver,
-    private appKeyboard: KeybindingService
+    private appKeyboard: KeybindingService,
+    private themeService: ThemeEmitterService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -142,13 +146,11 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
             this.maximizeToggle(this.focusedWindow.windowId);
           }
         }
-        else if (event.which === KeyCode.LEFT_ARROW) {                  
+        else if (event.which === KeyCode.COMMA) {                  
             this.switchWindow(-1);
         }
-        else if (event.which === KeyCode.RIGHT_ARROW) { 
-          if(event.which === KeyCode.RIGHT_ARROW) {
+        else if (event.which === KeyCode.PERIOD) { 
             this.switchWindow(1);
-          }
         }
         else if (event.which === KeyCode.KEY_W) {
           if(this.focusedWindow !== null) {
@@ -168,6 +170,35 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         }
       })
     });
+  }
+
+  public static _setTheme(newTheme: DesktopTheme) {
+    switch (newTheme.size.window) {
+    case 1:
+      WindowManagerService.WINDOW_HEADER_HEIGHT = 22;
+      break;
+    case 3:
+      WindowManagerService.WINDOW_HEADER_HEIGHT = 47;
+      break;
+    default:
+      WindowManagerService.WINDOW_HEADER_HEIGHT = 29;
+      //2
+    }
+    WindowManagerService.NEW_WINDOW_POSITION_INCREMENT = WindowManagerService.WINDOW_HEADER_HEIGHT;
+    
+    switch (newTheme.size.launchbar) {
+    case 1:
+      WindowManagerService.LAUNCHBAR_HEIGHT = 25;
+      break;
+    case 3:
+      WindowManagerService.LAUNCHBAR_HEIGHT = 76;
+      break;
+    default:
+      //2
+      WindowManagerService.LAUNCHBAR_HEIGHT = 41;
+    }
+    WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET = WindowManagerService.WINDOW_HEADER_HEIGHT
+      + WindowManagerService.LAUNCHBAR_HEIGHT;
   }
 
   private getViewportIdFromDOM(element: any): Number{
@@ -211,8 +242,15 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         const selectIdx: number = (Math.abs(zDistance) -1) % (windows.length);
         const windowId = windowIds[selectIdx];
         if(this.focusedWindow != null && zDistance<1) {
-          const replaceZIndex = sortWindows[windowIds.length-1].windowState.zIndex-1;
-          this.focusedWindow.windowState.zIndex=replaceZIndex;
+          const replaceZIndex = Math.abs(sortWindows[windowIds.length-1].windowState.zIndex)-1;
+          if(replaceZIndex>0) {
+            this.focusedWindow.windowState.zIndex=replaceZIndex;
+          } else {
+            sortWindows.forEach((w,i)=>{
+              w.windowState.zIndex+=30;
+            })
+            this.focusedWindow.windowState.zIndex=sortWindows[windowIds.length-1].windowState.zIndex-1;
+          }
         }
         this.requestWindowFocus(windowId);
       }
@@ -409,8 +447,21 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     providers.set(Angular2InjectionTokens.VIEWPORT_EVENTS, this.generateViewportEventsProvider(windowId, viewportId));
     providers.set(Angular2InjectionTokens.PLUGIN_EMBED_ACTIONS, this.generateEmbedAction(windowId));
     providers.set(Angular2InjectionTokens.SESSION_EVENTS, this.generateSessionEventsProvider(windowId));
+    providers.set(Angular2InjectionTokens.THEME_EVENTS, this.generateThemeEventsProvider());
 
     return providers;
+  }
+
+  // We don't use windowID's here because each app lifecycle points to one master theme service, they're indistinguishable
+  private generateThemeEventsProvider(): Angular2PluginThemeEvents {
+    return {
+      colorChanged: this.themeService.onColorChange,
+      sizeChanged: this.themeService.onSizeChange,
+      wallpaperChanged: this.themeService.onWallpaperChange,
+      currentColor: this.themeService.mainColor,
+      currentSize: this.themeService.mainSize,
+      revertedDefault: this.themeService.onResetAllDefault
+    };
   }
 
   createWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId {
