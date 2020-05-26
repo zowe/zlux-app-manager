@@ -26,7 +26,7 @@
        (click)="setSearchFocus();">
     <div style="cursor: pointer" class="refresh-plugins" (click)="refresh()">
       {{translation.translate("Refresh Applications")}}
-      <i style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></i>
+      <em style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></em>
     </div>
     <div style="margin: 20px"></div>
     <div #menudiv class="launch-menu-scroller"
@@ -50,7 +50,7 @@
       </div>
     </div>
     <div class="launch-menu-search">
-      <i class="launch-menu-search-icon fa fa-search"></i>
+      <em class="launch-menu-search-icon fa fa-search"></em>
       <input #searchapp class="launch-menu-search-input" type="text" 
         placeholder="{{translation.translate('Search')}}"
         [style.font-size]="menuText"

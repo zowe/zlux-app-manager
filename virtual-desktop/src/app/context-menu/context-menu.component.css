@@ -58,7 +58,7 @@ li.disabled {
   width: 100%;
   height: auto;
   padding:3px;
-  font-family: 'Helvetica';
+  font-family: 'Helvetica', sans-serif;
   font-size: 14px;
   font-weight: 400;
   white-space:nowrap;
@@ -112,12 +112,12 @@ li.disabled {
   left: 0px;
 }
 
-.context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu>.context-menu {
+.context-menu .multi-menu-item>.submenu>.mvd-context-menu>.context-menu {
   left: 0;
   top: 0;
 }
 
-.context-menu .multi-menu-item>.submenu>com-rs-mvd-context-menu>.context-menu.propagateChildLeft>ul {
+.context-menu .multi-menu-item>.submenu>.mvd-context-menu>.context-menu.propagateChildLeft>ul {
   position: absolute;
   right: 100%;
 }
