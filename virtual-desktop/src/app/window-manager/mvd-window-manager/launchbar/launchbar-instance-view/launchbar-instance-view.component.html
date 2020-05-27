@@ -16,7 +16,7 @@
       <p class="caption truncate">{{getTitleForWindow(windowId)}}</p>
       </div>
       <div class="instance-snapshot" (click)="clicked(windowId)" [style.background-color]="black">
-        <img class="instance-preview" src={{getPreview(i,launchbarItem)}}/>
+        <img class="instance-preview" src={{getPreview(i,launchbarItem)}} alt="{{i}} {{getTitleForWindow(windowId)}}"/>
       </div>
     </div>
   </div>

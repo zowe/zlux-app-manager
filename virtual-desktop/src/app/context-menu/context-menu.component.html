@@ -41,6 +41,7 @@
                 class="icon"
                 [src]="menuItem.icon ? this.generateIcon(menuItem.icon) : null"
                 [class.hide-icon]="!menuItem.icon"
+                alt=""
               >
               <div>{{menuItem.text}}</div>
             </div>
@@ -65,6 +66,7 @@
             [class.propagateChildLeft]="this._propagateChildLeft"
           >
             <com-rs-mvd-context-menu
+              class='mvd-context-menu'
               [xPos]="-2"
               [yPos]="-5"
               [parentY]="this.newY+(i*this._itemHeight)"
@@ -90,6 +92,7 @@
                 [src]="menuItem.icon ? this.generateIcon(menuItem.icon) : null"
                 [class.hide-icon]="!menuItem.icon"
                 [class.propagateChildLeft]="this._propagateChildLeft"
+                alt=""
               >
               <div>{{menuItem.text}}</div>
             </div>
