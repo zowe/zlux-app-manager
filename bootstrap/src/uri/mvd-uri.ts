@@ -141,7 +141,7 @@ export class MvdUri implements ZLUX.UriBroker {
     if (proxy_mode) {
       if (uri.startsWith('/api/')) {
         return uri.replace('/api/', '/ws/');
-      } else if (uri.startsWith('/ui/')) {
+      } else {
         return uri.replace('/ui/', '/ws/');
       }
     } else {
