@@ -76,12 +76,16 @@ export class PersonalizationComponent implements OnInit {
   ngOnInit(): void {
     this.selectedColor = this.desktopThemeService.mainColor;
     this.selectedSize = this.desktopThemeService.mainSize;
+  
     this.spawnCircles(this.paletteColors);
     this.spawnSlider();
     
     let selectedColorHSL = this.hexToHSL(this.selectedColor);
     if (selectedColorHSL != null) {
       this.updateLightnessSwatches(selectedColorHSL);
+    }
+    if (this.selectedColor == Colors.COOLGREY_90) {
+      this.selectedCircle = 16;
     }
   }
 
