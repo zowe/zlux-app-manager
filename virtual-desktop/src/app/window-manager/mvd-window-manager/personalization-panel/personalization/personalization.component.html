@@ -31,41 +31,61 @@
     </file-drop>
 
   <label class="personalization-label">Color</label>
-  <div class="personalization-color-1">
-     <!-- <color-circle 
-      [color]="selectedColor" 
-      (onChangeComplete)="colorSelected($event.color)" 
-      [width]="380" 
-      [colors]='["#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", 
-      "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39", "#ffeb3b", "#ffc107", 
-      "#ff9800", "#252628", "#6d7176", "#f3f4f4"]'
-    ></color-circle> -->
-    <canvas #canvas1 width="40" height="40" (click)="clickCanvas(1)"></canvas>
-    <canvas #canvas2 width="40" height="40" (click)="clickCanvas(2)"></canvas>
-    <canvas #canvas3 width="40" height="40" (click)="clickCanvas(3)"></canvas>
-    <canvas #canvas4 width="40" height="40" (click)="clickCanvas(4)"></canvas>
-    <canvas #canvas5 width="40" height="40" (click)="clickCanvas(5)"></canvas>
-    <canvas #canvas6 width="40" height="40" (click)="clickCanvas(6)"></canvas>
-    <canvas #canvas7 width="40" height="40" (click)="clickCanvas(7)"></canvas>
-    <canvas #canvas8 width="40" height="40" (click)="clickCanvas(8)"></canvas>
-    <canvas #canvas9 width="40" height="40" (click)="clickCanvas(9)"></canvas>
-    <br>
-    <canvas #canvas10 width="40" height="40" (click)="clickCanvas(10)"></canvas>
-    <canvas #canvas11 width="40" height="40" (click)="clickCanvas(11)"></canvas>
-    <canvas #canvas12 width="40" height="40" (click)="clickCanvas(12)"></canvas>
-    <canvas #canvas13 width="40" height="40" (click)="clickCanvas(13)"></canvas>
-    <canvas #canvas14 width="40" height="40" (click)="clickCanvas(14)"></canvas>
-    <canvas #canvas15 width="40" height="40" (click)="clickCanvas(15)"></canvas>
-    <canvas #canvas16 width="40" height="40" (click)="clickCanvas(16)"></canvas>
-    <canvas #canvas17 width="40" height="40" (click)="clickCanvas(17)"></canvas>
-    <canvas #canvas18 width="40" height="40" (click)="clickCanvas(18)"></canvas>
+  <div class="personalization-color-1"> <!-- Color circle group -->
+    <div class="personalization-text" style="margin-left: -15px;">Select color</div>
+    <canvas #circle1 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 1,
+      'personalization-circle': true}" (click)="clickCircle(1)"></canvas>
+    <canvas #circle2 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 2,
+      'personalization-circle': true}" (click)="clickCircle(2)"></canvas>
+    <canvas #circle3 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 3,
+      'personalization-circle': true}" (click)="clickCircle(3)"></canvas>
+    <canvas #circle4 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 4,
+      'personalization-circle': true}" (click)="clickCircle(4)"></canvas>
+    <canvas #circle5 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 5,
+      'personalization-circle': true}" (click)="clickCircle(5)"></canvas>
+    <canvas #circle6 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 6,
+      'personalization-circle': true}" (click)="clickCircle(6)"></canvas>
+    <canvas #circle7 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 7,
+      'personalization-circle': true}" (click)="clickCircle(7)"></canvas>
+    <canvas #circle8 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 8,
+      'personalization-circle': true}" (click)="clickCircle(8)"></canvas>
+    <canvas #circle9 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 9,
+      'personalization-circle': true}" (click)="clickCircle(9)"></canvas>
+    <canvas #circle10 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 10,
+      'personalization-circle': true}" (click)="clickCircle(10)"></canvas>
+    <canvas #circle11 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 11,
+      'personalization-circle': true}" (click)="clickCircle(11)"></canvas>
+    <canvas #circle12 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 12,
+      'personalization-circle': true}" (click)="clickCircle(12)"></canvas>
+    <canvas #circle13 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 13,
+      'personalization-circle': true}" (click)="clickCircle(13)"></canvas>
+    <canvas #circle14 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 14,
+      'personalization-circle': true}" (click)="clickCircle(14)"></canvas>
+    <canvas #circle15 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 15,
+      'personalization-circle': true}" (click)="clickCircle(15)"></canvas>
+    <canvas #circle16 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 16,
+      'personalization-circle': true}" (click)="clickCircle(16)"></canvas>
+    <canvas #circle17 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 17,
+      'personalization-circle': true}" (click)="clickCircle(17)"></canvas>
+    <canvas #circle18 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 18,
+      'personalization-circle': true}" (click)="clickCircle(18)"></canvas>
   </div>
-  <div class="personalization-color-2">
-    <color-slider 
-      [color]="selectedColor" 
-      (onChange)="colorPreview($event.color)"
-      (onChangeComplete)="colorSelected($event.color)"
-    ></color-slider>
+  <div class="personalization-color-2"> <!-- Hue slider -->
+    <div class="personalization-text">or hue.</div>
+    <canvas #slider1 width="389" height="14" (click)="clickSlider($event)"></canvas>
+  </div>
+  <div class="personalization-text">Select lightness.</div>
+  <div class="personalization-color-3"> <!-- Lightness swatches bar -->
+    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .8,
+      'personalization-swatch': true}" id="swatch1" (click)=clickLightness(0.8) [ngStyle]="swatch1Style"></div>
+    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .65,
+      'personalization-swatch': true}" id="swatch2" (click)=clickLightness(0.65) [ngStyle]="swatch2Style"></div>
+    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .5,
+      'personalization-swatch': true}" id="swatch3" (click)=clickLightness(0.5) [ngStyle]="swatch3Style"></div>
+    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .35,
+      'personalization-swatch': true}" id="swatch4" (click)=clickLightness(0.35) [ngStyle]="swatch4Style"></div>
+    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .2,
+      'personalization-swatch': true}" id="swatch5" (click)=clickLightness(0.2) [ngStyle]="swatch5Style"></div>
   </div>
   <label class="personalization-label">Size</label>
 

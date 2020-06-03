@@ -40,6 +40,12 @@
   cursor: pointer;
 }
 
+.personalization-text {
+  text-align: center;
+  color: white;
+  padding-bottom: 5px;
+}
+
 .personalization-submit {
   margin-top: 10px;
 }
@@ -82,13 +88,17 @@
 }
 
 .personalization-color-1 {
-  padding-bottom: 20px;
   padding-left: 15px;
 }
 
 .personalization-color-2 {
+  padding-bottom: 30px;
+}
+
+.personalization-color-3 {
   padding-right: 30px;
   width: 420px;
+  display: grid;
 }
 
 .personalization-file-drop-content {
@@ -106,11 +116,51 @@
   border-radius: 15px !important;
 }
 
-.personalization-color-circle {
-  width: 40px;
-  height: 40px;
+.personalization-circle {
+  padding: 2px;
 }
 
+.personalization-circle.selected{
+  border: 2px solid white;
+  border-radius: 30px;
+  width: 44px;
+  height: 44px;
+}
+
+.personalization-swatch {
+  width: 77px;
+  height: 14px;
+}
+
+.personalization-swatch.selected{
+  border: 2px solid white;
+  height: 16px;
+}
+
+#swatch1 {
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+
+#swatch2 {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+
+#swatch3 {
+  grid-column-start: 3;
+  grid-column-end: 4;
+}
+
+#swatch4 {
+  grid-column-start: 4;
+  grid-column-end: 5;
+}
+
+#swatch5 {
+  grid-column-start: 5;
+  grid-column-end: 6;
+}
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
