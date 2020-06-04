@@ -57,11 +57,11 @@ export class PersonalizationComponent implements OnInit {
 
   private paletteColors: string[];
 
-  private swatch1Style: any;
-  private swatch2Style: any;
-  private swatch3Style: any;
-  private swatch4Style: any;
-  private swatch5Style: any;
+  public swatch1Style: any;
+  public swatch2Style: any;
+  public swatch3Style: any;
+  public swatch4Style: any;
+  public swatch5Style: any;
 
   constructor(
     private desktopThemeService: ThemeEmitterService
