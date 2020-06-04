@@ -78,6 +78,7 @@
     "ZWED5189W":"No iframe identified as source of message",
     "ZWED5190W":"Component ref requested before module ref available",
     "ZWED5191W":"Overwriting existing component ref for window",
+    "ZWED5192W":"Unable to parse %s URL query parameter: %s",
 
     "ZWED5143E":"Plugin ID required. Use query parameter ?pluginId",
     "ZWED5144E":"Cannot find plugin with ID=%s",

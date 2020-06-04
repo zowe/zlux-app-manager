@@ -51,5 +51,7 @@
   "Username or password is incorrect. Please try again.": "ユーザー名かパスワードが間違っています。もう一度やり直してください。",
   "UsernameRequired": "ユーザー名が必要です",
   "UnpinFromTaskbar": "アプリケーションのピン留めをはずす",
-  "Would you like to restart the desktop?": "デスクトップを再起動しますか?"
+  "Would you like to restart the desktop?": "デスクトップを再起動しますか?",
+  "Unable to launch application": "Unable to launch application",
+  "Plugin not found for identifier {{targetPluginId}}": "Plugin not found for identifier {{targetPluginId}}"
 }

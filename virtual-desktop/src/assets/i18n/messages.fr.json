@@ -49,5 +49,7 @@
   "Username or password is incorrect. Please try again.": "L'identifiant ou le mot de passe est incorrect. Veuillez réessayer.",
   "UsernameRequired": "Nom d'utilisateur requis",
   "Would you like to restart the desktop?": "Voulez-vous redémarrer votre session?",
-  "UnpinFromTaskbar": "Désépingler"
+  "UnpinFromTaskbar": "Désépingler",
+  "Unable to launch application": "Unable to launch application",
+  "Plugin not found for identifier {{targetPluginId}}": "Plugin not found for identifier {{targetPluginId}}"
 }
