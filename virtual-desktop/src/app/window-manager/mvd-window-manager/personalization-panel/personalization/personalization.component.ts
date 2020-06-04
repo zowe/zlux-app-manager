@@ -228,7 +228,6 @@ export class PersonalizationComponent implements OnInit {
   }
 
   clickSlider($event: any) {
-    console.log($event);
     this.sliderImgData;
     let index = ($event.layerY * this.sliderImgData.width + $event.layerX) * 4;
     let red = this.sliderImgData.data[index];
