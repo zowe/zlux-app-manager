@@ -8,9 +8,17 @@
   Copyright Contributors to the Zowe Project.
 */
 
+export type TargetPluginMode = 'create' | 'findAnyOrCreate' | 'findUniqueOrCreate' | 'system';
+
 export interface PluginLaunchURLParams {
   targetPluginId: string;
   targetPluginData: any;
+  targetPluginMode: TargetPluginMode;
+  targetPluginInstanceId?: MVDHosting.InstanceId;
+}
+
+export function isValidTargetPluginMode(mode: string): mode is TargetPluginMode {
+  return mode === 'create' || mode === 'findAnyOrCreate' || mode === 'findUniqueOrCreate' || mode === 'system';
 }
 
 

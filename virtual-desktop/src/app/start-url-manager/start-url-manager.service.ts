@@ -12,17 +12,26 @@ import { Injectable } from '@angular/core';
 import { ZluxErrorSeverity, ZluxPopupManagerService } from '@zlux/widgets';
 import { TranslationService } from 'angular-l10n';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { PluginLaunchURLParams } from './plugin-launch-url-params';
+import { PluginLaunchURLParams, TargetPluginMode, isValidTargetPluginMode } from './plugin-launch-url-params';
 
 
 const TARGET_PLUGIN_ID = 'targetPluginId';
 const TARGET_PLUGIN_DATA = 'targetPluginData';
+const TARGET_PLUGIN_MODE = 'targetPluginMode';
+const TARGET_PLUGIN_INSTANCE_ID = 'targetPluginInstanceId';
 
+type ActionTargetMode = typeof ZoweZLUX.dispatcher.constants.ActionTargetMode;
 @Injectable()
 export class StartURLManager implements MVDHosting.LoginActionInterface {
   private done = false;
   private readonly popupOptions: { blocking: boolean; buttons: any[]; };
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  private readonly modeMap: Record<TargetPluginMode, ActionTargetMode> = {
+    'create': ZoweZLUX.dispatcher.constants.ActionTargetMode.PluginCreate,
+    'findAnyOrCreate': ZoweZLUX.dispatcher.constants.ActionTargetMode.PluginFindAnyOrCreate,
+    'findUniqueOrCreate': ZoweZLUX.dispatcher.constants.ActionTargetMode.PluginFindUniqueOrCreate,
+    'system': ZoweZLUX.dispatcher.constants.ActionTargetMode.System,
+  };
 
   constructor(
     private popupManager: ZluxPopupManagerService,
@@ -34,9 +43,6 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     };
   }
 
-  /*
-    https://localhost:8544/ZLUX/plugins/org.zowe.zlux.bootstrap/web/index.html?targetPluginId=org.zowe.zlux.ng2desktop.webbrowser&targetPluginData={%22url%22:%22https://www.github.com%22,%22enableProxy%22:true}
-  */
   onLogin(_username: string, _plugins: ZLUX.Plugin[]): boolean {
     if (this.done) {
       return true;
@@ -44,7 +50,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     this.done = true;
 
     const { dispatcher, pluginManager } = ZoweZLUX;
-    const { targetPluginId, targetPluginData } = this.getPluginLaunchURLParams();
+    const { targetPluginId, targetPluginData, targetPluginMode, targetPluginInstanceId } = this.getPluginLaunchURLParams();
     if (typeof targetPluginId === 'undefined') {
       return true;
     }
@@ -58,12 +64,12 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
       return false;
     }
     const type = dispatcher.constants.ActionType.Launch;
-    const mode = dispatcher.constants.ActionTargetMode.PluginCreate;
+    const mode = targetPluginMode ? this.modeMap[targetPluginMode] : dispatcher.constants.ActionTargetMode.PluginCreate;
     const actionTitle = 'Launch app from URL';
     const actionId = 'org.zowe.zlux.url.launch';
     const argumentFormatter = { data: { op: 'deref', source: 'event', path: ['data'] } };
     const action = dispatcher.makeAction(actionId, actionTitle, mode, type, targetPluginId, argumentFormatter);
-    const argumentData = { data: targetPluginData };
+    const argumentData = { data: targetPluginData, applicationInstanceId: targetPluginInstanceId };
     dispatcher.invokeAction(action, argumentData);
     return true;
   }
@@ -84,8 +90,13 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
       this.logger.warn('ZWED5192W', TARGET_PLUGIN_DATA, e.message);
     }
     const targetPluginId = queryObject[TARGET_PLUGIN_ID];
-    return { targetPluginId, targetPluginData };
+    const mode = queryObject[TARGET_PLUGIN_MODE];
+    const targetPluginMode = isValidTargetPluginMode(mode) ? mode : undefined;
+    const instanceId = +queryObject[TARGET_PLUGIN_INSTANCE_ID];
+    const targetPluginInstanceId = Number.isInteger(instanceId) ? instanceId : undefined;
+    return { targetPluginId, targetPluginData, targetPluginMode, targetPluginInstanceId };
   }
+
 }
 
 /*
