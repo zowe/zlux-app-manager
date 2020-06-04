@@ -15,6 +15,8 @@ import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { UploadEvent, UploadFile, FileSystemFileEntry } from 'ngx-file-drop';
 import { Colors } from '../../shared/colors';
  
+const SLIDER_NAME = 'slider'
+const CIRCLE_NAME = 'circle'
 
 @Component({
   selector: 'personalization-component',
@@ -70,7 +72,7 @@ export class PersonalizationComponent implements OnInit {
     "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39", "#ffeb3b", "#ffc107", 
     "#ff9800", "#252628", "#6d7176", "#f3f4f4"];
     this.files = [];
-    this.swatch1Style; this.swatch2Style; this.swatch3Style; this.swatch4Style; this.swatch5Style;
+    this.swatch1Style; this.swatch2Style; this.swatch3Style; this.swatch4Style; this.swatch5Style; // Avoid TS compile problems
   }
 
   ngOnInit(): void {
@@ -254,7 +256,7 @@ export class PersonalizationComponent implements OnInit {
     var numOfCircles = colors.length;
 
     for (index = 1; index <= numOfCircles; index++) {
-      canvasName = 'circle' + index;
+      canvasName = CIRCLE_NAME + index;
       canvasElem = (<any>this)[canvasName]; // We typecast this to 'any' to avoid silly TS compile problems
       
       var context = canvasElem.nativeElement.getContext('2d');
@@ -274,7 +276,7 @@ export class PersonalizationComponent implements OnInit {
   }
 
   spawnSlider(): void {
-    var canvasName: string = 'slider1';
+    var canvasName: string = SLIDER_NAME + '1';
     var canvasElem: ElementRef = (<any>this)[canvasName]; // We typecast this to 'any' to avoid silly TS compile problems
 
     // Create gradient
