@@ -50,7 +50,5 @@
   "Username or password is incorrect. Please try again.": "Имя пользователя или пароль неверны. Пожалуйста, попробуйте еще раз.",
   "UsernameRequired": "Введите имя пользователя",
   "UnpinFromTaskbar": "Открепить",
-  "Would you like to restart the desktop?": "Перезагрузить рабочий стол?",
-  "Unable to launch application": "Не удалось запустить приложение",
-  "Plugin not found for identifier {{targetPluginId}}": "Не найден плагин с идентификтором {{targetPluginId}}"
+  "Would you like to restart the desktop?": "Перезагрузить рабочий стол?"
 }
