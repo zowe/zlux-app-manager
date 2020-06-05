@@ -8,7 +8,6 @@
   Copyright Contributors to the Zowe Project.
 */
 
-export * from './plugin-launch-url-params';
 export * from './start-url-manager.module';
 export * from './start-url-manager.service';
 

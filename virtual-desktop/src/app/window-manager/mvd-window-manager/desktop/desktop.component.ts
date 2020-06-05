@@ -161,7 +161,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
     let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
     let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'recognizers');
     let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
-    this.log.debug("ZWED5309I", recognizersUri, actionsUri); //this.log.debug(`Getting recognizers from "${recognizersUri}", actions from "${actionsUri}"`);
+    this.log.info("ZWED5309I", recognizersUri, actionsUri); //this.log.debug(`Getting recognizers from "${recognizersUri}", actions from "${actionsUri}"`);
     this.http.get(recognizersUri).subscribe((config: any)=> {
       if (config) {
         let appContents = config.contents;

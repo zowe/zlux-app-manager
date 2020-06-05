@@ -8,17 +8,15 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { ZluxPopupManagerModule } from '@zlux/widgets';
 import { StartURLManager } from './start-url-manager.service';
+import { App2AppArgsParser } from './app2app-args-parser.service';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    ZluxPopupManagerModule
-  ],
-  providers: [StartURLManager]
+  providers: [
+    StartURLManager,
+    App2AppArgsParser,
+  ]
 })
 export class StartURLManagerModule { }
 
