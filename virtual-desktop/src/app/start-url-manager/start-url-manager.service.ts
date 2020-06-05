@@ -84,7 +84,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     const targetPluginId = args.pluginId;
     const type = args.actionType === 'launch' ? ActionType.Launch : ActionType.Message;
     const mode = args.actionMode === 'create' ? ActionTargetMode.PluginCreate : ActionTargetMode.System;
-    let contextData: any = JSON.parse(args.contextData);
+    const contextData: any = JSON.parse(args.contextData);
     let action: ZLUX.Action;
     let argumentData: any;
     if (args.formatter === 'data') {
@@ -108,13 +108,17 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
 
   private getAllApp2AppArgsFromURL(): App2AppArgs[] | undefined {
     const queryString = location.search.substr(1);
-    const queryObject: { [key: string]: string } = {};
+    const queryObject: { [key: string]: string[] } = {};
     queryString.split('&').forEach(part => {
       const [key, value] = part.split('=').map(v => decodeURIComponent(v));
-      queryObject[key] = value;
+      if (key in queryObject) {
+        queryObject[key].push(value);
+      } else {
+        queryObject[key] = [value];
+      }
     });
-    const app2app = queryObject['app2app'];
-    return app2app ? this.parser.parse(app2app) : undefined;
+    const app2appValues = queryObject['app2app'];
+    return Array.isArray(app2appValues) ? app2appValues.map(value => this.parser.parse(value)) : undefined;
   }
 
   private registerTestAction(): void {

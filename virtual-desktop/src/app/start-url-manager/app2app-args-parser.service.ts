@@ -22,12 +22,7 @@ export class App2AppArgsParser {
 
   }
 
-  parse(app2app: string): App2AppArgs[] {
-    const parts = app2app.split(';');
-    return parts.map(part => this.parseSingleApp2app(part));
-  }
-
-  private parseSingleApp2app(app2app: string): App2AppArgs {
+  parse(app2app: string): App2AppArgs {
     this.startIndex = 0;
     this.length = app2app.length;
     this.data = app2app;
