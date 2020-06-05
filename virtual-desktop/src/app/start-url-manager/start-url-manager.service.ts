@@ -30,9 +30,6 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     }
     this.done = true;
     const allArgs = this.getAllApp2AppArgsFromURL();
-    if (!allArgs) {
-      return true;
-    }
     for (const args of allArgs) {
       if (this.validateApp2AppArgs(args)) {
         this.invokeApp2App(args);
@@ -106,19 +103,16 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     dispatcher.invokeAction(action, argumentData);
   }
 
-  private getAllApp2AppArgsFromURL(): App2AppArgs[] | undefined {
+  private getAllApp2AppArgsFromURL(): App2AppArgs[] {
     const queryString = location.search.substr(1);
-    const queryObject: { [key: string]: string[] } = {};
+    const app2appValues: string[] = [];
     queryString.split('&').forEach(part => {
       const [key, value] = part.split('=').map(v => decodeURIComponent(v));
-      if (key in queryObject) {
-        queryObject[key].push(value);
-      } else {
-        queryObject[key] = [value];
+      if (key === 'app2app') {
+        app2appValues.push(value);
       }
     });
-    const app2appValues = queryObject['app2app'];
-    return Array.isArray(app2appValues) ? app2appValues.map(value => this.parser.parse(value)) : undefined;
+    return app2appValues.map(value => this.parser.parse(value));
   }
 
   private registerTestAction(): void {
