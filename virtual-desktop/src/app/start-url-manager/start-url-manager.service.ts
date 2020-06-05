@@ -45,27 +45,32 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     const { dispatcher, pluginManager } = ZoweZLUX;
     const plugin = pluginManager.getPlugin(args.pluginId);
     if (!plugin) {
-      this.logger.warn('Plugin not found for identifier %s', args.pluginId);
+      // this.logger.warn('Plugin not found for identifier %s specified in app2app query URL parameter', args.pluginId);
+      this.logger.warn('ZWED5193W', args.pluginId);
       return false;
     }
     if (args.actionType !== 'launch' && args.actionType !== 'message') {
-      this.logger.warn('actionType(%s) is invalid', args.actionType);
+      // this.logger.warn('Action Type(%s) specified  in app2app query URL parameter is invalid', args.actionType);
+      this.logger.warn('ZWED5194W', args.actionType);
       return false;
     }
     if (args.actionMode !== 'create' && args.actionMode !== 'system') {
-      this.logger.warn('actionMode(%s) is invalid', args.actionMode);
+      // this.logger.warn('Action Mode(%s) specified  in app2app query URL parameter is invalid', args.actionMode);
+      this.logger.warn('ZWED5195W', args.actionMode);
       return false;
     }
     try {
       JSON.parse(args.contextData);
     } catch (e) {
-      this.logger.warn('contextData(%s) is not valid JSON', args.contextData);
+      // this.logger.warn('Context Data(%s) specified in app2app query URL parameter is not valid JSON', args.contextData);
+      this.logger.warn('ZWED5196W', args.contextData);
       return false;
     }
     if (args.formatter !== 'data') {
       const abstractAction = dispatcher.getAbstractActionById(args.formatter);
       if (!abstractAction) {
-        this.logger.warn('Unable to find registered action for identifier %s', args.formatter);
+        // this.logger.warn('Unable to find registered action for identifier %s specified in app2app query URL parameter', args.formatter);
+        this.logger.warn('ZWED5197W', args.formatter);
         return false;
       }
     }
