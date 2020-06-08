@@ -100,7 +100,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
       };
       argumentData = contextData;
     }
-    dispatcher.invokeAction(action, argumentData);
+    dispatcher.invokeAction(action, argumentData).catch(e => this.handleInvokeActionError(e));
   }
 
   private getAllApp2AppArgsFromURL(): App2AppArgs[] {
@@ -124,6 +124,14 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     const mode = dispatcher.constants.ActionTargetMode.PluginCreate;
     const testAction = dispatcher.makeAction(actionId, actionTitle, mode, type, 'org.zowe.zlux.ng2desktop', argumentFormatter);
     dispatcher.registerAction(testAction);
+  }
+  
+  private handleInvokeActionError(e: Error | string) {
+    if (typeof e === 'string') {
+      this.logger.warn(e);
+    } else if (e instanceof Error) {
+      this.logger.warn(e.message);
+    }
   }
 
 }
