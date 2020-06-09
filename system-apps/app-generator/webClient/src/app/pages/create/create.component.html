@@ -15,8 +15,9 @@
 	<div class="top-row">
 		<div class="form-container">
 			<h4 class="item-label">Identifier</h4>
-			<input ibmText [(ngModel)]="pluginConfig.identifier" placeholder="Identifier e.g. com.your.application"
-				class="input-field">
+			<input ibmText [(ngModel)]="pluginConfig.identifier" (keydown)="validateId()" [invalid]="!idIsValid" placeholder="Identifier e.g. com.your.application"
+				     class="input-field">
+      <ibm-label labelState="error" *ngIf="!idIsValid">{{idInvalidReason}}</ibm-label>
 			<h4 class="item-label name">Name</h4>
 			<input ibmText [(ngModel)]="pluginConfig.webContent.launchDefinition.pluginShortNameDefault" placeholder="Application Name" class="input-field">
 
