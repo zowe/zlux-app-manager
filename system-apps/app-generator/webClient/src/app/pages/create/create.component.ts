@@ -50,6 +50,9 @@ export class CreateComponent implements OnInit, AfterViewInit {
   templateList: any;
   templateLists: any;
   callback: any;
+  private idRegexp = new RegExp("^([A-Za-z1-9.\-_])+$");
+  public idIsValid: boolean = true;
+  public idInvalidReason: string = '';
 
   constructor(private http: HttpClient) {
     this.pluginConfig = Object.assign({},STARTING_CONFIG);
@@ -97,6 +100,18 @@ export class CreateComponent implements OnInit, AfterViewInit {
 
   get pluginText() {
     return JSON.stringify(this.pluginConfig,null,2);
+  }
+
+  public validateId() {
+    this.idIsValid = this.idRegexp.test(this.pluginConfig.identifier);
+    console.log("ID "+(this.idIsValid?'is':'isnt')+" valid");
+    if (!this.idIsValid) {
+      if (!this.pluginConfig.identifier) {
+        this.idInvalidReason = "ID is empty";
+      } else {
+        this.idInvalidReason = "ID contains invalid characters. Valid characters: A-Z, 1-9, ., -, and _";
+      }
+    }
   }
 
   generateApp() {
