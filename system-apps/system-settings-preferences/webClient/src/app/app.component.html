@@ -10,7 +10,8 @@
 
 <!-- Here is where module switching code will go. After more Settings options become available, 
      the desired component will display based on what the user chose in the Personalization panel. -->
-<language-component></language-component>
+     
+<language-component *ngIf="activeComponent == this.translation.translate('Languages')"></language-component>
 
 <!-- 
   This program and the accompanying materials are

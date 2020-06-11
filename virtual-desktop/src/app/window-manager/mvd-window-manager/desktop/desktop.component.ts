@@ -11,12 +11,13 @@
 */
 
 import { Component, Injector } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { AuthenticationManager } from '../../../authentication-manager/authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
+import { Colors } from '../shared/colors';
 
 const ACCOUNT_PASSWORD = "Account Password";
 const PASSWORD_CHANGED = "PasswordChanged"
@@ -25,20 +26,42 @@ const PASSWORD_CHANGED = "PasswordChanged"
   selector: 'rs-com-mvd-desktop',
   templateUrl: 'desktop.component.html'
 })
-export class DesktopComponent {
-contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
-private authenticationManager: MVDHosting.AuthenticationManagerInterface;
-public isPersonalizationPanelVisible: boolean;
-constructor(
+export class DesktopComponent implements MVDHosting.LoginActionInterface {
+  contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
+  private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+  public isPersonalizationPanelVisible: boolean;
+  private readonly log: ZLUX.ComponentLogger = BaseLogger;
+
+  /* Default theme is a dark grey, with white text, on medium size desktop */
+  public _theme: DesktopTheme = {
+    color: {
+      windowTextActive: '#f4f4f4',
+      windowTextInactive: '#828282',
+      windowColorActive: Colors.COOLGREY_80,
+      windowColorInactive: Colors.COOLGREY_90,
+      launchbarText: Colors.COOLGREY_20,
+      launchbarColor: '#0d0d0eb2',
+      launchbarMenuText: Colors.COOLGREY_20,
+      launchbarMenuColor: Colors.COOLGREY_90
+    },
+    size: {
+      window: 2,
+      launchbar: 2,
+      launchbarMenu: 2
+    }
+  }
+  
+  constructor(
     public windowManager: WindowManagerService,
     private authenticationService: AuthenticationManager,
-    private http: Http,
+    private http: HttpClient,
     private injector: Injector,
     private translation: TranslationService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.contextMenuDef = null;
+    this.authenticationManager.registerPostLoginAction(this);
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
@@ -53,12 +76,42 @@ constructor(
       }
     });
   }
+
   ngOnInit(): void {
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
-      this.contextMenuDef = menuDef;
+    this.contextMenuDef = menuDef;
     });
   }
 
+  onLogin(username:string, plugins: ZLUX.Plugin[]): boolean {
+    // When the user logs in, we attempt to retrieve their theme settings from the configuration dataservice
+    this.http.get(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'ui/theme', 'config.json')).subscribe((data: any) => {
+      if (data) {
+        this.log.debug('Desktop config=',data.contents);
+        if (Object.keys(data.contents).length !== 0) { //If the retrived theme became blank, we don't replace existing one with a corrupt object
+          this._theme = (data.contents as DesktopTheme);
+        }
+      } else {
+        this.log.debug('No Desktop config found. Using defaults.');
+      }
+    });
+    return true;
+  }
+
+  setTheme(newTheme: DesktopTheme) {
+    this.log.debug('Req to change to =', newTheme);
+    this._theme = Object.assign({}, newTheme);
+    this.http.put<DesktopTheme>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'ui/theme', 'config.json'), this._theme).subscribe((data: any) => { this.log.info(`Theme saved.`) });
+  }
+
+  previewTheme(newTheme: DesktopTheme) {
+    this.log.debug('Previewing (not saved yet) to =', newTheme);
+    this._theme = Object.assign({}, newTheme);
+  }
+
+  getTheme() {
+    return this._theme;
+  }
 
   showPersonalizationPanel(): void {
     this.isPersonalizationPanelVisible = true;
@@ -82,16 +135,34 @@ constructor(
   }
 }
 
+export type DesktopTheme = {
+  color: {
+    windowTextActive: string;
+    windowTextInactive: string;
+    windowColorActive: string;
+    windowColorInactive: string;
+    launchbarText: string;
+    launchbarColor: string;
+    launchbarMenuColor: string;
+    launchbarMenuText: string;
+  }
+  size: {
+    window: number;
+    launchbar: number;
+    launchbarMenu: number;
+  }
+}
+
 class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
-  constructor(private http: Http) { }
+  constructor(private http: HttpClient) { }
 
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
     let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
     let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'recognizers');
     let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
     this.log.debug("ZWED5309I", recognizersUri, actionsUri); //this.log.debug(`Getting recognizers from "${recognizersUri}", actions from "${actionsUri}"`);
-    this.http.get(recognizersUri).map((res:Response)=>res.json()).subscribe((config: any)=> {
+    this.http.get(recognizersUri).subscribe((config: any)=> {
       if (config) {
         let appContents = config.contents;
         let appsWithRecognizers:string[] = [];
@@ -109,7 +180,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
         });
       }
     });
-    this.http.get(actionsUri).map((res:Response)=>res.json()).subscribe((config: any)=> {
+    this.http.get(actionsUri).subscribe((config: any)=> {
       if (config) {
         let appContents = config.contents;
         let appsWithActions:string[] = [];

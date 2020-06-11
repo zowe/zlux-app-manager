@@ -22,62 +22,36 @@ export class DsmUri implements ZLUX.UriBroker {
     return proxy_mode ? `/${proxy_path}${url}` : url;
   }
 
-  rasUri(relativePath: string): string {
-    relativePath;//suppress warning for now
+  rasUri(_relativePath: string): string {
     return "";
   }
-  unixFileUri(route: string, absPath: string,
-              sourceEncodingOrOptions?: string|ZLUX.UnixFileUriOptions, targetEncoding?: string,
-               newName?: string, forceOverwrite?: boolean, sessionID?: number,
-               lastChunk?: boolean, responseType?: string): string {
-    //suppress warning for now
-    route;
-    absPath;
-    sourceEncodingOrOptions;
-    targetEncoding;
-    newName;
-    forceOverwrite;
-    sessionID;
-    lastChunk;
-    responseType;
+  unixFileUri(_route: string, _absPath: string,
+              _sourceEncodingOrOptions?: string|ZLUX.UnixFileUriOptions, _targetEncoding?: string,
+              _newName?: string, _forceOverwrite?: boolean, _sessionID?: number,
+              _lastChunk?: boolean, _responseType?: string): string {
     return "";
   }
   omvsSegmentUri(): string {
     return `${this.serverRootUri('omvs')}`;
   }
-  datasetContentsUri(relativePath: string): string {
-    relativePath;//suppress warning for now
+  datasetContentsUri(_relativePath: string): string {
     return "";
   }
-  VSAMdatasetContentsUri(relativePath: string, closeAfter?: boolean): string {
-    relativePath;//suppress warning for now
-    closeAfter;
+  VSAMdatasetContentsUri(_relativePath: string, _closeAfter?: boolean): string {
     return "";
   }
-  datasetMetadataHlqUri(updateCache?: boolean | undefined, types?: string | undefined, workAreaSize?: number | undefined, resumeName?: string | undefined, resumeCatalogName?: string | undefined): string {
-    updateCache;
-    types;
-    workAreaSize;
-    resumeName;
-    resumeCatalogName;
+  datasetMetadataHlqUri(_updateCache?: boolean | undefined, _types?: string | undefined, 
+                        _workAreaSize?: number | undefined, _resumeName?: string | undefined, _resumeCatalogName?: string | undefined): string {
     return "";
   }
-  datasetMetadataUri(relativePath: string, detail?: string | undefined, types?: string | undefined, listMembers?: boolean | undefined, workAreaSize?: number | undefined, includeMigrated?: boolean | undefined, includeUnprintable?: boolean | undefined, resumeName?: string | undefined, resumeCatalogName?: string | undefined, addQualifiers?: string | undefined): string {
-    relativePath;
-    detail;
-    types;
-    listMembers;
-    workAreaSize;
-    includeMigrated;
-    includeUnprintable;
-    resumeName;
-    resumeCatalogName;
-    addQualifiers;
+  datasetMetadataUri(_relativePath: string, _detail?: string | undefined, _types?: string | undefined, 
+                      _listMembers?: boolean | undefined, _workAreaSize?: number | undefined, _includeMigrated?: boolean | undefined, 
+                      _includeUnprintable?: boolean | undefined, _resumeName?: string | undefined, _resumeCatalogName?: string | undefined, 
+                      _addQualifiers?: string | undefined): string {
     return "";
   }
 
-  serverRootUri(uri: string): string {
-    uri;
+  serverRootUri(_uri: string): string {
     return "";
   }
 

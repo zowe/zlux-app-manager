@@ -13,6 +13,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { ColorCircleModule } from 'ngx-color/circle';
+import { ColorSliderModule } from 'ngx-color/slider';
 import { SharedModule } from 'app/shared/shared.module';
 import { ApplicationManagerModule } from 'app/application-manager/application-manager.module';
 import { ContextMenuModule } from '../../context-menu/context-menu.module';
@@ -25,18 +27,25 @@ import { DraggableDirective } from './shared/draggable.directive';
 import { SizeableDirective } from './shared/sizeable.directive';
 import { MvdComponent } from './mvd.component';
 import { AuthenticationModule } from '../../authentication-manager/authentication-manager.module';
-import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization-panel.component';
+import { PersonalizationPanelComponent } from '../mvd-window-manager/personalization-panel/personalization-panel.component';
 import { KeybindingService } from './shared/keybinding.service';
+import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization/personalization.component';
+import { FileDropModule } from 'ngx-file-drop';
+import { ThemeEmitterService } from './services/theme-emitter.service';
 
 @NgModule({
   imports: [
     ApplicationManagerModule,
     AuthenticationModule,
+    ContextMenuModule,
     CommonModule,
     SharedModule,
     LaunchbarModule,
     HttpClientModule,
-    ContextMenuModule
+    ContextMenuModule,
+    ColorCircleModule,
+    ColorSliderModule,
+    FileDropModule
   ],
   declarations: [
     DesktopComponent,
@@ -45,6 +54,7 @@ import { KeybindingService } from './shared/keybinding.service';
     DraggableDirective,
     SizeableDirective,
     MvdComponent,
+    PersonalizationPanelComponent,
     PersonalizationComponent
   ],
   exports: [
@@ -52,8 +62,10 @@ import { KeybindingService } from './shared/keybinding.service';
   ],
   providers: [
     WindowManagerService,
+    ThemeEmitterService,
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
+    { provide: MVDHosting.Tokens.ThemeEmitterToken, useExisting: ThemeEmitterService },
     KeybindingService
   ]
 })

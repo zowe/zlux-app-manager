@@ -18,11 +18,13 @@ import { SimpleComponent } from './simple.component';
 import { ApplicationManagerModule } from '../../application-manager/application-manager.module';
 import { AuthenticationModule } from '../../authentication-manager/authentication-manager.module';
 import { ContextMenuModule } from '../../context-menu/context-menu.module';
+import { ThemeEmitterService } from '../mvd-window-manager/services/theme-emitter.service';
 
 @NgModule({
   imports: [
     ApplicationManagerModule,
     AuthenticationModule,
+    ContextMenuModule,
     CommonModule,
     ContextMenuModule
   ],
@@ -33,7 +35,9 @@ import { ContextMenuModule } from '../../context-menu/context-menu.module';
 
   ],
   providers: [
-    { provide: MVDWindowManagement.Tokens.WindowManagerToken, useClass: SimpleWindowManagerService }
+    ThemeEmitterService,
+    { provide: MVDWindowManagement.Tokens.WindowManagerToken, useClass: SimpleWindowManagerService },
+    { provide: MVDHosting.Tokens.ThemeEmitterToken, useExisting: ThemeEmitterService },
   ]
 })
 export class SimpleWindowManagerModule {

@@ -8,47 +8,80 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="launchbar-user-popup" [class.hidden]="!popupVisible">
+<div class="launchbar-user-popup" [class.hidden]="!popupVisible"
+     [style.background]="color.launchbarMenuColor"
+     [style.bottom]="popupBottom"
+     [style.color]="color.launchbarMenuText">
   <h5 class="launchbar-username">{{getUsername()}}</h5>
   <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()"
     i18n="signout button|Title of Sign out button@@signout-button-title">Log out</button>
-  <h6 class="launchbar-plugin-version">{{getPluginVersion()}}</h6>
+  <h6 class="launchbar-plugin-version" [style.color]="color.launchbarMenuText">{{getPluginVersion()}}</h6>
 </div>
 
-<div #notificationicon [hidden]="!notificationsVisible" class='notifications'>
+<div #notificationarea [hidden]="!notificationsVisible" class='notifications'
+     [style.bottom]="popupBottom"
+     [style.background]="color.launchbarMenuColor"
+     [style.color]="color.launchbarMenuText">
   <div [hidden]="notifications.length > 0" class="no-notifications">No Notifications</div>
   <div class="notification-item" *ngFor="let item of notifications; let i = index" [attr.data-index]="i">
       <div class="outer-container" (click)="focusApplication(i)">
           <div class="notification-icon-container">
-            <img class="notification-icon" [src]="info[i].imgSrc">
+            <img class="notification-icon" [src]="info[i].imgSrc" alt="">
           </div>
           <div class="notification-content">
             <div class="notification-title">{{item['notification'].title}}</div>
             <div class="notification-message">{{item['notification'].message}}</div>
           </div>
-          <img class="delete-notification" (click)="deleteNotification(item);$event.stopPropagation()" [src]="closeImage">
+          <img class="delete-notification" (click)="deleteNotification(item);$event.stopPropagation()" [src]="closeImage" alt="Delete notification">
           <div class="time-container">
             <div class="time">{{item.recievedDate.toLocaleTimeString()}}</div>
             <div class="timeAgo">{{timeSince[i]}}</div>
           </div>
       </div>
-      <hr class="notification-breaker">
+      <hr class="notification-breaker" [style.border-top-color]="color.launchbarMenuText+'1c'">
   </div>
 </div>
-<div [hidden]="!notificationsVisible" class="launch-widget-caret caret-down"></div>
 
-<div class="launchbar-clock">
-  <div class="launchbar-separator left"></div>
-  <span>
+<div class="widget-area"
+     [style.min-width]="areaSize"
+     [style.background]="color.launchbarColor"
+     [style.border-radius]="borderRadius">
+  <div class="clock two-row" *ngIf="clockTwoRow" [style.font-size]="fontSize" [style.padding-top]="clockOffset">
     <span>{{date | date:'shortTime'}}</span>
     <br>
     <span>{{date | date:'shortDate'}}</span>
-  </span>
-  <div #notificationicon class="launchbar-tray-icon notification" (click)="toggleNotifications()">
-      <div [hidden]="notifications.length == 0"class="launchbar-tray-indicator">{{notifications.length}}</div>
   </div>
-  <div #usericon class="launchbar-tray-icon settings" (click)="togglePersonalizationPanel()"></div>
-  <div #usericon class="launchbar-tray-icon user" (click)="togglePopup()"></div>
+  <div class="clock" *ngIf="!clockTwoRow" [style.font-size]="fontSize" [style.padding-top]="clockOffset">
+    <span>{{date | date:'shortDate'}} {{date | date:'shortTime'}}</span>
+  </div>
+  <div #notificationicon class="launchbar-tray-icon notification"
+       [style.margin-top]="widgetOffset"
+       [style.background-size]="widgetSize+' '+widgetSize"
+       [style.height]="widgetSize"
+       [style.width]="widgetSize"
+       (click)="toggleNotifications()">
+      <div 
+        [hidden]="notifications.length == 0"
+        class="launchbar-tray-indicator"
+        [style.height]="notifCountSize"
+        [style.width]="notifCountSize"
+        [style.margin-top]="notifTopOffset"
+        [style.margin-left]="notifLeftOffset">
+          {{notifications.length}}
+      </div>
+  </div>
+  <div #settingsicon class="launchbar-tray-icon settings"
+       [style.margin-top]="widgetOffset"
+       [style.background-size]="widgetSize+' '+widgetSize"
+       [style.height]="widgetSize"
+       [style.width]="widgetSize"
+       (click)="togglePersonalizationPanel()"></div>
+  <div #usericon class="launchbar-tray-icon user"
+       [style.margin-top]="widgetOffset"
+       [style.height]="widgetSize"
+       [style.width]="widgetSize"
+       [style.background-size]="widgetSize+' '+widgetSize"
+       (click)="togglePopup()"></div>
 </div>
 
 <!--
