@@ -78,6 +78,12 @@
     "ZWED5189W":"No iframe identified as source of message",
     "ZWED5190W":"Component ref requested before module ref available",
     "ZWED5191W":"Overwriting existing component ref for window",
+    "ZWED5192E":"RESERVED: Attempted to spawn context menu for null window",
+    "ZWED5193W":"Plugin not found for identifier %s specified in app2app query URL parameter",
+    "ZWED5194W":"Action Type(%s) specified  in app2app query URL parameter is invalid",
+    "ZWED5195W":"Action Mode(%s) specified  in app2app query URL parameter is invalid",
+    "ZWED5196W":"Context Data(%s) specified in app2app query URL parameter is not valid JSON",
+    "ZWED5197W":"Unable to find registered action for identifier %s specified in app2app query URL parameter",
 
     "ZWED5143E":"Plugin ID required. Use query parameter ?pluginId",
     "ZWED5144E":"Cannot find plugin with ID=%s",
