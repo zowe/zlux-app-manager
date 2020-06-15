@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, ChangeDetectorRef, Injector } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Injector, EventEmitter } from '@angular/core';
 import { AuthenticationManager,
          LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
@@ -19,7 +19,7 @@ import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { BaseLogger } from 'virtual-desktop-logger';
 import * as moment from 'moment';
 
-const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
+const ACTIVITY_IDLE_TIMEOUT_MS = 30000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
 const PASSWORD_EXPIRED = "PasswordExpired";
 
@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit {
   errorMessage: string;
   loginMessage: string;
   private idleWarnModal: any;
-  private lastActive: number = 0;
+  private lastActive: EventEmitter<Number>;
   expiredPassword: boolean;
   private passwordServices: Set<string>;
   private themeManager: any;
@@ -68,6 +68,8 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     this.expiredPassword = false;
     this.passwordServices = new Set<string>();
+    this.lastActive = new EventEmitter<Number>();
+    window.addEventListener("storage", this.storageEventListener.bind(this));
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
       case MVDHosting.LoginScreenChangeReason.UserLogout:
@@ -77,6 +79,8 @@ export class LoginComponent implements OnInit {
       case MVDHosting.LoginScreenChangeReason.UserLogin:
         this.errorMessage = '';
         this.needLogin = false;
+        console.log('No need to login');
+        this.detectActivity();
         break;
       case MVDHosting.LoginScreenChangeReason.PasswordChange:
         this.changePassword = true;
@@ -113,10 +117,26 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  private storageEventListener(event: StorageEvent) {
+    console.log('storageEventListener');
+    if (event.storageArea == localStorage) {
+      try { 
+        const v = event.newValue;
+        console.log('new value', v);
+        if(Number(v)>0) {
+          this.lastActive.next(Number(v));
+        }
+      } catch (e) { 
+        this.logger.debug(event.newValue); 
+      }
+    }
+  };
+
   private isIdle(): boolean {
-    const lastActive = parseInt(window.localStorage.getItem('ZoweZLUX.lastActive') || '0');
-    let idle = (Date.now() - lastActive) > ACTIVITY_IDLE_TIMEOUT_MS;
-    this.logger.debug("ZWED5304I", lastActive, Date.now(), idle); //this.logger.debug(`User lastActive=${lastActive}, now=${Date.now()}, idle={idle}`);
+    const activityTime = parseInt(window.localStorage.getItem('ZoweZLUX.lastActive') || '0');
+    let idle = (Date.now() - activityTime) > ACTIVITY_IDLE_TIMEOUT_MS;
+    this.logger.debug("ZWED5304I", activityTime, Date.now(), idle); 
+    //this.logger.debug(`User lastActive=${lastActive}, now=${Date.now()}, idle={idle}`);
     return idle;
   }
 
@@ -196,6 +216,16 @@ export class LoginComponent implements OnInit {
         this.renewSession();
       }
     });
+
+    this.idleWarnModal.lastSub=this.lastActive.subscribe(()=> {
+      if (!this.isIdle()) {
+        this.logger.info('ZWED5047I', 'renew on activity'); /*this.logger.info('Near session expiration, but renewing session due to activity');*/
+        this.renewSession();
+        if(this.idleWarnModal && this.idleWarnModal.lastSub) {
+          this.idleWarnModal.lastSub.unsubscribe();
+        }
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -256,9 +286,10 @@ export class LoginComponent implements OnInit {
   }
 
   detectActivity(): void {
-    this.logger.debug('ZWED5305I'); //this.logger.debug('User activity detected');
-    this.lastActive = Date.now();
-    window.localStorage.setItem('ZoweZLUX.lastActive',this.lastActive.toString());
+    this.logger.debug('ZWED5305I','activity'); //this.logger.debug('User activity detected');
+    const activityTime = Date.now();
+    window.localStorage.setItem('ZoweZLUX.lastActive',activityTime.toString());
+    this.lastActive.next(activityTime);
     if (this.idleWarnModal) {
       this.popupManager.removeReport(this.idleWarnModal.id); 
       this.idleWarnModal = undefined;
