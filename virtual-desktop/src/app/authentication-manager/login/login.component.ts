@@ -14,12 +14,12 @@ import { Component, OnInit, ChangeDetectorRef, Injector, EventEmitter } from '@a
 import { AuthenticationManager,
          LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
-//import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { BaseLogger } from 'virtual-desktop-logger';
 import * as moment from 'moment';
 
-const ACTIVITY_IDLE_TIMEOUT_MS = 30000; //5 minutes
+const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
 const PASSWORD_EXPIRED = "PasswordExpired";
 
@@ -79,7 +79,6 @@ export class LoginComponent implements OnInit {
       case MVDHosting.LoginScreenChangeReason.UserLogin:
         this.errorMessage = '';
         this.needLogin = false;
-        console.log('No need to login');
         this.detectActivity();
         break;
       case MVDHosting.LoginScreenChangeReason.PasswordChange:
@@ -118,11 +117,9 @@ export class LoginComponent implements OnInit {
   }
 
   private storageEventListener(event: StorageEvent) {
-    console.log('storageEventListener');
     if (event.storageArea == localStorage) {
       try { 
         const v = event.newValue;
-        console.log('new value', v);
         if(Number(v)>0) {
           this.lastActive.next(Number(v));
         }
@@ -143,12 +140,12 @@ export class LoginComponent implements OnInit {
   renewSession(): void {
     this.authenticationService.performSessionRenewal().subscribe((result:any)=> {
       if (this.idleWarnModal) {
-        this.idleWarnModal.subject.unsubscribe();
+        this.idleWarnModal.subscription.unsubscribe();
         this.idleWarnModal = undefined;
       }
     }, (errorObservable)=> {
       if (this.idleWarnModal) {
-        this.idleWarnModal.subject.unsubscribe();
+        this.idleWarnModal.subscription.unsubscribe();
         this.idleWarnModal = this.popupManager.createErrorReport(
           ZluxErrorSeverity.WARNING,
           this.translation.translate('Session Renewal Error'),
@@ -157,11 +154,26 @@ export class LoginComponent implements OnInit {
             blocking: false,
             buttons: [this.translation.translate('Retry'), this.translation.translate('Dismiss')]
           });
-        this.idleWarnModal.subject.subscribe((buttonName:any)=> {
-          if (buttonName == this.translation.translate('Retry')) {
-            this.renewSession();
-          }
-        });        
+          this.idleWarnModal.subscription = new Subscription();
+          const subscription = this.idleWarnModal.subscription;
+          subscription.add(this.idleWarnModal.subject.subscribe((buttonName:any)=> {
+            if (buttonName == this.translation.translate('Retry')) {
+              this.renewSession();
+            }
+          }));
+          // add lastSub  
+          this.idleWarnModal.lastActivitySub=this.lastActive.subscribe(()=> {
+            if (!this.isIdle()) {
+              this.logger.info('ZWED5047I', 'renew on activity'); /*this.logger.info('Near session expiration, but renewing session due to activity');*/
+              this.renewSession();
+              if(this.idleWarnModal) {
+                this.popupManager.removeReport(this.idleWarnModal.id); 
+                this.idleWarnModal.subscription.unsubscribe();
+              }
+            }
+          });
+      
+          subscription.add(this.idleWarnModal.lastActivitySub);      
       }
     });
   }
@@ -210,22 +222,26 @@ export class LoginComponent implements OnInit {
         callToAction: true
       });
 
-    this.idleWarnModal.subject.subscribe((buttonName:any)=> {
+    const subscription = this.idleWarnModal.subscription = new Subscription();
+    subscription.add(this.idleWarnModal.subject.subscribe((buttonName:any)=> {
       if (buttonName == this.translation.translate('Continue')) {
         //may fail, so don't touch timers yet
         this.renewSession();
       }
-    });
+    }));
 
-    this.idleWarnModal.lastSub=this.lastActive.subscribe(()=> {
+    this.idleWarnModal.lastActivitySub=this.lastActive.subscribe(()=> {
       if (!this.isIdle()) {
         this.logger.info('ZWED5047I', 'renew on activity'); /*this.logger.info('Near session expiration, but renewing session due to activity');*/
         this.renewSession();
-        if(this.idleWarnModal && this.idleWarnModal.lastSub) {
-          this.idleWarnModal.lastSub.unsubscribe();
+        if(this.idleWarnModal) {
+          this.popupManager.removeReport(this.idleWarnModal.id); 
+          this.idleWarnModal.subscription.unsubscribe();
         }
       }
     });
+
+    subscription.add(this.idleWarnModal.lastActivitySub);
   }
 
   ngOnInit(): void {
