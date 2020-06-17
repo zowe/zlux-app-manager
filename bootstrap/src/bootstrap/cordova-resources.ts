@@ -19,8 +19,9 @@ import { ZoweNotificationManager } from 'zlux-base/notification-manager/notifica
 import { SimpleGlobalization } from '../i18n/simple-globalization'
 
 declare var window: {
-    ZoweZLUX: typeof CordovaResources,
-    COM_RS_COMMON_LOGGER: Logger
+  ZoweZLUX: typeof CordovaResources,
+  COM_RS_COMMON_LOGGER: Logger
+  plugins: any;
 };
 window; /* Suppress TS error */
 
@@ -45,15 +46,39 @@ fetch('/ZLUX/plugins/org.zowe.zlux.bootstrap/web/assets/i18n/log/messages_en.jso
 */
 PluginManager.logger = cordovaLogger;
 
+export class CordovaDispatcher extends Dispatcher implements ZLUX.Dispatcher {
+
+  constructor(private logger: ZLUX.ComponentLogger) {
+    super(logger);
+  }
+
+  invokeAction(action: ZLUX.Action, eventContext: any, _targetId?: number | undefined): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const intent = action.targetPluginID ? {
+        component: {
+          package: action.targetPluginID,
+          class: action.targetPluginID + '.MainActivity',
+        },
+        extras: eventContext
+      } : eventContext;
+      window.plugins.intentShim.startActivity(
+        intent,
+        () => resolve(),
+        (e: any) => reject(e)
+      );
+    });
+  }
+}
+
 export class CordovaResources {
-    static pluginManager = PluginManager
-    static uriBroker: ZLUX.UriBroker = new MvdUri();
-    static dispatcher: Dispatcher = new Dispatcher(cordovaLogger);
-    static logger: Logger = logger;
-    static registry: ZLUX.Registry = new Registry();
-    static notificationManager: ZoweNotificationManager = new ZoweNotificationManager();
-    // currently replaced in plugin-manager.module
-    static globalization: ZLUX.Globalization = new SimpleGlobalization();
+  static pluginManager = PluginManager
+  static uriBroker: ZLUX.UriBroker = new MvdUri();
+  static dispatcher: Dispatcher = new CordovaDispatcher(cordovaLogger);
+  static logger: Logger = logger;
+  static registry: ZLUX.Registry = new Registry();
+  static notificationManager: ZoweNotificationManager = new ZoweNotificationManager();
+  // currently replaced in plugin-manager.module
+  static globalization: ZLUX.Globalization = new SimpleGlobalization();
 }
 
 
