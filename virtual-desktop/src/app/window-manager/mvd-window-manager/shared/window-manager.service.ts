@@ -170,6 +170,11 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         }
       })
     });
+    this.applicationManager.saveApplicationData.subscribe((saveApplicationDataDefaults: MVDHosting.saveApplicationDataDefaults) => {
+      this.sessionSubscriptions.forEach((session: Angular2PluginSessionEvents, winddowId: MVDWindowManagement.WindowId) => {
+        session.saveData.next();
+      })
+    });
   }
 
   public static _setTheme(newTheme: DesktopTheme) {
@@ -432,9 +437,11 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private generateSessionEventsProvider(windowId: MVDWindowManagement.WindowId): Angular2PluginSessionEvents {
     const login = new Subject<void>();
     const sessionExpire = new Subject<void>();
+    const saveData = new Subject<void>();
     const sessionEvents: Angular2PluginSessionEvents = {
       login,
-      sessionExpire
+      sessionExpire,
+      saveData
     }
     this.sessionSubscriptions.set(windowId, sessionEvents)
     return sessionEvents

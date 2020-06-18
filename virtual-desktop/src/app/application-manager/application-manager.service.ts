@@ -26,6 +26,7 @@ import { EmbeddedInstance } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements';
 import { L10nConfigService } from '../i18n/l10n-config.service';
+import {EventEmitter} from '@angular/core';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
@@ -34,6 +35,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   private nextInstanceId: MVDHosting.InstanceId;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private knownLoggerMessageChecks: string[];
+  readonly saveApplicationData: EventEmitter<MVDHosting.saveApplicationDataDefaults>;
 
   constructor(
     private injector: Injector,
@@ -45,6 +47,8 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     private l10nConfigService: L10nConfigService,
     private http: HttpClient,
   ) {
+    this.saveApplicationData = new EventEmitter();
+    setInterval(()=> { this.saveApplicationData.emit(MVDHosting.saveApplicationDataDefaults.saveDataInterval) }, MVDHosting.saveApplicationDataDefaults.saveDataInterval);
     this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);
     this.applicationInstances = new Map();
     this.knownLoggerMessageChecks = [];
