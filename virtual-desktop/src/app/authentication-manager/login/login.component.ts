@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, ChangeDetectorRef, Injector, EventEmitter } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Injector } from '@angular/core';
 import { AuthenticationManager,
          LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
@@ -18,6 +18,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { BaseLogger } from 'virtual-desktop-logger';
 import * as moment from 'moment';
+import { StorageService } from '../storage.service';
 
 const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
@@ -44,13 +45,13 @@ export class LoginComponent implements OnInit {
   errorMessage: string;
   loginMessage: string;
   private idleWarnModal: any;
-  private lastActive: EventEmitter<Number>;
   expiredPassword: boolean;
   private passwordServices: Set<string>;
   private themeManager: any;
 
   constructor(
     private authenticationService: AuthenticationManager,
+    private storageService: StorageService,
     public translation: TranslationService,
     private cdr: ChangeDetectorRef,
     private popupManager: ZluxPopupManagerService,
@@ -68,8 +69,6 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     this.expiredPassword = false;
     this.passwordServices = new Set<string>();
-    this.lastActive = new EventEmitter<Number>();
-    window.addEventListener("storage", this.storageEventListener.bind(this));
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
       case MVDHosting.LoginScreenChangeReason.UserLogout:
@@ -116,21 +115,8 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  private storageEventListener(event: StorageEvent) {
-    if (event.storageArea == localStorage) {
-      try { 
-        const v = event.newValue;
-        if(Number(v)>0) {
-          this.lastActive.next(Number(v));
-        }
-      } catch (e) { 
-        this.logger.debug(event.newValue); 
-      }
-    }
-  };
-
   private isIdle(): boolean {
-    const activityTime = parseInt(window.localStorage.getItem('ZoweZLUX.lastActive') || '0');
+    const activityTime = parseInt(StorageService.getItem('ZoweZLUX.lastActive') || '0');
     let idle = (Date.now() - activityTime) > ACTIVITY_IDLE_TIMEOUT_MS;
     this.logger.debug("ZWED5304I", activityTime, Date.now(), idle); 
     //this.logger.debug(`User lastActive=${lastActive}, now=${Date.now()}, idle={idle}`);
@@ -162,7 +148,7 @@ export class LoginComponent implements OnInit {
             }
           }));
           // add lastSub  
-          this.idleWarnModal.lastActivitySub=this.lastActive.subscribe(()=> {
+          this.idleWarnModal.lastActivitySub=this.storageService.lastActive.subscribe(()=> {
             if (!this.isIdle()) {
               this.logger.info('ZWED5047I', 'renew on activity'); /*this.logger.info('Near session expiration, but renewing session due to activity');*/
               this.renewSession();
@@ -230,7 +216,7 @@ export class LoginComponent implements OnInit {
       }
     }));
 
-    this.idleWarnModal.lastActivitySub=this.lastActive.subscribe(()=> {
+    this.idleWarnModal.lastActivitySub=this.storageService.lastActive.subscribe(()=> {
       if (!this.isIdle()) {
         this.logger.info('ZWED5047I', 'renew on activity'); /*this.logger.info('Near session expiration, but renewing session due to activity');*/
         this.renewSession();
@@ -302,10 +288,7 @@ export class LoginComponent implements OnInit {
   }
 
   detectActivity(): void {
-    this.logger.debug('ZWED5305I','activity'); //this.logger.debug('User activity detected');
-    const activityTime = Date.now();
-    window.localStorage.setItem('ZoweZLUX.lastActive',activityTime.toString());
-    this.lastActive.next(activityTime);
+    this.storageService.updateLastActive();
     if (this.idleWarnModal) {
       this.popupManager.removeReport(this.idleWarnModal.id); 
       this.idleWarnModal = undefined;
