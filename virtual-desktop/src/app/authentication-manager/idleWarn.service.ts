@@ -31,11 +31,11 @@ export class IdleWarnService {
     );
 
     this.report.subscription = new Subscription();
-    this.onUserActionSubscribe(renewSession, isIdle, 'Retry');
+    this.onUserActionSubscribe(renewSession,'Retry');
     this.onActivitySubscribe(renewSession, isIdle);
   }
   
-  onUserActionSubscribe(renewSession: any, isIdle: any, action: string) {
+  onUserActionSubscribe(renewSession: any, action: string) {
     if(this.report) {
       this.report.subscription.add(this.report.subject.subscribe((buttonName:any)=> {
         if (buttonName == this.translation.translate(action)) {
@@ -90,7 +90,7 @@ export class IdleWarnService {
       });
 
       this.report.subscription = new Subscription();
-      this.onUserActionSubscribe(renewSession, isIdle, 'Continue session');
+      this.onUserActionSubscribe(renewSession, 'Continue session');
       this.onActivitySubscribe(renewSession, isIdle);
   }
 

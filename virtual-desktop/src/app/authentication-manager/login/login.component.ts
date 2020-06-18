@@ -16,6 +16,7 @@ import { AuthenticationManager,
 import { TranslationService } from 'angular-l10n';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { StorageService } from '../storage.service';
+import { StorageKey } from '../storage-enum';
 import { IdleWarnService } from '../idleWarn.service';
 
 const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
@@ -112,7 +113,7 @@ export class LoginComponent implements OnInit {
   }
 
   private isIdle(): boolean {
-    const activityTime = parseInt(StorageService.getItem('ZoweZLUX.lastActive') || '0');
+    const activityTime = parseInt(StorageService.getItem(StorageKey.LAST_ACTIVE) || '0');
     let idle = (Date.now() - activityTime) > ACTIVITY_IDLE_TIMEOUT_MS;
     this.logger.debug("ZWED5304I", activityTime, Date.now(), idle); 
     //this.logger.debug(`User lastActive=${lastActive}, now=${Date.now()}, idle={idle}`);

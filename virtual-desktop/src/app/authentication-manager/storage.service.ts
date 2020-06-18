@@ -58,7 +58,7 @@ export class StorageService {
   public updateLastActive() {
     this.logger.debug('ZWED5305I','activity'); //this.logger.debug('User activity detected');
     const activityTime = Date.now();
-    StorageService.setItem('ZoweZLUX.lastActive',activityTime.toString());
+    StorageService.setItem(StorageKey.LAST_ACTIVE,activityTime.toString());
     this.lastActive.next(activityTime);
   }
 
