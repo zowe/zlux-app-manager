@@ -14,11 +14,9 @@ import { Component, OnInit, ChangeDetectorRef, Injector } from '@angular/core';
 import { AuthenticationManager,
          LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
 import { TranslationService } from 'angular-l10n';
-import { Subscription } from 'rxjs/Subscription';
-import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { BaseLogger } from 'virtual-desktop-logger';
-import * as moment from 'moment';
 import { StorageService } from '../storage.service';
+import { IdleWarnService } from '../idleWarn.service';
 
 const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
@@ -44,7 +42,6 @@ export class LoginComponent implements OnInit {
   confirmNewPassword: string;
   errorMessage: string;
   loginMessage: string;
-  private idleWarnModal: any;
   expiredPassword: boolean;
   private passwordServices: Set<string>;
   private themeManager: any;
@@ -53,8 +50,8 @@ export class LoginComponent implements OnInit {
     private authenticationService: AuthenticationManager,
     private storageService: StorageService,
     public translation: TranslationService,
+    private idleWarnService: IdleWarnService,
     private cdr: ChangeDetectorRef,
-    private popupManager: ZluxPopupManagerService,
     private injector: Injector
   ) {
     this.themeManager = this.injector.get(MVDHosting.Tokens.ThemeEmitterToken);
@@ -69,6 +66,8 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     this.expiredPassword = false;
     this.passwordServices = new Set<string>();
+    this.renewSession = this.renewSession.bind(this);
+    this.isIdle = this.isIdle.bind(this);
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
       case MVDHosting.LoginScreenChangeReason.UserLogout:
@@ -91,10 +90,7 @@ export class LoginComponent implements OnInit {
         break;
       case MVDHosting.LoginScreenChangeReason.SessionExpired:
         this.backButton();
-        if (this.idleWarnModal) {
-          this.popupManager.removeReport(this.idleWarnModal.id); 
-          this.idleWarnModal = undefined;
-        }
+        this.idleWarnService.removeErrorReport();
         this.errorMessage = this.translation.translate('Session Expired');
         this.needLogin = true;
         break;
@@ -125,109 +121,15 @@ export class LoginComponent implements OnInit {
 
   renewSession(): void {
     this.authenticationService.performSessionRenewal().subscribe((result:any)=> {
-      if (this.idleWarnModal) {
-        this.idleWarnModal.subscription.unsubscribe();
-        this.idleWarnModal = undefined;
-      }
+      this.idleWarnService.removeErrorReport();
     }, (errorObservable)=> {
-      if (this.idleWarnModal) {
-        this.idleWarnModal.subscription.unsubscribe();
-        this.idleWarnModal = this.popupManager.createErrorReport(
-          ZluxErrorSeverity.WARNING,
-          this.translation.translate('Session Renewal Error'),
-          this.translation.translate('Session could not be renewed. Logout will occur unless renewed. Click here to retry.'), 
-          {
-            blocking: false,
-            buttons: [this.translation.translate('Retry'), this.translation.translate('Dismiss')]
-          });
-          this.idleWarnModal.subscription = new Subscription();
-          const subscription = this.idleWarnModal.subscription;
-          subscription.add(this.idleWarnModal.subject.subscribe((buttonName:any)=> {
-            if (buttonName == this.translation.translate('Retry')) {
-              this.renewSession();
-            }
-          }));
-          // add lastSub  
-          this.idleWarnModal.lastActivitySub=this.storageService.lastActive.subscribe(()=> {
-            if (!this.isIdle()) {
-              this.logger.info('ZWED5047I', 'renew on activity'); /*this.logger.info('Near session expiration, but renewing session due to activity');*/
-              this.renewSession();
-              if(this.idleWarnModal) {
-                this.popupManager.removeReport(this.idleWarnModal.id); 
-                this.idleWarnModal.subscription.unsubscribe();
-              }
-            }
-          });
-      
-          subscription.add(this.idleWarnModal.lastActivitySub);      
-      }
+      this.idleWarnService.createRetryErrorReport(this.renewSession, this.isIdle);
     });
   }
 
   spawnExpirationPrompt(expirationInMS: number): void {
     let desktopSize = this.themeManager.mainSize || 2;
-    let popupStyle;
-
-    /* According to the size of the desktop, we move the expiration prompt to align with the app bar */
-    switch (desktopSize) {
-      case 3: {
-        popupStyle = {
-          'margin-bottom': '70px',
-          'margin-right': '-5px'
-        };
-        break;
-      }
-      case 1: {
-        popupStyle = {
-          'margin-bottom': '15px',
-          'margin-right': '-10px'
-        };
-        break;
-      }
-      default: {
-        popupStyle = {
-          'margin-bottom': '35px',
-          'margin-right': '-5px'
-        };
-        break;
-      }
-    }
-
-    this.idleWarnModal = this.popupManager.createErrorReport(
-      ZluxErrorSeverity.WARNING,
-      this.translation.translate('Session Expiring Soon'),
-      //TODO: Add translation
-      //this.translation.translate('You will be logged out at ', { expirationInMS: moment().add(expirationInMS/1000, 'seconds').format('LT') }),
-      this.translation.translate('You will be logged out at ' + moment().add(expirationInMS/1000, 'seconds').format('LT')),
-      {
-        blocking: false,
-        buttons: [this.translation.translate('Continue session')],
-        timestamp: false,
-        theme: "dark",
-        style: popupStyle,
-        callToAction: true
-      });
-
-    const subscription = this.idleWarnModal.subscription = new Subscription();
-    subscription.add(this.idleWarnModal.subject.subscribe((buttonName:any)=> {
-      if (buttonName == this.translation.translate('Continue')) {
-        //may fail, so don't touch timers yet
-        this.renewSession();
-      }
-    }));
-
-    this.idleWarnModal.lastActivitySub=this.storageService.lastActive.subscribe(()=> {
-      if (!this.isIdle()) {
-        this.logger.info('ZWED5047I', 'renew on activity'); /*this.logger.info('Near session expiration, but renewing session due to activity');*/
-        this.renewSession();
-        if(this.idleWarnModal) {
-          this.popupManager.removeReport(this.idleWarnModal.id); 
-          this.idleWarnModal.subscription.unsubscribe();
-        }
-      }
-    });
-
-    subscription.add(this.idleWarnModal.lastActivitySub);
+    this.idleWarnService.createContinueErrorReport(this.renewSession, this.isIdle, expirationInMS, desktopSize)
   }
 
   ngOnInit(): void {
@@ -289,10 +191,7 @@ export class LoginComponent implements OnInit {
 
   detectActivity(): void {
     this.storageService.updateLastActive();
-    if (this.idleWarnModal) {
-      this.popupManager.removeReport(this.idleWarnModal.id); 
-      this.idleWarnModal = undefined;
-    }    
+    this.idleWarnService.removeErrorReport();   
   }
 
   attemptPasswordReset(): void {
