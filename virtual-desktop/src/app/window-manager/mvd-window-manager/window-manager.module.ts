@@ -13,8 +13,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { ColorCircleModule } from 'ngx-color/circle';
-import { ColorSliderModule } from 'ngx-color/slider';
 import { SharedModule } from 'app/shared/shared.module';
 import { ApplicationManagerModule } from 'app/application-manager/application-manager.module';
 import { ContextMenuModule } from '../../context-menu/context-menu.module';
@@ -43,8 +41,6 @@ import { ThemeEmitterService } from './services/theme-emitter.service';
     LaunchbarModule,
     HttpClientModule,
     ContextMenuModule,
-    ColorCircleModule,
-    ColorSliderModule,
     FileDropModule
   ],
   declarations: [
