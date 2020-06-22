@@ -17,13 +17,15 @@ import { HttpModule } from '@angular/http';
 import { ZluxPopupManagerModule } from '@zlux/widgets';
 import { LoginComponent } from './login/login.component';
 import { AuthenticationManager } from './authentication-manager.service';
+import { StartURLManagerModule } from '../start-url-manager';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     HttpModule,
-    ZluxPopupManagerModule
+    ZluxPopupManagerModule,
+    StartURLManagerModule,
   ],
   declarations: [
     LoginComponent
