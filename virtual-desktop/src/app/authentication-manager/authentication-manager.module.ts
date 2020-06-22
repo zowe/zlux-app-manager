@@ -18,6 +18,8 @@ import { ZluxPopupManagerModule } from '@zlux/widgets';
 import { LoginComponent } from './login/login.component';
 import { AuthenticationManager } from './authentication-manager.service';
 import { StartURLManagerModule } from '../start-url-manager';
+import { StorageService } from './storage.service';
+import { IdleWarnService } from './idleWarn.service';
 
 @NgModule({
   imports: [
@@ -36,7 +38,9 @@ import { StartURLManagerModule } from '../start-url-manager';
   providers: [
     AuthenticationManager,
     /* Expose authentication manager to window managers */
-    { provide: MVDHosting.Tokens.AuthenticationManagerToken, useExisting: AuthenticationManager }
+    { provide: MVDHosting.Tokens.AuthenticationManagerToken, useExisting: AuthenticationManager },
+    StorageService,
+    IdleWarnService
   ]
 })
 export class AuthenticationModule {
