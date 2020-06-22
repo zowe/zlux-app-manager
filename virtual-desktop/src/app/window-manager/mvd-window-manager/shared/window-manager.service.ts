@@ -432,9 +432,23 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private generateSessionEventsProvider(windowId: MVDWindowManagement.WindowId): Angular2PluginSessionEvents {
     const login = new Subject<void>();
     const sessionExpire = new Subject<void>();
+    const autosaveEmitter = new Subject<any>();
+    let thing: DesktopWindow|undefined = this.windowMap.get(windowId);
+    if (thing) {
+    let plugin: ZLUX.Plugin = thing.plugin;
+      setInterval(()=> {
+        autosaveEmitter.next((data:any)=> {
+          console.log('I should save plugins data.');
+          console.log('plugin=',plugin);
+          console.log('windowId=',windowId);
+          console.log('data=',data);
+        });
+      },5000); 
+    }
     const sessionEvents: Angular2PluginSessionEvents = {
       login,
-      sessionExpire
+      sessionExpire,
+      autosaveEmitter
     }
     this.sessionSubscriptions.set(windowId, sessionEvents)
     return sessionEvents

@@ -93,6 +93,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   private generateSessionEventsProvider(): Angular2PluginSessionEvents {
     const loginSubject = new Subject<void>();
     const sessionExpireSubject = new Subject<void>();
+    const autosaveEmitter = new Subject<any>();
     this.authenticationManager.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
         case MVDHosting.LoginScreenChangeReason.UserLogin:
@@ -106,7 +107,8 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
     });
     return {
       login: loginSubject,
-      sessionExpire: sessionExpireSubject
+      sessionExpire: sessionExpireSubject,
+      autosaveEmitter: autosaveEmitter
     };
   }
 
