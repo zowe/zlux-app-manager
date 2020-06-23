@@ -1,5 +1,11 @@
+input.ng-invalid.ng-touched {
+  outline: #da1e28 solid 2px;
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
 .top-title {
-	font-size: 18px;
+    font-size: 18px;
     font-weight: bold;
     height: 50px;
     background-color: #0062ff;

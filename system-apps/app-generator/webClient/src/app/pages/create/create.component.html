@@ -14,9 +14,19 @@
 <div class="create-container">
 	<div class="top-row">
 		<div class="form-container">
-			<h4 class="item-label">Identifier</h4>
-			<input ibmText [(ngModel)]="pluginConfig.identifier" placeholder="Identifier e.g. com.your.application"
-				class="input-field">
+                        <h4 class="item-label">Identifier</h4>
+                        <input ibmText id="identifier" name="identifier" class="input-field"
+                          required  pattern="[A-Za-z1-9.\-_]*"
+                          [(ngModel)]="pluginConfig.identifier" #identifier="ngModel"
+                          placeholder="Identifier e.g. com.your.application">
+			<div *ngIf="identifier.invalid && (identifier.dirty || identifier.touched)">
+                          <ibm-label labelState="error" *ngIf="identifier.errors.required">
+                            Identifier is required.
+                          </ibm-label>
+                          <ibm-label labelState="error" *ngIf="identifier.errors.pattern">
+                            Invalid character: only A-Z, 1-9, ., -, and _ allowed.
+                          </ibm-label>
+                        </div>
 			<h4 class="item-label name">Name</h4>
 			<input ibmText [(ngModel)]="pluginConfig.webContent.launchDefinition.pluginShortNameDefault" placeholder="Application Name" class="input-field">
 
