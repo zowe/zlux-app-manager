@@ -34,9 +34,11 @@ export class StorageService {
 
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   public lastActive:EventEmitter<Number>;
+  public sessionEvent:EventEmitter<MVDHosting.LoginScreenChangeReason>;
 
   constructor() {
     this.lastActive = new EventEmitter<Number>();
+    this.sessionEvent = new EventEmitter<MVDHosting.LoginScreenChangeReason>();
     this.storageEventHandler = this.storageEventHandler.bind(this);
     window.addEventListener("storage", this.storageEventHandler);
   }
@@ -48,6 +50,10 @@ export class StorageService {
       switch(event.key) {
         case StorageKey.LAST_ACTIVE: {
           this.lastActive.emit(Number(newValue));
+        }
+        break;
+        case StorageKey.SESSION_EVENT: {
+          this.emitSessionEvent(newValue);
         }
         break;
         default: break;
@@ -62,6 +68,18 @@ export class StorageService {
     this.lastActive.next(activityTime);
   }
 
+  public updateSessionEvent(reason: MVDHosting.LoginScreenChangeReason) {
+    this.logger.debug('session expired update storage'); //this.logger.debug('User activity detected');
+    StorageService.setItem(StorageKey.SESSION_EVENT, reason.toString());
+  }
+
+  private emitSessionEvent(newValue?: string) {    
+    if(newValue===MVDHosting.LoginScreenChangeReason.SessionExpired.toString() ) {
+      this.sessionEvent.emit(MVDHosting.LoginScreenChangeReason.SessionExpired)
+    } else if (newValue===MVDHosting.LoginScreenChangeReason.UserLogout.toString()) {
+      this.sessionEvent.emit(MVDHosting.LoginScreenChangeReason.UserLogout)
+    }
+  }
 }
 
 /*

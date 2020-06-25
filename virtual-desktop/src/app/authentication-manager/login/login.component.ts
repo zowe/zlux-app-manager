@@ -78,6 +78,7 @@ export class LoginComponent implements OnInit {
       case MVDHosting.LoginScreenChangeReason.UserLogin:
         this.errorMessage = '';
         this.needLogin = false;
+        this.renewSession();
         this.detectActivity();
         break;
       case MVDHosting.LoginScreenChangeReason.PasswordChange:

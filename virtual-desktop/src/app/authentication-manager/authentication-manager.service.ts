@@ -17,6 +17,7 @@ import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
+import { StorageService } from './storage.service';
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
@@ -58,6 +59,7 @@ export class AuthenticationManager {
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(
+    private storageService: StorageService,
     public http: Http,
     private injector: Injector,
     private pluginManager: PluginManager,
@@ -73,6 +75,9 @@ export class AuthenticationManager {
     this.loginScreenVisibilityChanged = new EventEmitter();
     this.loginExpirationIdleCheck = new EventEmitter();
     this.log = BaseLogger.makeSublogger("auth");
+    this.storageService.sessionEvent.subscribe((reason:MVDHosting.LoginScreenChangeReason)=>{
+      this.doLogoutInner(reason);
+    })
   }
 
   registerPostLoginAction(action:MVDHosting.LoginActionInterface):void {
@@ -144,6 +149,7 @@ export class AuthenticationManager {
     if (reason == MVDHosting.LoginScreenChangeReason.UserLogout) {
       windowManager.closeAllWindows();
     }
+    this.storageService.updateSessionEvent(reason);
     this.performLogout().subscribe(
       response => {
         if (reason == MVDHosting.LoginScreenChangeReason.UserLogout) {
@@ -233,6 +239,10 @@ export class AuthenticationManager {
       },warnTimer);
       this.log.debug("ZWED5302I", warnTimer); //this.log.debug(`Set session timeout watcher to notify ${warnTimer}ms before expiration`);
     }
+  }
+
+  requestSessionTimeout(): void {
+    this.doLogoutInner(MVDHosting.LoginScreenChangeReason.SessionExpired);
   }
 
   performSessionRenewal(): Observable<Response> {
