@@ -62,7 +62,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.contextMenuDef = null;
     this.authenticationManager.registerPostLoginAction(this);
-    this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
+    this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http, this.injector));
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
       case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
@@ -155,13 +155,27 @@ export type DesktopTheme = {
 
 class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
-  constructor(private http: HttpClient) { }
+  private pluginManager: MVDHosting.PluginManagerInterface;
+  constructor(
+    private http: HttpClient,
+    private injector: Injector) {
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+    this.pluginManager.pluginsAdded.subscribe((plugins: ZLUX.Plugin[])=> {
+      this.getAndDispatchRecognizers(plugins);
+      this.getAndDispatchActions(plugins);
+    });
+   }
 
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
+    // this.getAndDispatchRecognizers(plugins);
+    // this.getAndDispatchActions(plugins);
+    return true;
+  }
+
+  getAndDispatchRecognizers(plugins: ZLUX.Plugin[]) {
     let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
     let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'recognizers');
-    let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
-    this.log.debug("ZWED5309I", recognizersUri, actionsUri); //this.log.debug(`Getting recognizers from "${recognizersUri}", actions from "${actionsUri}"`);
+    this.log.debug("ZWED5309I", recognizersUri); //this.log.debug(`Getting recognizers from "${recognizersUri}"`);
     this.http.get(recognizersUri).subscribe((config: any)=> {
       if (config) {
         let appContents = config.contents;
@@ -180,6 +194,12 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
         });
       }
     });
+  }
+
+  getAndDispatchActions(plugins: ZLUX.Plugin[]) {
+    let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
+    let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
+    this.log.debug("ZWED5323I", actionsUri); //this.log.debug(`Getting actions from "${actionsUri}"`);
     this.http.get(actionsUri).subscribe((config: any)=> {
       if (config) {
         let appContents = config.contents;
@@ -200,7 +220,6 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
         });
       }
     });
-    return true;
   }
 
   isValidAction(actionObject: any): boolean {
