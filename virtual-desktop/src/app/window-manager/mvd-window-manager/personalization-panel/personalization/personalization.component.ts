@@ -102,7 +102,9 @@ export class PersonalizationComponent implements OnInit {
     if (selectedColorHSL != null) {
       this.updateLightnessSwatches(selectedColorHSL);
     }
-    this.whichColorAmI();
+    if (this.selectedColor == Colors.COOLGREY_90) {
+      this.selectedCircle = 16;
+    }
   }
 
   /* More info on conversion chart can be found at: https://css-tricks.com/converting-color-spaces-in-javascript/ */
@@ -394,15 +396,6 @@ export class PersonalizationComponent implements OnInit {
 
   goBack(): void {
     this.desktopThemeService.goBack();
-  }
-
-  whichColorAmI(): void {
-    var index: number;
-    for (index = 1; index <= this.paletteColors.length; index++) {
-      if (this.selectedColor == this.paletteColors[index]) {
-        this.selectedCircle = index;
-      }
-    }
   }
 
 }
