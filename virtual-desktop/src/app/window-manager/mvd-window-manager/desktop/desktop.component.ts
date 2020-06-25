@@ -21,6 +21,7 @@ import { Colors } from '../shared/colors';
 
 const ACCOUNT_PASSWORD = "Account Password";
 const PASSWORD_CHANGED = "PasswordChanged"
+const ENABLE_PLUGINS_ADDED_TIMEOUT = 1000;
 
 @Component({
   selector: 'rs-com-mvd-desktop',
@@ -156,19 +157,25 @@ export type DesktopTheme = {
 class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
   private pluginManager: MVDHosting.PluginManagerInterface;
+  static enablePluginsAddedSubscribe: boolean;
   constructor(
     private http: HttpClient,
     private injector: Injector) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+    AppDispatcherLoader.enablePluginsAddedSubscribe = false;
     this.pluginManager.pluginsAdded.subscribe((plugins: ZLUX.Plugin[])=> {
-      this.getAndDispatchRecognizers(plugins);
-      this.getAndDispatchActions(plugins);
+      if (AppDispatcherLoader.enablePluginsAddedSubscribe) {
+        this.getAndDispatchRecognizers(plugins);
+        this.getAndDispatchActions(plugins);
+      }
     });
    }
 
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
-    // this.getAndDispatchRecognizers(plugins);
-    // this.getAndDispatchActions(plugins);
+    this.getAndDispatchRecognizers(plugins);
+    this.getAndDispatchActions(plugins);
+    // To not double-load recognizers & actions, we enable pluginsAdded subscribe after 1 second
+    setTimeout(() => { AppDispatcherLoader.enablePluginsAddedSubscribe = true; }, ENABLE_PLUGINS_ADDED_TIMEOUT);
     return true;
   }
 
