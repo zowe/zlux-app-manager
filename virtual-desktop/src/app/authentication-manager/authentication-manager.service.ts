@@ -76,7 +76,9 @@ export class AuthenticationManager {
     this.loginExpirationIdleCheck = new EventEmitter();
     this.log = BaseLogger.makeSublogger("auth");
     this.storageService.sessionEvent.subscribe((reason:MVDHosting.LoginScreenChangeReason)=>{
-      this.doLogoutInner(reason);
+      this.log.info('logout on rcvd session event:', reason);
+      //added extra property to avoid infinite loop
+      this.doLogoutInner(reason, true);
     })
   }
 
@@ -143,13 +145,17 @@ export class AuthenticationManager {
   //requestLogin() used to exist here but it was counter-intuitive in behavior to requestLogout.
   //This was not documented and therefore has been removed to prevent misuse and confusion.
  
-  private doLogoutInner(reason: MVDHosting.LoginScreenChangeReason): void {
+  private doLogoutInner(reason: MVDHosting.LoginScreenChangeReason, isStorage: boolean = false): void {
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
       this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     if (reason == MVDHosting.LoginScreenChangeReason.UserLogout) {
       windowManager.closeAllWindows();
     }
-    this.storageService.updateSessionEvent(reason);
+
+    if(!isStorage) {
+      this.storageService.updateSessionEvent(reason);
+    }
+
     this.performLogout().subscribe(
       response => {
         if (reason == MVDHosting.LoginScreenChangeReason.UserLogout) {
@@ -239,10 +245,6 @@ export class AuthenticationManager {
       },warnTimer);
       this.log.debug("ZWED5302I", warnTimer); //this.log.debug(`Set session timeout watcher to notify ${warnTimer}ms before expiration`);
     }
-  }
-
-  requestSessionTimeout(): void {
-    this.doLogoutInner(MVDHosting.LoginScreenChangeReason.SessionExpired);
   }
 
   performSessionRenewal(): Observable<Response> {
