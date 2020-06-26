@@ -70,14 +70,22 @@ export class StorageService {
 
   public updateSessionEvent(reason: MVDHosting.LoginScreenChangeReason) {
     this.logger.debug('session expired update storage'); //this.logger.debug('User activity detected');
-    StorageService.setItem(StorageKey.SESSION_EVENT, reason.toString());
+    // appended timestamp at end of value to make value unique to trigger events
+    StorageService.setItem(StorageKey.SESSION_EVENT, reason.toString()+','+Date.now().toString());
   }
 
-  private emitSessionEvent(newValue?: string) {    
-    if(newValue===MVDHosting.LoginScreenChangeReason.SessionExpired.toString() ) {
-      this.sessionEvent.emit(MVDHosting.LoginScreenChangeReason.SessionExpired)
-    } else if (newValue===MVDHosting.LoginScreenChangeReason.UserLogout.toString()) {
-      this.sessionEvent.emit(MVDHosting.LoginScreenChangeReason.UserLogout)
+  private emitSessionEvent(newValue?: string) { 
+    this.logger.debug('rcvd session event', newValue);
+    let reason;
+    if(newValue && newValue.indexOf(',')>0) {
+     reason = newValue.split(',')[0];
+    }
+    if(reason === MVDHosting.LoginScreenChangeReason.SessionExpired.toString() ) {
+      this.logger.info('rcvd session expired');
+      this.sessionEvent.emit(MVDHosting.LoginScreenChangeReason.SessionExpired);
+    } else if (reason === MVDHosting.LoginScreenChangeReason.UserLogout.toString()) {
+      this.logger.info('rcvd session logout');
+      this.sessionEvent.emit(MVDHosting.LoginScreenChangeReason.UserLogout);
     }
   }
 }
