@@ -10,8 +10,9 @@
 			padding: 10px;
 			flex-basis: 30%;
 
-			ibm-label>input {
-				margin-bottom: .5rem;
+			ibm-tile-group {
+				display: flex;
+				flex-direction: row;
 			}
 		}
 
@@ -20,6 +21,7 @@
 			flex-basis: 30%;
 		}
 	}
+
 	.control-container {
 		position: absolute;
 		bottom: 10px;
