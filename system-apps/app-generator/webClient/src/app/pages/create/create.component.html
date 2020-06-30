@@ -8,11 +8,11 @@
   
   Copyright Contributors to the Zowe Project.
 -->
-
 <div class="create-container">
   <div class="top-row">
     <div class="form-container">
       <ibm-label
+	class="item-label"
         [invalid]="identifier.invalid"
         invalidText="Invalid character: only A-Z, 1-9, ., -, and _ allowed.">
 	Identifier
@@ -24,7 +24,8 @@
 	  #identifier="ngModel">
       </ibm-label>
 
-      <ibm-label>
+      <ibm-label
+	class="item-label">
 	Name
         <input
 	  ibmText
@@ -32,7 +33,8 @@
 	  [(ngModel)]="pluginConfig.webContent.launchDefinition.pluginShortNameDefault">
       </ibm-label>
 
-      <ibm-label>
+      <ibm-label
+	class="item-label">
 	Description
         <input
           ibmText
@@ -40,14 +42,39 @@
           [(ngModel)]="pluginConfig.webContent.descriptionDefault">
       </ibm-label>
 
-      <ibm-label>Framework</ibm-label>
-      <ibm-tile-group (selected)="frameworkSelect($event)" [multiple]="false" required>
+      <ibm-label
+	class="item-label">
+	Framework
+      </ibm-label>
+      <ibm-tile-group
+        class="tile-group"
+        (selected)="frameworkSelect($event)"
+	[multiple]="false"
+	required>
         <ibm-selection-tile
 	  *ngFor="let framework of frameworks"
 	  value="{{framework | lowercase}}">
 	  {{framework}}
 	</ibm-selection-tile>
       </ibm-tile-group>
+
+      <ibm-label
+	class="item-label">
+	Author
+        <input
+          ibmText
+          placeholder="Author"
+          [(ngModel)]="pluginConfig.author">
+      </ibm-label>
+
+      <ibm-label
+	class="item-label">
+	Author Homepage
+        <input
+          ibmText
+          placeholder="Author Homepage"
+          [(ngModel)]="pluginConfig.homepage">
+      </ibm-label>
     </div>
     
     <div class="module-container">
@@ -66,7 +93,8 @@
   <div class="control-container">
     <button
       ibmButton
-      [disabled]="!pluginConfig.identifier
+      [disabled]="identifier.invalid
+	|| !pluginConfig.identifier
 	|| !pluginConfig.webContent.descriptionDefault
         || !pluginConfig.webContent.launchDefinition.pluginShortNameDefault
 	|| !pluginConfig.webContent.framework"

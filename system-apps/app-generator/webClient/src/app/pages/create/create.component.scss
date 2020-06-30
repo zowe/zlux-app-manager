@@ -10,7 +10,11 @@
 			padding: 10px;
 			flex-basis: 30%;
 
-			ibm-tile-group {
+			.item-label {
+				margin-top: 0.5rem;
+			}
+
+			.tile-group {
 				display: flex;
 				flex-direction: row;
 			}
