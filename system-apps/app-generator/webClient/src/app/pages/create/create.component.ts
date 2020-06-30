@@ -42,42 +42,16 @@ const STARTING_CONFIG = {
   templateUrl: "./create.component.html",
   styleUrls: ["./create.component.scss"]
 })
+
 export class CreateComponent implements OnInit, AfterViewInit {
   pluginConfig: ZoweApplication;
-  frameworkList: Array<ListItem>;
   currentFramework: string;
   currentTemplate: string;
-  templateList: any;
-  templateLists: any;
   callback: any;
+  frameworks: Array<string> = ['Angular', 'React', 'iframe'];
 
   constructor(private http: HttpClient) {
     this.pluginConfig = Object.assign({},STARTING_CONFIG);
-    this.frameworkList = [
-      {
-        content: "Choose a framework",
-        selected: true,
-        disabled: true,
-      },
-      {
-        content: "iframe",
-        selected: false,
-      },
-      {
-        content: "angular",
-        selected: false,
-      },
-      {
-        content: "react",
-        selected: false,
-      },
-    ];
-
-    this.templateLists = {
-      "iframe": [{content:"Basic"}],
-      "angular": [{content:"Basic"}],
-      "react": [{content:"Basic"}]
-    };
   }
 
   ngOnInit() {
@@ -86,13 +60,8 @@ export class CreateComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
   }
 
-  templateSelect(event: any) {
-    this.pluginConfig.template = event.item.content;
-  }
-
-  frameworkSelect(event: any): void {
-    this.pluginConfig.webContent.framework = event.item.content;
-    this.templateList = this.templateLists[this.pluginConfig.webContent.framework];
+  frameworkSelect(event: any) {
+    this.pluginConfig.webContent.framework = event;
   }
 
   get pluginText() {
