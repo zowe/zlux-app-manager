@@ -56,6 +56,7 @@ export class AuthenticationManager {
   private nearestExpiration: number;
   private expirations: Map<string,number>;
   private expirationWarning: any;
+  private storageSubscription: any;
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(
@@ -75,11 +76,23 @@ export class AuthenticationManager {
     this.loginScreenVisibilityChanged = new EventEmitter();
     this.loginExpirationIdleCheck = new EventEmitter();
     this.log = BaseLogger.makeSublogger("auth");
-    this.storageService.sessionEvent.subscribe((reason:MVDHosting.LoginScreenChangeReason)=>{
-      this.log.info('logout on rcvd session event:', reason);
-      //added extra property to avoid infinite loop
-      this.doLogoutInner(reason, true);
-    })
+  }
+
+  subscribeStorageEvent() {
+    if(!this.storageSubscription) {
+      this.storageSubscription = this.storageService.sessionEvent.subscribe((reason:MVDHosting.LoginScreenChangeReason)=>{
+        this.log.info('logout on rcvd session event:', reason);
+        //added extra property to avoid infinite loop
+        this.doLogoutInner(reason, true);
+        this.unsubscribeStorageEvent();
+      })
+    }
+  }
+
+  unsubscribeStorageEvent() {
+    if(this.storageSubscription) {
+      this.storageSubscription.unsubscribe();
+    }
   }
 
   registerPostLoginAction(action:MVDHosting.LoginActionInterface):void {
@@ -129,6 +142,7 @@ export class AuthenticationManager {
             throw ErrorObservable.create('');//no need for a message here, just standard login prompt.
           }
           this.setSessionTimeoutWatcher(jsonMessage.categories);
+          this.subscribeStorageEvent();
           this.performPostLoginActions().subscribe(
             ()=> {
               this.log.debug('ZWED5298I'); //this.log.debug('Done performing post-login actions');
@@ -163,6 +177,9 @@ export class AuthenticationManager {
           (ZoweZLUX.logger as any)._setBrowserUsername('N/A');
         }
         this.loginScreenVisibilityChanged.emit(reason);
+        clearTimeout(this.expirationWarning);
+        this.unsubscribeStorageEvent();
+        this.storageService.clearOnLogout(reason);
       },
       (error: any) => {
         this.loginScreenVisibilityChanged.emit(reason);
@@ -254,6 +271,7 @@ export class AuthenticationManager {
       if (jsonMessage && jsonMessage.success === true) {
         this.log.info('ZWED5046I');/*this.log.info('Session renewal successful');*/
         this.setSessionTimeoutWatcher(jsonMessage.categories);
+        this.subscribeStorageEvent();
         return result;
       } else {
         this.log.warn("ZWED5163W"); //this.log.warn('Session renewal unsuccessful');
@@ -281,6 +299,7 @@ export class AuthenticationManager {
       let jsonMessage = result.json();
       if (jsonMessage && jsonMessage.success === true) {
         this.setSessionTimeoutWatcher(jsonMessage.categories);
+        this.subscribeStorageEvent();
         window.localStorage.setItem('username', username);
         this.username = username;
         (ZoweZLUX.logger as any)._setBrowserUsername(username);

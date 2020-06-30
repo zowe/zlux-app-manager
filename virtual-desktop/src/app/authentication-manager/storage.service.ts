@@ -88,6 +88,14 @@ export class StorageService {
       this.sessionEvent.emit(MVDHosting.LoginScreenChangeReason.UserLogout);
     }
   }
+
+  public clearOnLogout(reason: MVDHosting.LoginScreenChangeReason) {
+    this.logger.debug('clear storage on Logout'); //this.logger.debug('User activity detected');
+    // appended timestamp at end of value to make value unique to trigger events
+    StorageService.removeItem(StorageKey.LAST_ACTIVE);
+    StorageService.removeItem(StorageKey.SESSION_EVENT);
+  }
+
 }
 
 /*
