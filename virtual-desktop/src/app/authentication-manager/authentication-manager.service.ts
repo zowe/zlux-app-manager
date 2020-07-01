@@ -84,7 +84,7 @@ export class AuthenticationManager {
     this.unsubscribeStorageEvent();
     this.storageSubscription = new Subscription();
     this.storageSubscription.add(this.storageService.sessionEvent.subscribe((reason:MVDHosting.LoginScreenChangeReason)=>{
-      this.log.info('auth manager storage event subscription callback', reason);
+      this.log.info('ZWED5060I', reason); // Logout on storage Event
       //added extra property to avoid infinite loop
       this.doLogoutInner(reason, true);
     }));
