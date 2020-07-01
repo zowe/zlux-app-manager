@@ -18,6 +18,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
 import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
 import { StorageService } from './storage.service';
+import { Subscription } from 'rxjs/Subscription';
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
@@ -56,7 +57,7 @@ export class AuthenticationManager {
   private nearestExpiration: number;
   private expirations: Map<string,number>;
   private expirationWarning: any;
-  private storageSubscription: any;
+  private storageSubscription: Subscription;
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(
@@ -76,23 +77,21 @@ export class AuthenticationManager {
     this.loginScreenVisibilityChanged = new EventEmitter();
     this.loginExpirationIdleCheck = new EventEmitter();
     this.log = BaseLogger.makeSublogger("auth");
+    this.storageSubscription = new Subscription();
   }
 
   subscribeStorageEvent() {
-    if(!this.storageSubscription) {
-      this.storageSubscription = this.storageService.sessionEvent.subscribe((reason:MVDHosting.LoginScreenChangeReason)=>{
-        this.log.info('logout on rcvd session event:', reason);
-        //added extra property to avoid infinite loop
-        this.doLogoutInner(reason, true);
-        this.unsubscribeStorageEvent();
-      })
-    }
+    this.unsubscribeStorageEvent();
+    this.storageSubscription = new Subscription();
+    this.storageSubscription.add(this.storageService.sessionEvent.subscribe((reason:MVDHosting.LoginScreenChangeReason)=>{
+      this.log.info('auth manager storage event subscription callback', reason);
+      //added extra property to avoid infinite loop
+      this.doLogoutInner(reason, true);
+    }));
   }
 
   unsubscribeStorageEvent() {
-    if(this.storageSubscription) {
-      this.storageSubscription.unsubscribe();
-    }
+    this.storageSubscription.unsubscribe();
   }
 
   registerPostLoginAction(action:MVDHosting.LoginActionInterface):void {
@@ -142,7 +141,6 @@ export class AuthenticationManager {
             throw ErrorObservable.create('');//no need for a message here, just standard login prompt.
           }
           this.setSessionTimeoutWatcher(jsonMessage.categories);
-          this.subscribeStorageEvent();
           this.performPostLoginActions().subscribe(
             ()=> {
               this.log.debug('ZWED5298I'); //this.log.debug('Done performing post-login actions');
@@ -222,6 +220,7 @@ export class AuthenticationManager {
     if (!categories) {
       return;
     }
+    this.subscribeStorageEvent();
     clearTimeout(this.expirationWarning);
     this.nearestExpiration = -1;
     let expirations = new Map<string,number>();
@@ -271,7 +270,6 @@ export class AuthenticationManager {
       if (jsonMessage && jsonMessage.success === true) {
         this.log.info('ZWED5046I');/*this.log.info('Session renewal successful');*/
         this.setSessionTimeoutWatcher(jsonMessage.categories);
-        this.subscribeStorageEvent();
         return result;
       } else {
         this.log.warn("ZWED5163W"); //this.log.warn('Session renewal unsuccessful');
@@ -299,7 +297,6 @@ export class AuthenticationManager {
       let jsonMessage = result.json();
       if (jsonMessage && jsonMessage.success === true) {
         this.setSessionTimeoutWatcher(jsonMessage.categories);
-        this.subscribeStorageEvent();
         window.localStorage.setItem('username', username);
         this.username = username;
         (ZoweZLUX.logger as any)._setBrowserUsername(username);
