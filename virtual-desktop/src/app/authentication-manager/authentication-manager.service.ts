@@ -19,6 +19,9 @@ import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
 import { StorageService } from './storage.service';
 import { Subscription } from 'rxjs/Subscription';
+import { HttpClient } from '@angular/common/http';
+import { ApplicationManager } from '../application-manager/application-manager.service';
+import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
@@ -66,6 +69,8 @@ export class AuthenticationManager {
     private injector: Injector,
     private pluginManager: PluginManager,
     private startURLManager: StartURLManager
+    private HTTP: HttpClient,
+    private applicationManager: ApplicationManager
   ) {
     this.username = null;
     this.postLoginActions = new Array<MVDHosting.LoginActionInterface>();
@@ -204,6 +209,15 @@ export class AuthenticationManager {
         observer.complete();
       }).catch((err:any)=> {
         observer.error(err);
+      });
+
+      this.HTTP.get<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/app', undefined)).subscribe(res => {
+        if(res){
+          for (let pluginWindow in res.contents){
+            let pluginName = pluginWindow.split('-')[0] 
+            this.applicationManager.spawnApplication(new DesktopPluginDefinitionImpl(ZoweZLUX.pluginManager.getPlugin(pluginName)),{"data":{"type":"setAppRequest","actionType":"Launch","targetMode":"PluginCreate","appData":res.contents[pluginWindow].data.appData}})
+          }
+        }
       });
     });
   }

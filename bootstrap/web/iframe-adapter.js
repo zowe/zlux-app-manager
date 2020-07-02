@@ -91,6 +91,10 @@ let messageHandler = function(message) {
                 let sessionExpire = new CustomEvent('ZoweZLUX.sessionEvents', {detail: {event:'sessionExpire'}});
                 window.dispatchEvent(sessionExpire);
                 return;
+            case 'sessionEvents.autosaveEmitter':
+                let autosaveEmitter = new CustomEvent('ZoweZLUX.sessionEvents', {detail: {event:'autosaveEmitter'}});
+                window.dispatchEvent(autosaveEmitter);
+                return;
             default:
                 return;
         }

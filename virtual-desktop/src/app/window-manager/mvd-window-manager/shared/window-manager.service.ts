@@ -31,6 +31,7 @@ import { ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEven
 import { KeybindingService } from './keybinding.service';
 import { KeyCode } from './keycode-enum';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
+import { HttpClient } from '@angular/common/http';
 
 type PluginIdentifier = string;
 const DEFAULT_DESKTOP_SHORT_TITLE = 'Zowe';
@@ -81,7 +82,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     private windowMonitor: WindowMonitor,
     private componentFactoryResolver: ComponentFactoryResolver,
     private appKeyboard: KeybindingService,
-    private themeService: ThemeEmitterService
+    private themeService: ThemeEmitterService,
+    private http: HttpClient
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -429,12 +431,32 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     };
   }
 
+  private savePluginData(plugin:ZLUX.Plugin,windowId:number,data:any){
+    let pathToSave : any = 'pluginData' + '/' + 'app'
+    let fileNameToSave : string = plugin.getIdentifier() + '-' + windowId
+    this.http.put(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave), data).subscribe(
+      () => 
+      this.logger.info('Saved data for plugin:',plugin.getIdentifier())
+    )
+  };
+  
   private generateSessionEventsProvider(windowId: MVDWindowManagement.WindowId): Angular2PluginSessionEvents {
     const login = new Subject<void>();
     const sessionExpire = new Subject<void>();
+    const autosaveEmitter = new Subject<any>();
+    let desktopWin: DesktopWindow|undefined = this.windowMap.get(windowId);
+    if (desktopWin) {
+      let plugin: ZLUX.Plugin = desktopWin.plugin;
+      setInterval(()=> {
+        autosaveEmitter.next((data:any)=> {
+          this.savePluginData(plugin,windowId,data)
+        });
+      },5000); 
+    }
     const sessionEvents: Angular2PluginSessionEvents = {
       login,
-      sessionExpire
+      sessionExpire,
+      autosaveEmitter
     }
     this.sessionSubscriptions.set(windowId, sessionEvents)
     return sessionEvents
