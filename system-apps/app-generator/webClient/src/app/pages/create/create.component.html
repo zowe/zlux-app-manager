@@ -9,7 +9,7 @@
   Copyright Contributors to the Zowe Project.
 -->
 <div class="top-title">
-  New Application
+  Create Application
 </div>
 
 <div class="create-container">
@@ -57,10 +57,30 @@
 	required>
         <ibm-selection-tile
 	  *ngFor="let framework of frameworks"
-	  value="{{framework | lowercase}}">
-	  {{framework}}
+	  value="{{framework.id | lowercase}}">
+	  <div class="tile-header">{{framework.id}}</div>
+	  <div class="tile-body">{{framework.desc}}</div>
 	</ibm-selection-tile>
       </ibm-tile-group>
+
+      <div *ngIf="templates">
+        <ibm-label
+          class="item-label">
+          Template
+        </ibm-label>
+        <ibm-tile-group
+          class="tile-group"
+          (selected)="templateSelect($event)"
+          [multiple]="false"
+          required>
+          <ibm-selection-tile
+            *ngFor="let template of templates"
+	    value="{{template.id}}">
+	    <div class="tile-header">{{template.id}}</div>
+	    <div class="tile-body">{{template.desc}}</div>
+	  </ibm-selection-tile>
+        </ibm-tile-group>
+      </div>
 
       <ibm-label
 	class="item-label">
@@ -88,7 +108,7 @@
           [disabled]="true"
           theme="light"
           [rows]="25"
-          [cols]="40"
+          [cols]="45"
           aria-label="preview">{{pluginText}}</textarea>
       </ibm-label>
     </div>
@@ -101,7 +121,8 @@
 	|| !pluginConfig.identifier
 	|| !pluginConfig.webContent.descriptionDefault
         || !pluginConfig.webContent.launchDefinition.pluginShortNameDefault
-	|| !pluginConfig.webContent.framework"
+	|| !pluginConfig.webContent.framework
+	|| !pluginConfig.template"
       (click)="generateApp()">
       Create
     </button>

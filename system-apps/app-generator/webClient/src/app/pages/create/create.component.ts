@@ -48,10 +48,30 @@ export class CreateComponent implements OnInit, AfterViewInit {
   currentFramework: string;
   currentTemplate: string;
   callback: any;
-  frameworks: Array<string> = ['Angular', 'React', 'iframe'];
+  frameworks: any; 
+  templates: any;
+  templateLists: any;
+  tFramework: any;
 
   constructor(private http: HttpClient) {
     this.pluginConfig = Object.assign({},STARTING_CONFIG);
+    this.frameworks = [
+      { id:"Angular", 
+	desc: "Apps using Angular exist within the same webpage as the framework and use the same libraries, resulting in deduplication. These apps can access context objects via Angular Injectables, and are built with webpack." },
+      {id:"React", 
+        desc: "Apps using React exist within the same webpage as the framework, but unlike Angular do not share React libraries with the framework. These apps can access context objects via the props constructor parameter, and are built with webpack."},
+      {id:"iframe", 
+        desc: "These apps do not exist within the same webpage as the framework. They are sandboxed and can be built using any technology with any libraries, but can access context objects via the Zowe framework's iframe adapter."}
+    ];
+
+    this.templateLists = {
+      "angular": [{ id:"Basic",
+	desc:"A basic Angular template"}],
+      "react": [{ id:"Basic",
+	desc:"A basic React template"}],
+      "iframe": [{ id:"Basic",
+	desc:"A basic iframe template"}],
+    };
   }
 
   ngOnInit() {
@@ -60,8 +80,13 @@ export class CreateComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
   }
 
+  templateSelect(event: any) {
+    this.pluginConfig.template = event.value;
+  }
+
   frameworkSelect(event: any) {
-    this.pluginConfig.webContent.framework = event;
+    this.pluginConfig.webContent.framework = event.value;
+    this.templates = this.templateLists[this.pluginConfig.webContent.framework];
   }
 
   get pluginText() {
