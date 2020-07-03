@@ -16,30 +16,30 @@
   <div class="top-row">
     <div class="form-container">
       <ibm-label
-	class="item-label"
+        class="item-label"
         [invalid]="identifier.invalid"
         invalidText="Invalid character: only A-Z, 1-9, ., -, and _ allowed.">
-	Identifier
+        Identifier
         <input
-	  ibmText
+          ibmText
           placeholder="Identifier e.g. com.your.application"
           pattern="[A-Za-z1-9.\-_]*"
-	  [(ngModel)]="pluginConfig.identifier"
-	  #identifier="ngModel">
+          [(ngModel)]="pluginConfig.identifier"
+          #identifier="ngModel">
       </ibm-label>
 
       <ibm-label
-	class="item-label">
-	Name
+        class="item-label">
+        Name
         <input
-	  ibmText
-	  placeholder="Application Name"
-	  [(ngModel)]="pluginConfig.webContent.launchDefinition.pluginShortNameDefault">
+          ibmText
+          placeholder="Application Name"
+          [(ngModel)]="pluginConfig.webContent.launchDefinition.pluginShortNameDefault">
       </ibm-label>
 
       <ibm-label
-	class="item-label">
-	Description
+        class="item-label">
+        Description
         <input
           ibmText
           placeholder="Application Description"
@@ -47,20 +47,20 @@
       </ibm-label>
 
       <ibm-label
-	class="item-label">
-	Framework
+        class="item-label">
+        Framework
       </ibm-label>
       <ibm-tile-group
         class="tile-group"
         (selected)="frameworkSelect($event)"
-	[multiple]="false"
-	required>
+        [multiple]="false"
+        required>
         <ibm-selection-tile
-	  *ngFor="let framework of frameworks"
-	  value="{{framework.id | lowercase}}">
-	  <div class="tile-header">{{framework.id}}</div>
-	  <div class="tile-body">{{framework.desc}}</div>
-	</ibm-selection-tile>
+          *ngFor="let framework of frameworks"
+          value="{{framework.id | lowercase}}">
+          <div class="tile-header">{{framework.id}}</div>
+          <div class="tile-body">{{framework.desc}}</div>
+        </ibm-selection-tile>
       </ibm-tile-group>
 
       <div *ngIf="templates">
@@ -75,16 +75,16 @@
           required>
           <ibm-selection-tile
             *ngFor="let template of templates"
-	    value="{{template.id}}">
-	    <div class="tile-header">{{template.id}}</div>
-	    <div class="tile-body">{{template.desc}}</div>
-	  </ibm-selection-tile>
+            value="{{template.id}}">
+            <div class="tile-header">{{template.id}}</div>
+            <div class="tile-body">{{template.desc}}</div>
+          </ibm-selection-tile>
         </ibm-tile-group>
       </div>
 
       <ibm-label
-	class="item-label">
-	Author
+        class="item-label">
+        Author
         <input
           ibmText
           placeholder="Author"
@@ -92,8 +92,8 @@
       </ibm-label>
 
       <ibm-label
-	class="item-label">
-	Author Homepage
+        class="item-label">
+        Author Homepage
         <input
           ibmText
           placeholder="Author Homepage"
@@ -118,11 +118,11 @@
     <button
       ibmButton
       [disabled]="identifier.invalid
-	|| !pluginConfig.identifier
-	|| !pluginConfig.webContent.descriptionDefault
+        || !pluginConfig.identifier
+        || !pluginConfig.webContent.descriptionDefault
         || !pluginConfig.webContent.launchDefinition.pluginShortNameDefault
-	|| !pluginConfig.webContent.framework
-	|| !pluginConfig.template"
+        || !pluginConfig.webContent.framework
+        || !pluginConfig.template"
       (click)="generateApp()">
       Create
     </button>
