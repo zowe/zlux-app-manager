@@ -219,6 +219,11 @@ export class AuthenticationManager {
           }
         }
       });
+
+      let filePath : any = 'pluginData' + '/' + 'app'
+      this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),filePath,undefined)).subscribe(()=>
+      this.log.info('Deleted AutoSaveData for Restored Plugins')
+      )
     });
   }
 

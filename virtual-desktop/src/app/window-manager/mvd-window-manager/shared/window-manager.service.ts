@@ -59,6 +59,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private _lastScreenshotPluginId: string = '';  
   private _lastScreenshotWindowId: number = -1;
   public showPersonalizationPanel: boolean = false;
+  private autoSaveInterval : number = 5000;
   /*
    * NOTES:
    * 1. We ignore the width and height here (I am reluctant to make a new data type just for this,
@@ -451,7 +452,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         autosaveEmitter.next((data:any)=> {
           this.savePluginData(plugin,windowId,data)
         });
-      },5000); 
+      },this.autoSaveInterval); 
     }
     const sessionEvents: Angular2PluginSessionEvents = {
       login,
