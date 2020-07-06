@@ -100,7 +100,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
       };
       argumentData = contextData;
     }
-    dispatcher.invokeAction(action, argumentData).catch(e => this.handleInvokeActionError(e));
+    dispatcher.invokeAction(action, argumentData).catch((e:any) => this.handleInvokeActionError(e));
   }
 
   private getAllApp2AppArgsFromURL(): App2AppArgs[] {
