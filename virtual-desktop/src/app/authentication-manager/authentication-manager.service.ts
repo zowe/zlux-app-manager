@@ -16,6 +16,7 @@ import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
+import { StartURLManager } from '../start-url-manager';
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
@@ -59,7 +60,8 @@ export class AuthenticationManager {
   constructor(
     public http: Http,
     private injector: Injector,
-    private pluginManager: PluginManager
+    private pluginManager: PluginManager,
+    private startURLManager: StartURLManager
   ) {
     this.username = null;
     this.postLoginActions = new Array<MVDHosting.LoginActionInterface>();
@@ -67,6 +69,7 @@ export class AuthenticationManager {
     this.registerPreLogoutAction(new ClearZoweZLUX());
     this.registerPreLogoutAction(this.pluginManager)
     this.registerPostLoginAction(new initializeNotificationManager());
+    this.registerPostLoginAction(this.startURLManager);
     this.loginScreenVisibilityChanged = new EventEmitter();
     this.loginExpirationIdleCheck = new EventEmitter();
     this.log = BaseLogger.makeSublogger("auth");

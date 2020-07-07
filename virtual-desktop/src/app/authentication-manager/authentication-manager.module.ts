@@ -17,13 +17,17 @@ import { HttpModule } from '@angular/http';
 import { ZluxPopupManagerModule } from '@zlux/widgets';
 import { LoginComponent } from './login/login.component';
 import { AuthenticationManager } from './authentication-manager.service';
+import { StartURLManagerModule } from '../start-url-manager';
+import { StorageService } from './storage.service';
+import { IdleWarnService } from './idleWarn.service';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     HttpModule,
-    ZluxPopupManagerModule
+    ZluxPopupManagerModule,
+    StartURLManagerModule,
   ],
   declarations: [
     LoginComponent
@@ -34,7 +38,9 @@ import { AuthenticationManager } from './authentication-manager.service';
   providers: [
     AuthenticationManager,
     /* Expose authentication manager to window managers */
-    { provide: MVDHosting.Tokens.AuthenticationManagerToken, useExisting: AuthenticationManager }
+    { provide: MVDHosting.Tokens.AuthenticationManagerToken, useExisting: AuthenticationManager },
+    StorageService,
+    IdleWarnService
   ]
 })
 export class AuthenticationModule {
