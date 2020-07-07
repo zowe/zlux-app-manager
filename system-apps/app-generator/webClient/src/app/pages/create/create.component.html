@@ -53,8 +53,7 @@
       <ibm-tile-group
         class="tile-group"
         (selected)="frameworkSelect($event.value)"
-        [multiple]="false"
-        required>
+	[multiple]="false">
         <ibm-selection-tile
           *ngFor="let framework of frameworks"
           [value]="framework.value"
@@ -64,6 +63,28 @@
         </ibm-selection-tile>
       </ibm-tile-group>
 
+      <div
+        *ngIf="isIframe"
+        class="tile-group"
+	style="display:block;">
+        <div class="tile-header">
+          iFrame specific
+        </div>
+        <div class="tile-body">
+          Applies only to iFrame applications
+        </div>
+      </div>
+      
+      <ibm-label
+        *ngIf="isIframe"
+        class="item-label">
+        Starting Page
+        <input
+          ibmText
+          placeholder="html/index.html"
+          [(ngModel)]="pluginConfig.webContent.startingPage">
+      </ibm-label>
+
       <div *ngIf="templates">
         <ibm-label
           class="item-label">
@@ -72,8 +93,7 @@
         <ibm-tile-group
           class="tile-group"
           (selected)="templateSelect($event.value)"
-          [multiple]="false"
-          required>
+	  [multiple]="false">
           <ibm-selection-tile
             *ngFor="let template of templates"
             [value]="template.value"
@@ -92,6 +112,12 @@
           placeholder="Plugin Version"
           [(ngModel)]="pluginConfig.pluginVersion">
       </ibm-label>
+
+<!--
+      <ibm-number
+        [(ngModel)]="pluginConfig.webContent.defaultWindowStyle.width">
+      </ibm-number>
+-->
 
       <ibm-label
         class="item-label">

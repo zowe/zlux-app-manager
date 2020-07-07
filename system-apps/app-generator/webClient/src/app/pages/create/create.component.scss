@@ -9,6 +9,23 @@
 	height: 50px;
 }
 
+.tile-group {
+	display: flex;
+	flex-direction: row;
+	font-family: 'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;
+	font-size: .875rem;
+	font-weight: 400;
+	line-height: 1.125rem;
+	letter-spacing: .16px;
+}
+
+.tile-header {
+	font-weight: 600;
+}
+.tile-body {
+	font-size: 0.75rem;
+}
+
 .create-container {
 	padding: 10px;
 
@@ -23,23 +40,6 @@
 
 			.item-label {
 				margin-top: 0.5rem;
-			}
-
-			.tile-group {
-				display: flex;
-				flex-direction: row;
-				font-family: 'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;
-				font-size: .875rem;
-				font-weight: 400;
-				line-height: 1.125rem;
-				letter-spacing: .16px;
-
-				.tile-header {
-					font-weight: 600;
-				}
-				.tile-body {
-					font-size: 0.75rem;
-				}
 			}
 		}
 

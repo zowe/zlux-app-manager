@@ -11,7 +11,7 @@
 import { Component, OnInit, ViewChild, TemplateRef, EventEmitter, AfterViewInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { ZoweApplication } from "../../shared/models/application";
-import { ListItem } from "carbon-components-angular";
+import { NumberModule } from "carbon-components-angular";
 
 const STARTING_CONFIG = {
   "identifier": "",
@@ -26,7 +26,8 @@ const STARTING_CONFIG = {
     "launchDefinition": {
       "pluginShortNameKey": "PluginName",
       "pluginShortNameDefault": "",
-      "imageSrc": "assets/icon.png"
+      "imageSrc": "assets/icon.png",
+      "startingPage": "",
     },
     "descriptionKey": "PluginDescription",
     "descriptionDefault": "",
@@ -51,21 +52,21 @@ export class CreateComponent implements OnInit, AfterViewInit {
   frameworks: any; 
   templates: any;
   templateLists: any;
+  isIframe: boolean = false;
+  isReact: boolean = false;
+  isAngular: boolean = false;
 
   constructor(private http: HttpClient) {
     this.pluginConfig = Object.assign({},STARTING_CONFIG);
     this.frameworks = [
       { value:"angular", 
 	desc: "Apps using Angular exist within the same webpage as the framework and use the same libraries, resulting in deduplication. These apps can access context objects via Angular Injectables, and are built with webpack.",
-        selected: false,
       },
       { value:"react", 
         desc: "Apps using React exist within the same webpage as the framework, but unlike Angular do not share React libraries with the framework. These apps can access context objects via the props constructor parameter, and are built with webpack.",
-        selected: false,
       },
       { value:"iframe", 
         desc: "These apps do not exist within the same webpage as the framework. They are sandboxed and can be built using any technology with any libraries, but can access context objects via the Zowe framework's iframe adapter.",
-        selected: false,
       }
     ];
 
@@ -74,26 +75,18 @@ export class CreateComponent implements OnInit, AfterViewInit {
 	{
 	  value:"Basic",
 	  desc:"A basic Angular template",
-	  selected: false,
-	},
-	{
-	  value:"Advanced",
-	  desc:"An advanced Angular template",
-	  selected: false,
 	},
       ],
       "react": [
 	{
 	  value:"Basic",
 	  desc:"A basic React template",
-	  selected: false,
 	},
       ],
       "iframe": [
 	{
 	  value:"Basic",
 	  desc:"A basic iframe template",
-	  selected: false,
 	},
       ],
     };
@@ -109,9 +102,11 @@ export class CreateComponent implements OnInit, AfterViewInit {
     this.pluginConfig.template = event;
   }
 
-  frameworkSelect(event: any) {
+  frameworkSelect(event: any): void {
     this.pluginConfig.webContent.framework = event;
-    this.templates = this.templateLists[this.pluginConfig.webContent.framework];
+    if(event == 'iframe')
+      this.isIframe = !(this.isIframe);
+    this.templates = this.templateLists[event];
   }
 
   get pluginText() {
