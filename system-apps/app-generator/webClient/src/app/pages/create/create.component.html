@@ -52,13 +52,14 @@
       </ibm-label>
       <ibm-tile-group
         class="tile-group"
-        (selected)="frameworkSelect($event)"
+        (selected)="frameworkSelect($event.value)"
         [multiple]="false"
         required>
         <ibm-selection-tile
           *ngFor="let framework of frameworks"
-          value="{{framework.id | lowercase}}">
-          <div class="tile-header">{{framework.id}}</div>
+          [value]="framework.value"
+	  [selected]="framework.selected">
+          <div class="tile-header">{{framework.value}}</div>
           <div class="tile-body">{{framework.desc}}</div>
         </ibm-selection-tile>
       </ibm-tile-group>
@@ -70,13 +71,14 @@
         </ibm-label>
         <ibm-tile-group
           class="tile-group"
-          (selected)="templateSelect($event)"
+          (selected)="templateSelect($event.value)"
           [multiple]="false"
           required>
           <ibm-selection-tile
             *ngFor="let template of templates"
-            value="{{template.id}}">
-            <div class="tile-header">{{template.id}}</div>
+            [value]="template.value"
+	    [selected]="template.selected">
+            <div class="tile-header">{{template.value}}</div>
             <div class="tile-body">{{template.desc}}</div>
           </ibm-selection-tile>
         </ibm-tile-group>
@@ -118,7 +120,8 @@
           theme="light"
           [rows]="25"
           [cols]="45"
-          aria-label="preview">{{pluginText}}</textarea>
+          aria-label="preview">{{pluginText}}
+        </textarea>
       </ibm-label>
     </div>
   </div>
