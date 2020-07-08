@@ -24,10 +24,16 @@ export interface WebContent {
   framework: string;
   launchDefinition: LaunchDefinition;
   descriptionDefault: string;
+  defaultWindowStyle: DefaultWindowStyle;
 }
 
 export interface LaunchDefinition {
   pluginShortNameDefault: string;
+}
+
+export interface DefaultWindowStyle {
+  width: number;
+  height: number;
 }
 
 /*

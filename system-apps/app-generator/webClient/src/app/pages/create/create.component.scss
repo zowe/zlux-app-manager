@@ -41,6 +41,19 @@
 			.item-label {
 				margin-top: 0.5rem;
 			}
+			.custom-label {
+				font-family: 'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;
+				font-size: .75rem;
+				letter-spacing: .32px;
+				color: #565656;
+				font-weight: 400;
+				display: inline-block;
+				vertical-align: baseline;
+				margin-bottom: .5rem;
+				line-height: 1rem;
+				pointer-events: none;
+				margin-top: 0.5rem;
+			}
 		}
 
 		.module-container {

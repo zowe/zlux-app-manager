@@ -30,6 +30,7 @@ import {
   TilesModule,
   DropdownModule,
   BreadcrumbModule,
+  NumberModule,
 } from 'carbon-components-angular';
 
 @NgModule({
@@ -48,6 +49,7 @@ import {
     TilesModule,
     DropdownModule,
     BreadcrumbModule,
+    NumberModule,
   ],
   declarations: [
     CreateComponent,

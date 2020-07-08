@@ -52,15 +52,15 @@ export class CreateComponent implements OnInit, AfterViewInit {
   frameworks: any; 
   templates: any;
   templateLists: any;
-  isIframe: boolean = false;
-  isReact: boolean = false;
-  isAngular: boolean = false;
+  isIframe: boolean;
+  selectedTemplateDescription: string;
 
   constructor(private http: HttpClient) {
     this.pluginConfig = Object.assign({},STARTING_CONFIG);
+    this.isIframe = false;
     this.frameworks = [
       { value:"angular", 
-	desc: "Apps using Angular exist within the same webpage as the framework and use the same libraries, resulting in deduplication. These apps can access context objects via Angular Injectables, and are built with webpack.",
+        desc: "Apps using Angular exist within the same webpage as the framework and use the same libraries, resulting in deduplication. These apps can access context objects via Angular Injectables, and are built with webpack.",
       },
       { value:"react", 
         desc: "Apps using React exist within the same webpage as the framework, but unlike Angular do not share React libraries with the framework. These apps can access context objects via the props constructor parameter, and are built with webpack.",
@@ -72,22 +72,22 @@ export class CreateComponent implements OnInit, AfterViewInit {
 
     this.templateLists = {
       "angular": [
-	{
-	  value:"Basic",
-	  desc:"A basic Angular template",
-	},
+        {
+          content:"Basic",
+          desc:"A basic Angular template",
+        },
       ],
       "react": [
-	{
-	  value:"Basic",
-	  desc:"A basic React template",
-	},
+        {
+          content:"Basic",
+          desc:"A basic React template",
+        },
       ],
       "iframe": [
-	{
-	  value:"Basic",
-	  desc:"A basic iframe template",
-	},
+        {
+          content:"Basic",
+          desc:"A basic iframe template",
+        },
       ],
     };
   }
@@ -98,15 +98,17 @@ export class CreateComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
   }
 
-  templateSelect(event: any) {
-    this.pluginConfig.template = event;
-  }
-
-  frameworkSelect(event: any): void {
+  onFrameworkSelect(event: any): void {
     this.pluginConfig.webContent.framework = event;
     if(event == 'iframe')
       this.isIframe = !(this.isIframe);
+    else this.isIframe = false;
     this.templates = this.templateLists[event];
+  }
+
+  onTemplateSelect(event: any) {
+    this.pluginConfig.template = event.item.content;
+    this.selectedTemplateDescription = event.item.desc;
   }
 
   get pluginText() {
