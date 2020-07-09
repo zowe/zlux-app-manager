@@ -59,7 +59,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private _lastScreenshotPluginId: string = '';  
   private _lastScreenshotWindowId: number = -1;
   public showPersonalizationPanel: boolean = false;
-  private autoSaveInterval : number = 5000;
+  private autoSaveInterval : number = 60000;
   /*
    * NOTES:
    * 1. We ignore the width and height here (I am reluctant to make a new data type just for this,
@@ -435,10 +435,19 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private savePluginData(plugin:ZLUX.Plugin,windowId:number,data:any){
     let pathToSave : any = 'pluginData' + '/' + 'app'
     let fileNameToSave : string = plugin.getIdentifier() + '-' + windowId
-    this.http.put(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave), data).subscribe(
-      () => 
-      this.logger.info('Saved data for plugin:',plugin.getIdentifier())
-    )
+    this.http.get<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/app', fileNameToSave)).subscribe(res => {
+      if(res){
+        this.http.put(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave+'&lastmod='+res.maccessms), data).subscribe(
+          () => 
+          this.logger.info('Saved data for plugin:',plugin.getIdentifier())
+        )
+      }else{
+        this.http.put(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave), data).subscribe(
+          () => 
+          this.logger.info('Saved data for plugin:',plugin.getIdentifier())
+        )
+      }
+    });
   };
   
   private generateSessionEventsProvider(windowId: MVDWindowManagement.WindowId): Angular2PluginSessionEvents {
@@ -601,6 +610,11 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     const closeViewports = ()=> {
       desktopWindow.closeViewports(this.viewportManager).then(()=> {
         if (appId!=null) {
+          let filePath : any = 'pluginData' + '/' + 'app'
+          let fileNameToDelete : string = desktopWindow.plugin.getIdentifier() + '-' + appId
+          this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),filePath,fileNameToDelete)).subscribe(()=>
+            this.logger.info('Deleted AutoSaveData for plugin:',desktopWindow.plugin.getIdentifier())
+          );
           this.applicationManager.killApplication(desktopWindow.plugin, appId);
         }
         this.destroyWindow(windowId);

@@ -400,11 +400,6 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   killApplication(plugin:ZLUX.Plugin, appId:MVDHosting.InstanceId):void {
     ZoweZLUX.dispatcher.deregisterPluginInstance(plugin,
                                                 appId);   // instanceId is proxy handle to isntance 
-    let filePath : any = 'pluginData' + '/' + 'app'
-    let fileNameToDelete : string = plugin.getIdentifier() + '-' + appId
-    this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),filePath,fileNameToDelete)).subscribe(()=>
-      this.logger.info('Deleted AutoSaveData for plugin:',plugin.getIdentifier())
-    )
 
   }
 
