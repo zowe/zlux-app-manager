@@ -10,7 +10,6 @@
   Copyright Contributors to the Zowe Project.
 */
 
-var webpack = require('webpack');
 var path = require('path');
 var os = require('os');
 

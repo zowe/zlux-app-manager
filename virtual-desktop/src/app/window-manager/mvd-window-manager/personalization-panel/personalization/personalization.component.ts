@@ -14,6 +14,7 @@ import { BaseLogger } from '../../../../shared/logger';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { UploadEvent, UploadFile, FileSystemFileEntry } from 'ngx-file-drop';
 import { Colors } from '../../shared/colors';
+import { TranslationService } from 'angular-l10n';
  
 const SLIDER_NAME = 'slider'
 const CIRCLE_NAME = 'circle'
@@ -63,8 +64,22 @@ export class PersonalizationComponent implements OnInit {
   public swatch4Style: any;
   public swatch5Style: any;
 
+  /* I18n strings used in the UI */
+
+  public Back: string;
+  public ResetToDefault: string;
+  public Background: string;
+  public DragWallpaperHereOr: string;
+  public Color: string;
+  public SelectColor: string;
+  public OrHue: string;
+  public SelectLightness: string;
+  public Size: string;
+  public Upload: string;
+
   constructor(
-    private desktopThemeService: ThemeEmitterService
+    private desktopThemeService: ThemeEmitterService,
+    private translation: TranslationService
   ) {
     this.selectedColor = Colors.COOLGREY_90;
     this.selectedSize = 2;
@@ -73,6 +88,7 @@ export class PersonalizationComponent implements OnInit {
     "#ff9800", "#252628", "#6d7176", "#f3f4f4"];
     this.files = [];
     this.swatch1Style; this.swatch2Style; this.swatch3Style; this.swatch4Style; this.swatch5Style; // Avoid TS compile problems
+    this.updateLanguageStrings();
   }
 
   ngOnInit(): void {
@@ -295,6 +311,19 @@ export class PersonalizationComponent implements OnInit {
 
     // Save imgData
     this.sliderImgData = ctx.getImageData(0, 0, canvasElem.nativeElement.width, canvasElem.nativeElement.height);
+  }
+
+  updateLanguageStrings(): void {
+    this.Back = this.translation.translate('Back', null);
+    this.ResetToDefault = this.translation.translate('Reset to default', null);
+    this.Background = this.translation.translate('Wallpaper', null);
+    this.DragWallpaperHereOr = this.translation.translate('Drag wallpaper here or', null);
+    this.Color = this.translation.translate('Color', null);
+    this.SelectColor = this.translation.translate('Select color', null);
+    this.OrHue = this.translation.translate('or hue.', null);
+    this.SelectLightness = this.translation.translate('Select lightness.', null);
+    this.Size = this.translation.translate('Size', null);
+    this.Upload = this.translation.translate('Upload', null);
   }
 
   updateLightnessSwatches(hslColor: number[]): void {
