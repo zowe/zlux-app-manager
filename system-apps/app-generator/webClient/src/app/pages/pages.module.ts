@@ -31,6 +31,8 @@ import {
   DropdownModule,
   BreadcrumbModule,
   NumberModule,
+  FileUploaderModule,
+  NotificationModule,
 } from 'carbon-components-angular';
 
 @NgModule({
@@ -50,6 +52,8 @@ import {
     DropdownModule,
     BreadcrumbModule,
     NumberModule,
+    FileUploaderModule,
+    NotificationModule,
   ],
   declarations: [
     CreateComponent,
