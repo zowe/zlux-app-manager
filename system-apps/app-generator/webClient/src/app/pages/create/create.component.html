@@ -97,7 +97,7 @@
               (select)="onTemplateSelect($event)">
             </ibm-dropdown-list>
           </ibm-dropdown>
-	  <div
+          <div
             class="tile-group"
             style="display:block;margin-top:1.5rem;margin-left:2rem;">
             <div class="tile-header">
@@ -107,7 +107,7 @@
               {{selectedTemplateDescription}}
             </div>
           </div>
-	</div>
+        </div>
       </div>
 
       <ibm-label
@@ -152,8 +152,29 @@
           placeholder="Author Homepage"
           [(ngModel)]="pluginConfig.homepage">
       </ibm-label>
+
+      <div style="margin-top:0.5rem;">
+        <ibm-dropdown
+          label="License"
+          helperText="Select a license or input custom license in field below"
+          placeholder="Select License">
+          <ibm-dropdown-list
+            [items]="licenses"
+            (select)="onLicenseSelect($event)">
+          </ibm-dropdown-list>
+        </ibm-dropdown>
+      </div>
+
+      <ibm-label
+        class="item-label">
+        Custom License
+        <input
+          ibmText
+          placeholder="Application License"
+          [(ngModel)]="pluginConfig.license">
+      </ibm-label>
     </div>
-    
+
     <div class="module-container">
       <ibm-label>Preview
         <textarea

@@ -52,6 +52,7 @@ export class CreateComponent implements OnInit, AfterViewInit {
   frameworks: any; 
   templates: any;
   templateLists: any;
+  licenses: any;
   isIframe: boolean;
   selectedTemplateDescription: string;
 
@@ -90,6 +91,33 @@ export class CreateComponent implements OnInit, AfterViewInit {
         },
       ],
     };
+
+    this.licenses = [
+        {
+          content: "Apache-2.0",
+        },
+        {
+          content: "EPL-2.0",
+        },
+      ];
+
+/*    this.licenses = [
+      {
+        content: Apache-2.0,
+      },
+      {
+        content: EPL-2.0,
+      },
+      {
+        content: GPL-2.0-or-later,
+      },
+      {
+        content: GPL-3.0-or-later,
+      },
+      {
+        content: MIT,
+      },
+    ];*/
   }
 
   ngOnInit() {
@@ -109,6 +137,10 @@ export class CreateComponent implements OnInit, AfterViewInit {
   onTemplateSelect(event: any) {
     this.pluginConfig.template = event.item.content;
     this.selectedTemplateDescription = event.item.desc;
+  }
+
+  onLicenseSelect(event: any) {
+    this.pluginConfig.license = event.item.content;
   }
 
   get pluginText() {
