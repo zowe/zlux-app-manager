@@ -184,28 +184,16 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
     let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'recognizers');
     this.log.debug("ZWED5309I", recognizersUri); //this.log.debug(`Getting recognizers from "${recognizersUri}"`);
     this.http.get(recognizersUri).subscribe((config: any)=> {
-      if (config) {
+      if (config & config.contents) {
         let appContents = config.contents;
-        interface AppWithRecognizer {
-          [key: string]: any[];
-        } 
-        let appsWithRecognizers:AppWithRecognizer = {};
-        appsWithRecognizers = {};
         plugins.forEach((plugin:ZLUX.Plugin)=> {
-          let id = plugin.getIdentifier();
-          if (plugin.getBasePlugin() && plugin.getBasePlugin().recognizers) { // If plugin has recognizers in its definition
-            appsWithRecognizers[id] = plugin.getBasePlugin().recognizers; // use them...
-          } else {
-            appsWithRecognizers[id] = []; // or begin with nothing.
+          const id = plugin.getIdentifier();
+          if (appContents[id] && appContents[id].recognizers) { // If config has pre-existing recognizers for this plugin id,
+            appContents[id].recognizers.forEach((recognizerObject: any)=> { // For every plugin,
+              ZoweZLUX.dispatcher.addRecognizerObject(recognizerObject); // register a recognizer with the Dispatcher.
+            });
+            this.log.info(`ZWED5055I`, appContents[id].recognizers.length, id); //this.log.info(`Loaded ${appContents[id].recognizers.length} recognizers for App(${id})`);    
           }
-          if (appContents[id] && appContents[id].recognizers) { // If pluginStorage has recognizers for by this plugin id,
-            appsWithRecognizers[id] = Object.assign(appContents[id].recognizers, appsWithRecognizers[id]); // use them too (combine).
-          }
-          appsWithRecognizers[id].forEach((recognizerObject:ZLUX.RecognizerObject)=> { // For every plugin,
-            ZoweZLUX.dispatcher.addRecognizerObject(recognizerObject); // register a recognizer with the Dispatcher
-          });
-          this.log.info(`ZWED5055I`, appsWithRecognizers[id].length, id); //this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);  
-        
         });
       }
     });
@@ -216,27 +204,16 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
     let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
     this.log.debug("ZWED5323I", actionsUri); //this.log.debug(`Getting actions from "${actionsUri}"`);
     this.http.get(actionsUri).subscribe((config: any)=> {
-      if (config) {
+      if (config & config.contents) {
         let appContents = config.contents;
-        interface AppWithActions {
-          [key: string]: any[];
-        } 
-        let appsWithActions:AppWithActions = {};
-        appsWithActions = {};
         plugins.forEach((plugin:ZLUX.Plugin)=> {
-          let id = plugin.getIdentifier();
-          if (plugin.getBasePlugin() && plugin.getBasePlugin().actions) { // If plugin has actions in its definition
-            appsWithActions[id] = plugin.getBasePlugin().actions; // use them...
-          } else {
-            appsWithActions[id] = []; // or begin with nothing.
+          const id = plugin.getIdentifier();
+          if (appContents[id] && appContents[id].actions) { // If config has pre-existing recognizers for this plugin id,
+            appContents[id].actions.forEach((actionObject: any)=> { // For every plugin,
+              ZoweZLUX.dispatcher.addRecognizerObject(actionObject); // register a recognizer with the Dispatcher.
+            });
+            this.log.info(`ZWED5056I`, appContents[id].actions.length, id); //this.log.info(`Loaded ${appContents[id].actions.length} actions for App(${id})`);
           }
-          if (appContents[id] && appContents[id].actions) { // If pluginStorage has actions for by this plugin id,
-            appsWithActions[id] = Object.assign(appContents[id].actions, appsWithActions[id]); // use them too (combine).
-          }
-          appsWithActions[id].forEach((actionObject:any)=> { // For every plugin,
-            ZoweZLUX.dispatcher.addRecognizerObject(actionObject); // register an action with the Dispatcher
-          });
-          this.log.info(`ZWED5056I`, appContents[id].actions.length, id); //this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);
         });
       }
     });
