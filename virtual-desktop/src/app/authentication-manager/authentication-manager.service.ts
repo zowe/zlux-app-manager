@@ -17,9 +17,9 @@ import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
-import { AuthCapabilities } from './auth-capabilities';
 import { StorageService } from './storage.service';
 import { Subscription } from 'rxjs/Subscription';
+import { AuthCapabilities } from './auth-capabilities';
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
