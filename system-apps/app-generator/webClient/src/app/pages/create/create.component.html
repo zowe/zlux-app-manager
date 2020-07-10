@@ -135,12 +135,12 @@
         </div>
       </div>
 
-      <app-drop-file-uploader
+      <!--<app-drop-file-uploader
         title="My title"
         description="My description"
         dropText="Drop file here"
         drop="true">
-      </app-drop-file-uploader>
+      </app-drop-file-uploader>-->
 
       <ibm-label
         class="item-label">
@@ -160,26 +160,41 @@
           [(ngModel)]="pluginConfig.homepage">
       </ibm-label>
 
-      <div style="margin-top:0.5rem;">
-        <ibm-dropdown
-          label="License"
-          helperText="Select a license or input custom license in field below"
-          placeholder="Select License">
-          <ibm-dropdown-list
-            [items]="licenses"
-            (select)="onLicenseSelect($event)">
-          </ibm-dropdown-list>
-        </ibm-dropdown>
+      <div style="display:flex;flex-direction:row;">
+        <div>
+          <div style="margin-top:0.5rem;">
+            <ibm-dropdown
+              label="License"
+              helperText="Select a license or input custom license in field below"
+              placeholder="Select License">
+              <ibm-dropdown-list
+                [items]="licenses"
+                (select)="onLicenseSelect($event)">
+              </ibm-dropdown-list>
+            </ibm-dropdown>
+          </div>
+          <ibm-label
+            class="item-label">
+            Custom License
+            <input
+              ibmText
+              placeholder="Application License"
+              [(ngModel)]="pluginConfig.license">
+          </ibm-label>
+        </div>
+        <div style="margin-left:1rem;">
+          <textarea
+            ibmTextArea
+            [disabled]="true"
+            theme="light"
+            [rows]="25"
+            [cols]="45"
+            aria-label="preview">
+            {{selectedLicenseDescription}}
+          </textarea>
+        </div>
       </div>
 
-      <ibm-label
-        class="item-label">
-        Custom License
-        <input
-          ibmText
-          placeholder="Application License"
-          [(ngModel)]="pluginConfig.license">
-      </ibm-label>
     </div>
 
     <div class="module-container">

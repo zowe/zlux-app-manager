@@ -55,6 +55,7 @@ export class CreateComponent implements OnInit, AfterViewInit {
   licenses: any;
   isIframe: boolean;
   selectedTemplateDescription: string;
+  selectedLicenseDescription: string;
 
   constructor(private http: HttpClient) {
     this.pluginConfig = Object.assign({},STARTING_CONFIG);
@@ -94,30 +95,38 @@ export class CreateComponent implements OnInit, AfterViewInit {
 
     this.licenses = [
         {
-          content: "Apache-2.0",
+          content: "GNU AGPLv3",
+	  desc: "Permissions of this strongest copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights. When a modified version is used to provide a service over a network, the complete source code of the modified version must be made available.",
         },
         {
-          content: "EPL-2.0",
+          content: "GNU GPLv3",
+	  desc: "Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.",
+        },
+        {
+          content: "GNU LGPLv3",
+	  desc: "Permissions of this copyleft license are conditioned on making available complete source code of licensed works and modifications under the same license or the GNU GPLv3. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights. However, a larger work using the licensed work through interfaces provided by the licensed work may be distributed under different terms and without source code for the larger work.",
+        },
+        {
+          content: "Mozilla Public License 2.0",
+	  desc: "Permissions of this weak copyleft license are conditioned on making available source code of licensed files and modifications of those files under the same license (or in certain cases, one of the GNU licenses). Copyright and license notices must be preserved. Contributors provide an express grant of patent rights. However, a larger work using the licensed work may be distributed under different terms and without source code for files added in the larger work.",
+        },
+        {
+          content: "Apache License 2.0",
+	  desc: "A permissive license whose main conditions require preservation of copyright and license notices. Contributors provide an express grant of patent rights. Licensed works, modifications, and larger works may be distributed under different terms and without source code.",
+        },
+        {
+          content: "MIT License",
+	  desc: "A short and simple permissive license with conditions only requiring preservation of copyright and license notices. Licensed works, modifications, and larger works may be distributed under different terms and without source code.",
+        },
+        {
+          content: "Boost Software License 1.0",
+	  desc: "A simple permissive license only requiring preservation of copyright and license notices for source (and not binary) distribution. Licensed works, modifications, and larger works may be distributed under different terms and without source code.",
+        },
+        {
+          content: "The Unlicense",
+	  desc: "A license with no conditions whatsoever which dedicates works to the public domain. Unlicensed works, modifications, and larger works may be distributed under different terms and without source code.",
         },
       ];
-
-/*    this.licenses = [
-      {
-        content: Apache-2.0,
-      },
-      {
-        content: EPL-2.0,
-      },
-      {
-        content: GPL-2.0-or-later,
-      },
-      {
-        content: GPL-3.0-or-later,
-      },
-      {
-        content: MIT,
-      },
-    ];*/
   }
 
   ngOnInit() {
@@ -141,6 +150,7 @@ export class CreateComponent implements OnInit, AfterViewInit {
 
   onLicenseSelect(event: any) {
     this.pluginConfig.license = event.item.content;
+    this.selectedLicenseDescription = event.item.desc;
   }
 
   get pluginText() {
