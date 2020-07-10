@@ -11,28 +11,28 @@
 <!-- TODO: This page needs internationalization support -->
 <div class="personalization-main-window">
   <label class="personalization-label small back-button top" (click)="goBack()">
-    <em class="fa fa-chevron-left" style="padding: 5px; font-size: large; padding-right: 7px; margin-top: 2px;"></em>Back
+    <em class="fa fa-chevron-left" style="padding: 5px; font-size: large; padding-right: 7px; margin-top: 2px;"></em>{{Back}}
   </label>
 
-  <label class="personalization-label small reset-button top" (click)="resetAllDefault()">Reset to Default
+  <label class="personalization-label small reset-button top" (click)="resetAllDefault()">{{ResetToDefault}}
     <em class="fa fa-trash" style="padding: 5px; font-size: large;"></em>
   </label>
 
-  <label class="personalization-label" style="padding-top: 10px;">Background</label>
+  <label class="personalization-label" style="padding-top: 10px;">{{Background}}</label>
 
   <file-drop 
     (onFileDrop)="fileDrop($event)" 
     multiple="false"
     style="color: white !important;"
     [showBrowseBtn]="true"
-    browseBtnLabel="upload."
+    browseBtnLabel="{{Upload}}"
     >   <!-- Full string says "Drag wallpaper here or [button]upload. -->
-        <div style="color: white !important;">Drag wallpaper here or &nbsp;</div> 
+        <div style="color: white !important;">{{DragWallpaperHereOr}}&nbsp;</div> 
     </file-drop>
 
-  <label class="personalization-label">Color</label>
+  <label class="personalization-label">{{Color}}</label>
   <div class="personalization-color-1"> <!-- Color circle group -->
-    <div class="personalization-text" style="margin-left: -15px;">Select color</div>
+    <div class="personalization-text" style="margin-left: -15px;">{{SelectColor}}</div>
     <canvas #circle1 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 1,
       'personalization-circle': true}" (click)="clickCircle(1)"></canvas>
     <canvas #circle2 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 2,
@@ -71,10 +71,10 @@
       'personalization-circle': true}" (click)="clickCircle(18)"></canvas>
   </div>
   <div class="personalization-color-2"> <!-- Hue slider -->
-    <div class="personalization-text">or hue.</div>
+    <div class="personalization-text">{{OrHue}}</div>
     <canvas #slider1 width="389" height="14" (click)="clickSlider($event)"></canvas>
   </div>
-  <div class="personalization-text">Select lightness.</div>
+  <div class="personalization-text">{{SelectLightness}}</div>
   <div class="personalization-color-3"> <!-- Lightness swatches bar -->
     <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .8,
       'personalization-swatch': true}" id="swatch1" (click)=clickLightness(0.8) [ngStyle]="swatch1Style"></div>
@@ -87,7 +87,7 @@
     <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .2,
       'personalization-swatch': true}" id="swatch5" (click)=clickLightness(0.2) [ngStyle]="swatch5Style"></div>
   </div>
-  <label class="personalization-label">Size</label>
+  <label class="personalization-label">{{Size}}</label>
 
   <!-- Ideally, this would say something like alt="Select Size small" but alt attribute adds a weird artifact -->
   <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 1,

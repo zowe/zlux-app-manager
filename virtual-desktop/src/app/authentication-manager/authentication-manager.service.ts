@@ -19,6 +19,7 @@ import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
 import { StorageService } from './storage.service';
 import { Subscription } from 'rxjs/Subscription';
+import { AuthCapabilities } from './auth-capabilities';
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
@@ -223,6 +224,7 @@ export class AuthenticationManager {
     this.subscribeStorageEvent();
     clearTimeout(this.expirationWarning);
     this.nearestExpiration = -1;
+    let canRefresh = true;
     let expirations = new Map<string,number>();
     let now = Date.now();
     for (let key in categories) {
@@ -235,6 +237,16 @@ export class AuthenticationManager {
             nearestExpirationForCategory = plugin.expms;
             if (this.nearestExpiration == -1 || this.nearestExpiration > nearestExpirationForCategory) {
               this.nearestExpiration = nearestExpirationForCategory;
+              // if the response does not include capabilities or capabilities.canRefresh
+              // we should assume true
+              // because a popup that fails is better than expiration when refresh is possible
+              canRefresh = true;
+              if (typeof plugin.capabilities === 'object') {
+                const capabilities: Partial<AuthCapabilities> = plugin.capabilities;
+                if (typeof capabilities.canRefresh === 'boolean') {
+                  canRefresh = capabilities.canRefresh;
+                }
+              }
             }
           }
         }
@@ -252,8 +264,12 @@ export class AuthenticationManager {
       this.expirationWarning = setTimeout(()=> {       
         this.log.info(`ZWED5022W`, logoutAfterWarnTimer/1000); /*this.log.info(`Session will expire soon! Logout will occur in ${logoutAfterWarnTimer/1000} seconds.`);*/
         this.log.debug("ZWED5301I", this.expirations); //this.log.debug(`Session expirations=`,this.expirations);
-        this.loginExpirationIdleCheck.emit({shortestSessionDuration: this.nearestExpiration,
-                                            expirationInMS: logoutAfterWarnTimer});
+        if (canRefresh) {
+          this.loginExpirationIdleCheck.emit({
+            shortestSessionDuration: this.nearestExpiration,
+            expirationInMS: logoutAfterWarnTimer
+          });
+        }
         this.expirationWarning = setTimeout(()=> {
           this.log.warn("ZWED5162W"); //this.log.warn(`Session timeout reached. Clearing desktop for new login.`);
           this.doLogoutInner(MVDHosting.LoginScreenChangeReason.SessionExpired);
