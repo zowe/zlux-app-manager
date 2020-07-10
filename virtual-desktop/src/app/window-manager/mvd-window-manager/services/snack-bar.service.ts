@@ -36,7 +36,7 @@ export class SnackBarService {
         size = '-medium'; break;
       }
     }
-    return this.snackBar.open(message, action, { duration: duration || 6000000, panelClass: [snackBarClass, snackBarClass+size] });
+    return this.snackBar.open(message, action, { duration: duration || 6000, panelClass: [snackBarClass, snackBarClass+size] });
   }
 }
 
