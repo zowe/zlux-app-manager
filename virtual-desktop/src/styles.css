@@ -112,7 +112,19 @@
 .personalization-snackbar {
   background-color: black;
   color: white;
-  opacity: .9 !important;
+  opacity: .8 !important;
+}
+
+.personalization-snackbar-small {
+  margin-bottom: 25px !important;
+}
+
+.personalization-snackbar-medium {
+  margin-bottom: 45px !important;
+}
+
+.personalization-snackbar-large {
+  margin-bottom: 80px !important;
 }
 
 /*
