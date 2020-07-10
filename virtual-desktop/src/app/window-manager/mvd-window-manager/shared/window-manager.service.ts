@@ -60,6 +60,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private _lastScreenshotWindowId: number = -1;
   public showPersonalizationPanel: boolean = false;
   private autoSaveInterval : number = 60000;
+  public autoSaveFiles : {[key:string]:number} = {};
+  public autoSaveFileAllowDelete : boolean = true; 
   /*
    * NOTES:
    * 1. We ignore the width and height here (I am reluctant to make a new data type just for this,
@@ -435,19 +437,17 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private savePluginData(plugin:ZLUX.Plugin,windowId:number,data:any){
     let pathToSave : any = 'pluginData' + '/' + 'app'
     let fileNameToSave : string = plugin.getIdentifier() + '-' + windowId
-    this.http.get<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/app', fileNameToSave)).subscribe(res => {
-      if(res){
-        this.http.put(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave+'&lastmod='+res.maccessms), data).subscribe(
-          () => 
-          this.logger.info('Saved data for plugin:',plugin.getIdentifier())
-        )
-      }else{
-        this.http.put(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave), data).subscribe(
-          () => 
-          this.logger.info('Saved data for plugin:',plugin.getIdentifier())
-        )
-      }
-    });
+    if(this.autoSaveFiles[fileNameToSave] !== undefined){
+      this.http.put<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave+'&lastmod='+this.autoSaveFiles[fileNameToSave]), data).subscribe(res => {
+        this.autoSaveFiles[fileNameToSave] = res.maccessms 
+        this.logger.info('Saved data for plugin:',plugin.getIdentifier())
+      })
+    }else{
+      this.http.put<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave), data).subscribe(res => {
+        this.autoSaveFiles[fileNameToSave] = res.maccessms 
+        this.logger.info('Saved data for plugin:',plugin.getIdentifier())
+      })
+    }
   };
   
   private generateSessionEventsProvider(windowId: MVDWindowManagement.WindowId): Angular2PluginSessionEvents {
@@ -612,9 +612,11 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         if (appId!=null) {
           let filePath : any = 'pluginData' + '/' + 'app'
           let fileNameToDelete : string = desktopWindow.plugin.getIdentifier() + '-' + appId
-          this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),filePath,fileNameToDelete)).subscribe(()=>
+          if(this.autoSaveFileAllowDelete){
+            this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),filePath,fileNameToDelete)).subscribe(()=>
             this.logger.info('Deleted AutoSaveData for plugin:',desktopWindow.plugin.getIdentifier())
           );
+          }
           this.applicationManager.killApplication(desktopWindow.plugin, appId);
         }
         this.destroyWindow(windowId);

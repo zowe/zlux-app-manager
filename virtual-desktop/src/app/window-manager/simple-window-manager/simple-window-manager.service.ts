@@ -29,6 +29,8 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
 
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
   private autoSaveInterval : number = 60000;
+  public autoSaveFiles : {[key:string]:number} = {};
+  public autoSaveFileAllowDelete : boolean = true; 
   
   constructor(
     private viewportManager: ViewportManager,
@@ -96,20 +98,17 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   private savePluginData(plugin:ZLUX.Plugin,data:any){
     let pathToSave : any = 'pluginData' + '/' + 'singleApp'
     let fileNameToSave : string = plugin.getIdentifier()
-    this.http.get<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/app', fileNameToSave)).subscribe(res => {
-      if(res){
-        this.http.put(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave+'&lastmod='+res.maccessms), data).subscribe(
-          () => 
-          this.logger.info('Saved data for plugin:',plugin.getIdentifier())
-        )
-      }else{
-        this.http.put(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave), data).subscribe(
-          () => 
-          this.logger.info('Saved data for plugin:',plugin.getIdentifier())
-        )
-      }
-    });
-
+    if(this.autoSaveFiles[fileNameToSave] !== undefined){
+      this.http.put<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave+'&lastmod='+this.autoSaveFiles[fileNameToSave]), data).subscribe(res => {
+        this.autoSaveFiles[fileNameToSave] = res.maccessms 
+        this.logger.info('Saved data for plugin:',plugin.getIdentifier())
+      })
+    }else{
+      this.http.put<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave), data).subscribe(res => {
+        this.autoSaveFiles[fileNameToSave] = res.maccessms 
+        this.logger.info('Saved data for plugin:',plugin.getIdentifier())
+      })
+    }
   };
 
   private generateSessionEventsProvider(): Angular2PluginSessionEvents {
