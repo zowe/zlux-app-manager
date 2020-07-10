@@ -17,3 +17,16 @@ All notable changes to the Zlux App Manager will be documented in this file.
 - Created an injectible service for the theme emitting
 - Created a token for the theme emitting injector (where a normal injectible isn't viable)
 - Timeout notification scales with desktop size
+- Support /api/v1/zlux under api root
+
+
+## `1.13.0`
+- Added new storage service to report last activity across tabs
+- Cross-launch app via URL
+- Fixed i18n compile errors
+- Removed usage of ngx-color
+
+## `1.14.0`
+- Updated vulnerable dependencies
+- Renew session on every new tab/window
+- Added session logout and expired event to storage service to report across tabs
