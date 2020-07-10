@@ -88,9 +88,9 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
           (error: any) => {
             if (error.status = 413) //payload too large
             {
-              this.snackBar.open(`Wallpaper changed failed: Server supports a max size of '` + DESKTOP_WALLPAPER_MAX_SIZE + `' mb.`, 'Close', { duration: 6000, panelClass: 'personalization-snackbar' });
+              this.snackBar.open(`Wallpaper changed failed: Server supports a max size of '` + DESKTOP_WALLPAPER_MAX_SIZE + `' mb.`, 'Close');
             } else {
-              this.snackBar.open(`Wallpaper changed failed - ` + error.status + `: ` + error.message, 'Close', { duration: 6000, panelClass: 'personalization-snackbar' });
+              this.snackBar.open(`Wallpaper changed failed - ` + error.status + `: ` + error.message, 'Close');
             }
           } );
       });
