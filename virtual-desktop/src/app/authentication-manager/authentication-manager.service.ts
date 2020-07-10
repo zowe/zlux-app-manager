@@ -18,6 +18,8 @@ import { BaseLogger } from 'virtual-desktop-logger';
 import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
 import { AuthCapabilities } from './auth-capabilities';
+import { StorageService } from './storage.service';
+import { Subscription } from 'rxjs/Subscription';
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
@@ -56,9 +58,11 @@ export class AuthenticationManager {
   private nearestExpiration: number;
   private expirations: Map<string,number>;
   private expirationWarning: any;
+  private storageSubscription: Subscription;
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(
+    private storageService: StorageService,
     public http: Http,
     private injector: Injector,
     private pluginManager: PluginManager,
@@ -74,6 +78,21 @@ export class AuthenticationManager {
     this.loginScreenVisibilityChanged = new EventEmitter();
     this.loginExpirationIdleCheck = new EventEmitter();
     this.log = BaseLogger.makeSublogger("auth");
+    this.storageSubscription = new Subscription();
+  }
+
+  subscribeStorageEvent() {
+    this.unsubscribeStorageEvent();
+    this.storageSubscription = new Subscription();
+    this.storageSubscription.add(this.storageService.sessionEvent.subscribe((reason:MVDHosting.LoginScreenChangeReason)=>{
+      this.log.info('ZWED5060I', reason); // Logout on storage Event
+      //added extra property to avoid infinite loop
+      this.doLogoutInner(reason, true);
+    }));
+  }
+
+  unsubscribeStorageEvent() {
+    this.storageSubscription.unsubscribe();
   }
 
   registerPostLoginAction(action:MVDHosting.LoginActionInterface):void {
@@ -139,12 +158,17 @@ export class AuthenticationManager {
   //requestLogin() used to exist here but it was counter-intuitive in behavior to requestLogout.
   //This was not documented and therefore has been removed to prevent misuse and confusion.
  
-  private doLogoutInner(reason: MVDHosting.LoginScreenChangeReason): void {
+  private doLogoutInner(reason: MVDHosting.LoginScreenChangeReason, isStorage: boolean = false): void {
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
       this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     if (reason == MVDHosting.LoginScreenChangeReason.UserLogout) {
       windowManager.closeAllWindows();
     }
+
+    if(!isStorage) {
+      this.storageService.updateSessionEvent(reason);
+    }
+
     this.performLogout().subscribe(
       response => {
         if (reason == MVDHosting.LoginScreenChangeReason.UserLogout) {
@@ -152,6 +176,9 @@ export class AuthenticationManager {
           (ZoweZLUX.logger as any)._setBrowserUsername('N/A');
         }
         this.loginScreenVisibilityChanged.emit(reason);
+        clearTimeout(this.expirationWarning);
+        this.unsubscribeStorageEvent();
+        this.storageService.clearOnLogout(reason);
       },
       (error: any) => {
         this.loginScreenVisibilityChanged.emit(reason);
@@ -194,6 +221,7 @@ export class AuthenticationManager {
     if (!categories) {
       return;
     }
+    this.subscribeStorageEvent();
     clearTimeout(this.expirationWarning);
     this.nearestExpiration = -1;
     let canRefresh = true;
