@@ -30,6 +30,7 @@ import { KeybindingService } from './shared/keybinding.service';
 import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization/personalization.component';
 import { FileDropModule } from 'ngx-file-drop';
 import { ThemeEmitterService } from './services/theme-emitter.service';
+import { SnackBarService } from './services/snack-bar.service';
 
 @NgModule({
   imports: [
@@ -62,7 +63,8 @@ import { ThemeEmitterService } from './services/theme-emitter.service';
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
     { provide: MVDHosting.Tokens.ThemeEmitterToken, useExisting: ThemeEmitterService },
-    KeybindingService
+    KeybindingService,
+    SnackBarService
   ]
 })
 export class WindowManagerModule {

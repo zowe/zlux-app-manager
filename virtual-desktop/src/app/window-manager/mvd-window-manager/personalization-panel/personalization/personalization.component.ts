@@ -367,15 +367,13 @@ export class PersonalizationComponent implements OnInit {
     for (const droppedFile of event.files) {
 
       // Is it a file?
-      if (droppedFile.fileEntry.isFile) {
+      if (droppedFile.fileEntry.isFile) { // TODO: Verify file extensions here
         const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
         fileEntry.file((file: File) => {
 
           // Here you can access the real file
           this.logger.debug(droppedFile.relativePath, file);
           this.desktopThemeService.changeWallpaper(file);
-
-
         });
       } else { // It was a directory
         // TODO: Folders are disabled by default, so not sure how this would trigger, but maybe notification for fail?
