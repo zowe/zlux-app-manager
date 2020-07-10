@@ -2,6 +2,18 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `1.14.0`
+
+- Fixed GET call for recognizers & actions such that they are loaded into dispatcher
+
+## `1.13.0`
+
+- Updated translations for Personalization menu
+- Removed usage of ngx-color in place of a custom color selector
+- Converted login activity to event emitter
+- Added new local storage listener so changes can be reported across tabs
+- Added detect activity when login from new window/tab
+
 ## `1.12.0`
 
 - Added iframe support for spawning a context menu when in single-app mode (via viewportevents instead of windowactions
