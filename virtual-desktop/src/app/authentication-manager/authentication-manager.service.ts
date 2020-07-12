@@ -217,14 +217,13 @@ export class AuthenticationManager {
           for (let pluginWindow in res.contents){
             let pluginName = pluginWindow.split('-')[0] 
             this.applicationManager.spawnApplication(new DesktopPluginDefinitionImpl(ZoweZLUX.pluginManager.getPlugin(pluginName)),{"data":{"type":"setAppRequest","actionType":"Launch","targetMode":"PluginCreate","appData":res.contents[pluginWindow].data.appData}})
+            
+            this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/app',pluginWindow)).subscribe(()=>
+              this.log.info('Deleted AutoSaveData for Plugin:',pluginWindow)
+            )
           }
         }
       });
-
-      let filePath : any = 'pluginData' + '/' + 'app'
-      this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),filePath,undefined)).subscribe(()=>
-      this.log.info('Deleted AutoSaveData for Restored Plugins')
-      )
     });
   }
 
