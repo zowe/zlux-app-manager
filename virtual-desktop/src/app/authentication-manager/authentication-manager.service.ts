@@ -218,9 +218,9 @@ export class AuthenticationManager {
             let pluginName = pluginWindow.split('-')[0] 
             this.applicationManager.spawnApplication(new DesktopPluginDefinitionImpl(ZoweZLUX.pluginManager.getPlugin(pluginName)),{"data":{"type":"setAppRequest","actionType":"Launch","targetMode":"PluginCreate","appData":res.contents[pluginWindow].data.appData}})
             
-            this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/app',pluginWindow)).subscribe(()=>
-              this.log.info('Deleted AutoSaveData for Plugin:',pluginWindow)
-            )
+            const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
+            this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+            windowManager.autoSaveDataClean = true;
           }
         }
       });
@@ -326,9 +326,6 @@ export class AuthenticationManager {
         this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
       windowManager.closeAllWindows();
     }
-    const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
-        this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
-    windowManager.autoSaveFileAllowDelete = true;
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth'), { username: username, password: password })
     .map(result => {
       let jsonMessage = result.json();

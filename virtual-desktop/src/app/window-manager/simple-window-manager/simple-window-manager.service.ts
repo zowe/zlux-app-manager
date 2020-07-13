@@ -31,6 +31,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   private autoSaveInterval : number = 60000;
   public autoSaveFiles : {[key:string]:number} = {};
   public autoSaveFileAllowDelete : boolean = true; 
+  public autoSaveDataClean : boolean = false;
   
   constructor(
     private viewportManager: ViewportManager,

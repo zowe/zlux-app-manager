@@ -61,7 +61,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   public showPersonalizationPanel: boolean = false;
   private autoSaveInterval : number = 60000;
   public autoSaveFiles : {[key:string]:number} = {};
-  public autoSaveFileAllowDelete : boolean = true; 
+  public autoSaveFileAllowDelete : boolean = true;
+  public autoSaveDataClean : boolean = false;
   /*
    * NOTES:
    * 1. We ignore the width and height here (I am reluctant to make a new data type just for this,
@@ -437,6 +438,12 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private savePluginData(plugin:ZLUX.Plugin,windowId:number,data:any){
     let pathToSave : any = 'pluginData' + '/' + 'app'
     let fileNameToSave : string = plugin.getIdentifier() + '-' + windowId
+    if(this.autoSaveDataClean){
+      this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/app',undefined)).subscribe(()=>
+              this.logger.info('Deleted AutoSaveData for Desktop Plugins')
+      )
+      this.autoSaveDataClean = false;
+    }
     if(this.autoSaveFiles[fileNameToSave] !== undefined){
       this.http.put<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave+'&lastmod='+this.autoSaveFiles[fileNameToSave]), data).subscribe(res => {
         this.autoSaveFiles[fileNameToSave] = res.maccessms 
