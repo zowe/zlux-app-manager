@@ -19,7 +19,6 @@ import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
 import { StorageService } from './storage.service';
 import { Subscription } from 'rxjs/Subscription';
-import { AuthCapabilities } from './auth-capabilities';
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
@@ -242,7 +241,7 @@ export class AuthenticationManager {
               // because a popup that fails is better than expiration when refresh is possible
               canRefresh = true;
               if (typeof plugin.capabilities === 'object') {
-                const capabilities: Partial<AuthCapabilities> = plugin.capabilities;
+                const capabilities: Partial<ZLUXServerFramework.Capabilities> = plugin.capabilities;
                 if (typeof capabilities.canRefresh === 'boolean') {
                   canRefresh = capabilities.canRefresh;
                 }
