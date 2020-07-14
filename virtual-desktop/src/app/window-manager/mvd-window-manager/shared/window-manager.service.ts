@@ -435,6 +435,19 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     };
   }
 
+  public launchDesktopAutoSavedApplications(){
+    this.http.get<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/app', undefined)).subscribe(res => {
+      if(res){
+        for (let pluginWindow in res.contents){
+          let pluginName = pluginWindow.split('-')[0] 
+          this.applicationManager.spawnApplication(new DesktopPluginDefinitionImpl(ZoweZLUX.pluginManager.getPlugin(pluginName)),{"data":{"type":"setAppRequest","actionType":"Launch","targetMode":"PluginCreate","appData":res.contents[pluginWindow].data.appData}})
+          
+         this.autoSaveDataClean = true;
+        }
+      }
+    });
+  }
+
   private savePluginData(plugin:ZLUX.Plugin,windowId:number,data:any){
     let pathToSave : any = 'pluginData' + '/' + 'app'
     let fileNameToSave : string = plugin.getIdentifier() + '-' + windowId

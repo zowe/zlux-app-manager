@@ -95,6 +95,10 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
 
     return providers;
   }
+
+  public launchDesktopAutoSavedApplications(){
+    return 1;
+  }
   
   private savePluginData(plugin:ZLUX.Plugin,data:any){
     let pathToSave : any = 'pluginData' + '/' + 'singleApp'

@@ -212,18 +212,8 @@ export class AuthenticationManager {
         observer.error(err);
       });
 
-      this.HTTP.get<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/app', undefined)).subscribe(res => {
-        if(res){
-          for (let pluginWindow in res.contents){
-            let pluginName = pluginWindow.split('-')[0] 
-            this.applicationManager.spawnApplication(new DesktopPluginDefinitionImpl(ZoweZLUX.pluginManager.getPlugin(pluginName)),{"data":{"type":"setAppRequest","actionType":"Launch","targetMode":"PluginCreate","appData":res.contents[pluginWindow].data.appData}})
-            
-            const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
-            this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
-            windowManager.autoSaveDataClean = true;
-          }
-        }
-      });
+      const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+      windowManager.launchDesktopAutoSavedApplications();
     });
   }
 
