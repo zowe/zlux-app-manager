@@ -183,22 +183,27 @@
           </ibm-label>
         </div>
         <div style="margin-left:1rem;">
-          <textarea
-            ibmTextArea
-            [disabled]="true"
-            theme="light"
-            [rows]="25"
-            [cols]="45"
-            aria-label="preview">
-            {{selectedLicenseDescription}}
-          </textarea>
+          <ibm-label
+            style="margin-top:0.5rem;">
+            License Information
+            <textarea
+              ibmTextArea
+              [disabled]="true"
+              theme="light"
+              [rows]="25"
+              [cols]="45"
+              aria-label="preview">
+              {{selectedLicenseDescription}}
+            </textarea>
+          </ibm-label>
         </div>
       </div>
 
     </div>
 
     <div class="module-container">
-      <ibm-label>Preview
+      <ibm-label>
+        Preview
         <textarea
           ibmTextArea
           [disabled]="true"
