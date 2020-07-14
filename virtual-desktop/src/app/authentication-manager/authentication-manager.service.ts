@@ -326,6 +326,9 @@ export class AuthenticationManager {
         this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
       windowManager.closeAllWindows();
     }
+    const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
+        this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+    windowManager.autoSaveFileAllowDelete = true;
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth'), { username: username, password: password })
     .map(result => {
       let jsonMessage = result.json();
