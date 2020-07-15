@@ -184,7 +184,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
     let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'recognizers');
     this.log.debug("ZWED5309I", recognizersUri); //this.log.debug(`Getting recognizers from "${recognizersUri}"`);
     this.http.get(recognizersUri).subscribe((config: any)=> {
-      if (config & config.contents) {
+      if (config && config.contents) {
         let appContents = config.contents;
         plugins.forEach((plugin:ZLUX.Plugin)=> {
           const id = plugin.getIdentifier();
@@ -204,7 +204,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
     let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
     this.log.debug("ZWED5323I", actionsUri); //this.log.debug(`Getting actions from "${actionsUri}"`);
     this.http.get(actionsUri).subscribe((config: any)=> {
-      if (config & config.contents) {
+      if (config && config.contents) {
         let appContents = config.contents;
         plugins.forEach((plugin:ZLUX.Plugin)=> {
           const id = plugin.getIdentifier();
