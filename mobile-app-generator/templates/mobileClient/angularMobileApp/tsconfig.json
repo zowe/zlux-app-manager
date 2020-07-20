@@ -1,0 +1,48 @@
+{
+  "include":  [
+    "./src/**/*.ts",
+    "../../../zlux-platform/interface/src/index.d.ts",
+    "../../../zlux-platform/interface/src/mvd-hosting.d.ts",
+    "../../../zlux-platform/interface/src/mvd-window-management.d.ts"
+  ],
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "module": "es2015",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es5",
+    "skipLibCheck": true,
+    "paths": {
+      "pluginlib/*": [
+        "../../../zlux-app-manager/virtual-desktop/src/pluginlib/*"
+      ],
+      "virtual-desktop-logger": [
+        "../../../zlux-app-manager/virtual-desktop/src/app/shared/logger.ts"
+      ],
+      "zlux-base/*": [
+        "../../../zlux-platform/base/src/*"
+      ],
+      "bootstrap/*": [
+        "../../../zlux-app-manager/bootstrap/src/bootstrap/*"
+      ],
+      "webapp/*": [
+        "../../webClient/src/*"
+      ],
+      "@angular/*": [
+        "node_modules/@angular/*"
+      ]
+    },
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "lib": [
+      "es2017",
+      "dom"
+    ]
+  }
+}
