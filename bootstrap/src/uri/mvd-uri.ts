@@ -49,7 +49,7 @@ export class MvdUri implements ZLUX.UriBroker {
     let routeParam = route;
     let absPathParam = encodeURIComponent(absPath).replace(/\%2F/gi,'/');
     
-    return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`.replace(/\/\//g,'/');
+    return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`.replace(/(\/+)/g,'/');
   }
   omvsSegmentUri(): string {
     return `${this.serverRootUri('omvs')}`;
