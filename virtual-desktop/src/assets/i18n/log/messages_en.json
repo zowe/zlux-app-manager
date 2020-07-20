@@ -31,7 +31,6 @@
     "ZWED5306I":"",
     "ZWED5307I":"iframe startingPage ",
     "ZWED5308I":"iframe startingPageUri ",
-    "ZWED5309I":"Getting recognizers from %s",
     "ZWED5310I":"RESERVED: Simple container requested with pluginId %s",
     "ZWED5311I":"NOT USED",
     "ZWED5313I":"Attempting to set language to %s",
@@ -44,7 +43,6 @@
     "ZWED5320I":"Window-pane-component wMgr=",
     "ZWED5321I":"App framework initializing. User agent=%s",
     "ZWED5322I":"ngOnChanges=",
-    "ZWED5323I":"Getting actions from %s",
 
     "ZWED5021W":"App callbacks not registered. Couldn't find instance object or object didn't provide callbacks. App ID=%s, Instance Obj=",
     "ZWED5022W":"Session will expire soon! Logout will occur in %d seconds",
