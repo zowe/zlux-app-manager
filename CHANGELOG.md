@@ -4,6 +4,7 @@ All notable changes to the Zlux App Manager will be documented in this file.
 
 ## `1.14.0`
 
+- [D] Fixed case in which the URI broker for unixfile would allow 3 or more slashes in a row
 - Fixed GET call for recognizers & actions such that they are loaded into dispatcher
 
 ## `1.13.0`
