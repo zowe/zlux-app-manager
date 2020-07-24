@@ -18,7 +18,7 @@ import { ZoweApplication } from "./shared/models/application";
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.scss"]
 })
-export class AppComponent implements AfterViewInit, OnInit {
+export class AppComponent implements AfterViewInit {
 	appList: any;
 
 	constructor(private http: HttpClient) {
@@ -32,7 +32,7 @@ export class AppComponent implements AfterViewInit, OnInit {
     }
   }
 
-	ngOnInit() {
+	ngAfterViewInit() {
     const MY_PLUGIN_ID = ZoweZLUX.iframe.pluginDef.basePlugin.identifier;
     ZoweZLUX.pluginManager.getPlugin(MY_PLUGIN_ID).then(plugin => {
       ZoweZLUX.uriBroker.pluginRESTUri(plugin,'gen','project/get').then(uri => {
@@ -48,10 +48,6 @@ export class AppComponent implements AfterViewInit, OnInit {
           });
       });
     })
-	}
-
-	ngAfterViewInit() {
-
 	}
 }
 
