@@ -632,7 +632,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         if (appId!=null) {
           let filePath : any = 'pluginData' + '/' + 'app'
           let fileNameToDelete : string = desktopWindow.plugin.getIdentifier() + '-' + appId
-          if(this.autoSaveFileAllowDelete){
+          if(this.autoSaveFileAllowDelete && desktopWindow.plugin.getWebContent().autosave == true){
             this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),filePath,fileNameToDelete)).subscribe(()=>
             this.logger.info('Deleted AutoSaveData for plugin:',desktopWindow.plugin.getIdentifier())
           );
