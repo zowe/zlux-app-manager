@@ -64,7 +64,9 @@ export class IFramePluginFactory extends PluginFactory {
       startingPageUri = startingPage;
     } else if (!startingPage.startsWith('/')) { //don't touch absolute paths in case they are intended to reach an APIML route
       startingPageUri = (window as any).ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
-    } // else { TODO URLs in the form of ${APIML}/ or ${my.plugin.id}/ could be used to provide smarter iframe routing, via knowledge of Uribroker.
+    } else { //TODO URLs in the form of ${APIML}/ or ${my.plugin.id}/ could be used to provide smarter iframe routing, via knowledge of Uribroker.
+      startingPageUri = startingPage;
+    }
 
     this.logger.debug('ZWED5308I', startingPageUri); //this.logger.debug('iframe startingPageUri', startingPageUri);
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
