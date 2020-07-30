@@ -23,6 +23,7 @@ import { HttpClient } from '@angular/common/http';
 import { ApplicationManager } from '../application-manager/application-manager.service';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 
+
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
     ZoweZLUX.notificationManager.removeAll()
