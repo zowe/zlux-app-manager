@@ -19,9 +19,6 @@ import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
 import { StorageService } from './storage.service';
 import { Subscription } from 'rxjs/Subscription';
-import { HttpClient } from '@angular/common/http';
-import { ApplicationManager } from '../application-manager/application-manager.service';
-import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
@@ -70,8 +67,6 @@ export class AuthenticationManager {
     private injector: Injector,
     private pluginManager: PluginManager,
     private startURLManager: StartURLManager
-    private HTTP: HttpClient,
-    private applicationManager: ApplicationManager
   ) {
     this.username = null;
     this.postLoginActions = new Array<MVDHosting.LoginActionInterface>();
