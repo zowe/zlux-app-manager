@@ -53,21 +53,9 @@ export class IFramePluginFactory extends PluginFactory {
 
   acceptableFrameworks(): string[] {
       return ['iframe'];
-    }
+  }
 
-  private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Type<any> {
-    const basePlugin = pluginDefinition.getBasePlugin();
-    const startingPage = basePlugin.getWebContent().startingPage || 'index.html';
-    this.logger.debug('ZWED5307I', startingPage); //this.logger.debug('iframe startingPage', startingPage);
-    let startingPageUri;
-    if (startingPage.startsWith('http://') || startingPage.startsWith('https://')) {
-      startingPageUri = startingPage;
-    } else if (!startingPage.startsWith('/')) { //don't touch absolute paths in case they are intended to reach an APIML route
-      startingPageUri = (window as any).ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
-    } else { //TODO URLs in the form of ${APIML}/ or ${my.plugin.id}/ could be used to provide smarter iframe routing, via knowledge of Uribroker.
-      startingPageUri = startingPage;
-    }
-
+  private _createIFrameComponentClassInner(startingPageUri: string, instanceId: MVDHosting.InstanceId): Type<any> {
     this.logger.debug('ZWED5308I', startingPageUri); //this.logger.debug('iframe startingPageUri', startingPageUri);
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
     this.logger.info(`ZWED5053I`, startingPageUri); //this.logger.info(`Loading iframe, URI=${startingPageUri}`);
@@ -88,6 +76,40 @@ export class IFramePluginFactory extends PluginFactory {
     return IFrameComponentClass;
   }
 
+  private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<Type<any>> {
+    return new Promise((resolve)=>{
+      const basePlugin = pluginDefinition.getBasePlugin();
+      const startingPage = basePlugin.getWebContent().startingPage || 'index.html';
+      this.logger.debug('ZWED5307I', startingPage); //this.logger.debug('iframe startingPage', startingPage);
+      let startingPageUri;
+      if (startingPage.startsWith('http://') || startingPage.startsWith('https://')) {
+        startingPageUri = startingPage;
+        resolve(this._createIFrameComponentClassInner(startingPageUri, instanceId));
+      } else if (!startingPage.startsWith('/')) { //don't touch absolute paths in case they are intended to reach an APIML route
+        startingPageUri = (window as any).ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
+        resolve(this._createIFrameComponentClassInner(startingPageUri, instanceId));
+      } else if (startingPage.startsWith('$')) {
+        //URLs in the form of $apiml/ or $my.plugin.id/ could be used to provide smarter iframe routing, via knowledge of Uribroker.
+        const endIndex = startingPage.indexOf('/');
+        if (endIndex > -1) {         
+          const route = startingPage.substring(1,endIndex);
+          const resource = startingPage.substring(endIndex);
+          if (route === 'apiml') {
+            ZoweZLUX.environment.getGatewayHost().then((host)=>{
+              ZoweZLUX.environment.getGatewayPort().then((port)=> {
+                startingPageUri = `https://${host}:${port}${resource}`;
+                resolve(this._createIFrameComponentClassInner(startingPageUri, instanceId));
+              });
+            });
+          }
+        }
+      } else {
+        startingPageUri = startingPage;
+        resolve(this._createIFrameComponentClassInner(startingPageUri, instanceId));
+      }
+    });
+  }
+
   loadComponentFactories(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<void> {
     this.logger.info(`ZWED5054I`, pluginDefinition.getIdentifier());
     /*this.logger.info(`IFrame component factories currently unsupported. `
@@ -97,22 +119,26 @@ export class IFramePluginFactory extends PluginFactory {
   }
 
   loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin> {
-    const componentClass = this.createIFrameComponentClass(pluginDefinition, instanceId);
-    const metadata = {
-      selector: 'rs-com-mvd-iframe-component',
-      templateUrl: './iframe-plugin.component.html',
-      styleUrls: ['./iframe-plugin.component.css']
-    };
-    const decoratedComponent = Component(metadata)(componentClass);
-    @NgModule({
-      imports: [CommonModule],
-      declarations: [decoratedComponent],
-      entryComponents: [decoratedComponent]
-    })
-    class RuntimePluginModule {}
-    return this.compiler.compileModuleAsync(RuntimePluginModule).then(factory =>
-      new CompiledPlugin(decoratedComponent, factory)
-    );
+    return new Promise((resolve, reject)=> {
+      this.createIFrameComponentClass(pluginDefinition, instanceId).then((componentClass)=> {
+        const metadata = {
+          selector: 'rs-com-mvd-iframe-component',
+          templateUrl: './iframe-plugin.component.html',
+          styleUrls: ['./iframe-plugin.component.css']
+        };
+        const decoratedComponent = Component(metadata)(componentClass);
+        @NgModule({
+          imports: [CommonModule],
+          declarations: [decoratedComponent],
+          entryComponents: [decoratedComponent]
+        })
+        class RuntimePluginModule {}
+        return this.compiler.compileModuleAsync(RuntimePluginModule)
+          .then(factory =>
+                new CompiledPlugin(decoratedComponent, factory)
+               );
+      });
+    });
   }
 }
 

@@ -13,6 +13,7 @@
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
 import { DsmUri } from '../uri/dsm-uri'
 import { Dispatcher } from 'zlux-base/dispatcher/dispatcher'
+import { Environment } from 'zlux-base/environment/environment'
 import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry'
 import { ZoweNotificationManager } from 'zlux-base/notification-manager/notification-manager'
@@ -42,6 +43,7 @@ export class DSMResources {
   static pluginManager = PluginManager
   static uriBroker:ZLUX.UriBroker = new DsmUri();
   static dispatcher:Dispatcher = new Dispatcher(bootstrapLogger);
+  static environment:Environment = new Environment();
   static logger:Logger = logger;
   static registry:ZLUX.Registry = new Registry();
   static notificationManager:ZoweNotificationManager = new ZoweNotificationManager();
