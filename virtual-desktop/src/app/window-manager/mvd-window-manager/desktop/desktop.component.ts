@@ -21,6 +21,7 @@ import { Colors } from '../shared/colors';
 
 const ACCOUNT_PASSWORD = "Account Password";
 const PASSWORD_CHANGED = "PasswordChanged"
+const ENABLE_PLUGINS_ADDED_TIMEOUT = 1000;
 
 @Component({
   selector: 'rs-com-mvd-desktop',
@@ -62,7 +63,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.contextMenuDef = null;
     this.authenticationManager.registerPostLoginAction(this);
-    this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http));
+    this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http, this.injector));
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
       case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
@@ -155,52 +156,67 @@ export type DesktopTheme = {
 
 class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
-  constructor(private http: HttpClient) { }
+  private pluginManager: MVDHosting.PluginManagerInterface;
+  static enablePluginsAddedSubscribe: boolean;
+  constructor(
+    private http: HttpClient,
+    private injector: Injector) {
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
+    AppDispatcherLoader.enablePluginsAddedSubscribe = false;
+    this.pluginManager.pluginsAdded.subscribe((plugins: ZLUX.Plugin[])=> {
+      if (AppDispatcherLoader.enablePluginsAddedSubscribe) {
+        this.getAndDispatchRecognizers(plugins);
+        this.getAndDispatchActions(plugins);
+      }
+    });
+   }
 
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
+    this.getAndDispatchRecognizers(plugins);
+    this.getAndDispatchActions(plugins);
+    // To not double-load recognizers & actions, we enable pluginsAdded subscribe after 1 second
+    setTimeout(() => { AppDispatcherLoader.enablePluginsAddedSubscribe = true; }, ENABLE_PLUGINS_ADDED_TIMEOUT);
+    return true;
+  }
+
+  getAndDispatchRecognizers(plugins: ZLUX.Plugin[]) {
     let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
     let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'recognizers');
-    let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
-    this.log.debug("ZWED5309I", recognizersUri, actionsUri); //this.log.debug(`Getting recognizers from "${recognizersUri}", actions from "${actionsUri}"`);
+    this.log.debug(`Getting recognizers from "${recognizersUri}"`);
     this.http.get(recognizersUri).subscribe((config: any)=> {
-      if (config) {
+      if (config && config.contents) {
         let appContents = config.contents;
-        let appsWithRecognizers:string[] = [];
         plugins.forEach((plugin:ZLUX.Plugin)=> {
-          let id = plugin.getIdentifier();
-          if (appContents[id]) {
-            appsWithRecognizers.push(id);
+          const id = plugin.getIdentifier();
+          if (appContents[id] && appContents[id].recognizers) { // If config has pre-existing recognizers for this plugin id,
+            appContents[id].recognizers.forEach((recognizerObject: any)=> {
+              ZoweZLUX.dispatcher.addRecognizerObject(recognizerObject); // register each object with the Dispatcher.
+            });
+            this.log.info(`ZWED5055I`, appContents[id].recognizers.length, id); //this.log.info(`Loaded ${appContents[id].recognizers.length} recognizers for App(${id})`);    
           }
-        });
-        appsWithRecognizers.forEach(appWithRecognizer=> {
-          appContents[appWithRecognizer].recognizers.forEach((recognizerObject:ZLUX.RecognizerObject)=> {
-            ZoweZLUX.dispatcher.addRecognizerObject(recognizerObject);
-          });
-          this.log.info(`ZWED5055I`, appContents[appWithRecognizer].recognizers.length, appWithRecognizer); //this.log.info(`Loaded ${appContents[appWithRecognizer].recognizers.length} recognizers for App(${appWithRecognizer})`);
         });
       }
     });
+  }
+
+  getAndDispatchActions(plugins: ZLUX.Plugin[]) {
+    let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
+    let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
+    this.log.debug(`Getting actions from "${actionsUri}"`);
     this.http.get(actionsUri).subscribe((config: any)=> {
-      if (config) {
+      if (config && config.contents) {
         let appContents = config.contents;
-        let appsWithActions:string[] = [];
         plugins.forEach((plugin:ZLUX.Plugin)=> {
-          let id = plugin.getIdentifier();
-          if (appContents[id]) {
-            appsWithActions.push(id);
+          const id = plugin.getIdentifier();
+          if (appContents[id] && appContents[id].actions) { // If config has pre-existing actions for this plugin id,
+            appContents[id].actions.forEach((actionObject: any)=> {
+              ZoweZLUX.dispatcher.addRecognizerObject(actionObject); // register each object with the Dispatcher.
+            });
+            this.log.info(`ZWED5056I`, appContents[id].actions.length, id); //this.log.info(`Loaded ${appContents[id].actions.length} actions for App(${id})`);
           }
-        });
-        appsWithActions.forEach(appWithAction=> {
-          appContents[appWithAction].actions.forEach((actionObject:any)=> {
-            if (this.isValidAction(actionObject)) {
-              ZoweZLUX.dispatcher.registerAbstractAction(ZoweZLUX.dispatcher.makeActionFromObject(actionObject));
-            }
-          });
-          this.log.info(`ZWED5056I`, appContents[appWithAction].actions.length, appWithAction); //this.log.info(`Loaded ${appContents[appWithAction].actions.length} actions for App(${appWithAction})`);
         });
       }
     });
-    return true;
   }
 
   isValidAction(actionObject: any): boolean {

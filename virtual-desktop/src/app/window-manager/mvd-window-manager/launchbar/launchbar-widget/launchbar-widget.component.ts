@@ -29,6 +29,7 @@ import { MatSnackBar} from '@angular/material';
 import {SnackbarComponent} from '../shared/snackbar/snackbar.component';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { WindowManagerService } from '../../shared/window-manager.service';
+import { TranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'rs-com-launchbar-widget',
@@ -61,6 +62,10 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   private info: any[];
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   public notifications: any[];
+
+  /* I18n strings */
+
+  public NoNotifications: string;
 
   @Input() set theme (newTheme: DesktopTheme) {
     this.color = newTheme.color;
@@ -128,6 +133,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     private desktopComponent: DesktopComponent,
     private snackBar: MatSnackBar,
     public windowManager: WindowManagerService,
+    public translation: TranslationService,
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
@@ -137,6 +143,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     this.notificationsVisible = false;
     this.notifications = [];
     ZoweZLUX.notificationManager.addMessageHandler(this);
+    this.updateLanguageStrings();
   }
 
   ngOnInit(): void {
@@ -292,6 +299,10 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         }
       }
     }
+  }
+
+  updateLanguageStrings(): void {
+    this.NoNotifications = this.translation.translate('No Notifications', null);
   }
 }
 

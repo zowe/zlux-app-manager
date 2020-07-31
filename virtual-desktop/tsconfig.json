@@ -1,9 +1,11 @@
 {
   "compileOnSave": false,
   "include": [
+    "./src/**/*.ts",
     "../../zlux-platform/interface/src/index.d.ts",
     "../../zlux-platform/interface/src/mvd-hosting.d.ts",
-    "../../zlux-platform/interface/src/mvd-window-management.d.ts"
+    "../../zlux-platform/interface/src/mvd-window-management.d.ts",
+    "../../zlux-platform/interface/src/server-framework.d.ts"
   ],
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
@@ -29,8 +31,8 @@
       "pluginlib/*": [
         "./pluginlib/*"
       ],
-      "virtual-desktop-logger/*": [
-        "./app/shared/*"
+      "virtual-desktop-logger": [
+        "./app/shared/logger.ts"
       ],
       "zlux-base/*": [
         "../../../zlux-platform/base/src/*"
