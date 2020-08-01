@@ -15,10 +15,12 @@
      (mouseup)="onMouseUpContainer($event)" [class.active]="isActive">
   <rs-com-launchbar-menu [menuItems]="allItems" [theme]="_theme" (itemClicked)="menuItemClicked($event)"  (refreshClicked)="getNewItems()"></rs-com-launchbar-menu>
   
-  <div class="applist row" [style.margin]="applistMargin"
-       [style.background]="_theme.color.launchbarColor"
-       [style.padding-left]="applistPadding"
-       [style.border-radius]="applistPadding">
+  <div class="applist row" 
+    [style.margin]="applistMargin"
+    [style.background]="_theme.color.launchbarColor"
+    [style.padding-left]="applistPadding"
+    [style.border-radius]="applistPadding"
+    id="ZAP_DesktopHome_Launchbar">
     <rs-com-launchbar-icon *ngFor="let item of pinnedItems" [launchbarItem]="item" [theme]="_theme" (contextmenu)="onRightClick($event, item)"
     (mousedown)="onMouseDown($event, item)" (mousemove)="onMouseMove($event, item)">
     </rs-com-launchbar-icon>
