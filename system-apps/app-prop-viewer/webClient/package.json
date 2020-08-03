@@ -10,7 +10,7 @@
   "license": "EPL-2.0",
   "dependencies": {},
   "devDependencies": {
-    "@angular-devkit/build-angular": "^0.803.9",
+    "@angular-devkit/build-angular": "~0.803.9",
     "@angular/animations": "~6.0.9",
     "@angular/cli": "~6.1.5",
     "@angular/common": "~6.0.9",
