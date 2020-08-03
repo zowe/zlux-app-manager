@@ -13,10 +13,11 @@
   (mouseenter)="panelMouseEnter()" 
   (mouseleave)="panelMouseLeave()"
   [style.width]='this.panelWidth'
-  [style.maxWidth]='this.panelMaxWidth'>
+  [style.maxWidth]='this.panelMaxWidth'
+  id="ZAP_DesktopHome_Settings_Panel">
     <ul class="personalization-panel-ul" *ngIf="showPanel">
       <li class="personalization-panel-li" *ngFor="let tool of personalizationTools" (click)="openTool(tool)">
-        <img class="personalization-panel-item panel-item-{{tool.imgSrc}}" alt=""><br>
+        <img class="personalization-panel-item panel-item-{{tool.imgSrc}}" alt="" id="ZAP_DesktopHome_Settings_{{tool.imgSrc}}Icon"><br>
         <span class="personalization-panel-span">{{tool.title}}</span>
       </li>
     </ul>
