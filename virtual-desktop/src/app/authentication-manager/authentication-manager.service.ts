@@ -276,6 +276,7 @@ export class AuthenticationManager {
       },warnTimer);
       this.log.debug("ZWED5302I", warnTimer); //this.log.debug(`Set session timeout watcher to notify ${warnTimer}ms before expiration`);
     }
+    window.localStorage.setItem("ZoweZLUX.expirationTime",this.nearestExpiration.toString())
   }
 
   performSessionRenewal(): Observable<Response> {
