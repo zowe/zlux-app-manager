@@ -93,6 +93,7 @@ export class StorageService {
     this.logger.info('ZWED5061I'); //Clear Storage on Logout
     StorageService.removeItem(StorageKey.LAST_ACTIVE);
     StorageService.removeItem(StorageKey.SESSION_EVENT);
+    StorageService.removeItem(StorageKey.EXPIRATION_TIME)
   }
 
 }
