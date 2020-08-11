@@ -14,6 +14,7 @@ import { BaseLogger } from '../../../../shared/logger';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { UploadEvent, UploadFile, FileSystemFileEntry } from 'ngx-file-drop';
 import { Colors } from '../../shared/colors';
+import { TranslationService } from 'angular-l10n';
  
 const SLIDER_NAME = 'slider'
 const CIRCLE_NAME = 'circle'
@@ -63,8 +64,22 @@ export class PersonalizationComponent implements OnInit {
   public swatch4Style: any;
   public swatch5Style: any;
 
+  /* I18n strings used in the UI */
+
+  public Back: string;
+  public ResetToDefault: string;
+  public Background: string;
+  public DragWallpaperHereOr: string;
+  public Color: string;
+  public SelectColor: string;
+  public OrHue: string;
+  public SelectLightness: string;
+  public Size: string;
+  public Upload: string;
+
   constructor(
-    private desktopThemeService: ThemeEmitterService
+    private desktopThemeService: ThemeEmitterService,
+    private translation: TranslationService
   ) {
     this.selectedColor = Colors.COOLGREY_90;
     this.selectedSize = 2;
@@ -73,6 +88,7 @@ export class PersonalizationComponent implements OnInit {
     "#ff9800", "#252628", "#6d7176", "#f3f4f4"];
     this.files = [];
     this.swatch1Style; this.swatch2Style; this.swatch3Style; this.swatch4Style; this.swatch5Style; // Avoid TS compile problems
+    this.updateLanguageStrings();
   }
 
   ngOnInit(): void {
@@ -86,9 +102,7 @@ export class PersonalizationComponent implements OnInit {
     if (selectedColorHSL != null) {
       this.updateLightnessSwatches(selectedColorHSL);
     }
-    if (this.selectedColor == Colors.COOLGREY_90) {
-      this.selectedCircle = 16;
-    }
+    this.whichColorAmI();
   }
 
   /* More info on conversion chart can be found at: https://css-tricks.com/converting-color-spaces-in-javascript/ */
@@ -297,6 +311,19 @@ export class PersonalizationComponent implements OnInit {
     this.sliderImgData = ctx.getImageData(0, 0, canvasElem.nativeElement.width, canvasElem.nativeElement.height);
   }
 
+  updateLanguageStrings(): void {
+    this.Back = this.translation.translate('Back', null);
+    this.ResetToDefault = this.translation.translate('Reset to default', null);
+    this.Background = this.translation.translate('Wallpaper', null);
+    this.DragWallpaperHereOr = this.translation.translate('Drag wallpaper here or', null);
+    this.Color = this.translation.translate('Color', null);
+    this.SelectColor = this.translation.translate('Select color', null);
+    this.OrHue = this.translation.translate('or hue.', null);
+    this.SelectLightness = this.translation.translate('Select lightness.', null);
+    this.Size = this.translation.translate('Size', null);
+    this.Upload = this.translation.translate('Upload', null);
+  }
+
   updateLightnessSwatches(hslColor: number[]): void {
     this.swatch1Style = { 'background-color': 'hsl(' + hslColor[0] + ',' + hslColor[1]*100 + '%,' + 80 + '%)'};
     this.swatch2Style = { 'background-color': 'hsl(' + hslColor[0] + ',' + hslColor[1]*100 + '%,' + 65 + '%)'};
@@ -340,15 +367,13 @@ export class PersonalizationComponent implements OnInit {
     for (const droppedFile of event.files) {
 
       // Is it a file?
-      if (droppedFile.fileEntry.isFile) {
+      if (droppedFile.fileEntry.isFile) { // TODO: Verify file extensions here
         const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
         fileEntry.file((file: File) => {
 
           // Here you can access the real file
           this.logger.debug(droppedFile.relativePath, file);
           this.desktopThemeService.changeWallpaper(file);
-
-
         });
       } else { // It was a directory
         // TODO: Folders are disabled by default, so not sure how this would trigger, but maybe notification for fail?
@@ -367,6 +392,15 @@ export class PersonalizationComponent implements OnInit {
 
   goBack(): void {
     this.desktopThemeService.goBack();
+  }
+
+  whichColorAmI(): void {
+    var index: number;
+    for (index = 1; index <= this.paletteColors.length; index++) {
+      if (this.selectedColor == this.paletteColors[index]) {
+        this.selectedCircle = index;
+      }
+    }
   }
 
 }

@@ -19,7 +19,7 @@ import { StorageService } from '../storage.service';
 import { StorageKey } from '../storage-enum';
 import { IdleWarnService } from '../idleWarn.service';
 
-const ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
+let ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
 const PASSWORD_EXPIRED = "PasswordExpired";
 
@@ -78,6 +78,7 @@ export class LoginComponent implements OnInit {
       case MVDHosting.LoginScreenChangeReason.UserLogin:
         this.errorMessage = '';
         this.needLogin = false;
+        this.renewSession();
         this.detectActivity();
         break;
       case MVDHosting.LoginScreenChangeReason.PasswordChange:
@@ -247,14 +248,31 @@ export class LoginComponent implements OnInit {
       result => {
         let jsonMessage = result.json();
         if (jsonMessage.categories) {
+          let nearestExpiration = -1;
           let keys = Object.keys(jsonMessage.categories);
           for (let i = 0; i < keys.length; i++) {
-            let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
-            for (let j = 0; j < plugins.length; j++) {
-              if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
-                this.passwordServices.add(plugins[j]);
+            let category = jsonMessage.categories[keys[i]];
+            let nearestExpirationForCategory = -1;
+            let pluginKeys = Object.keys(category.plugins);
+            for (let j = 0; j < pluginKeys.length; j++) {
+              let plugin = category.plugins[pluginKeys[j]];
+              if (plugin.expms) {
+                if (nearestExpirationForCategory == -1 || nearestExpirationForCategory > plugin.expms) {
+                  nearestExpirationForCategory = plugin.expms;
+                  if (nearestExpiration == -1 || nearestExpiration > nearestExpirationForCategory) {
+                    nearestExpiration = nearestExpirationForCategory;
+                  }
+                }
+              }
+              if (plugin.canChangePassword) {
+                this.passwordServices.add(plugin);
               }
             }
+          }
+          if (nearestExpiration != -1 && nearestExpiration < 300000) {
+            ACTIVITY_IDLE_TIMEOUT_MS = Math.round(nearestExpiration/2);
+          } else {
+            ACTIVITY_IDLE_TIMEOUT_MS = 300000;
           }
         }
         if (this.expiredPassword) {

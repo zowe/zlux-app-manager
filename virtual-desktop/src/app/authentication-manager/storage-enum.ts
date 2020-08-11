@@ -13,7 +13,8 @@
 export const enum StorageKey {
   LAST_ACTIVE = 'ZoweZLUX.lastActive',
   I18_NEXT_LANG = 'i18nextLng',
-  USERNAME = 'username'
+  USERNAME = 'username',
+  SESSION_EVENT = 'ZoweZLUX.sessionEvent'
 };
 
 

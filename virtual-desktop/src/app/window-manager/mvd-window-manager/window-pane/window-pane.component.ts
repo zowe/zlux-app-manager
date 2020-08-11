@@ -18,9 +18,11 @@ import { DesktopWindow } from '../shared/desktop-window';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
+import { TranslationService } from 'angular-l10n';
 
 const DESKTOP_PLUGIN = ZoweZLUX.pluginManager.getDesktopPlugin();
 const DESKTOP_WALLPAPER_URI = ZoweZLUX.uriBroker.pluginConfigUri(DESKTOP_PLUGIN,'ui/themebin', 'wallpaper');
+const DESKTOP_WALLPAPER_MAX_SIZE = 3;
 
 @Component({
   selector: 'rs-com-window-pane',
@@ -40,6 +42,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     private injector: Injector,
     private http: HttpClient,
     private themeService: ThemeEmitterService,
+    private translation: TranslationService,
   ) {
     this.logger.debug("ZWED5320I", windowManager); //this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;
@@ -75,13 +78,27 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
 
     this.themeService.onWallpaperChange
       .subscribe((image:any) => {
+        let temp = this.wallpaper.background;
+        this.resetWallpaperDefault();
         // TODO: Fix bug where sometimes uploading one image after another, fails to render new image (but works after restart)
         this.http.put<DesktopTheme>(DESKTOP_WALLPAPER_URI, image)
           .subscribe((data: any) => { 
             this.resetWallpaperDefault();
             this.logger.debug("Attempted to post image with status: ", data);
             this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
-          });
+          },
+          (error: any) => {
+            this.wallpaper.background = temp;
+            const notifTitle = this.translation.translate("Personalization");
+            let notifMessage;
+            if (error.status = 413) //payload too large
+            { // Needs translations
+              notifMessage = `Wallpaper changed failed: Server supports a max size of '` + DESKTOP_WALLPAPER_MAX_SIZE + `' mb.`;
+            } else {
+              notifMessage = `Wallpaper changed failed - ` + error.status + `: ` + error.message;
+            }
+            ZoweZLUX.notificationManager.notify(ZoweZLUX.notificationManager.createNotification(notifTitle, notifMessage, 1, "org.zowe.zlux.ng2desktop.settings"));
+          } );
       });
 
     this.themeService.onResetAllDefault

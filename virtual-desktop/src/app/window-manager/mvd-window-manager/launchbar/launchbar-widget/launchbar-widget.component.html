@@ -22,7 +22,7 @@
      [style.bottom]="popupBottom"
      [style.background]="color.launchbarMenuColor"
      [style.color]="color.launchbarMenuText">
-  <div [hidden]="notifications.length > 0" class="no-notifications">No Notifications</div>
+  <div [hidden]="notifications.length > 0" class="no-notifications">{{NoNotifications}}</div>
   <div class="notification-item" *ngFor="let item of notifications; let i = index" [attr.data-index]="i">
       <div class="outer-container" (click)="focusApplication(i)">
           <div class="notification-icon-container">
