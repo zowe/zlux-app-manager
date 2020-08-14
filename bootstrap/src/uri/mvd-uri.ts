@@ -16,6 +16,11 @@ const uri_prefix = window.location.pathname.split('ZLUX/plugins/')[0];
 const proxy_mode = (uri_prefix !== '/') ? true : false; // Tells whether we're behind API layer (true) or not (false)
 
 export class MvdUri implements ZLUX.UriBroker {
+
+  usingAPIML(): boolean {
+    return proxy_mode && window.location.pathname.startsWith('/ui/v1/zlux');
+  }
+  
   rasUri(uri: string): string {
     return `${this.serverRootUri(`ras/${uri}`)}`;
   }
