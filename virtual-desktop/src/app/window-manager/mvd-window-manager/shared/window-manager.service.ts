@@ -31,6 +31,7 @@ import { ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEven
 import { KeybindingService } from './keybinding.service';
 import { KeyCode } from './keycode-enum';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
+import { HttpClient } from '@angular/common/http';
 
 type PluginIdentifier = string;
 const DEFAULT_DESKTOP_SHORT_TITLE = 'Zowe';
@@ -58,6 +59,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private _lastScreenshotPluginId: string = '';  
   private _lastScreenshotWindowId: number = -1;
   public showPersonalizationPanel: boolean = false;
+  private autoSaveInterval : number = 60000;
+  public autoSaveFiles : {[key:string]:number} = {};
+  public autoSaveFileAllowDelete : boolean = true;
+  public autoSaveDataClean : boolean = false;
   /*
    * NOTES:
    * 1. We ignore the width and height here (I am reluctant to make a new data type just for this,
@@ -81,7 +86,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     private windowMonitor: WindowMonitor,
     private componentFactoryResolver: ComponentFactoryResolver,
     private appKeyboard: KeybindingService,
-    private themeService: ThemeEmitterService
+    private themeService: ThemeEmitterService,
+    private http: HttpClient
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -429,12 +435,58 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     };
   }
 
+  public launchDesktopAutoSavedApplications(){
+    this.http.get<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/app', undefined)).subscribe(res => {
+      if(res){
+        for (let pluginWindow in res.contents){
+          let pluginName = pluginWindow.split('-')[0] 
+          this.applicationManager.spawnApplication(new DesktopPluginDefinitionImpl(ZoweZLUX.pluginManager.getPlugin(pluginName)),{"data":{"type":"setAppRequest","actionType":"Launch","targetMode":"PluginCreate","appData":res.contents[pluginWindow].data.appData}})
+          
+         this.autoSaveDataClean = true;
+        }
+      }
+    });
+  }
+
+  private savePluginData(plugin:ZLUX.Plugin,windowId:number,data:any){
+    let pathToSave : any = 'pluginData' + '/' + 'app'
+    let fileNameToSave : string = plugin.getIdentifier() + '-' + windowId
+    if(this.autoSaveDataClean){
+      this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/app',undefined)).subscribe(()=>
+              this.logger.info('Deleted AutoSaveData for Desktop Plugins')
+      )
+      this.autoSaveDataClean = false;
+    }
+    if(this.autoSaveFiles[fileNameToSave] !== undefined){
+      this.http.put<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave+'&lastmod='+this.autoSaveFiles[fileNameToSave]), data).subscribe(res => {
+        this.autoSaveFiles[fileNameToSave] = res.maccessms 
+        this.logger.info('Saved data for plugin:',plugin.getIdentifier())
+      })
+    }else{
+      this.http.put<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave), data).subscribe(res => {
+        this.autoSaveFiles[fileNameToSave] = res.maccessms 
+        this.logger.info('Saved data for plugin:',plugin.getIdentifier())
+      })
+    }
+  };
+  
   private generateSessionEventsProvider(windowId: MVDWindowManagement.WindowId): Angular2PluginSessionEvents {
     const login = new Subject<void>();
     const sessionExpire = new Subject<void>();
+    const autosaveEmitter = new Subject<any>();
+    let desktopWin: DesktopWindow|undefined = this.windowMap.get(windowId);
+    if (desktopWin) {
+      let plugin: ZLUX.Plugin = desktopWin.plugin;
+      setInterval(()=> {
+        autosaveEmitter.next((data:any)=> {
+          this.savePluginData(plugin,windowId,data)
+        });
+      },this.autoSaveInterval); 
+    }
     const sessionEvents: Angular2PluginSessionEvents = {
       login,
-      sessionExpire
+      sessionExpire,
+      autosaveEmitter
     }
     this.sessionSubscriptions.set(windowId, sessionEvents)
     return sessionEvents
@@ -578,6 +630,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     const closeViewports = ()=> {
       desktopWindow.closeViewports(this.viewportManager).then(()=> {
         if (appId!=null) {
+          let filePath : any = 'pluginData' + '/' + 'app'
+          let fileNameToDelete : string = desktopWindow.plugin.getIdentifier() + '-' + appId
+          if(this.autoSaveFileAllowDelete && desktopWindow.plugin.getWebContent().autosave == true){
+            this.http.delete(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),filePath,fileNameToDelete)).subscribe(()=>
+            this.logger.info('Deleted AutoSaveData for plugin:',desktopWindow.plugin.getIdentifier())
+          );
+          }
           this.applicationManager.killApplication(desktopWindow.plugin, appId);
         }
         this.destroyWindow(windowId);

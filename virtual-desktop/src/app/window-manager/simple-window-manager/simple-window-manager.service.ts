@@ -14,12 +14,13 @@ import { Injectable, Injector, EventEmitter } from '@angular/core';
 // import { DesktopPluginDefinition } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { ViewportManager } from 'app/application-manager/viewport-manager/viewport-manager.service';
 import { ContextMenuItem, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginSessionEvents } from 'pluginlib/inject-resources';
-//import { BaseLogger } from 'virtual-desktop-logger';
+import { BaseLogger } from 'virtual-desktop-logger';
 import { Subject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class SimpleWindowManagerService implements MVDWindowManagement.WindowManagerServiceInterface {
-  //private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private theViewportId: MVDHosting.ViewportId;
   readonly windowResized: EventEmitter<{ width: number, height: number }>;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
@@ -27,10 +28,15 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
+  private autoSaveInterval : number = 60000;
+  public autoSaveFiles : {[key:string]:number} = {};
+  public autoSaveFileAllowDelete : boolean = true; 
+  public autoSaveDataClean : boolean = false;
   
   constructor(
     private viewportManager: ViewportManager,
-    private injector: Injector
+    private injector: Injector,
+    private http: HttpClient
   ) {
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken)
@@ -90,9 +96,30 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
     return providers;
   }
 
+  public launchDesktopAutoSavedApplications(){
+    return 1;
+  }
+  
+  private savePluginData(plugin:ZLUX.Plugin,data:any){
+    let pathToSave : any = 'pluginData' + '/' + 'singleApp'
+    let fileNameToSave : string = plugin.getIdentifier()
+    if(this.autoSaveFiles[fileNameToSave] !== undefined){
+      this.http.put<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave+'&lastmod='+this.autoSaveFiles[fileNameToSave]), data).subscribe(res => {
+        this.autoSaveFiles[fileNameToSave] = res.maccessms 
+        this.logger.info('Saved data for plugin:',plugin.getIdentifier())
+      })
+    }else{
+      this.http.put<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),pathToSave,fileNameToSave), data).subscribe(res => {
+        this.autoSaveFiles[fileNameToSave] = res.maccessms 
+        this.logger.info('Saved data for plugin:',plugin.getIdentifier())
+      })
+    }
+  };
+
   private generateSessionEventsProvider(): Angular2PluginSessionEvents {
     const loginSubject = new Subject<void>();
     const sessionExpireSubject = new Subject<void>();
+    const autosaveEmitter = new Subject<any>();
     this.authenticationManager.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
         case MVDHosting.LoginScreenChangeReason.UserLogin:
@@ -104,9 +131,18 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
       default:
       }
     });
+    let plugin: ZLUX.Plugin = this.pluginDef.getBasePlugin();
+    if (plugin) {
+      setInterval(()=> {
+        autosaveEmitter.next((data:any)=> {
+          this.savePluginData(plugin,data)
+        });
+      },this.autoSaveInterval); 
+    }
     return {
       login: loginSubject,
-      sessionExpire: sessionExpireSubject
+      sessionExpire: sessionExpireSubject,
+      autosaveEmitter: autosaveEmitter
     };
   }
 

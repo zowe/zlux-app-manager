@@ -56,6 +56,7 @@ export interface Angular2PluginWindowActions {
 export interface Angular2PluginSessionEvents {
   readonly login: Subject<void>;
   readonly sessionExpire: Subject<void>;
+  readonly autosaveEmitter: Subject<any>;
 }
 
 export interface Angular2PluginThemeEvents {

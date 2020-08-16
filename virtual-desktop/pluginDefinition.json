@@ -40,6 +40,17 @@
             "aggregationPolicy": "none"
           }
         }
+      },
+      "pluginData": {
+        "aggregationPolicy": "override",
+        "subResources": {
+          "app": {
+            "aggregationPolicy": "override"
+          },
+          "singleApp": {
+            "aggregationPolicy": "override"
+          }
+        }
       }
     }
   },
