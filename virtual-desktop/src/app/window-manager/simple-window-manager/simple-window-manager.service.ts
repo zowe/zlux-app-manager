@@ -28,7 +28,7 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 
   contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
-  private autoSaveInterval : number = 60000;
+  private autoSaveInterval : number = 300000;
   public autoSaveFiles : {[key:string]:number} = {};
   public autoSaveFileAllowDelete : boolean = true; 
   public autoSaveDataClean : boolean = false;

@@ -59,7 +59,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private _lastScreenshotPluginId: string = '';  
   private _lastScreenshotWindowId: number = -1;
   public showPersonalizationPanel: boolean = false;
-  private autoSaveInterval : number = 60000;
+  private autoSaveInterval : number = 300000;
   public autoSaveFiles : {[key:string]:number} = {};
   public autoSaveFileAllowDelete : boolean = true;
   public autoSaveDataClean : boolean = false;
