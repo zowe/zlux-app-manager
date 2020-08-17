@@ -42,14 +42,22 @@ class Main extends React.Component<any, any> {
     }
 
     function serializeDocs(args) {
-      let docList = args.docsList.map(function(doc) {
+      if (typeof args.docsList === "string") {
         return (
-          <li key={args.pluginIdentifier}>{doc[0]}
-          <button type="button" onClick={() => args.getDoc(args.pluginIdentifier, doc[1] + '/' + doc[0])}>{t('Get Doc')}</button>
+          <li>
+            {args.docsList}
           </li>
         )
-      }) 
-      return docList
+      } else {
+        let docList = args.docsList.map(function(doc) {
+          return (
+            <li key={args.pluginIdentifier}>{doc[0]}
+              <button type="button" onClick={() => args.postDocToServer(args.pluginIdentifier, '/doc' + doc[1])}>{t('Get Doc')}</button>
+            </li>
+          )
+        }) 
+        return docList
+      }
     }
   
     return (

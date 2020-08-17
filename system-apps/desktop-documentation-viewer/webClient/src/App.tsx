@@ -19,19 +19,11 @@ class App extends React.Component<any, any> {
   constructor(props){
     super(props);
     this.log = this.props.resources.logger;
-    let metadata = this.props.resources.launchMetadata;
-    if (metadata != null && metadata.data != null && metadata.data.type != null) {
-      this.handleLaunchOrMessageObject(metadata.data);
-    } else {
-      this.state = this.getDefaultState();
-    }
-
+    this.state = this.getDefaultState();
   };
 
   private getDefaultState() {
     return {
-      actionType: "Launch",
-      appTarget: "PluginCreate",
       docsList: "",
       pluginIdentifier: "",
       allPlugins: ZoweZLUX.pluginManager.loadPlugins("application", false).__zone_symbol__value,
@@ -47,54 +39,6 @@ class App extends React.Component<any, any> {
       this.setState(stateUpdate);
     }
   }
-
-  handleLaunchOrMessageObject(data: any) {
-    switch (data.type) {
-    case 'setAppRequest':
-      let actionType = data.actionType;
-      let msg:string;
-      if (actionType == 'Launch' || actionType == 'Message') {
-        let mode = data.targetMode;
-        if (mode == 'PluginCreate' || mode == 'PluginFindAnyOrCreate') {
-          this.updateOrInitState({actionType: actionType,
-                                  appTarget: mode,
-                                  appId: data.targetAppId,
-                                  parameters: data.requestText});
-        } else {
-          msg = `Invalid target mode given (${mode})`;
-          this.log.warn(msg);
-          this.updateOrInitState({status: msg});
-        }
-      } else {
-        msg = `Invalid action type given (${actionType})`;
-        this.log.warn(msg);
-        this.updateOrInitState({status: msg});
-      }
-      break;
-    default:
-      this.log.warn(`Unknown command (${data.type}) given in launch metadata.`);
-    }
-  }
-
-  zluxOnMessage(eventContext: any): Promise<any> {
-    return new Promise((resolve,reject)=> {
-      if (eventContext != null && eventContext.data != null && eventContext.data.type != null) {
-        resolve(this.handleLaunchOrMessageObject(eventContext.data));
-      } else {
-        let msg = 'Event context missing or malformed';
-        this.log.warn('onMessage '+msg);
-        return reject(msg);
-      }
-    });
-  }
-  
-  provideZLUXDispatcherCallbacks(): ZLUX.ApplicationCallbacks {
-    return {
-      onMessage: (eventContext: any): Promise<any> => {
-        return this.zluxOnMessage(eventContext);
-      }      
-    }
-  }  
 
   getPluginsFromServer() {
     let allPlugins = ZoweZLUX.pluginManager.loadPlugins("application", false);
@@ -120,7 +64,7 @@ class App extends React.Component<any, any> {
       });
   }
 
-  getDoc(identifier: string, path: string) {
+  postDocToServer(identifier: string, path: string) {
     let url = ZoweZLUX.uriBroker.pluginRESTUri(this.props.resources.pluginDefinition.getBasePlugin(), 'plugindetail', `${identifier}`);
     fetch(url, {
       method: 'POST',
@@ -135,7 +79,6 @@ class App extends React.Component<any, any> {
     })
       .then(res => {
         this.log.info(`Res=${res}`);
-        console.log(res);
       })
   }
 
@@ -154,7 +97,7 @@ class App extends React.Component<any, any> {
                 allPlugins={this.state.allPlugins}
                 docsList={this.state.docsList}
                 pluginIdentifier={this.state.pluginIdentifier}
-                getDoc={this.getDoc.bind(this)}
+                postDocToServer={this.postDocToServer.bind(this)}
                 getPluginDocsInfoFromServer={this.getPluginDocsInfoFromServer.bind(this)}
                 getPluginsFromServer={this.getPluginsFromServer.bind(this)}
               />}
