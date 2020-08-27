@@ -32,7 +32,10 @@ var config = {
         from: path.resolve(__dirname, './src/assets'),
         to: path.resolve('../web/assets')
       }
-    ])
+    ]),
+    new MonacoWebpackPlugin({
+      languages: ['json']
+    })
   ]
 };
 
