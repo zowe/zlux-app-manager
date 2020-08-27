@@ -11,6 +11,7 @@
 import * as React from 'react';
 import { MemoryRouter, Route } from 'react-router';
 import Main from './Main';
+import DocView from './docView';
 import { withTranslation } from 'react-i18next';
 
 class App extends React.Component<any, any> {
@@ -24,6 +25,7 @@ class App extends React.Component<any, any> {
 
   private getDefaultState() {
     return {
+      code: "",
       docsList: "",
       pluginIdentifier: "",
       allPlugins: ZoweZLUX.pluginManager.loadPlugins("application", false).__zone_symbol__value,
@@ -79,7 +81,12 @@ class App extends React.Component<any, any> {
     })
       .then(res => {
         this.log.info(`Res=${res}`);
-      })
+        if (res) {
+          this.setState({
+            code: res
+          });
+        }
+      });
   }
 
   public render(): JSX.Element {
@@ -101,6 +108,12 @@ class App extends React.Component<any, any> {
                 getPluginDocsInfoFromServer={this.getPluginDocsInfoFromServer.bind(this)}
                 getPluginsFromServer={this.getPluginsFromServer.bind(this)}
               />}
+          />
+          <Route path="/docview"
+            render={(props) =>
+            <DocView {...props}
+              code={this.state.code}
+            />}
           />
         </div>
         </MemoryRouter>
