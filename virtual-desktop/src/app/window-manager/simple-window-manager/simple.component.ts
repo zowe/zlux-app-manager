@@ -17,6 +17,7 @@ import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-p
 import { SimpleWindowManagerService } from "./simple-window-manager.service";
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'rs-com-root',
@@ -35,6 +36,7 @@ export class SimpleComponent implements OnInit {
     private applicationManager: ApplicationManager,
     private pluginManager: PluginManager,
     private injector: Injector,
+    private HTTP:HttpClient
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.windowManager = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
@@ -73,12 +75,17 @@ export class SimpleComponent implements OnInit {
           link.href = imageUrl;
           document.getElementsByTagName('head')[0].appendChild(link);
         }
-        const launchMetadata = {
+        const launchMetadata : {[key: string]: any}= {
           singleAppMode: true,
           arguments: this.parseUriArguments()
         };
-        this.applicationManager.spawnApplication(plugin as DesktopPluginDefinitionImpl, launchMetadata);
-        this.viewportId = this.windowManager.getViewportId(1);
+        this.HTTP.get<any>(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(),'pluginData/singleApp',plugin.getIdentifier())).subscribe(res => {
+          if(res){
+            launchMetadata["data"] = {"appData" : res.contents.appData,"type":"setAppRequest","actionType":"Launch","targetMode":"PluginCreate"} 
+          }
+          this.applicationManager.spawnApplication(plugin as DesktopPluginDefinitionImpl, launchMetadata);
+          this.viewportId = this.windowManager.getViewportId(1);
+        });
       } else {
         let message = "Cannot find plugin with ID="+pluginID;
         this.logger.severe("ZWED5144E", pluginID); //this.logger.severe(message);
