@@ -13,6 +13,10 @@
 var path = require('path');
 var webpackConfig = require('webpack-config');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+
+const pubPath = "/ZLUX/plugins/org.zowe.zlux.desktop.documentation.viewer/web/";
+process.env.ASSET_PATH=pubPath;
 
 if (process.env.MVD_DESKTOP_DIR == null) {
   throw new Error('You must specify MVD_DESKTOP_DIR in your environment');
@@ -25,6 +29,7 @@ var config = {
   'output': {
     'path': path.resolve(__dirname, '../web'),
     'filename': 'main.js',
+    publicPath: pubPath
   },
   'plugins': [
     new CopyWebpackPlugin([
@@ -33,16 +38,13 @@ var config = {
         to: path.resolve('../web/assets')
       }
     ]),
-    new MonacoWebpackPlugin({
-      languages: ['json']
-    })
+    new MonacoWebpackPlugin({publicPath: pubPath})
   ]
 };
 
 module.exports = new webpackConfig.Config()
   .extend(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack.react.base.js'))
   .merge(config);
-
 
 /*
   This program and the accompanying materials are
