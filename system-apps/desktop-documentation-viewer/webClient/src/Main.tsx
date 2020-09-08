@@ -52,7 +52,9 @@ class Main extends React.Component<any, any> {
         let docList = args.docsList.map(function(doc) {
           return (
             <li key={args.pluginIdentifier}>{doc[0]}
-              <button type="button" onClick={() => args.postDocToServer(args.pluginIdentifier, '/doc' + doc[1])}>{t('Get Doc')}</button>
+            <button type="button" onClick={() => { 
+              args.postDocToServer(args.pluginIdentifier, '/doc' + doc[1]);
+              }}>{t('Get Doc')}</button>
             </li>
           )
         }) 
