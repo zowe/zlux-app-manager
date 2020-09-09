@@ -20,6 +20,7 @@ import { StartURLManager } from '../start-url-manager';
 import { StorageService } from './storage.service';
 import { Subscription } from 'rxjs/Subscription';
 
+
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {
     ZoweZLUX.notificationManager.removeAll()
@@ -161,6 +162,7 @@ export class AuthenticationManager {
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
       this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     if (reason == MVDHosting.LoginScreenChangeReason.UserLogout) {
+      windowManager.autoSaveFileAllowDelete = false;
       windowManager.closeAllWindows();
     }
 
@@ -205,6 +207,9 @@ export class AuthenticationManager {
       }).catch((err:any)=> {
         observer.error(err);
       });
+
+      const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+      windowManager.launchDesktopAutoSavedApplications();
     });
   }
 
@@ -276,6 +281,7 @@ export class AuthenticationManager {
       },warnTimer);
       this.log.debug("ZWED5302I", warnTimer); //this.log.debug(`Set session timeout watcher to notify ${warnTimer}ms before expiration`);
     }
+    window.localStorage.setItem("ZoweZLUX.expirationTime",this.nearestExpiration.toString())
   }
 
   performSessionRenewal(): Observable<Response> {
@@ -307,6 +313,9 @@ export class AuthenticationManager {
         this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
       windowManager.closeAllWindows();
     }
+    const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
+        this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+    windowManager.autoSaveFileAllowDelete = true;
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth'), { username: username, password: password })
     .map(result => {
       let jsonMessage = result.json();

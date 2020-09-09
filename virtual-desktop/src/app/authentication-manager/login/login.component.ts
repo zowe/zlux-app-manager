@@ -261,6 +261,7 @@ export class LoginComponent implements OnInit {
                   nearestExpirationForCategory = plugin.expms;
                   if (nearestExpiration == -1 || nearestExpiration > nearestExpirationForCategory) {
                     nearestExpiration = nearestExpirationForCategory;
+                    window.localStorage.setItem("ZoweZLUX.expirationTime",nearestExpiration.toString())
                   }
                 }
               }

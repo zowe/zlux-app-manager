@@ -10,17 +10,18 @@
 
 <!-- TODO: This page needs internationalization support -->
 <div class="personalization-main-window">
-  <label class="personalization-label small back-button top" (click)="goBack()">
+  <label class="personalization-label small back-button top" (click)="goBack()" id="ZAP_Personalization_BackButton">
     <em class="fa fa-chevron-left" style="padding: 5px; font-size: large; padding-right: 7px; margin-top: 2px;"></em>{{Back}}
   </label>
 
-  <label class="personalization-label small reset-button top" (click)="resetAllDefault()">{{ResetToDefault}}
+  <label class="personalization-label small reset-button top" (click)="resetAllDefault()" id="ZAP_Personalization_ResetButton">{{ResetToDefault}}
     <em class="fa fa-trash" style="padding: 5px; font-size: large;"></em>
   </label>
 
   <label class="personalization-label" style="padding-top: 10px;">{{Background}}</label>
 
   <file-drop 
+    id="ZAP_Personalization_FileDrop"
     (onFileDrop)="fileDrop($event)" 
     multiple="false"
     style="color: white !important;"
@@ -31,7 +32,7 @@
     </file-drop>
 
   <label class="personalization-label">{{Color}}</label>
-  <div class="personalization-color-1"> <!-- Color circle group -->
+  <div class="personalization-color-1" id="ZAP_Personalization_ColorCircleGroup"> <!-- Color circle group -->
     <div class="personalization-text" style="margin-left: -15px;">{{SelectColor}}</div>
     <canvas #circle1 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 1,
       'personalization-circle': true}" (click)="clickCircle(1)"></canvas>
@@ -70,12 +71,12 @@
     <canvas #circle18 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 18,
       'personalization-circle': true}" (click)="clickCircle(18)"></canvas>
   </div>
-  <div class="personalization-color-2"> <!-- Hue slider -->
+  <div class="personalization-color-2" id="ZAP_Personalization_HueSlider"> <!-- Hue slider -->
     <div class="personalization-text">{{OrHue}}</div>
     <canvas #slider1 width="389" height="14" (click)="clickSlider($event)"></canvas>
   </div>
   <div class="personalization-text">{{SelectLightness}}</div>
-  <div class="personalization-color-3"> <!-- Lightness swatches bar -->
+  <div class="personalization-color-3" id="ZAP_Personalization_LightnessBar"> <!-- Lightness swatches bar -->
     <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .8,
       'personalization-swatch': true}" id="swatch1" (click)=clickLightness(0.8) [ngStyle]="swatch1Style"></div>
     <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .65,
@@ -91,11 +92,11 @@
 
   <!-- Ideally, this would say something like alt="Select Size small" but alt attribute adds a weird artifact -->
   <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 1,
-    'personalization-preview-item preview-small': true}" (click)="sizeSelected('small')" alt="">
+    'personalization-preview-item preview-small': true}" (click)="sizeSelected('small')" alt="" id="ZAP_Personalization_SelectSmall">
   <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 2,
-    'personalization-preview-item preview-medium': true}" (click)="sizeSelected('medium')" alt="">
+    'personalization-preview-item preview-medium': true}" (click)="sizeSelected('medium')" alt="" id="ZAP_Personalization_SelectMedium">
   <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 3,
-    'personalization-preview-item preview-large': true}" (click)="sizeSelected('large')" alt="">
+    'personalization-preview-item preview-large': true}" (click)="sizeSelected('large')" alt="" id="ZAP_Personalization_SelectLarge">
 
     <!-- TODO: Add text re-sizing functionality -->
   <!-- <label class="personalization-label">Text Size</label> -->

@@ -108,13 +108,16 @@ export class IFramePluginComponent {
       });
       this.themeEvents.colorChanged.subscribe(() => {
         this.postWindowEvent('themeEvents.colorChanged')
-      })
+      });
       this.themeEvents.sizeChanged.subscribe(() => {
         this.postWindowEvent('themeEvents.sizeChanged')
-      })
+      });
       this.themeEvents.wallpaperChanged.subscribe(() => {
         this.postWindowEvent('themeEvents.wallpaperChanged')
-      })
+      });
+      this.sessionEvents.autosaveEmitter.subscribe(() => {
+        this.postWindowEvent('sessionEvents.saveData')
+      });
       return;
     }
     if(data.request.instanceId === this.instanceId){

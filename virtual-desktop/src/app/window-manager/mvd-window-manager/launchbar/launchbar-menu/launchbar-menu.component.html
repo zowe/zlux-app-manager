@@ -14,7 +14,8 @@
   <div class="mvd-launchbar-icon mvd-launchbar-icon-large launchbar-menu-icon"
        [style.width]="menuIconSize"
        [style.height]="menuIconSize"
-       (click)="activeToggle()"></div>
+       (click)="activeToggle()"
+       id="ZAP_DesktopHome_ZoweStart"></div>
 </div>
 
 <ng-template [ngIf]="isActive">
@@ -24,7 +25,10 @@
        [style.width]="menuWidth"
        [style.bottom]="menuBottom"
        (click)="setSearchFocus();">
-    <div style="cursor: pointer" class="refresh-plugins" (click)="refresh()">
+    <div style="cursor: pointer" 
+      class="refresh-plugins" 
+      (click)="refresh()"
+      id="ZAP_DesktopHome_RefreshApplications">
       {{translation.translate("Refresh Applications")}}
       <em style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></em>
     </div>
@@ -56,7 +60,8 @@
         [style.font-size]="menuText"
         [style.color]="color.launchbarMenuText"
         [(ngModel)]="appFilter"
-        (input)="filterMenuItems()">
+        (input)="filterMenuItems()"
+        id="ZAP_DesktopHome_SearchApplications">
     </div>
   </div>
 </ng-template>
