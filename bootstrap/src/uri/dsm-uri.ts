@@ -28,7 +28,8 @@ export class DsmUri implements ZLUX.UriBroker {
   unixFileUri(_route: string, _absPath: string,
               _sourceEncodingOrOptions?: string|ZLUX.UnixFileUriOptions, _targetEncoding?: string,
               _newName?: string, _forceOverwrite?: boolean, _sessionID?: number,
-              _lastChunk?: boolean, _responseType?: string): string {
+              _lastChunk?: boolean, _responseType?: string, _mode?: string, _recursive?: boolean,
+              _user?: string, _group?: string): string {
     return "";
   }
   omvsSegmentUri(): string {
