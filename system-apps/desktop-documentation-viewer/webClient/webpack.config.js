@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -15,8 +13,6 @@ var webpackConfig = require('webpack-config');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
-const pubPath = "/ZLUX/plugins/org.zowe.zlux.desktop.documentation.viewer/web/";
-process.env.ASSET_PATH=pubPath;
 
 if (process.env.MVD_DESKTOP_DIR == null) {
   throw new Error('You must specify MVD_DESKTOP_DIR in your environment');
@@ -29,7 +25,6 @@ var config = {
   'output': {
     'path': path.resolve(__dirname, '../web'),
     'filename': 'main.js',
-    publicPath: pubPath
   },
   'plugins': [
     new CopyWebpackPlugin([
@@ -38,7 +33,7 @@ var config = {
         to: path.resolve('../web/assets')
       }
     ]),
-    new MonacoWebpackPlugin({publicPath: pubPath})
+    new MonacoWebpackPlugin()
   ]
 };
 

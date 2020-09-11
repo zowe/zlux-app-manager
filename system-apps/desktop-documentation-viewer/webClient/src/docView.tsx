@@ -9,36 +9,35 @@
 */
 
 // Still in Progress
+
 import * as React from 'react';
 import 'script-loader!./App-css.js';
 import { withTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor';
+import MonacoEditor from 'react-monaco-editor';
+
 
 class DocView extends React.Component<any, any> {
-  constructor(props) {
+  constructor(props){
     super(props);
-    this.state = {
-      code: this.props.code as any,
-    }
   }
 
-  public editorDidMount(editor, monaco) {
-    console.log('editorDidMount', editor);
-    editor.focus();
-  }
-
-  public onChange(newValue, e) {
+  onChange(newValue, e) {
     console.log('onChange', newValue, e);
   }
 
   public render(): JSX.Element {
-    const { t } = this.props;
-    const code = this.state.code;
-    const options = {
-      selectOnLineNumbers: true
-    };
+    const {t} = this.props;
+  
     return (
-      <div className="monaco-code-editor" id="monacoEditor"></div>
+      <MonacoEditor
+        width="900"
+        height="420"
+        language="yaml"
+        theme="vs-dark"
+        defaultValue=''
+        value={this.props.code}
+        onChange={this.onChange}
+      />
     );
   }
 }
