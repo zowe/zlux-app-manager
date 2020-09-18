@@ -23,6 +23,9 @@ export class AppComponent implements AfterViewInit, OnInit {
 
 	constructor(private http: HttpClient) {
     this.appList = [];
+    setInterval(()=> {
+      this.appList = JSON.parse(window.localStorage.getItem("org.zowe.zlux.generator"));
+    },1000);
 	}
 
   createCallback() {
@@ -32,27 +35,16 @@ export class AppComponent implements AfterViewInit, OnInit {
     }
   }
 
-	ngOnInit() {
-    const MY_PLUGIN_ID = ZoweZLUX.iframe.pluginDef.basePlugin.identifier;
-    ZoweZLUX.pluginManager.getPlugin(MY_PLUGIN_ID).then(plugin => {
-      ZoweZLUX.uriBroker.pluginRESTUri(plugin,'gen','project/get').then(uri => {
-        this.http.get(uri)
-          .subscribe((res:any)=> {
-            this.appList = res;
-            window.localStorage.setItem(MY_PLUGIN_ID, JSON.stringify(res));
-            /*
-            setInterval(()=> {
-              this.appList = JSON.parse(window.localStorage.getItem(MY_PLUGIN_ID));
-            },1000);
-            */
-          });
-      });
-    })
-	}
+  ngOnInit() { }
 
 	ngAfterViewInit() {
-
-	}
+    console.log("Called from ngAfterViewInit()");
+    this.http.get('/ZLUX/plugins/org.zowe.zlux.generator/services/gen/_current/project/get')
+      .subscribe((res:any)=> {
+        this.appList = res;
+        window.localStorage.setItem("org.zowe.zlux.generator", JSON.stringify(res));
+      });
+  }
 }
 
 /*

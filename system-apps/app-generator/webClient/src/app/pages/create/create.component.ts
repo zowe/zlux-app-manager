@@ -164,18 +164,20 @@ export class CreateComponent implements OnInit, AfterViewInit {
       projectInfo.webContent.startingPage = "html/index.html";
     }
     const MY_PLUGIN = ZoweZLUX.iframe.pluginDef.basePlugin;
+    MY_PLUGIN.identifier = "org.zowe.zlux.generator"; //hardcoded for now
     ZoweZLUX.uriBroker.pluginRESTUri(MY_PLUGIN,'gen','project/create').then(uri => {
       this.http.post(uri, projectInfo)
         .subscribe((res:any) => {
           let appList;
-
           if (window.localStorage.getItem(MY_PLUGIN.identifier) != null) {
-            appList = JSON.parse(window.localStorage.getItem(MY_PLUGIN.identifer));
+            //appList = JSON.parse(window.localStorage.getItem(MY_PLUGIN.identifer));
+            appList = JSON.parse(window.localStorage.getItem("org.zowe.zlux.generator"));
           } else {
             appList = [];
           }
           projectInfo.location = res.location;
           appList.push(projectInfo);
+          console.log(JSON.stringify(appList));
           window.localStorage.setItem(MY_PLUGIN.identifier, JSON.stringify(appList));
         });
     });
