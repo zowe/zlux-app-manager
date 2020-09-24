@@ -9,18 +9,9 @@
 */
 
 import * as React from 'react';
-import 'script-loader!./App-css.js';
+const styles = require('./App.css');
+const indexStyles = require('./index.css');
 import { withTranslation } from 'react-i18next';
-
-declare var styles: any;
-
-function mergeStyles(...args: any[]) {
-  let obj = {};
-  for (let i = 0; i < args.length; i++) {
-    Object.assign(obj, args[i]);
-  }
-  return obj;
-}
 
 
 class Main extends React.Component<any, any> {
@@ -53,7 +44,7 @@ class Main extends React.Component<any, any> {
           return (
             <li key={args.pluginIdentifier}>{doc[0]}
             <button type="button" onClick={() => { 
-              args.postDocToServer(args.pluginIdentifier, '/doc' + doc[1], args.history);
+              args.retrieveDocFromServer(args.pluginIdentifier, '/doc' + doc[1], args.history);
               }}>{t('Get Doc')}</button>
             </li>
           )
@@ -64,10 +55,10 @@ class Main extends React.Component<any, any> {
   
     return (
       <>
-      <div>
-        <header style={mergeStyles(styles.AppHeader, styles.App)}>Zowe Documentation Viewer</header>
+      <div className={`${styles.App} ${indexStyles.body}`}>
+        <header className={styles['App-header']}>Zowe Documentation Viewer</header>
         {this.props.allPlugins && <ul>{serializePlugin(this.props)}</ul>}
-        <button style={mergeStyles(styles.iframeButton, styles.shadowed, styles.App)} type="button" onClick={this.props.getPluginsFromServer}>{t('Refresh')}</button>
+        <button type="button" onClick={this.props.getPluginsFromServer}>{t('Refresh')}</button>
       </div>
       <div>
         {this.props.docsList && <ul>{serializeDocs(this.props)}</ul>}

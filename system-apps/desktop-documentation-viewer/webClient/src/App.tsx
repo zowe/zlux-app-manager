@@ -28,6 +28,9 @@ class App extends React.Component<any, any> {
       code: "",
       docsList: "",
       pluginIdentifier: "",
+      /* List of plugins stored inside a nested angular object. This can be improved by 
+         finding a workaround to get the list in more better way.
+      */
       allPlugins: ZoweZLUX.pluginManager.loadPlugins("application", false).__zone_symbol__value,
       destination: ZoweZLUX.uriBroker.pluginRESTUri(this.props.resources.pluginDefinition.getBasePlugin(), 'plugindetail', "")
     };
@@ -66,7 +69,7 @@ class App extends React.Component<any, any> {
       });
   }
 
-  postDocToServer(identifier: string, path: string, history: any) {
+  retrieveDocFromServer(identifier: string, path: string, x: any) {
     let url = ZoweZLUX.uriBroker.pluginRESTUri(this.props.resources.pluginDefinition.getBasePlugin(), 'plugindetail', `${identifier}`);
     fetch(url, {
       method: 'POST',
@@ -91,7 +94,7 @@ class App extends React.Component<any, any> {
           }
         })
       });
-    history.push('/docview');
+    x.push('/docview');
   }
 
   public render(): JSX.Element {
@@ -109,7 +112,7 @@ class App extends React.Component<any, any> {
                 allPlugins={this.state.allPlugins}
                 docsList={this.state.docsList}
                 pluginIdentifier={this.state.pluginIdentifier}
-                postDocToServer={this.postDocToServer.bind(this)}
+                retrieveDocFromServer={this.retrieveDocFromServer.bind(this)}
                 getPluginDocsInfoFromServer={this.getPluginDocsInfoFromServer.bind(this)}
                 getPluginsFromServer={this.getPluginsFromServer.bind(this)}
               />}

@@ -8,12 +8,10 @@
   Copyright Contributors to the Zowe Project.
 */
 
-// Still in Progress
-
 import * as React from 'react';
-import 'script-loader!./App-css.js';
+const styles = require('./App.css');
 import { withTranslation } from 'react-i18next';
-import MonacoEditor from 'react-monaco-editor';
+import MonacoEditor from 'react-monaco-editor'
 
 
 class DocView extends React.Component<any, any> {
@@ -29,15 +27,20 @@ class DocView extends React.Component<any, any> {
     const {t} = this.props;
   
     return (
-      <MonacoEditor
-        width="900"
-        height="420"
-        language="yaml"
-        theme="vs-dark"
-        defaultValue=''
-        value={this.props.code}
-        onChange={this.onChange}
-      />
+      <>
+      <div><button onClick={()=>this.props.history.push('/main')}>Back</button></div>
+      <div>
+        <MonacoEditor
+          width="900"
+          height="300"
+          language="yaml"
+          theme="vs-dark"
+          defaultValue=''
+          value={this.props.code}
+          onChange={this.onChange}
+        />
+      </div>
+      </>
     );
   }
 }

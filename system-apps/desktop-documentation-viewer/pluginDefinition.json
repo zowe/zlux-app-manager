@@ -28,17 +28,5 @@
       "initializerLookupMethod": "external",
       "version": "1.0.0"
     }
-  ],
-  "configurationData": {
-    "resources": {
-      "requests": {
-        "aggregationPolicy": "override",
-        "subResources": {
-          "app": {
-            "aggregationPolicy": "override"
-          }
-        }
-      }
-    }
-  }
+  ]
 }

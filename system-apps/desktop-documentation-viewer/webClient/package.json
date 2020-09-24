@@ -7,6 +7,7 @@
     "i18next": "~15.1.0",
     "i18next-browser-languagedetector": "~3.0.1",
     "i18next-xhr-backend": "~2.0.1",
+    "monaco-editor": "^0.20.0",
     "react": "~16.8.6",
     "react-dom": "~16.8.6",
     "react-i18next": "~10.9.0",

@@ -1,4 +1,4 @@
 {
-  "samplereact": "Zowe Desktop Documentation Viewer",
-  "SampleReactPluginDescription": "App enabling users to view text & pdf documents bundled into plugins."
+  "desktopDocumentationViewer": "Zowe Desktop Documentation Viewer",
+  "desktopDocumentationViewerDescription": "App enabling users to view text & pdf documents bundled into plugins."
 }

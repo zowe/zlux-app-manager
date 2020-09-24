@@ -9,8 +9,8 @@
 */
 
 const express = require('express');
-const Promise = require('bluebird');
-const fs = require('fs');
+const BPromise = require('bluebird');
+let fs_async = require("fs").promises;
 const path = require('path');
 import { Response, Request } from "express";
 import { Router } from "express-serve-static-core";
@@ -44,33 +44,46 @@ class PluginDetailDataservice {
       const pluginDefs: any = context.plugin.server.state.pluginMap;
       const identifier: string = req.params.identifier;
       const plugin: any = pluginDefs[identifier];
+      const error: string = "No documentation present";
       let location = plugin.location + relativePath;
       let serializedNamePath: Array<string> | string = [];
-      let error: string = "No documentation present";
-      
-      // Function for recursively checking the /doc directory
-      function findInDir (dir, fileList = []) {
-        let files: any;
-        try {
-          files = fs.readdirSync(dir);
-        } catch (err) {
-          context.logger.info(error, err);
-          return error;
-        }
-        files.forEach((file) => {
-          const filePath = path.join(dir, file);
-          const fileStat = fs.lstatSync(filePath);
-          if (fileStat.isDirectory()) {
-            findInDir(filePath, fileList);
-          } else {
-            let relativeFilePath = filePath.split('/doc')[1];
-            fileList.push([file, relativeFilePath]);
+      let listOfFilesAsync: Promise<any>;
+      let fileList: Array<any[]> = [];
+
+      // Async function for recursively checking the /doc directory
+      async function findInDirAsync (dir: string) {
+        let files: Array<string> | string = [];
+          try {
+            files = await fs_async.readdir(dir);
+          } catch (err) {
+            if (err.code !== 'ENOENT') {
+              return new Promise((resolve, reject) => resolve(fileList));
+            }
           }
-        });
-        return fileList;
+          for(let file of files) {
+            const filePath = path.join(dir, file);
+            const stat = await fs_async.lstat(filePath);
+            if (stat.isDirectory()) {
+              await findInDirAsync(filePath);
+            } else {
+              let relativeFilePath = filePath.split('/doc')[1];
+              fileList.push([file, relativeFilePath]);
+            }
+          }
+          return new Promise((resolve, reject) => resolve(fileList));
       }
-      serializedNamePath = findInDir(location);
-      res.status(200).json({"plugin": identifier, "doc": serializedNamePath});
+
+      listOfFilesAsync = findInDirAsync(location);
+      listOfFilesAsync.then((response) => {
+          if (response.length === 0) {
+            serializedNamePath = error;
+          } else {
+            serializedNamePath = response;
+          }
+          res.status(200).json({"plugin": identifier, "doc": serializedNamePath});
+      }).catch((err) => {
+          console.log(err);
+      });
     });
 
     // Returns the file contents of the specific doc requested
@@ -101,7 +114,7 @@ class PluginDetailDataservice {
 
 
 exports.pluginDetailRouter = function(context): Router {
-  return new Promise(function(resolve, reject) {
+  return new BPromise(function(resolve, reject) {
     let dataservice = new PluginDetailDataservice(context);
     resolve(dataservice.getRouter());
   });

@@ -4,7 +4,7 @@
   "description": "Dataservice to send the plugin details to client",
   "scripts": {
     "build": "tsc",
-    "start": "tsc --watch"
+    "start": "tsc -p tsconfig.json && tsc --watch"
   },
   "dependencies": {},
   "devDependencies": {
