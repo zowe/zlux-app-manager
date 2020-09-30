@@ -42,6 +42,7 @@ export class WindowComponent {
   public maximizeLeft: string;
   public closeLeft: string;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  public displayMinimize: string;
   
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.debug('Window theme set=',newTheme);
@@ -58,6 +59,13 @@ export class WindowComponent {
         this.buttonTop = '6px';
         this.textSize = '12px';
         this.textPad = '3px';
+        this.displayMinimize = "inherit";
+
+        /* TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
+        if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+          this.displayMinimize = "none";
+          this.maximizeLeft = this.minimizeLeft;
+        } */
         break;
       case 3:
         this.borderSize = '3px';
@@ -68,6 +76,13 @@ export class WindowComponent {
         this.buttonTop = '16px';
         this.textSize = '18px';
         this.textPad = '12px';
+        this.displayMinimize = "inherit";
+
+        /* TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
+        if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+          this.displayMinimize = "none";
+          this.maximizeLeft = this.minimizeLeft;
+        } */
         break;
       default: //Default size is medium - 2
         this.borderSize = '2px';
@@ -78,6 +93,13 @@ export class WindowComponent {
         this.buttonTop = '9px';
         this.textSize = '14px';
         this.textPad = '5px';
+        this.displayMinimize = "inherit";
+
+        /* TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
+        if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+          this.displayMinimize = "none";
+          this.maximizeLeft = this.minimizeLeft;
+        } */
     }
     switch (newTheme.color.windowTextActive) {
       case Colors.COOLGREY_90:
