@@ -143,9 +143,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.appKeyboard.keyUpEvent
       .subscribe((event:KeyboardEvent) => {
         if (event.which === KeyCode.DOWN_ARROW) {
-          /* TODO: Disable minimize hotkey once mvd-window-manager single app mode is functional. Variable subject to change.
-          if(this.focusedWindow !== null && !(window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) { */
-          if(this.focusedWindow !== null) {
+          // TODO: Disable minimize hotkey once mvd-window-manager single app mode is functional. Variable subject to change.
+          if(this.focusedWindow !== null && !(window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
             this.minimizeToggle(this.focusedWindow.windowId);
           }
         }

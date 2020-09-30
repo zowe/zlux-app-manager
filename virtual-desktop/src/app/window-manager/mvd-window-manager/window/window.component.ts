@@ -61,11 +61,11 @@ export class WindowComponent {
         this.textPad = '3px';
         this.displayMinimize = "inherit";
 
-        /* TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
+        // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
         if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
           this.displayMinimize = "none";
           this.maximizeLeft = this.minimizeLeft;
-        } */
+        }
         break;
       case 3:
         this.borderSize = '3px';
@@ -78,11 +78,11 @@ export class WindowComponent {
         this.textPad = '12px';
         this.displayMinimize = "inherit";
 
-        /* TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
+        // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
         if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
           this.displayMinimize = "none";
           this.maximizeLeft = this.minimizeLeft;
-        } */
+        }
         break;
       default: //Default size is medium - 2
         this.borderSize = '2px';
@@ -95,11 +95,11 @@ export class WindowComponent {
         this.textPad = '5px';
         this.displayMinimize = "inherit";
 
-        /* TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
+        // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
         if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
           this.displayMinimize = "none";
           this.maximizeLeft = this.minimizeLeft;
-        } */
+        }
     }
     switch (newTheme.color.windowTextActive) {
       case Colors.COOLGREY_90:
