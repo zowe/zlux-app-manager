@@ -28,6 +28,7 @@ class App extends React.Component<any, any> {
       code: "",
       docsList: "",
       pluginIdentifier: "",
+      language: "",
       /* List of plugins stored inside a nested angular object. This can be improved by 
          finding a workaround to get the list in more better way.
       */
@@ -71,6 +72,9 @@ class App extends React.Component<any, any> {
 
   retrieveDocFromServer(identifier: string, path: string, x: any) {
     let url = ZoweZLUX.uriBroker.pluginRESTUri(this.props.resources.pluginDefinition.getBasePlugin(), 'plugindetail', `${identifier}`);
+    let language: any = path.split("/")
+    language = language[language.length - 1]
+    language = language.split(".")[1]
     fetch(url, {
       method: 'POST',
       headers: {
@@ -89,7 +93,8 @@ class App extends React.Component<any, any> {
           this.log.info(response);
           if (response) {
             this.setState({
-              code: response
+              code: response,
+              language: language
             });
           }
         })
@@ -121,6 +126,7 @@ class App extends React.Component<any, any> {
             render={(props) =>
             <DocView {...props}
               code={this.state.code}
+              language={this.state.language}
             />}
           />
         </div>

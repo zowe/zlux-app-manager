@@ -13,12 +13,17 @@ const fs = require('fs');
 var webpackConfig = require('webpack-config');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const APP_DIR = path.resolve(__dirname, './src');
+const MONACO_DIR = path.resolve(__dirname, './node_modules/monaco-editor');
 const pluginId = JSON.parse(fs.readFileSync('../pluginDefinition.json')).identifier.replace(/\./g, '_');
 
 
 if (process.env.MVD_DESKTOP_DIR == null) {
   throw new Error('You must specify MVD_DESKTOP_DIR in your environment');
 }
+
+const pubPath = "../../org.zowe.zlux.desktop.documentation.viewer/web/";
+process.env.ASSET_PATH=pubPath;
 
 try {
   var config = {
@@ -28,6 +33,7 @@ try {
     'output': {
       'path': path.resolve(__dirname, '../web'),
       'filename': 'main.js',
+      publicPath: pubPath
     },
     'plugins': [
       new CopyWebpackPlugin([
@@ -36,7 +42,7 @@ try {
           to: path.resolve('../web/assets')
         }
       ]),
-      new MonacoWebpackPlugin()
+      new MonacoWebpackPlugin({publicPath: pubPath})
     ]
   };
 
@@ -51,6 +57,7 @@ try {
   }
   rules.push({
     test: /\.css$/,
+    include: APP_DIR,
     'use': [
       { 'loader': 'style-loader' },
       {
@@ -62,6 +69,10 @@ try {
         }
       }
     ]
+  }, {
+    test: /\.css$/,
+    include: MONACO_DIR,
+    'use': ['style-loader', 'css-loader'],
   });
   baseConfig.merge(config);
   module.exports = baseConfig;

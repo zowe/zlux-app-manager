@@ -42,11 +42,16 @@ class Main extends React.Component<any, any> {
       } else {
         let docList = args.docsList.map(function(doc) {
           return (
-            <li key={args.pluginIdentifier}>{doc[0]}
-            <button type="button" onClick={() => { 
-              args.retrieveDocFromServer(args.pluginIdentifier, '/doc' + doc[1], args.history);
-              }}>{t('Get Doc')}</button>
-            </li>
+            <tr key={args.pluginIdentifier}>
+              <th>{doc[0]}</th>
+              <th>
+                <button
+                  type="button"
+                  onClick={() => {args.retrieveDocFromServer(args.pluginIdentifier, '/doc' + doc[1], args.history);}}>
+                  {t('Get Doc')}
+                </button>
+              </th>
+            </tr>
           )
         }) 
         return docList
@@ -57,11 +62,24 @@ class Main extends React.Component<any, any> {
       <>
       <div className={`${styles.App} ${indexStyles.body}`}>
         <header className={styles['App-header']}>Zowe Documentation Viewer</header>
-        {this.props.allPlugins && <ul>{serializePlugin(this.props)}</ul>}
-        <button type="button" onClick={this.props.getPluginsFromServer}>{t('Refresh')}</button>
+        {this.props.allPlugins &&
+        <table>
+          <tr>
+            <th>Plugin Name</th>
+            <th>Empty</th>
+          </tr>
+          {serializePlugin(this.props)}
+        </table>}
       </div>
       <div>
-        {this.props.docsList && <ul>{serializeDocs(this.props)}</ul>}
+        {this.props.docsList &&
+        <table>
+          <tr>
+            <th>Doc Name</th>
+            <th>View Doc</th>
+          </tr>
+          {serializeDocs(this.props)}
+        </table>}
       </div>
       </>
     );

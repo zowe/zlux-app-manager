@@ -11,7 +11,7 @@
 import * as React from 'react';
 const styles = require('./App.css');
 import { withTranslation } from 'react-i18next';
-import MonacoEditor from 'react-monaco-editor'
+import MonacoEditor from 'react-monaco-editor';
 
 
 class DocView extends React.Component<any, any> {
@@ -23,23 +23,31 @@ class DocView extends React.Component<any, any> {
     console.log('onChange', newValue, e);
   }
 
+  editorDidMount(editor, monaco) {
+    console.log('editorDidMount', editor);
+  }
+
   public render(): JSX.Element {
     const {t} = this.props;
-  
+    const options = {
+      selectOnLineNumbers: true,
+      readOnly: true
+    };
+
     return (
       <>
       <div><button onClick={()=>this.props.history.push('/main')}>Back</button></div>
-      <div>
-        <MonacoEditor
-          width="900"
-          height="300"
-          language="yaml"
-          theme="vs-dark"
-          defaultValue=''
-          value={this.props.code}
-          onChange={this.onChange}
-        />
-      </div>
+      <MonacoEditor
+        width="100vh"
+        height="100vh"
+        language={this.props.language}
+        theme="vs-dark"
+        defaultValue=''
+        options={options}
+        value={this.props.code}
+        onChange={this.onChange}
+        editorDidMount={this.editorDidMount}
+      />
       </>
     );
   }
