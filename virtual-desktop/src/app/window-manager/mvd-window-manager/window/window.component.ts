@@ -42,7 +42,7 @@ export class WindowComponent {
   public maximizeLeft: string;
   public closeLeft: string;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
-  public displayMinimize: string;
+  public displayMinimize: boolean;
   
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.debug('Window theme set=',newTheme);
@@ -59,11 +59,11 @@ export class WindowComponent {
         this.buttonTop = '6px';
         this.textSize = '12px';
         this.textPad = '3px';
-        this.displayMinimize = "inherit";
+        this.displayMinimize = true;
 
         // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
         if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
-          this.displayMinimize = "none";
+          this.displayMinimize = false;
           this.maximizeLeft = this.minimizeLeft;
         }
         break;
@@ -76,11 +76,11 @@ export class WindowComponent {
         this.buttonTop = '16px';
         this.textSize = '18px';
         this.textPad = '12px';
-        this.displayMinimize = "inherit";
+        this.displayMinimize = true;
 
         // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
         if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
-          this.displayMinimize = "none";
+          this.displayMinimize = false;
           this.maximizeLeft = this.minimizeLeft;
         }
         break;
@@ -93,11 +93,11 @@ export class WindowComponent {
         this.buttonTop = '9px';
         this.textSize = '14px';
         this.textPad = '5px';
-        this.displayMinimize = "inherit";
+        this.displayMinimize = true;
 
         // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
         if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
-          this.displayMinimize = "none";
+          this.displayMinimize = false;
           this.maximizeLeft = this.minimizeLeft;
         }
     }

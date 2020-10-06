@@ -43,7 +43,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
 
   //Always 6+icon size, due to need for space for padding and such
   public barSize: string;
-  public displayAppBar: string;
+  public displayAppBar: boolean;
   public applistMargin: string;
   public applistPadding: string;
   public _theme: DesktopTheme;
@@ -78,9 +78,9 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
 
     // TODO: Disable bottom app bar once mvd-window-manager single app mode is functional. Variable subject to change.
     if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
-      this.displayAppBar = "none";
+      this.displayAppBar = false;
     } else {
-      this.displayAppBar = "inherit";
+      this.displayAppBar = true;
     }
   }
 

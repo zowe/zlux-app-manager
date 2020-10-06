@@ -15,7 +15,7 @@
   [style.height]="barSize"
   (mouseup)="onMouseUpContainer($event)" 
   [class.active]="isActive"
-  [style.display]="displayAppBar">
+  *ngIf="displayAppBar">
   <rs-com-launchbar-menu [menuItems]="allItems" [theme]="_theme" (itemClicked)="menuItemClicked($event)"  (refreshClicked)="getNewItems()"></rs-com-launchbar-menu>
   
   <div class="applist row" 
