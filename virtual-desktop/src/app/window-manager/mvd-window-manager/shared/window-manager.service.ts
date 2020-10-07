@@ -270,12 +270,17 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {
-    //this is the window viewport size, so you must subtract the header and launchbar from the height.
+    //This is the window viewport size, so you must subtract the header and launchbar from the height, if not in standalone mode.
+    let height;
+    if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+      height = window.innerHeight;
+    } else {
+      height = window.innerHeight - WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET;
+    }
     desktopWindow.windowState.position = { top: 0,
                                            left: 0,
                                            width: window.innerWidth,
-                                           height: window.innerHeight
-                                           - WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET};
+                                           height: height};
   }
 
   private generateWindowId(): MVDWindowManagement.WindowId {
