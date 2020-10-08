@@ -23,7 +23,7 @@ export class MvdUri implements ZLUX.UriBroker {
               sourceEncodingOrOptions?: string|ZLUX.UnixFileUriOptions, targetEncoding?: string,
               newName?: string, forceOverwrite?: boolean, sessionID?: number,
               lastChunk?: boolean, responseType?: string, mode?: string, recursive?: boolean,
-              user?: string, group?: string): string {
+              user?: string, group?: string, type?: ZLUX.TagType, codeset?: number): string {
     let options;
     if (typeof sourceEncodingOrOptions == 'object') {
       options = sourceEncodingOrOptions;
@@ -38,7 +38,10 @@ export class MvdUri implements ZLUX.UriBroker {
                   mode,
                   recursive,
                   user,
-                  group };
+                  group,
+                  type,
+                  codeset,
+                 };
     }
     if (!options.responseType) {
       options.responseType = 'raw';

@@ -250,7 +250,7 @@ var ZoweZLUX = {
           return translateFunction('ZoweZLUX.uriBroker.VSAMdatasetContentsUri', Array.prototype.slice.call(arguments))
         },
         unixFileUri(route, absPath, sourceEncodingOrOptions, targetEncoding, newName, forceOverwrite, sessionID, 
-            lastChunk, responseType, mode, recursive, user, group){
+            lastChunk, responseType, mode, recursive, user, group, type, codeset){
           return translateFunction('ZoweZLUX.uriBroker.unixFileUri', Array.prototype.slice.call(arguments))
         },
         omvsSegmentUri(){
