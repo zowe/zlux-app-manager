@@ -45,7 +45,6 @@ export class WindowComponent {
   public displayMinimize: boolean;
   
   @Input() set theme(newTheme: DesktopTheme) {
-    (window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED'] = true;
     this.logger.debug('Window theme set=',newTheme);
     this.color = newTheme.color;
     //button left strategy: size*.6 or .66 between each element and sides
