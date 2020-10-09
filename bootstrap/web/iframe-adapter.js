@@ -246,6 +246,9 @@ var ZoweZLUX = {
         datasetContentsUri(dsn){
           return translateFunction('ZoweZLUX.uriBroker.datasetContentsUri', Array.prototype.slice.call(arguments))
         },
+        datasetEnqueueUri(dsn){
+          return translateFunction('ZoweZLUX.uriBroker.datasetEnqueueUri', Array.prototype.slice.call(arguments))
+        },
         VSAMdatasetContentsUri(dsn, closeAfter){
           return translateFunction('ZoweZLUX.uriBroker.VSAMdatasetContentsUri', Array.prototype.slice.call(arguments))
         },

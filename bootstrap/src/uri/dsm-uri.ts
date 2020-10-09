@@ -36,7 +36,10 @@ export class DsmUri implements ZLUX.UriBroker {
   }
   datasetContentsUri(_relativePath: string): string {
     return "";
-  }
+  } 
+  datasetEnqueueUri(_relativePath: string): string {
+    return "";
+  } 
   VSAMdatasetContentsUri(_relativePath: string, _closeAfter?: boolean): string {
     return "";
   }
