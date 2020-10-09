@@ -22,7 +22,8 @@ export class MvdUri implements ZLUX.UriBroker {
   unixFileUri(route: string, absPath: string,
               sourceEncodingOrOptions?: string|ZLUX.UnixFileUriOptions, targetEncoding?: string,
               newName?: string, forceOverwrite?: boolean, sessionID?: number,
-              lastChunk?: boolean, responseType?: string): string {
+              lastChunk?: boolean, responseType?: string, mode?: string, recursive?: boolean,
+              user?: string, group?: string): string {
     let options;
     if (typeof sourceEncodingOrOptions == 'object') {
       options = sourceEncodingOrOptions;
@@ -33,7 +34,11 @@ export class MvdUri implements ZLUX.UriBroker {
                   forceOverwrite,
                   sessionID,
                   lastChunk,
-                  responseType };
+                  responseType,
+                  mode,
+                  recursive,
+                  user,
+                  group };
     }
     if (!options.responseType) {
       options.responseType = 'raw';

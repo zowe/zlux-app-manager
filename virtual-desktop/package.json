@@ -28,6 +28,7 @@
     "@angular/platform-browser-dynamic": "~6.0.9",
     "@angular/router": "~6.0.9",
     "@types/html2canvas": "~0.0.35",
+    "@types/xmldom": "0.1.29",
     "@zlux/widgets": "git+https://github.com/zowe/zlux-widgets.git",
     "angular-l10n": "~5.2.0",
     "angular2-template-loader": "~0.6.2",
