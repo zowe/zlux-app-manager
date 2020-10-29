@@ -49,7 +49,6 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   public _theme: DesktopTheme;
 
   @Input() set theme(newTheme: DesktopTheme) {
-    (window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED'] = true;
     this.logger.info('Launchbar theme set=',newTheme);
     // Used to update the emitter service to sync up personalization panel with loaded theme color upon startup
     this.themeService.mainColor = newTheme.color.launchbarMenuColor;

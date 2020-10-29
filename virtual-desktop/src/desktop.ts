@@ -35,10 +35,10 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { MvdComponent } from 'app/window-manager/mvd-window-manager/mvd.component';
 
 import { MvdModuleFactory } from './app/mvd-module-factory';
-import { SimpleWindowManagerModule } from './app/window-manager/simple-window-manager/simple-window-manager.module';
+// import { SimpleWindowManagerModule } from './app/window-manager/simple-window-manager/simple-window-manager.module';
 import { environment } from './environments/environment';
 import { WindowManagerModule } from 'app/window-manager/mvd-window-manager/window-manager.module';
-import { SimpleComponent } from 'app/window-manager/simple-window-manager/simple.component';
+// import { SimpleComponent } from 'app/window-manager/simple-window-manager/simple.component';
 
 if (environment.production) {
   enableProdMode();
@@ -46,7 +46,7 @@ if (environment.production) {
 
 let mainModule: Type<any>;
 if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
-  mainModule = MvdModuleFactory.generateModule(SimpleWindowManagerModule, SimpleComponent);
+  mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
 } else {
   mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
 }
