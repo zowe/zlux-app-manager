@@ -45,11 +45,12 @@ if (environment.production) {
 }
 
 let mainModule: Type<any>;
-if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
-  mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
-} else {
-  mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
-}
+mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
+// if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+//   mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
+// } else {
+//   mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
+// }
 
 export function performBootstrap(): void {
   MvdModuleFactory.getTranslationProviders()

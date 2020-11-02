@@ -105,14 +105,15 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
 
   private getAllApp2AppArgsFromURL(): App2AppArgs[] {
     const queryString = location.search.substr(1);
-    const app2appValues: string[] = [];
+    const app2appArray: string[][] = [];
     queryString.split('&').forEach(part => {
       const [key, value] = part.split('=').map(v => decodeURIComponent(v));
-      if (key === 'app2app') {
-        app2appValues.push(value);
+      // TODO: Check against a list of known URI arg params instead of hardcode
+      if (key === 'app2app' || key === 'pluginId') {
+        app2appArray.push([key, value]);
       }
     });
-    return app2appValues.map(value => this.parser.parse(value));
+    return app2appArray.map(value => this.parser.parse(value));
   }
 
   private registerTestAction(): void {

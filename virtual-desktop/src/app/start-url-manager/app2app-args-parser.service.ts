@@ -22,21 +22,34 @@ export class App2AppArgsParser {
 
   }
 
-  parse(app2app: string): App2AppArgs {
-    this.startIndex = 0;
-    this.length = app2app.length;
-    this.data = app2app;
-    const pluginId = this.getPart();
-    const actionType = this.getPart();
-    const actionMode = this.getPart();
-    const formatter = this.getPart();
-    const contextData = this.getLastPart();
+  parse(app2appArray: string[]): App2AppArgs {
+    let app2appKey = app2appArray[0];
+    let app2app = app2appArray[1];
+    let pluginId, actionType, actionMode, formatter, contextData;
+    switch(app2appKey) {
+      case "pluginId": // Open In New Browser Tab
+        pluginId = app2app;
+        actionType = "launch";
+        actionMode = "create";
+        formatter = "data";
+        contextData = "{}"; // TODO: Populate with "Open In New Browser Tab..." additional params?
+        break;
+      default: // Assume normal app2app
+        this.startIndex = 0;
+        this.length = app2app.length;
+        this.data = app2app;
+        pluginId = this.getPart();
+        actionType = this.getPart();
+        actionMode = this.getPart();
+        formatter = this.getPart();
+        contextData = this.getLastPart();
+    }
     return {
       pluginId,
       actionType,
       actionMode,
       formatter,
-      contextData,
+      contextData
     };
   }
 
