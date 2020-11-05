@@ -17,9 +17,10 @@ export class App2AppArgsParser {
   private startIndex: number;
   private length: number;
   private data: string;
+  private isFirstFullscreenApp: boolean;
 
   constructor() {
-
+    this.isFirstFullscreenApp = true;
   }
 
   parse(app2appArray: string[]): App2AppArgs {
@@ -32,7 +33,8 @@ export class App2AppArgsParser {
         actionType = "launch";
         actionMode = "create";
         formatter = "data";
-        contextData = "{}"; // TODO: Populate with "Open In New Browser Tab..." additional params?
+        contextData = '{"isFirstFullscreenApp":"' + this.isFirstFullscreenApp + '"}';
+        this.isFirstFullscreenApp = false;
         break;
       default: // Assume normal app2app
         this.startIndex = 0;

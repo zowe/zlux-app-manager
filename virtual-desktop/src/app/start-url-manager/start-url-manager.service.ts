@@ -8,7 +8,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { App2AppArgs } from './app2app-args';
 import { App2AppArgsParser } from './app2app-args-parser.service';
@@ -20,6 +20,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
 
   constructor(
     public parser: App2AppArgsParser,
+    public injector: Injector
   ) {
     this.registerTestAction();
   }
@@ -100,7 +101,17 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
       };
       argumentData = contextData;
     }
-    dispatcher.invokeAction(action, argumentData).catch((e:any) => this.handleInvokeActionError(e));
+    dispatcher.invokeAction(action, argumentData)
+    .then((yeet: any) => {
+      if (contextData && contextData.isFirstFullscreenApp && args.pluginId) {
+        // Importing WindowManagerService in the constructor has timing issues
+        const windowManager: any = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+        // We are going to maximize the first pluginId app to make it full screen
+        const windowId = windowManager.runningPluginMap.get(args.pluginId)[0];
+        windowManager.maximize(windowId);
+      }
+    })
+    .catch((e:any) => this.handleInvokeActionError(e));
   }
 
   private getAllApp2AppArgsFromURL(): App2AppArgs[] {
