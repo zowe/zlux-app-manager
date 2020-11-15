@@ -19,7 +19,7 @@ import { WindowPosition } from '../shared/window-position';
 import { BaseLogger } from '../../../shared/logger';
 import { Colors } from '../shared/colors';
 
-const SCREEN_EDGE_BORDER = 2;
+const SCREEN_EDGE_BORDER = 3;
 
 @Component({
   selector: 'rs-com-mvd-window',
@@ -43,6 +43,12 @@ export class WindowComponent {
   public closeLeft: string;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   public displayMinimize: boolean;
+
+  private maxHeight: string;
+  private maxWidth: string;
+  private desktopHeight: number;
+  private desktopWidth: number;
+  private zIndex: number;
   
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.debug('Window theme set=',newTheme);
@@ -146,32 +152,45 @@ export class WindowComponent {
 
   positionStyle(): any {
     const position = this.getPosition();
-    const DESKTOP_HEIGHT = document.getElementsByClassName('window-pane')[0].clientHeight;
-    const DESKTOP_WIDTH = document.getElementsByClassName('window-pane')[0].clientWidth;
+    this.desktopHeight = document.documentElement.clientHeight;
+    this.desktopWidth = document.documentElement.clientWidth;
+    this.maxHeight = 'calc(100%)';
+    this.maxWidth = 'calc(100%)';
+    this.zIndex = this.desktopWindow.windowState.zIndex;
 
     /* These 4 conditionals check if a window is out of bounds by checking if a window has been
     dragged too far out of view, in either of the 4 directions, and locks it from going further. */
-    if (position.top < 0) {
-      position.top = SCREEN_EDGE_BORDER;
-    }
-    if (position.left + position.width - this.headerSize < 0) {
-      position.left = -position.width + this.headerSize;
-    }
-    if ((position.top + this.headerSize) > DESKTOP_HEIGHT - WindowManagerService.LAUNCHBAR_HEIGHT) {
-      position.top = DESKTOP_HEIGHT - this.headerSize - WindowManagerService.LAUNCHBAR_HEIGHT;
-    }
-    if ((position.left + this.headerSize) > DESKTOP_WIDTH) {
-      position.left = DESKTOP_WIDTH - this.headerSize;
+    if (!this.desktopWindow.isFullscreenStandalone) {
+      if (position.top < 0) {
+        position.top = SCREEN_EDGE_BORDER;
+      }
+      if (position.left + position.width - this.headerSize < 0) {
+        position.left = -position.width + this.headerSize;
+      }
+      if ((position.top + this.headerSize) > this.desktopHeight - WindowManagerService.LAUNCHBAR_HEIGHT) {
+        position.top = this.desktopHeight - this.headerSize - WindowManagerService.LAUNCHBAR_HEIGHT;
+      }
+      if ((position.left + this.headerSize) > this.desktopWidth) {
+        position.left = this.desktopWidth - this.headerSize;
+      }
+    } else {
+      this.maxHeight = 'calc(110%)';
+      this.maxWidth = 'calc(102%)';
+      position.left = 0 - SCREEN_EDGE_BORDER;
+      position.top = 0 - this.headerSize - SCREEN_EDGE_BORDER;
+      position.width = this.desktopWidth + SCREEN_EDGE_BORDER;
+      position.height = this.desktopHeight + SCREEN_EDGE_BORDER;
+      this.zIndex = 1; // So any app2app apps don't get hidden if we click away back to the main fullscreen app
     }
 
     return {
       'top': position.top + 'px',
       'left': position.left + 'px',
       'width': position.width + 'px',
-      'max-width': 'calc(100%)',
+      'max-width': this.maxWidth,
       'height': (position.height + this.headerSize) + 'px',
-      'max-height': 'calc(100%)',
-      'z-index': this.desktopWindow.windowState.zIndex,
+      'max-height': this.maxHeight,
+      'z-index': this.zIndex,
       'inner-height': position.height + 'px'
 
     };

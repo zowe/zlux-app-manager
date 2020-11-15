@@ -102,15 +102,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
       argumentData = contextData;
     }
     dispatcher.invokeAction(action, argumentData)
-    .then((yeet: any) => {
-      if (contextData && contextData.isFirstFullscreenApp && args.pluginId) {
-        // Importing WindowManagerService in the constructor has timing issues
-        const windowManager: any = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
-        // We are going to maximize the first pluginId app to make it full screen
-        const windowId = windowManager.runningPluginMap.get(args.pluginId)[0];
-        windowManager.maximize(windowId);
-      }
-    })
+    .then(() => {})
     .catch((e:any) => this.handleInvokeActionError(e));
   }
 

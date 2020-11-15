@@ -272,6 +272,9 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
 
   spawnApplication(plugin: DesktopPluginDefinitionImpl, launchMetadata: any): Promise<MVDHosting.InstanceId> {
+    if (launchMetadata && launchMetadata.data && launchMetadata.data.isFirstFullscreenApp) {
+      return this.spawnApplicationInFullscreenStandalone(plugin, launchMetadata);
+    }
     // Create fresh application instance
     //console.trace("AppManager.service spawnApp called with plugin (type DPD) = "+JSON.stringify(plugin));
     const applicationInstance = this.createApplicationInstance(plugin);
@@ -279,6 +282,20 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     // Generate initial instance window
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     const windowId = windowManager.createWindow(plugin);
+    const viewportId = windowManager.getViewportId(windowId);
+    this.viewportManager.registerViewport(viewportId, applicationInstance.instanceId);
+
+    return this.spawnApplicationIntoViewport(plugin, launchMetadata, applicationInstance, viewportId);
+  }
+
+  spawnApplicationInFullscreenStandalone(plugin: DesktopPluginDefinitionImpl, launchMetadata: any): Promise<MVDHosting.InstanceId> {
+    // Create fresh application instance
+    //console.trace("AppManager.service spawnApp called with plugin (type DPD) = "+JSON.stringify(plugin));
+    const applicationInstance = this.createApplicationInstance(plugin);
+
+    // Generate initial instance window
+    const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+    const windowId = windowManager.createFullscreenStandaloneWindow(plugin);
     const viewportId = windowManager.getViewportId(windowId);
     this.viewportManager.registerViewport(viewportId, applicationInstance.instanceId);
 

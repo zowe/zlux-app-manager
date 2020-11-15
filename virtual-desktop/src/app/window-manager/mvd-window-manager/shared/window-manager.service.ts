@@ -556,6 +556,49 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     return windowId;
   }
 
+  createFullscreenStandaloneWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId {
+    /* Create window instance */
+    let pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
+    const windowId = this.generateWindowId();
+    const paddingMargin = 2;
+    // const newWindowPosition: WindowPosition = this.generateNewWindowPosition(pluginImpl);
+    const newWindowPosition: WindowPosition = {
+      left: 0 - paddingMargin,
+      top: 0 - 31,
+      width: window.innerWidth + paddingMargin,
+      height: window.innerHeight + 31
+    };
+    const newState = new DesktopWindowState(this.topZIndex, newWindowPosition);
+    const desktopWindow = new DesktopWindow(windowId, newState, plugin.getBasePlugin());
+    desktopWindow.isFullscreenStandalone = true;
+    this.topZIndex ++;
+
+    /* Register window */
+    this.windowMap.set(windowId, desktopWindow);
+
+    const pluginId = plugin.getIdentifier();
+    const desktopWindowIds = this.runningPluginMap.get(pluginId);
+    if (desktopWindowIds !== undefined) {
+      desktopWindowIds.push(windowId);
+    } else {
+      this.runningPluginMap.set(pluginId, [windowId]);
+    }
+
+    this.updateLastWindowPositions(pluginId, windowId, newWindowPosition);
+
+    /* Create viewport */
+    desktopWindow.viewportId = this.viewportManager.createViewport((viewportId: MVDHosting.ViewportId)=> {
+      return this.generateWindowProviders(windowId, viewportId);
+    });
+
+    /* Default window actions */
+    this.setWindowTitle(windowId, pluginImpl.defaultWindowTitle);
+    this.requestWindowFocus(windowId);
+    this.maximizeFullscreen(windowId);
+
+    return windowId;
+  }
+
   getWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId | null {
     const desktopWindows = this.runningPluginMap.get(plugin.getIdentifier());
     if (desktopWindows !== undefined) {
@@ -756,6 +799,15 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     desktopWindow.windowState.maximize();
     this.refreshMaximizedWindowSize(desktopWindow);
+  }
+
+  maximizeFullscreen(windowId: MVDWindowManagement.WindowId): void {
+    const desktopWindow = this.windowMap.get(windowId);
+    if (desktopWindow == null) {
+      throw new Error('ZWED5157E - Attempted to maximize null window');
+    }
+
+    desktopWindow.windowState.maximizeFullscreen();
   }
 
   minimize(windowId: MVDWindowManagement.WindowId): void {
