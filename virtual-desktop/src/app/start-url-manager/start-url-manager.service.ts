@@ -8,10 +8,17 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, Injector } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { App2AppArgs } from './app2app-args';
 import { App2AppArgsParser } from './app2app-args-parser.service';
+
+const ZOWE_URL_ARGS = [
+  "app2app",
+  "pluginId",
+  "windowManager",
+  "showLogin"
+]
 
 @Injectable()
 export class StartURLManager implements MVDHosting.LoginActionInterface {
@@ -19,8 +26,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(
-    public parser: App2AppArgsParser,
-    public injector: Injector
+    public parser: App2AppArgsParser
   ) {
     this.registerTestAction();
   }
@@ -116,8 +122,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     const app2appArray: string[][] = [];
     queryString.split('&').forEach(part => {
       const [key, value] = part.split('=').map(v => decodeURIComponent(v));
-      // TODO: Check against a list of known URI arg params instead of hardcode
-      if (key === 'app2app' || key === 'pluginId' || key === 'windowManager') {
+      if (ZOWE_URL_ARGS.includes(key)) {
         app2appArray.push([key, value]);
       }
     });

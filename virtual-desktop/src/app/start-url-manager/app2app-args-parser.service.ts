@@ -20,7 +20,7 @@ export class App2AppArgsParser {
   private isFirstFullscreenApp: boolean;
 
   constructor() {
-    this.isFirstFullscreenApp = true;
+    this.isFirstFullscreenApp = true; // Variable used to keep track of if plugin in desktop URL is for standalone mode
   }
 
   parse(app2appArray: string[]): App2AppArgs {

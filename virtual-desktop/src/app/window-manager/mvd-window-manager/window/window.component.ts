@@ -19,7 +19,7 @@ import { WindowPosition } from '../shared/window-position';
 import { BaseLogger } from '../../../shared/logger';
 import { Colors } from '../shared/colors';
 
-const SCREEN_EDGE_BORDER = 3;
+const SCREEN_EDGE_BORDER = 2;
 
 @Component({
   selector: 'rs-com-mvd-window',
