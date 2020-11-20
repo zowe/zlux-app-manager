@@ -57,7 +57,13 @@ export class IFramePluginFactory extends PluginFactory {
 
   private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Type<any> {
     const basePlugin = pluginDefinition.getBasePlugin();
-    const startingPage = basePlugin.getWebContent().startingPage || 'index.html';
+    let startingPage;
+    if(basePlugin.getWebContent().destination>'') {
+      startingPage = 'iframe'
+    }
+    else {
+      startingPage = basePlugin.getWebContent().startingPage || 'index.html';
+    }
     this.logger.debug('ZWED5307I', startingPage); //this.logger.debug('iframe startingPage', startingPage);
     let startingPageUri;
     if (startingPage.startsWith('http://') || startingPage.startsWith('https://')) {
