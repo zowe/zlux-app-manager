@@ -160,7 +160,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
             this.switchWindow(1);
         }
         else if (event.which === KeyCode.KEY_W) {
-          if(this.focusedWindow !== null) {
+          // We should not be able to close a standalone mode application window
+          if(this.focusedWindow !== null && !this.focusedWindow.isFullscreenStandalone) {
             this.closeWindow(this.focusedWindow.windowId);
           }
         }
