@@ -50,18 +50,16 @@ let mainModule: Type<any>;
 /* Check which window manager to use from URL */
 const app2appArray = StartURLManager.prototype.getApp2AppArgsArray();
 for (let index = 0; index < app2appArray.length; index++) {
-  if (app2appArray[0] && app2appArray.length > 1) {
-    const key = app2appArray[index][0];
-    const value = app2appArray[index][1];
+  const key = app2appArray[index][0];
+  const value = app2appArray[index][1];
 
-    if (key == "windowManager") {
-      if (value == "mvd" || value == "MVD") {
-        mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
-      } else {
-        mainModule = MvdModuleFactory.generateModule(SimpleWindowManagerModule, SimpleComponent);
-      }
-      break;
+  if (key == "windowManager") {
+    if (value == "mvd" || value == "MVD") {
+      mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
+    } else {
+      mainModule = MvdModuleFactory.generateModule(SimpleWindowManagerModule, SimpleComponent);
     }
+    break;
   }
 }
 

@@ -12,25 +12,7 @@
 import { BootstrapManager } from './bootstrap/bootstrap-manager'
 export { BootstrapManager } from './bootstrap/bootstrap-manager'
 
-// FIXME: Code duplication with single-app window manager.
-//   Should be fixed by introducing of routing (MVD-1535)
-function parseQuery() {
-  const queryString: string = location.search.substr(1);
-  const queryObject: { [id: string]: string } = {};
-  queryString.split('&').forEach(function(part) {
-    const pair = part.split('=').map(x => decodeURIComponent(x));
-    queryObject[pair[0]] = pair[1];
-  });
-  return queryObject;
-}
-const query = parseQuery();
-if (typeof query.pluginId === 'string') {
-  console.log(`ZWED5003I - Simple container requested with pluginId ${query.pluginId}`);
-  (window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED'] = true;
-  (window as any)['GIZA_PLUGIN_TO_BE_LOADED'] = query.pluginId;
-  (window as any)['ZOWE_SWM_SHOW_LOGIN'] = query.showLogin;
-  (window as any)['GIZA_ENVIRONMENT'] = 'MVD';
-}
+processApp2AppArgs();
 
 try {
   const simpleContainerRequested = (window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED'];
@@ -42,6 +24,38 @@ try {
 } catch (error) {
   console.error("ZWED5007E - Unable to bootstrap desktop!!");
   console.error(error);
+}
+
+/* Minor code duplication of StartURLManager, but Typescript gives compile problems we can't easily ignore when we import it */
+function processApp2AppArgs(url?: string): void {
+  const queryString = url || location.search.substr(1);
+  let pluginId, windowManager;
+
+  queryString.split('&').forEach(part => {
+    const [key, value] = part.split('=').map(v => decodeURIComponent(v));
+    switch (key) {
+      case "pluginId":
+        (window as any)['GIZA_PLUGIN_TO_BE_LOADED'] = value;
+        (window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED'] = true;
+        (window as any)['GIZA_ENVIRONMENT'] = 'MVD';
+        pluginId = value;
+        break;
+      case "showLogin":
+        (window as any)['ZOWE_SWM_SHOW_LOGIN'] = value;
+        break;
+      case "windowManager":
+        windowManager = value;
+        break;
+    }
+  });
+
+  if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+    if (windowManager == 'MVD' || windowManager == 'mvd') {
+      console.log(`ZWED5043I - MVD standalone container requested with pluginId ${pluginId}`);
+    } else {
+      console.log(`ZWED5003I - Simple container requested with pluginId ${pluginId}`);
+    }
+  }
 }
 
 

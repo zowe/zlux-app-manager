@@ -46,6 +46,8 @@ export class LoginComponent implements OnInit {
   expiredPassword: boolean;
   private passwordServices: Set<string>;
   private themeManager: any;
+  public showLogin: boolean;
+  public enableSessionTimeoutPopup: boolean;
 
   constructor(
     private authenticationService: AuthenticationManager,
@@ -67,6 +69,7 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     this.expiredPassword = false;
     this.passwordServices = new Set<string>();
+    this.enableSessionTimeoutPopup = true;
     this.renewSession = this.renewSession.bind(this);
     this.isIdle = this.isIdle.bind(this);
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
@@ -111,6 +114,7 @@ export class LoginComponent implements OnInit {
         this.spawnExpirationPrompt(e.expirationInMS);
       }
     });
+    this.showLogin = (window as any).ZOWE_SWM_SHOW_LOGIN == 1 ? true : false;
   }
 
   private isIdle(): boolean {
@@ -177,7 +181,13 @@ export class LoginComponent implements OnInit {
           }
         }
         this.isLoading = false;
-        this.needLogin = true;
+        if (!this.showLogin && !!(window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+          this.authenticationService.spawnApplicationsWithNoUsername();
+          this.enableSessionTimeoutPopup = false;
+          this.needLogin = false;
+        } else {
+          this.needLogin = true;
+        }
       });
   }
 
