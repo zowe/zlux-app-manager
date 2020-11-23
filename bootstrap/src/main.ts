@@ -15,10 +15,10 @@ export { BootstrapManager } from './bootstrap/bootstrap-manager'
 processApp2AppArgs();
 
 try {
-  const simpleContainerRequested = (window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED'];
-  const uriBroker = (window as any)['GIZA_ENVIRONMENT'];
+  const simpleContainerRequested = window['GIZA_SIMPLE_CONTAINER_REQUESTED'];
+  const uriBroker = window['GIZA_ENVIRONMENT'];
 
-  if (!simpleContainerRequested || uriBroker.toUpperCase() === 'MVD') {
+  if (!simpleContainerRequested || (uriBroker && uriBroker.toUpperCase() === 'MVD')) {
     BootstrapManager.bootstrapDesktopAndInject();
   }
 } catch (error) {
@@ -29,19 +29,23 @@ try {
 /* Minor code duplication of StartURLManager, but Typescript gives compile problems we can't easily ignore when we import it */
 function processApp2AppArgs(url?: string): void {
   const queryString = url || location.search.substr(1);
-  let pluginId, windowManager;
+  let pluginId, windowManager: any;
 
   queryString.split('&').forEach(part => {
     const [key, value] = part.split('=').map(v => decodeURIComponent(v));
     switch (key) {
       case "pluginId":
-        (window as any)['GIZA_PLUGIN_TO_BE_LOADED'] = value;
-        (window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED'] = true;
-        (window as any)['GIZA_ENVIRONMENT'] = 'MVD';
+        window['GIZA_PLUGIN_TO_BE_LOADED'] = value;
+        window['GIZA_SIMPLE_CONTAINER_REQUESTED'] = true;
+        window['GIZA_ENVIRONMENT'] = 'MVD';
         pluginId = value;
         break;
       case "showLogin":
-        (window as any)['ZOWE_SWM_SHOW_LOGIN'] = value;
+        if (typeof value == "string") {
+          window['ZOWE_SWM_SHOW_LOGIN'] = parseInt(value);
+        } else {
+          window['ZOWE_SWM_SHOW_LOGIN'] = value;
+        }
         break;
       case "windowManager":
         windowManager = value;
@@ -49,8 +53,8 @@ function processApp2AppArgs(url?: string): void {
     }
   });
 
-  if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
-    if (windowManager == 'MVD' || windowManager == 'mvd') {
+  if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+    if (windowManager && windowManager.toUpperCase() === 'MVD') {
       console.log(`ZWED5043I - MVD standalone container requested with pluginId ${pluginId}`);
     } else {
       console.log(`ZWED5003I - Simple container requested with pluginId ${pluginId}`);

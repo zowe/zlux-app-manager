@@ -115,7 +115,7 @@ export class LoginComponent implements OnInit {
         this.enableExpirationPrompt = true;
       }
     });
-    this.showLogin = (window as any).ZOWE_SWM_SHOW_LOGIN == 1 ? true : false;
+    this.showLogin = window.ZOWE_SWM_SHOW_LOGIN == 1 ? true : false;
   }
 
   private isIdle(): boolean {
@@ -182,7 +182,7 @@ export class LoginComponent implements OnInit {
           }
         }
         this.isLoading = false;
-        if (!this.showLogin && !!(window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+        if (!this.showLogin && window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
           this.authenticationService.spawnApplicationsWithNoUsername();
           this.enableExpirationPrompt = false;
           this.needLogin = false;

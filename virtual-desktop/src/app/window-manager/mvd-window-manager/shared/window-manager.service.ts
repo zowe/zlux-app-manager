@@ -123,7 +123,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     });
 
     let tabHandler = (event: KeyboardEvent) => {
-      if(this.focusedWindow != null){
+      if(this.focusedWindow){
         if(event.keyCode == 9 || event.which == 9){ // tab
           let activeViewportID = this.getViewportIdFromDOM(document.activeElement);
           if(activeViewportID != Number(this.focusedWindow.viewportId)){
@@ -144,12 +144,12 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       .subscribe((event:KeyboardEvent) => {
         if (event.which === KeyCode.DOWN_ARROW) {
           // TODO: Disable minimize hotkey once mvd-window-manager single app mode is functional. Variable subject to change.
-          if(this.focusedWindow !== null && !(window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+          if(this.focusedWindow && !window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
             this.minimizeToggle(this.focusedWindow.windowId);
           }
         }
         else if (event.which === KeyCode.UP_ARROW) {
-          if(this.focusedWindow !== null) {
+          if(this.focusedWindow) {
             this.maximizeToggle(this.focusedWindow.windowId);
           }
         }
@@ -161,7 +161,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         }
         else if (event.which === KeyCode.KEY_W) {
           // We should not be able to close a standalone mode application window
-          if(this.focusedWindow !== null && !this.focusedWindow.isFullscreenStandalone) {
+          if(this.focusedWindow && !this.focusedWindow.isFullscreenStandalone) {
             this.closeWindow(this.focusedWindow.windowId);
           }
         }
@@ -230,7 +230,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   switchWindow(zDistance:number): void {
     let windows:DesktopWindow[] = this.getAllWindows();
   
-    if(this.focusedWindow != null) {
+    if(this.focusedWindow) {
       const focusedWindowId :number = this.focusedWindow.windowId; 
       windows = windows.filter( (val: DesktopWindow ) => 
         val.windowId !== focusedWindowId
@@ -249,7 +249,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       if(windowIds.length>0) {
         const selectIdx: number = (Math.abs(zDistance) -1) % (windows.length);
         const windowId = windowIds[selectIdx];
-        if(this.focusedWindow != null && zDistance<1) {
+        if(this.focusedWindow && zDistance<1) {
           const replaceZIndex = Math.abs(sortWindows[windowIds.length-1].windowState.zIndex)-1;
           if(replaceZIndex>0) {
             this.focusedWindow.windowState.zIndex=replaceZIndex;
@@ -273,7 +273,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {
     //This is the window viewport size, so you must subtract the header and launchbar from the height, if not in standalone mode.
     let height;
-    if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+    if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
       height = window.innerHeight;
     } else {
       height = window.innerHeight - WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET;
@@ -776,7 +776,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   windowHasFocus(window: MVDWindowManagement.WindowId): boolean {
-    if (this.focusedWindow != null) {
+    if (this.focusedWindow) {
       return this.focusedWindow.windowId === window;
     } else {
       return false;

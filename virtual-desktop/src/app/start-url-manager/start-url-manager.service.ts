@@ -113,11 +113,11 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
   }
 
   private getAllApp2AppArgsFromURL(): App2AppArgs[] {
-    const app2appArray: string[][] = this.getApp2AppArgsArray();
+    const app2appArray: string[][] = StartURLManager.getApp2AppArgsArray();
     return app2appArray.map(value => this.parser.parse(value));
   }
 
-  public getApp2AppArgsArray(url?: string): string[][] {
+  public static getApp2AppArgsArray(url?: string): string[][] {
     const queryString = url || location.search.substr(1);
     const app2appArray: string[][] = [];
     queryString.split('&').forEach(part => {

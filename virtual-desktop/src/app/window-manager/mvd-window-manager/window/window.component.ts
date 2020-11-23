@@ -49,6 +49,7 @@ export class WindowComponent {
   private desktopHeight: number;
   private desktopWidth: number;
   private zIndex: number;
+  private launchbarHeight: number;
   
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.debug('Window theme set=',newTheme);
@@ -68,7 +69,7 @@ export class WindowComponent {
         this.displayMinimize = true;
 
         // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
-        if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+        if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
           this.displayMinimize = false;
           this.maximizeLeft = this.minimizeLeft;
         }
@@ -85,7 +86,7 @@ export class WindowComponent {
         this.displayMinimize = true;
 
         // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
-        if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+        if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
           this.displayMinimize = false;
           this.maximizeLeft = this.minimizeLeft;
         }
@@ -102,7 +103,7 @@ export class WindowComponent {
         this.displayMinimize = true;
 
         // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
-        if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+        if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
           this.displayMinimize = false;
           this.maximizeLeft = this.minimizeLeft;
         }
@@ -154,9 +155,11 @@ export class WindowComponent {
     const position = this.getPosition();
     this.desktopHeight = document.documentElement.clientHeight;
     this.desktopWidth = document.documentElement.clientWidth;
-    this.maxHeight = 'calc(100%)';
-    this.maxWidth = 'calc(100%)';
+    this.maxHeight = '100%';
+    this.maxWidth = '100%';
     this.zIndex = this.desktopWindow.windowState.zIndex;
+    // In standalone app mode, our launchbar doesn't exist
+    this.launchbarHeight = (window.GIZA_SIMPLE_CONTAINER_REQUESTED ? 0 : WindowManagerService.LAUNCHBAR_HEIGHT);
 
     /* These 4 conditionals check if a window is out of bounds by checking if a window has been
     dragged too far out of view, in either of the 4 directions, and locks it from going further. */
@@ -167,20 +170,20 @@ export class WindowComponent {
       if (position.left + position.width - this.headerSize < 0) {
         position.left = -position.width + this.headerSize;
       }
-      if ((position.top + this.headerSize) > this.desktopHeight - WindowManagerService.LAUNCHBAR_HEIGHT) {
-        position.top = this.desktopHeight - this.headerSize - WindowManagerService.LAUNCHBAR_HEIGHT;
+      if ((position.top + this.headerSize) > this.desktopHeight - this.launchbarHeight) {
+        position.top = this.desktopHeight - this.headerSize - this.launchbarHeight;
       }
       if ((position.left + this.headerSize) > this.desktopWidth) {
         position.left = this.desktopWidth - this.headerSize;
       }
     } else {
-      this.maxHeight = 'calc(110%)';
-      this.maxWidth = 'calc(102%)';
-      position.left = 0 - SCREEN_EDGE_BORDER;
-      position.top = 0 - this.headerSize - SCREEN_EDGE_BORDER;
+      this.maxHeight = '110%';
+      this.maxWidth = '102%';
+      position.left = -1 - SCREEN_EDGE_BORDER;
+      position.top = -1 - this.headerSize - SCREEN_EDGE_BORDER;
       position.width = this.desktopWidth + SCREEN_EDGE_BORDER;
       position.height = this.desktopHeight + SCREEN_EDGE_BORDER;
-      this.zIndex = 1; // So any app2app apps don't get hidden if we click away back to the main fullscreen app
+      this.zIndex = 1; // So any app2app apps don't get hidden if we click back to the main fullscreen app
     }
 
     return {

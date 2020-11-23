@@ -22,7 +22,7 @@
 /* Establish our public path before loading CSS resources */
 // @ts-ignore
 declare let __webpack_public_path__: string;
-const uriBroker = (window as any).ZoweZLUX.uriBroker;
+const uriBroker = window.ZoweZLUX.uriBroker;
 __webpack_public_path__ = uriBroker.desktopRootUri();
 
 /* Load external/global resources */
@@ -48,13 +48,13 @@ if (environment.production) {
 let mainModule: Type<any>;
 
 /* Check which window manager to use from URL */
-const app2appArray = StartURLManager.prototype.getApp2AppArgsArray();
+const app2appArray = StartURLManager.getApp2AppArgsArray();
 for (let index = 0; index < app2appArray.length; index++) {
   const key = app2appArray[index][0];
   const value = app2appArray[index][1];
 
   if (key == "windowManager") {
-    if (value == "mvd" || value == "MVD") {
+    if (value.toUpperCase() == "MVD") {
       mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
     } else {
       mainModule = MvdModuleFactory.generateModule(SimpleWindowManagerModule, SimpleComponent);
