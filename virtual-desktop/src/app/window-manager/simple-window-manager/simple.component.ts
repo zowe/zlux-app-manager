@@ -29,7 +29,7 @@ export class SimpleComponent implements OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   viewportId: MVDHosting.ViewportId;
   private windowManager: SimpleWindowManagerService;
-  public showLogin:boolean = window.ZOWE_SWM_SHOW_LOGIN == 1 ? true : false;
+  public showLogin:boolean = window.ZOWE_SWM_SHOW_LOGIN == true ? true : false;
   public error:string='';
 
   constructor(

@@ -26,33 +26,43 @@ export class App2AppArgsParser {
   parse(app2appArray: string[]): App2AppArgs {
     let app2appKey = app2appArray[0];
     let app2app = app2appArray[1];
-    let pluginId, actionType, actionMode, formatter, contextData;
+    let pluginId, actionType, actionMode, formatter, contextData, contextZlux;
+    this.startIndex = 0;
+    this.length = app2app.length;
+    this.data = app2app;
+
     switch(app2appKey) {
-      case "pluginId": // Open In New Browser Tab
-        pluginId = app2app;
+      case "pluginId": // Assuming pluginId=xxx.xxx.xxx:formatter:{"xxx":"xxx" ...}
+        pluginId = this.getPart();
+        if (!pluginId) { // If pluginId=xxx.xx.xxx (no app2app data)
+          pluginId = app2app;
+          formatter = "data";
+          contextData = "{}";
+        } else {
+          formatter = this.getPart();
+          contextData = this.getLastPart();
+        }
         actionType = "launch";
         actionMode = "create";
-        formatter = "data";
-        contextData = '{"isFirstFullscreenApp":"' + this.isFirstFullscreenApp + '"}';
+        contextZlux = JSON.stringify({isFirstFullscreenApp: this.isFirstFullscreenApp});
         this.isFirstFullscreenApp = false;
         break;
-      default: // Assume normal app2app
-        this.startIndex = 0;
-        this.length = app2app.length;
-        this.data = app2app;
+      default: // Assume normal app2app, app2app=xxx.xxx.xxx:type:mode:formatter:{contextdata ...}
         pluginId = this.getPart();
         actionType = this.getPart();
         actionMode = this.getPart();
         formatter = this.getPart();
         contextData = this.getLastPart();
+        contextZlux = "{}";
     }
     return {
       pluginId,
       actionType,
       actionMode,
       formatter,
-      contextData
-    };
+      contextData,
+      contextZlux
+    }
   }
 
   private getPart(): string {

@@ -63,7 +63,7 @@ export class IFramePluginFactory extends PluginFactory {
     if (startingPage.startsWith('http://') || startingPage.startsWith('https://')) {
       startingPageUri = startingPage;
     } else {
-      startingPageUri = window.ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
+      startingPageUri = ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
     }
     this.logger.debug('ZWED5308I', startingPageUri); //this.logger.debug('iframe startingPageUri', startingPageUri);
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);

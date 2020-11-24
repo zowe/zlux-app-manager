@@ -115,7 +115,7 @@ export class LoginComponent implements OnInit {
         this.enableExpirationPrompt = true;
       }
     });
-    this.showLogin = window.ZOWE_SWM_SHOW_LOGIN == 1 ? true : false;
+    this.showLogin = window.ZOWE_SWM_SHOW_LOGIN == true ? true : false;
   }
 
   private isIdle(): boolean {

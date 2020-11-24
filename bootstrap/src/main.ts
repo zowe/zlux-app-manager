@@ -41,11 +41,11 @@ function processApp2AppArgs(url?: string): void {
         pluginId = value;
         break;
       case "showLogin":
-        if (typeof value == "string") {
-          window['ZOWE_SWM_SHOW_LOGIN'] = parseInt(value);
-        } else {
-          window['ZOWE_SWM_SHOW_LOGIN'] = value;
-        }
+          if (value == "true") {
+            window['ZOWE_SWM_SHOW_LOGIN'] = true;
+          } else {
+            window['ZOWE_SWM_SHOW_LOGIN'] = false;
+          }
         break;
       case "windowManager":
         windowManager = value;

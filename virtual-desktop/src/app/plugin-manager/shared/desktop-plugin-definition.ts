@@ -86,7 +86,7 @@ export class DesktopPluginDefinitionImpl implements MVDHosting.DesktopPluginDefi
   }
 
   get image(): string | null {
-    const uriBroker = window.ZoweZLUX.uriBroker;
+    const uriBroker = ZoweZLUX.uriBroker;
     if (!this.hasWebContent){
         return null;
     }

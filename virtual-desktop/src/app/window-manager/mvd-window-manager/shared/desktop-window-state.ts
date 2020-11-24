@@ -56,7 +56,7 @@ export class DesktopWindowState {
     this.setStateType(DesktopWindowStateType.Maximized);
   }
 
-  maximizeFullscreen(): void {
+  _maximizeFullscreen(): void {
     this._normalPosition = this.position;
     this.setStateType(DesktopWindowStateType.MaximizedFullscreen);
   }

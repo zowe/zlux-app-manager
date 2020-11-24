@@ -15,14 +15,14 @@
  * To set up the desktop, this file must provide a public path for CSS
  * resources, load any external/global stylesheets and scripts, prepare the DOM
  * for the Angular application, and bootstrap the application. The core MVD
- * implementation exists at window.ZoweZLUX.
+ * implementation exists at ZoweZLUX.
  */
 
 
 /* Establish our public path before loading CSS resources */
 // @ts-ignore
 declare let __webpack_public_path__: string;
-const uriBroker = window.ZoweZLUX.uriBroker;
+const uriBroker = ZoweZLUX.uriBroker;
 __webpack_public_path__ = uriBroker.desktopRootUri();
 
 /* Load external/global resources */

@@ -89,6 +89,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     const type = args.actionType === 'launch' ? ActionType.Launch : ActionType.Message;
     const mode = args.actionMode === 'create' ? ActionTargetMode.PluginCreate : ActionTargetMode.System;
     const contextData: any = JSON.parse(args.contextData);
+    let contextZlux = args.contextZlux ? JSON.parse(args.contextZlux) : undefined;
     let action: ZLUX.Action;
     let argumentData: any;
     if (args.formatter === 'data') {
@@ -96,7 +97,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
       const actionId = 'org.zowe.zlux.url.launch';
       const argumentFormatter = { data: { op: 'deref', source: 'event', path: ['data'] } };
       action = dispatcher.makeAction(actionId, actionTitle, mode, type, args.pluginId, argumentFormatter);
-      argumentData = { data: contextData };
+      argumentData = contextZlux ? { data: contextData, zlux: contextZlux } : { data: contextData };
     } else {
       const abstractAction = dispatcher.getAbstractActionById(args.formatter);
       action = <ZLUX.Action>{

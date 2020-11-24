@@ -40,6 +40,7 @@ fetch('/ZLUX/plugins/org.zowe.zlux.bootstrap/web/assets/i18n/log/messages_en.jso
 
   PluginManager.logger = bootstrapLogger;
 
+// TODO: Possible duplicate in index.d.ts in zlux-platform ???
 export class ZoweZLUXResources {
   static pluginManager = PluginManager
   static uriBroker:ZLUX.UriBroker = new MvdUri();

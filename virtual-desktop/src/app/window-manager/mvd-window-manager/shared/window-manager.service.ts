@@ -595,7 +595,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     /* Default window actions */
     this.setWindowTitle(windowId, pluginImpl.defaultWindowTitle);
     this.requestWindowFocus(windowId);
-    this.maximizeFullscreen(windowId);
+    this._maximizeFullscreen(windowId);
 
     return windowId;
   }
@@ -802,13 +802,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.refreshMaximizedWindowSize(desktopWindow);
   }
 
-  maximizeFullscreen(windowId: MVDWindowManagement.WindowId): void {
+  private _maximizeFullscreen(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
       throw new Error('ZWED5157E - Attempted to maximize null window');
     }
 
-    desktopWindow.windowState.maximizeFullscreen();
+    desktopWindow.windowState._maximizeFullscreen();
   }
 
   minimize(windowId: MVDWindowManagement.WindowId): void {
