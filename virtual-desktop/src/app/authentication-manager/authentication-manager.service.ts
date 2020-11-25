@@ -191,8 +191,20 @@ export class AuthenticationManager {
   requestLogout(): void {
     this.doLogoutInner(MVDHosting.LoginScreenChangeReason.UserLogout);
   }
+  
+  public spawnApplicationsWithNoUsername(): any {
+    window.localStorage.setItem('username', "");
+    this.username = "";
+    (ZoweZLUX.logger as any)._setBrowserUsername("");
+    this.performPostLoginActions().subscribe(
+      () => {
+        this.log.debug('ZWED5303I'); //this.log.debug('Done performing post-login actions');
+        this.loginScreenVisibilityChanged.emit(MVDHosting.LoginScreenChangeReason.UserLogin);
+      }
+    );
+  }
 
-  private performPostLoginActions(): Observable<any> {
+  private performPostLoginActions(launchAutoSaved?: boolean): Observable<any> {
     return new Observable((observer)=> {
       this.pluginManager.loadApplicationPluginDefinitions().then((pluginDefs:MVDHosting.DesktopPluginDefinition[])=> {
         let plugins = pluginDefs.map(plugin => plugin.getBasePlugin());
@@ -208,8 +220,10 @@ export class AuthenticationManager {
         observer.error(err);
       });
 
-      const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
-      windowManager.launchDesktopAutoSavedApplications();
+      if (launchAutoSaved !== false) {
+        const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+        windowManager.launchDesktopAutoSavedApplications();
+      }
     });
   }
 

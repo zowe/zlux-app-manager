@@ -73,9 +73,9 @@ function openStandalone(item: LaunchbarItem): void {
   //future TODO: initialize cross-window app2app communication??
   if (pluginType === 'iframe' && !(item.plugin.standaloneUseFramework)) {
     // Still allows IFrames to comprehend URL parameters if address is copy/pasted later. Should not break any app2app possibilities
-    window.open(`${location.origin}${(window as any).ZoweZLUX.uriBroker.pluginResourceUri(item.plugin, item.plugin.getBasePlugin().getWebContent().startingPage)}`);
+    window.open(`${location.origin}${ZoweZLUX.uriBroker.pluginResourceUri(item.plugin.getBasePlugin(), item.plugin.getBasePlugin().getWebContent().startingPage)}`);
   } else {
-    window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}&showLogin=1`);
+    window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}&showLogin=true`);
   }
 }
 

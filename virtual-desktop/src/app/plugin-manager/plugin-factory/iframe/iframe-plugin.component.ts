@@ -257,7 +257,7 @@ export class IFramePluginComponent {
     }
     fn = (this.getAttrib(Object.assign({}, ZoweZLUX), split.join('.')) as Function);
     if(typeof fn === 'function'){
-      fn = fn.bind((window as any).ZoweZLUX[split[0]]);
+      fn = fn.bind((ZoweZLUX as any)[split[0]]);
       if(args.length === 0){
         fnRet = fn();
       } else {

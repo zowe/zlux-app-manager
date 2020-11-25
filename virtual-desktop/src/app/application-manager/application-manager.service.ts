@@ -49,7 +49,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     this.applicationInstances = new Map();
     this.knownLoggerMessageChecks = [];
     this.nextInstanceId = 0;
-    (window as any).ZoweZLUX.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
+    ZoweZLUX.dispatcher.setLaunchHandler((zluxPlugin:ZLUX.Plugin, metadata: any) => {
       return this.pluginManager.findPluginDefinition(zluxPlugin.getIdentifier()).then(plugin => {
         if (plugin == null) {
           throw new Error('ZWED5146E - Unknown plugin in launch handler '+zluxPlugin);
@@ -58,7 +58,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
       });
     });
     
-    (window as any).ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
+    ZoweZLUX.dispatcher.setPostMessageHandler( (instanceId:MVDHosting.InstanceId, message:any ) => {
        let applicationInstance:ApplicationInstance|undefined = this.applicationInstances.get(instanceId);
        if (applicationInstance){
          let theIframe:HTMLElement|null = document.getElementById(`${IFRAME_NAME_PREFIX}${instanceId}`);
@@ -278,7 +278,12 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
     // Generate initial instance window
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
-    const windowId = windowManager.createWindow(plugin);
+    let windowId;
+    if (launchMetadata && launchMetadata.zlux && launchMetadata.zlux.isFirstFullscreenApp) {
+      windowId = windowManager.createFullscreenStandaloneWindow(plugin);
+    } else {
+      windowId = windowManager.createWindow(plugin);
+    }
     const viewportId = windowManager.getViewportId(windowId);
     this.viewportManager.registerViewport(viewportId, applicationInstance.instanceId);
 

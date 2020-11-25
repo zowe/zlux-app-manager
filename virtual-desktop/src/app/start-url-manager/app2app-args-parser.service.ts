@@ -17,27 +17,52 @@ export class App2AppArgsParser {
   private startIndex: number;
   private length: number;
   private data: string;
+  private isFirstFullscreenApp: boolean;
 
   constructor() {
-
+    this.isFirstFullscreenApp = true; // Variable used to keep track of if plugin in desktop URL is for standalone mode
   }
 
-  parse(app2app: string): App2AppArgs {
+  parse(app2appArray: string[]): App2AppArgs {
+    let app2appKey = app2appArray[0];
+    let app2app = app2appArray[1];
+    let pluginId, actionType, actionMode, formatter, contextData, contextZlux;
     this.startIndex = 0;
     this.length = app2app.length;
     this.data = app2app;
-    const pluginId = this.getPart();
-    const actionType = this.getPart();
-    const actionMode = this.getPart();
-    const formatter = this.getPart();
-    const contextData = this.getLastPart();
+
+    switch(app2appKey) {
+      case "pluginId": // Assuming pluginId=xxx.xxx.xxx:formatter:{"xxx":"xxx" ...}
+        pluginId = this.getPart();
+        if (!pluginId) { // If pluginId=xxx.xx.xxx (no app2app data)
+          pluginId = app2app;
+          formatter = "data";
+          contextData = "{}";
+        } else {
+          formatter = this.getPart();
+          contextData = this.getLastPart();
+        }
+        actionType = "launch";
+        actionMode = "create";
+        contextZlux = JSON.stringify({isFirstFullscreenApp: this.isFirstFullscreenApp});
+        this.isFirstFullscreenApp = false;
+        break;
+      default: // Assume normal app2app, app2app=xxx.xxx.xxx:type:mode:formatter:{contextdata ...}
+        pluginId = this.getPart();
+        actionType = this.getPart();
+        actionMode = this.getPart();
+        formatter = this.getPart();
+        contextData = this.getLastPart();
+        contextZlux = "{}";
+    }
     return {
       pluginId,
       actionType,
       actionMode,
       formatter,
       contextData,
-    };
+      contextZlux
+    }
   }
 
   private getPart(): string {
