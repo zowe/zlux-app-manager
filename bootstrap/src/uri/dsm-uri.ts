@@ -34,7 +34,9 @@ export class DsmUri implements ZLUX.UriBroker {
   omvsSegmentUri(): string {
     return `${this.serverRootUri('omvs')}`;
   }
-  datasetContentsUri(_relativePath: string): string {
+
+  
+  datasetContentsUri(_dsn: string,  _sessionID?: number ): string {
     return "";
   } 
   datasetEnqueueUri(_relativePath: string): string {

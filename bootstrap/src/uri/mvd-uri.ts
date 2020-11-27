@@ -54,9 +54,24 @@ export class MvdUri implements ZLUX.UriBroker {
   omvsSegmentUri(): string {
     return `${this.serverRootUri('omvs')}`;
   }
-  datasetContentsUri(dsn: string): string {
-    return `${this.serverRootUri(`datasetContents/${encodeURIComponent(dsn).replace(/\%2F/gi,'/')}`)}`;
+
+
+  datasetContentsUri(dsn: string,  sessionID?: number ): string {
+let options;
+
+options = { 
+        sessionID };
+
+let paramArray = new Array<string>();
+(Object as any).entries(options).forEach(([key,value]:any[])=>{
+    if (value !== undefined) {
+    paramArray.push(`${key}=${value}`);
+}
+});
+let params = this.createParamURL(paramArray);
+    return `${this.serverRootUri(`datasetContents/${encodeURIComponent(dsn).replace(/\%2F/gi,'/')}${params}`)}`;
   }
+
   datasetEnqueueUri(dsn: string): string {
     return `${this.serverRootUri(`datasetEnqueue/${encodeURIComponent(dsn).replace(/\%2F/gi,'/')}`)}`;
   }
