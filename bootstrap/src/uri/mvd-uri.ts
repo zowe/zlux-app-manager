@@ -56,7 +56,7 @@ export class MvdUri implements ZLUX.UriBroker {
   }
 
 
-  datasetContentsUri(dsn: string,  sessionID?: number ): string {
+  datasetContentsUri(dsn: string): string {
 let options;
 
 options = { 
