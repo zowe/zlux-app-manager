@@ -57,18 +57,6 @@ export class MvdUri implements ZLUX.UriBroker {
 
 
   datasetContentsUri(dsn: string): string {
-let options;
-
-options = { 
-        sessionID };
-
-let paramArray = new Array<string>();
-(Object as any).entries(options).forEach(([key,value]:any[])=>{
-    if (value !== undefined) {
-    paramArray.push(`${key}=${value}`);
-}
-});
-let params = this.createParamURL(paramArray);
     return `${this.serverRootUri(`datasetContents/${encodeURIComponent(dsn).replace(/\%2F/gi,'/')}${params}`)}`;
   }
 
