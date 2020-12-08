@@ -15,17 +15,14 @@ import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
 import { ZoweZLUXResources } from './rocket-mvd-resources'
 import { DSMResources } from './dsm-resources'
 
-
-declare var window: { ZoweZLUX: typeof ZoweZLUXResources };
-
 export class BootstrapManager {
   private static bootstrapPerformed = false;
 
-  private static bootstrapGlobalResources(simpleContainerRequested: boolean) {
-    const uriBroker = (window as any)['GIZA_ENVIRONMENT'];
-    console.log("ZWED5004I - bootstrapGlobalResources simpleContainerRequested flag value: ", simpleContainerRequested);
+  private static bootstrapGlobalResources(standaloneContainerRequested: boolean) {
+    const uriBroker = window['GIZA_ENVIRONMENT'];
+    console.log("ZWED5004I - bootstrapGlobalResources standaloneContainerRequested flag value: ", standaloneContainerRequested);
     console.log("ZWED5005I - bootstrapGlobalResources GIZA_ENVIRONMENT value: ", uriBroker);
-    if (simpleContainerRequested && uriBroker.toUpperCase() === 'DSM') {
+    if (standaloneContainerRequested && uriBroker && uriBroker.toUpperCase() === 'DSM') {
       window.ZoweZLUX = DSMResources;
     } else {
       window.ZoweZLUX = ZoweZLUXResources;
@@ -56,9 +53,9 @@ export class BootstrapManager {
   }
 
   static bootstrapDesktop(injectionCallback: (plugin: ZLUX.Plugin) => Promise<void>) {
-    const simpleContainerRequested = (window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED'];
+    const standaloneContainerRequested = window['GIZA_SIMPLE_CONTAINER_REQUESTED'] || false;
 
-    BootstrapManager.bootstrapGlobalResources(simpleContainerRequested);
+    BootstrapManager.bootstrapGlobalResources(standaloneContainerRequested);
 
     PluginManager.loadPlugins(ZLUX.PluginType.Desktop).then(desktops => {
       console.log(`ZWED5007I - ${desktops.length} desktops available`);
