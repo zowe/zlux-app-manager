@@ -301,6 +301,9 @@ var ZoweZLUX = {
                 System: 3
             }
         },
+        getAbstractActions(capabilities, applicationContext){
+            return translateFunction('ZoweZLUX.dispatcher.getAbstractActions', [capabilities, applicationContext]);
+        },
         makeAction(id, defaultName, targetMode, type, targetPluginID, primaryArg){
             return translateFunction('ZoweZLUX.dispatcher.makeAction', [id, defaultName, targetMode, type, targetPluginID, primaryArg])
         },
