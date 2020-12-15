@@ -50,12 +50,6 @@ let messageHandler = function(message) {
                     delete ZoweZLUX.iframe.contextMenuActions[key];
                 }
                 return;
-            case 'viewportEvents.spawnContextMenu':
-                if(data.contextMenuItemIndex !== undefined){
-                    ZoweZLUX.iframe.contextMenuActions[key][data.contextMenuItemIndex].action();
-                    delete ZoweZLUX.iframe.contextMenuActions[key];
-                }
-                return;
             case 'viewportEvents.callCloseHandler':
                 ZoweZLUX.iframe.closeHandlers[key]().then((res) => {
                     delete ZoweZLUX.iframe.closeHandlers[key]
@@ -301,14 +295,26 @@ var ZoweZLUX = {
                 System: 3
             }
         },
+        getAbstractActionById(actionId){
+            return translateFunction('ZoweZLUX.dispatcher.getAbstractActionById', [actionId]);
+        },
         getAbstractActions(capabilities, applicationContext){
             return translateFunction('ZoweZLUX.dispatcher.getAbstractActions', [capabilities, applicationContext]);
         },
         makeAction(id, defaultName, targetMode, type, targetPluginID, primaryArg){
             return translateFunction('ZoweZLUX.dispatcher.makeAction', [id, defaultName, targetMode, type, targetPluginID, primaryArg])
         },
+        makeActionFromObject(actionObject){
+            return translateFunction('ZoweZLUX.dispatcher.makeActionFromObject', [actionObject]);
+        },
         invokeAction(action, eventContext, targetId){
             return translateFunction('ZoweZLUX.dispatcher.invokeAction', [action, eventContext, targetId])
+        },
+        registerAction(action){
+            return translateFunction('ZoweZLUX.dispatcher.registerAction', [action]);
+        },
+        registerAbstractAction(action){
+            return translateFunction('ZoweZLUX.dispatcher.registerAbstractAction', [action]);
         }
     },
     registry: {
