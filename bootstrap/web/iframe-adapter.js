@@ -44,6 +44,7 @@ let messageHandler = function(message) {
             case 'handleMessageRemoved':
                 ZoweZLUX.iframe.__iframeAdapter.__these[data.instanceId].handleMessageRemoved(data.notificationId);
                 return;
+            case 'viewportEvents.spawnContextMenu':
             case 'windowActions.spawnContextMenu':
                 if(data.contextMenuItemIndex !== undefined){
                     ZoweZLUX.iframe.contextMenuActions[key][data.contextMenuItemIndex].action();
