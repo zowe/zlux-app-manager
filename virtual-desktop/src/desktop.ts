@@ -15,14 +15,14 @@
  * To set up the desktop, this file must provide a public path for CSS
  * resources, load any external/global stylesheets and scripts, prepare the DOM
  * for the Angular application, and bootstrap the application. The core MVD
- * implementation exists at window.ZoweZLUX.
+ * implementation exists at ZoweZLUX.
  */
 
 
 /* Establish our public path before loading CSS resources */
 // @ts-ignore
 declare let __webpack_public_path__: string;
-const uriBroker = (window as any).ZoweZLUX.uriBroker;
+const uriBroker = ZoweZLUX.uriBroker;
 __webpack_public_path__ = uriBroker.desktopRootUri();
 
 /* Load external/global resources */
@@ -39,21 +39,34 @@ import { SimpleWindowManagerModule } from './app/window-manager/simple-window-ma
 import { environment } from './environments/environment';
 import { WindowManagerModule } from 'app/window-manager/mvd-window-manager/window-manager.module';
 import { SimpleComponent } from 'app/window-manager/simple-window-manager/simple.component';
+import { StartURLManager } from '../src/app/start-url-manager/start-url-manager.service';
 
 if (environment.production) {
   enableProdMode();
 }
 
 let mainModule: Type<any>;
-if ((window as any)['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
-  mainModule = MvdModuleFactory.generateModule(SimpleWindowManagerModule, SimpleComponent);
-} else {
-  mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
+
+/* Check which window manager to use from URL */
+const app2appArray = StartURLManager.getApp2AppArgsArray();
+for (let index = 0; index < app2appArray.length; index++) {
+  const key = app2appArray[index][0];
+  const value = app2appArray[index][1];
+
+  if (key == "windowManager") {
+    if (value.toUpperCase() == "MVD") {
+      mainModule = MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent);
+    } else {
+      mainModule = MvdModuleFactory.generateModule(SimpleWindowManagerModule, SimpleComponent);
+    }
+    break;
+  }
 }
 
 export function performBootstrap(): void {
   MvdModuleFactory.getTranslationProviders()
-    .then(providers => platformBrowserDynamic().bootstrapModule(mainModule, {providers: providers}));
+    .then(providers => platformBrowserDynamic().bootstrapModule(mainModule
+      || MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent), {providers: providers}));
 }
 
 

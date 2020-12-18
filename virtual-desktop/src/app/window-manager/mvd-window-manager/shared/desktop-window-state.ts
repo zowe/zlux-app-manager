@@ -17,7 +17,8 @@ import { WindowPosition } from './window-position';
 export enum DesktopWindowStateType {
   Minimized,
   Maximized,
-  Normal
+  Normal,
+  MaximizedFullscreen
 }
 
 export class DesktopWindowState {
@@ -53,6 +54,11 @@ export class DesktopWindowState {
   maximize(): void {
     this._normalPosition = this.position;
     this.setStateType(DesktopWindowStateType.Maximized);
+  }
+
+  _maximizeFullscreen(): void {
+    this._normalPosition = this.position;
+    this.setStateType(DesktopWindowStateType.MaximizedFullscreen);
   }
 
   minimize(): void {
