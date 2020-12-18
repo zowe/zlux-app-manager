@@ -55,22 +55,33 @@ export class IFramePluginFactory extends PluginFactory {
       return ['iframe'];
     }
 
-  private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Type<any> {
-    const basePlugin = pluginDefinition.getBasePlugin();
+  private getStartingPageUri(basePlugin: ZLUX.Plugin): string {
     let startingPage;
+    let startingPageUri;
+
+    //remote iframe with destination property
     if(basePlugin.getWebContent().destination>'') {
-      startingPage = 'iframe'
+      startingPage = '';
+      startingPageUri = ZoweZLUX.uriBroker.pluginIframeUri(basePlugin, startingPage);
     }
+    //iframe with startingPage property
     else {
       startingPage = basePlugin.getWebContent().startingPage || 'index.html';
+      if (startingPage.startsWith('http://') || startingPage.startsWith('https://')) {
+        startingPageUri = startingPage;
+      } else {
+        startingPageUri = ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
+      }
     }
+
     this.logger.debug('ZWED5307I', startingPage); //this.logger.debug('iframe startingPage', startingPage);
-    let startingPageUri;
-    if (startingPage.startsWith('http://') || startingPage.startsWith('https://')) {
-      startingPageUri = startingPage;
-    } else {
-      startingPageUri = ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
-    }
+    return startingPageUri;
+  }
+
+
+  private createIFrameComponentClass(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Type<any> {
+    const basePlugin = pluginDefinition.getBasePlugin();
+    const startingPageUri = this.getStartingPageUri(basePlugin);
     this.logger.debug('ZWED5308I', startingPageUri); //this.logger.debug('iframe startingPageUri', startingPageUri);
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
     this.logger.info(`ZWED5053I`, startingPageUri); //this.logger.info(`Loading iframe, URI=${startingPageUri}`);
