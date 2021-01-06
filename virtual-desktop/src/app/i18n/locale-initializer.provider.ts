@@ -16,7 +16,7 @@ import { Observable } from 'rxjs/Rx';
 const logger: ZLUX.ComponentLogger = ZoweZLUX.logger.makeComponentLogger('org.zowe.zlux.virtual-desktop.i18n');
 
 export const localeIdFactory = (localeService: LanguageLocaleService): string => {
-  const zoweGlobal = (window as any).ZoweZLUX;
+  const zoweGlobal = ZoweZLUX;
 
   // chicken and egg bootstrapping problem. virtual-desktop wants a particular implementation
   // of globalization that can use cookies set by the browser-preferences service of this plugin
@@ -30,7 +30,7 @@ export const localeIdFactory = (localeService: LanguageLocaleService): string =>
 
 export const localeInitializer = (localeService: LanguageLocaleService, localeId: string) => {
   return (): Promise<any> => {
-    const baseURI: string = (window as any).ZoweZLUX.uriBroker.desktopRootUri();
+    const baseURI: string = ZoweZLUX.uriBroker.desktopRootUri();
     if (localeService.isConfiguredForDefaultLanguage()) {
       return Promise.resolve();
     }

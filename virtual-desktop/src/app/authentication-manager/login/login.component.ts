@@ -46,6 +46,8 @@ export class LoginComponent implements OnInit {
   expiredPassword: boolean;
   private passwordServices: Set<string>;
   private themeManager: any;
+  public showLogin: boolean;
+  public enableExpirationPrompt: boolean;
 
   constructor(
     private authenticationService: AuthenticationManager,
@@ -67,6 +69,7 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     this.expiredPassword = false;
     this.passwordServices = new Set<string>();
+    this.enableExpirationPrompt = true;
     this.renewSession = this.renewSession.bind(this);
     this.isIdle = this.isIdle.bind(this);
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
@@ -109,8 +112,10 @@ export class LoginComponent implements OnInit {
       } else {
         this.logger.info('ZWED5048I'); /*this.logger.info('Near session expiration. No activity detected, prompting to renew session');*/
         this.spawnExpirationPrompt(e.expirationInMS);
+        this.enableExpirationPrompt = true;
       }
     });
+    this.showLogin = window.ZOWE_SWM_SHOW_LOGIN == true ? true : false;
   }
 
   private isIdle(): boolean {
@@ -177,7 +182,13 @@ export class LoginComponent implements OnInit {
           }
         }
         this.isLoading = false;
-        this.needLogin = true;
+        if (!this.showLogin && window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+          this.authenticationService.spawnApplicationsWithNoUsername();
+          this.enableExpirationPrompt = false;
+          this.needLogin = false;
+        } else {
+          this.needLogin = true;
+        }
       });
   }
 
