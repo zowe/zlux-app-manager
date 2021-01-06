@@ -122,6 +122,14 @@ export class MvdUri implements ZLUX.UriBroker {
     return `${this.pluginRootUri(pluginDefinition)}web/${relativePath}`;
   }
 
+
+  pluginIframeUri(pluginDefinition: ZLUX.Plugin, relativePath: string): string {
+    if (relativePath == null) {
+      relativePath = "";
+    }
+    return `${this.pluginRootUri(pluginDefinition)}iframe/${relativePath}`;
+  }
+
   pluginListUri(pluginType?: ZLUX.PluginType, refresh?: boolean): string {
     let query;
     if (pluginType === undefined) {
