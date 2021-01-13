@@ -60,9 +60,8 @@ export class IFramePluginFactory extends PluginFactory {
     let startingPageUri;
 
     //remote iframe with destination property
-    if(basePlugin.getWebContent().destination>'') {
-      startingPage = '';
-      startingPageUri = ZoweZLUX.uriBroker.pluginIframeUri(basePlugin, startingPage);
+    if(basePlugin.getWebContent().destination > '') {
+      startingPageUri = ZoweZLUX.uriBroker.pluginIframeUri(basePlugin, '');
     }
     //iframe with startingPage property
     else {
