@@ -54,6 +54,10 @@ export class SimpleWindowManagerService implements MVDWindowManagement.WindowMan
     return windowId;
   }
 
+  createFullscreenStandaloneWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId {
+    return this.createWindow(plugin);
+  }
+
   getWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId | null {
     return 1;
   }

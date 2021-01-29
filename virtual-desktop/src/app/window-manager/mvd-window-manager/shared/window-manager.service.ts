@@ -123,7 +123,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     });
 
     let tabHandler = (event: KeyboardEvent) => {
-      if(this.focusedWindow != null){
+      if(this.focusedWindow){
         if(event.keyCode == 9 || event.which == 9){ // tab
           let activeViewportID = this.getViewportIdFromDOM(document.activeElement);
           if(activeViewportID != Number(this.focusedWindow.viewportId)){
@@ -143,12 +143,13 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.appKeyboard.keyUpEvent
       .subscribe((event:KeyboardEvent) => {
         if (event.which === KeyCode.DOWN_ARROW) {
-          if(this.focusedWindow !== null) {
+          // TODO: Disable minimize hotkey once mvd-window-manager single app mode is functional. Variable subject to change.
+          if(this.focusedWindow && !window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
             this.minimizeToggle(this.focusedWindow.windowId);
           }
         }
         else if (event.which === KeyCode.UP_ARROW) {
-          if(this.focusedWindow !== null) {
+          if(this.focusedWindow) {
             this.maximizeToggle(this.focusedWindow.windowId);
           }
         }
@@ -159,7 +160,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
             this.switchWindow(1);
         }
         else if (event.which === KeyCode.KEY_W) {
-          if(this.focusedWindow !== null) {
+          // We should not be able to close a standalone mode application window
+          if(this.focusedWindow && !this.focusedWindow.isFullscreenStandalone) {
             this.closeWindow(this.focusedWindow.windowId);
           }
         }
@@ -228,7 +230,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   switchWindow(zDistance:number): void {
     let windows:DesktopWindow[] = this.getAllWindows();
   
-    if(this.focusedWindow != null) {
+    if(this.focusedWindow) {
       const focusedWindowId :number = this.focusedWindow.windowId; 
       windows = windows.filter( (val: DesktopWindow ) => 
         val.windowId !== focusedWindowId
@@ -247,7 +249,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       if(windowIds.length>0) {
         const selectIdx: number = (Math.abs(zDistance) -1) % (windows.length);
         const windowId = windowIds[selectIdx];
-        if(this.focusedWindow != null && zDistance<1) {
+        if(this.focusedWindow && zDistance<1) {
           const replaceZIndex = Math.abs(sortWindows[windowIds.length-1].windowState.zIndex)-1;
           if(replaceZIndex>0) {
             this.focusedWindow.windowState.zIndex=replaceZIndex;
@@ -269,12 +271,17 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {
-    //this is the window viewport size, so you must subtract the header and launchbar from the height.
+    //This is the window viewport size, so you must subtract the header and launchbar from the height, if not in standalone mode.
+    let height;
+    if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+      height = window.innerHeight;
+    } else {
+      height = window.innerHeight - WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET;
+    }
     desktopWindow.windowState.position = { top: 0,
                                            left: 0,
                                            width: window.innerWidth,
-                                           height: window.innerHeight
-                                           - WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET};
+                                           height: height};
   }
 
   private generateWindowId(): MVDWindowManagement.WindowId {
@@ -550,6 +557,49 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     return windowId;
   }
 
+  createFullscreenStandaloneWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId {
+    /* Create window instance */
+    let pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
+    const windowId = this.generateWindowId();
+    const paddingMargin = 2;
+    // const newWindowPosition: WindowPosition = this.generateNewWindowPosition(pluginImpl);
+    const newWindowPosition: WindowPosition = {
+      left: 0 - paddingMargin,
+      top: 0 - 31,
+      width: window.innerWidth + paddingMargin,
+      height: window.innerHeight + 31
+    };
+    const newState = new DesktopWindowState(this.topZIndex, newWindowPosition);
+    const desktopWindow = new DesktopWindow(windowId, newState, plugin.getBasePlugin());
+    desktopWindow.isFullscreenStandalone = true;
+    this.topZIndex ++;
+
+    /* Register window */
+    this.windowMap.set(windowId, desktopWindow);
+
+    const pluginId = plugin.getIdentifier();
+    const desktopWindowIds = this.runningPluginMap.get(pluginId);
+    if (desktopWindowIds !== undefined) {
+      desktopWindowIds.push(windowId);
+    } else {
+      this.runningPluginMap.set(pluginId, [windowId]);
+    }
+
+    this.updateLastWindowPositions(pluginId, windowId, newWindowPosition);
+
+    /* Create viewport */
+    desktopWindow.viewportId = this.viewportManager.createViewport((viewportId: MVDHosting.ViewportId)=> {
+      return this.generateWindowProviders(windowId, viewportId);
+    });
+
+    /* Default window actions */
+    this.setWindowTitle(windowId, pluginImpl.defaultWindowTitle);
+    this.requestWindowFocus(windowId);
+    this._maximizeFullscreen(windowId);
+
+    return windowId;
+  }
+
   getWindow(plugin: MVDHosting.DesktopPluginDefinition): MVDWindowManagement.WindowId | null {
     const desktopWindows = this.runningPluginMap.get(plugin.getIdentifier());
     if (desktopWindows !== undefined) {
@@ -726,7 +776,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   }
 
   windowHasFocus(window: MVDWindowManagement.WindowId): boolean {
-    if (this.focusedWindow != null) {
+    if (this.focusedWindow) {
       return this.focusedWindow.windowId === window;
     } else {
       return false;
@@ -750,6 +800,15 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     desktopWindow.windowState.maximize();
     this.refreshMaximizedWindowSize(desktopWindow);
+  }
+
+  private _maximizeFullscreen(windowId: MVDWindowManagement.WindowId): void {
+    const desktopWindow = this.windowMap.get(windowId);
+    if (desktopWindow == null) {
+      throw new Error('ZWED5157E - Attempted to maximize null window');
+    }
+
+    desktopWindow.windowState._maximizeFullscreen();
   }
 
   minimize(windowId: MVDWindowManagement.WindowId): void {

@@ -32,6 +32,7 @@ export class DesktopWindow {
   private childViewports: Array<MVDHosting.ViewportId>;
   public readonly plugin: ZLUX.Plugin;
   viewportId: MVDHosting.ViewportId; //primary, if children exist
+  public isFullscreenStandalone: boolean;
 
   closeHandler: (() => Promise<void>) | null; //DEPRECATED 1.0.1, use viewport close handler instead of window
   
@@ -81,6 +82,7 @@ export class DesktopWindow {
 
       lastPosition = state;
     });
+    this.isFullscreenStandalone = false;
   }
 
   get windowTitle(): string {

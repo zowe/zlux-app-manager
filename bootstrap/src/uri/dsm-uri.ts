@@ -28,7 +28,8 @@ export class DsmUri implements ZLUX.UriBroker {
   unixFileUri(_route: string, _absPath: string,
               _sourceEncodingOrOptions?: string|ZLUX.UnixFileUriOptions, _targetEncoding?: string,
               _newName?: string, _forceOverwrite?: boolean, _sessionID?: number,
-              _lastChunk?: boolean, _responseType?: string): string {
+              _lastChunk?: boolean, _responseType?: string, _mode?: string, _recursive?: boolean,
+              _user?: string, _group?: string, _type?: ZLUX.TagType, _codeset?: number): string {
     return "";
   }
   omvsSegmentUri(): string {
@@ -71,6 +72,13 @@ export class DsmUri implements ZLUX.UriBroker {
   }
 
   pluginResourceUri(pluginDefinition: ZLUX.Plugin, relativePath: string): string {
+    if (relativePath == null) {
+      relativePath = "";
+    }    
+    return this.pluginServletUri()+`?pluginResourceUri=${this.pluginRootUri(pluginDefinition)}/${relativePath}`
+  }
+
+  pluginIframeUri(pluginDefinition: ZLUX.Plugin, relativePath: string): string {
     if (relativePath == null) {
       relativePath = "";
     }    

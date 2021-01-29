@@ -13,13 +13,20 @@ import { BaseLogger } from 'virtual-desktop-logger';
 import { App2AppArgs } from './app2app-args';
 import { App2AppArgsParser } from './app2app-args-parser.service';
 
+const ZOWE_URL_ARGS = [
+  "app2app",
+  "pluginId",
+  "windowManager",
+  "showLogin"
+]
+
 @Injectable()
 export class StartURLManager implements MVDHosting.LoginActionInterface {
   private done = false;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(
-    public parser: App2AppArgsParser,
+    public parser: App2AppArgsParser
   ) {
     this.registerTestAction();
   }
@@ -82,6 +89,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     const type = args.actionType === 'launch' ? ActionType.Launch : ActionType.Message;
     const mode = args.actionMode === 'create' ? ActionTargetMode.PluginCreate : ActionTargetMode.System;
     const contextData: any = JSON.parse(args.contextData);
+    let contextZlux = args.contextZlux ? JSON.parse(args.contextZlux) : undefined;
     let action: ZLUX.Action;
     let argumentData: any;
     if (args.formatter === 'data') {
@@ -89,7 +97,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
       const actionId = 'org.zowe.zlux.url.launch';
       const argumentFormatter = { data: { op: 'deref', source: 'event', path: ['data'] } };
       action = dispatcher.makeAction(actionId, actionTitle, mode, type, args.pluginId, argumentFormatter);
-      argumentData = { data: contextData };
+      argumentData = contextZlux ? { data: contextData, zlux: contextZlux } : { data: contextData };
     } else {
       const abstractAction = dispatcher.getAbstractActionById(args.formatter);
       action = <ZLUX.Action>{
@@ -100,19 +108,26 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
       };
       argumentData = contextData;
     }
-    dispatcher.invokeAction(action, argumentData).catch((e:any) => this.handleInvokeActionError(e));
+    dispatcher.invokeAction(action, argumentData)
+    .then(() => {})
+    .catch((e:any) => this.handleInvokeActionError(e));
   }
 
   private getAllApp2AppArgsFromURL(): App2AppArgs[] {
-    const queryString = location.search.substr(1);
-    const app2appValues: string[] = [];
+    const app2appArray: string[][] = StartURLManager.getApp2AppArgsArray();
+    return app2appArray.map(value => this.parser.parse(value));
+  }
+
+  public static getApp2AppArgsArray(url?: string): string[][] {
+    const queryString = url || location.search.substr(1);
+    const app2appArray: string[][] = [];
     queryString.split('&').forEach(part => {
       const [key, value] = part.split('=').map(v => decodeURIComponent(v));
-      if (key === 'app2app') {
-        app2appValues.push(value);
+      if (ZOWE_URL_ARGS.includes(key)) {
+        app2appArray.push([key, value]);
       }
     });
-    return app2appValues.map(value => this.parser.parse(value));
+    return app2appArray;
   }
 
   private registerTestAction(): void {

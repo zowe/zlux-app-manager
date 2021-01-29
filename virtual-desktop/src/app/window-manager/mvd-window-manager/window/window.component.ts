@@ -42,6 +42,14 @@ export class WindowComponent {
   public maximizeLeft: string;
   public closeLeft: string;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
+  public displayMinimize: boolean;
+
+  private maxHeight: string;
+  private maxWidth: string;
+  private desktopHeight: number;
+  private desktopWidth: number;
+  private zIndex: number;
+  private launchbarHeight: number;
   
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.debug('Window theme set=',newTheme);
@@ -58,6 +66,13 @@ export class WindowComponent {
         this.buttonTop = '6px';
         this.textSize = '12px';
         this.textPad = '3px';
+        this.displayMinimize = true;
+
+        // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
+        if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+          this.displayMinimize = false;
+          this.maximizeLeft = this.minimizeLeft;
+        }
         break;
       case 3:
         this.borderSize = '3px';
@@ -68,6 +83,13 @@ export class WindowComponent {
         this.buttonTop = '16px';
         this.textSize = '18px';
         this.textPad = '12px';
+        this.displayMinimize = true;
+
+        // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
+        if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+          this.displayMinimize = false;
+          this.maximizeLeft = this.minimizeLeft;
+        }
         break;
       default: //Default size is medium - 2
         this.borderSize = '2px';
@@ -78,6 +100,13 @@ export class WindowComponent {
         this.buttonTop = '9px';
         this.textSize = '14px';
         this.textPad = '5px';
+        this.displayMinimize = true;
+
+        // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
+        if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+          this.displayMinimize = false;
+          this.maximizeLeft = this.minimizeLeft;
+        }
     }
     switch (newTheme.color.windowTextActive) {
       case Colors.COOLGREY_90:
@@ -124,32 +153,47 @@ export class WindowComponent {
 
   positionStyle(): any {
     const position = this.getPosition();
-    const DESKTOP_HEIGHT = document.getElementsByClassName('window-pane')[0].clientHeight;
-    const DESKTOP_WIDTH = document.getElementsByClassName('window-pane')[0].clientWidth;
+    this.desktopHeight = document.documentElement.clientHeight;
+    this.desktopWidth = document.documentElement.clientWidth;
+    this.maxHeight = '100%';
+    this.maxWidth = '100%';
+    this.zIndex = this.desktopWindow.windowState.zIndex;
+    // In standalone app mode, our launchbar doesn't exist
+    this.launchbarHeight = (window.GIZA_SIMPLE_CONTAINER_REQUESTED ? 0 : WindowManagerService.LAUNCHBAR_HEIGHT);
 
     /* These 4 conditionals check if a window is out of bounds by checking if a window has been
     dragged too far out of view, in either of the 4 directions, and locks it from going further. */
-    if (position.top < 0) {
-      position.top = SCREEN_EDGE_BORDER;
-    }
-    if (position.left + position.width - this.headerSize < 0) {
-      position.left = -position.width + this.headerSize;
-    }
-    if ((position.top + this.headerSize) > DESKTOP_HEIGHT - WindowManagerService.LAUNCHBAR_HEIGHT) {
-      position.top = DESKTOP_HEIGHT - this.headerSize - WindowManagerService.LAUNCHBAR_HEIGHT;
-    }
-    if ((position.left + this.headerSize) > DESKTOP_WIDTH) {
-      position.left = DESKTOP_WIDTH - this.headerSize;
+    if (!this.desktopWindow.isFullscreenStandalone) {
+      if (position.top < 0) {
+        position.top = SCREEN_EDGE_BORDER;
+      }
+      if (position.left + position.width - this.headerSize < 0) {
+        position.left = -position.width + this.headerSize;
+      }
+      if ((position.top + this.headerSize) > this.desktopHeight - this.launchbarHeight) {
+        position.top = this.desktopHeight - this.headerSize - this.launchbarHeight;
+      }
+      if ((position.left + this.headerSize) > this.desktopWidth) {
+        position.left = this.desktopWidth - this.headerSize;
+      }
+    } else {
+      this.maxHeight = '110%';
+      this.maxWidth = '102%';
+      position.left = -1 - SCREEN_EDGE_BORDER;
+      position.top = -1 - this.headerSize - SCREEN_EDGE_BORDER;
+      position.width = this.desktopWidth + SCREEN_EDGE_BORDER;
+      position.height = this.desktopHeight + SCREEN_EDGE_BORDER;
+      this.zIndex = 1; // So any app2app apps don't get hidden if we click back to the main fullscreen app
     }
 
     return {
       'top': position.top + 'px',
       'left': position.left + 'px',
       'width': position.width + 'px',
-      'max-width': 'calc(100%)',
+      'max-width': this.maxWidth,
       'height': (position.height + this.headerSize) + 'px',
-      'max-height': 'calc(100%)',
-      'z-index': this.desktopWindow.windowState.zIndex,
+      'max-height': this.maxHeight,
+      'z-index': this.zIndex,
       'inner-height': position.height + 'px'
 
     };

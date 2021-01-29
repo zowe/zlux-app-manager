@@ -2,6 +2,15 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `1.18.0`
+
+- Enhanced standalone/single app mode such that Desktop actions (Notifications, right click context menu, etc.) are now available
+
+## `1.16.0`
+
+- Added the relevant chmod/chown arguments to the Zowe URI Broker to enable the changing of ownership & permissions of USS files & folders
+- Added a missing translation for German, French, and Chinese
+
 ## `1.14.0`
 
 - [D] Fixed case in which the URI broker for unixfile would allow 3 or more slashes in a row
