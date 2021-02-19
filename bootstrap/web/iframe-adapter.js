@@ -44,13 +44,8 @@ let messageHandler = function(message) {
             case 'handleMessageRemoved':
                 ZoweZLUX.iframe.__iframeAdapter.__these[data.instanceId].handleMessageRemoved(data.notificationId);
                 return;
-            case 'windowActions.spawnContextMenu':
-                if(data.contextMenuItemIndex !== undefined){
-                    ZoweZLUX.iframe.contextMenuActions[key][data.contextMenuItemIndex].action();
-                    delete ZoweZLUX.iframe.contextMenuActions[key];
-                }
-                return;
             case 'viewportEvents.spawnContextMenu':
+            case 'windowActions.spawnContextMenu':
                 if(data.contextMenuItemIndex !== undefined){
                     ZoweZLUX.iframe.contextMenuActions[key][data.contextMenuItemIndex].action();
                     delete ZoweZLUX.iframe.contextMenuActions[key];
@@ -252,8 +247,8 @@ var ZoweZLUX = {
         VSAMdatasetContentsUri(dsn, closeAfter){
           return translateFunction('ZoweZLUX.uriBroker.VSAMdatasetContentsUri', Array.prototype.slice.call(arguments))
         },
-        unixFileUri(route, absPath, sourceEncodingOrOptions,
-                            targetEncoding, newName, forceOverwrite, sessionID, lastChunk, responseType){
+        unixFileUri(route, absPath, sourceEncodingOrOptions, targetEncoding, newName, forceOverwrite, sessionID, 
+            lastChunk, responseType, mode, recursive, user, group, type, codeset){
           return translateFunction('ZoweZLUX.uriBroker.unixFileUri', Array.prototype.slice.call(arguments))
         },
         omvsSegmentUri(){
@@ -304,11 +299,26 @@ var ZoweZLUX = {
                 System: 3
             }
         },
+        getAbstractActionById(actionId){
+            return translateFunction('ZoweZLUX.dispatcher.getAbstractActionById', [actionId]);
+        },
+        getAbstractActions(capabilities, applicationContext){
+            return translateFunction('ZoweZLUX.dispatcher.getAbstractActions', [capabilities, applicationContext]);
+        },
         makeAction(id, defaultName, targetMode, type, targetPluginID, primaryArg){
             return translateFunction('ZoweZLUX.dispatcher.makeAction', [id, defaultName, targetMode, type, targetPluginID, primaryArg])
         },
+        makeActionFromObject(actionObject){
+            return translateFunction('ZoweZLUX.dispatcher.makeActionFromObject', [actionObject]);
+        },
         invokeAction(action, eventContext, targetId){
             return translateFunction('ZoweZLUX.dispatcher.invokeAction', [action, eventContext, targetId])
+        },
+        registerAction(action){
+            return translateFunction('ZoweZLUX.dispatcher.registerAction', [action]);
+        },
+        registerAbstractAction(action){
+            return translateFunction('ZoweZLUX.dispatcher.registerAbstractAction', [action]);
         }
     },
     registry: {

@@ -50,7 +50,7 @@ export class LanguageLocaleService {
   }
 
   makeLocaleURI(localeId: string): string {
-    const baseURI: string = (window as any).ZoweZLUX.uriBroker.desktopRootUri();
+    const baseURI: string = ZoweZLUX.uriBroker.desktopRootUri();
     return `${baseURI}locales/${localeId}`;
   }
 

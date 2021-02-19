@@ -14,6 +14,7 @@ export interface App2AppArgs {
   actionMode: string,
   formatter: string;
   contextData: string;
+  contextZlux: string;
 }
 
 

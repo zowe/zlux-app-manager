@@ -19,11 +19,7 @@ import { ZoweNotificationManager } from 'zlux-base/notification-manager/notifica
 import { SimpleGlobalization } from '../i18n/simple-globalization'
 // import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
 
-declare var window: { ZoweZLUX: typeof ZoweZLUXResources,
-                      COM_RS_COMMON_LOGGER: Logger};
-window; /* Suppress TS error */
-
-// This is ithe core logger
+// This is the core logger
 let logger = new Logger();
 logger.addDestination(logger.makeDefaultDestination(true,true,true,true,true));
 window.COM_RS_COMMON_LOGGER = logger;
@@ -44,6 +40,7 @@ fetch('/ZLUX/plugins/org.zowe.zlux.bootstrap/web/assets/i18n/log/messages_en.jso
 
   PluginManager.logger = bootstrapLogger;
 
+// TODO: Possible duplicate in index.d.ts in zlux-platform ???
 export class ZoweZLUXResources {
   static pluginManager = PluginManager
   static uriBroker:ZLUX.UriBroker = new MvdUri();

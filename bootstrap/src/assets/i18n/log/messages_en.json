@@ -40,6 +40,7 @@
     "ZWED5040I":"Found some wrappers %s",
     "ZWED5041I":"ectxt=",
     "ZWED5042I":"dispatcher.invokeAction on context %s",
+    "ZWED5043I":"RESERVED: MVD standalone container requested with pluginId %s",
 
     "ZWED5000W":"RESERVED: Desktop attempted to change instanceId for iframe instance=%s, message=%s",
     "ZWED5001W":"pluginWSUri not implemented yet!",

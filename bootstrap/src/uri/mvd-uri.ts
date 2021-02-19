@@ -22,7 +22,8 @@ export class MvdUri implements ZLUX.UriBroker {
   unixFileUri(route: string, absPath: string,
               sourceEncodingOrOptions?: string|ZLUX.UnixFileUriOptions, targetEncoding?: string,
               newName?: string, forceOverwrite?: boolean, sessionID?: number,
-              lastChunk?: boolean, responseType?: string): string {
+              lastChunk?: boolean, responseType?: string, mode?: string, recursive?: boolean,
+              user?: string, group?: string, type?: ZLUX.TagType, codeset?: number): string {
     let options;
     if (typeof sourceEncodingOrOptions == 'object') {
       options = sourceEncodingOrOptions;
@@ -33,7 +34,14 @@ export class MvdUri implements ZLUX.UriBroker {
                   forceOverwrite,
                   sessionID,
                   lastChunk,
-                  responseType };
+                  responseType,
+                  mode,
+                  recursive,
+                  user,
+                  group,
+                  type,
+                  codeset,
+                 };
     }
     if (!options.responseType) {
       options.responseType = 'raw';
@@ -115,6 +123,14 @@ export class MvdUri implements ZLUX.UriBroker {
       relativePath = "";
     }
     return `${this.pluginRootUri(pluginDefinition)}web/${relativePath}`;
+  }
+
+
+  pluginIframeUri(pluginDefinition: ZLUX.Plugin, relativePath: string): string {
+    if (relativePath == null) {
+      relativePath = "";
+    }
+    return `${this.pluginRootUri(pluginDefinition)}iframe/${relativePath}`;
   }
 
   pluginListUri(pluginType?: ZLUX.PluginType, refresh?: boolean): string {

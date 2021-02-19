@@ -12,7 +12,7 @@
   "devDependencies": {
     "@types/express": "^4.16.1",
     "@types/http-proxy": "^1.17.3",
-    "@types/node": "^8.10.59",
-    "typescript": "~2.9.0"
+    "@types/node": "8.10.59",
+    "typescript": "~3.7.0"
   }
 }
