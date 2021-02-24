@@ -16,6 +16,8 @@ const uri_prefix = window.location.pathname.split('ZLUX/plugins/')[0];
 const proxy_mode = (uri_prefix !== '/') ? true : false; // Tells whether we're behind API layer (true) or not (false)
 
 export class MvdUri implements ZLUX.UriBroker {
+  private baseUrl: string;
+
   rasUri(uri: string): string {
     return `${this.serverRootUri(`ras/${uri}`)}`;
   }
@@ -112,7 +114,7 @@ export class MvdUri implements ZLUX.UriBroker {
   }
 
   serverRootUri(uri: string): string {
-    return `${uri_prefix}${uri}`;
+    return this.baseUrl ? `${this.baseUrl}${uri}` : `${uri_prefix}${uri}`;
   }
 
   pluginResourceUri(pluginDefinition: ZLUX.Plugin, relativePath: string): string {
@@ -224,6 +226,10 @@ export class MvdUri implements ZLUX.UriBroker {
       paramUrl = paramUrl.substring(0, paramUrl.length - 1);
     }
     return paramUrl;
+  }
+
+  setBaseUrl(url: string): void {
+    this.baseUrl = url;
   }
 
 }

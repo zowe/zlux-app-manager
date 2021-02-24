@@ -1,0 +1,34 @@
+{
+  "name": "org.zowe.zlux.sample.angular.mobile",
+  "displayName": "Sample Angular App",
+  "version": "1.0.0",
+  "description": "Sample Angular App",
+  "main": "index.js",
+  "scripts": {
+    "build:angular": "cd ../angularMobileApp && npm run build",
+    "build:android": "cordova build android",
+    "start:browser": "cordova run browser",
+    "start:android": "cordova run android",
+    "clean": "cordova clean"
+  },
+  "author": "Zowe Team",
+  "dependencies": {
+    "com-darryncampbell-cordova-plugin-intent": "^2.0.0",
+    "cordova": "^9.0.0",
+    "cordova-android": "^8.1.0",
+    "cordova-browser": "^6.0.0"
+  },
+  "devDependencies": {
+    "cordova-plugin-whitelist": "^1.3.4"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-whitelist": {},
+      "com-darryncampbell-cordova-plugin-intent": {}
+    },
+    "platforms": [
+      "browser",
+      "android"
+    ]
+  }
+}

@@ -162,6 +162,10 @@ export class DsmUri implements ZLUX.UriBroker {
     return `../dsm/proxy/ZluxProxyServlet`;
   }
 
+  setBaseUrl(_url: string): void {
+    // empty
+  }
+
 }
 
 /*
