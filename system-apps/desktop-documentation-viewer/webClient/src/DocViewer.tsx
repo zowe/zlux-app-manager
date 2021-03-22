@@ -103,7 +103,7 @@ const DocViewer = (props: any) => {
     }
   }, [allDocs]);
 
-  return <div onClick={() => console.log(allCodes)}>Available Plugins</div>;
+  return <div>Available Plugins</div>;
 };
 
 export default withTranslation('translation')(DocViewer);
