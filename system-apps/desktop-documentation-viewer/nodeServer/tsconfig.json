@@ -1,0 +1,17 @@
+{
+  "compileOnSave": true,
+  "include": [
+    "ts/*.ts"
+  ],
+  "compilerOptions": {
+    "target": "ES6",
+    "outDir": "../lib",
+    "sourceMap": true,
+    "allowJs": true,
+    "moduleResolution": "node",
+    "types": [
+      "node",
+      "express"
+    ]
+  }
+}
