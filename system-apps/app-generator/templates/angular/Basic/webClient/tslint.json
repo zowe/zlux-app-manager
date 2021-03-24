@@ -1,3 +1,0 @@
-{
-  "extends": "${MVD_DESKTOP_DIR}/plugin-config/tslint.base.json"
-}
