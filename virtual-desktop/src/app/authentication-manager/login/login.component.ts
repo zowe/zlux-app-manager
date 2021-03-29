@@ -293,6 +293,8 @@ export class LoginComponent implements OnInit {
         }
         this.password = '';
         this.locked = false;
+        //little bit of a hack: uriBroker cant finish init due to needing environment which needs login
+        (ZoweZLUX.uriBroker as any).fetchAgentPrefix();
       },
       error => {
         this.needLogin = true;
