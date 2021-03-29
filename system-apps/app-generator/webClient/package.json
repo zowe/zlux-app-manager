@@ -6,8 +6,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --prod && gzipper --brotli --output-file-format [filename].[ext].[compressExt] -e png --verbose ../web",
-    "test": "ng test",
-    "test:once": "ng test --watch=false",
+    "test": "ng test --watch=false",
+    "test:dev": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
