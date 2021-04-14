@@ -52,6 +52,10 @@ export class DsmUri implements ZLUX.UriBroker {
     return "";
   }
 
+  agentRootUri(_uri: string): string {
+    return "";
+  }
+  
   serverRootUri(_uri: string): string {
     return "";
   }
