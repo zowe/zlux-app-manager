@@ -46,7 +46,7 @@ export class StorageService {
   private storageEventHandler(event: StorageEvent) {
     this.logger.debug('storageEventListener');
     if (event.storageArea == localStorage) {
-      const newValue = event.newValue;
+      const newValue = event.newValue || undefined;
       switch(event.key) {
         case StorageKey.LAST_ACTIVE: {
           this.lastActive.emit(Number(newValue));
