@@ -11,11 +11,46 @@
 */
 
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
+import { Environment } from 'zlux-base/environment/environment'
 
 const uri_prefix = window.location.pathname.split('ZLUX/plugins/')[0];
 const proxy_mode = (uri_prefix !== '/') ? true : false; // Tells whether we're behind API layer (true) or not (false)
 
 export class MvdUri implements ZLUX.UriBroker {
+  private agentPrefix: string;
+  
+  constructor(private environment:Environment) {
+    if (proxy_mode) {
+      //its ok that this call is async, we can proxy through app-server while we wait to determine
+      this.fetchAgentPrefix().then(function(){});
+    } else {
+      this.agentPrefix = uri_prefix;
+    }
+  }
+
+  fetchAgentPrefix(): Promise<string> {
+    return new Promise((resolve)=> {
+      if (proxy_mode && !this.agentPrefix) {
+        this.environment.getAgentConfig().then((agentConfig)=> {
+          if (agentConfig) {
+            if (agentConfig.mediationLayer && agentConfig.mediationLayer.enabled && agentConfig.mediationLayer.serviceName) {
+              let version = agentConfig.mediationLayer.serviceVersion || 'v1';
+              let name = agentConfig.mediationLayer.serviceName;
+              this.agentPrefix = `/api/${version}/${name}/`
+            }
+          }
+          resolve(this.agentPrefix);
+        }).catch((err)=> {
+          if (err.status!=401) {
+            //401 can be a timing issue where we call this before login, but other errors should result in fallback to zlux proxying
+            this.agentPrefix = uri_prefix;
+          }
+          resolve(this.agentPrefix);
+        });
+      } else {resolve(this.agentPrefix);}
+    });
+  }
+  
   rasUri(uri: string): string {
     return `${this.serverRootUri(`ras/${uri}`)}`;
   }
@@ -57,17 +92,17 @@ export class MvdUri implements ZLUX.UriBroker {
     let routeParam = route;
     let absPathParam = encodeURIComponent(absPath).replace(/\%2F/gi,'/');
     
-    return `${this.serverRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`.replace(/(\/+)/g,'/');
+    return `${this.agentRootUri(`unixfile/${routeParam}/${absPathParam}${params}`)}`.replace(/(\/+)/g,'/');
   }
   omvsSegmentUri(): string {
-    return `${this.serverRootUri('omvs')}`;
+    return `${this.agentRootUri('omvs')}`;
   }
   datasetContentsUri(dsn: string): string {
-    return `${this.serverRootUri(`datasetContents/${encodeURIComponent(dsn).replace(/\%2F/gi,'/')}`)}`;
+    return `${this.agentRootUri(`datasetContents/${encodeURIComponent(dsn).replace(/\%2F/gi,'/')}`)}`;
   }
   VSAMdatasetContentsUri(dsn: string, closeAfter?: boolean): string {
     let closeAfterParam = closeAfter ? '?closeAfter=' + closeAfter : '';
-    return `${this.serverRootUri(`VSAMdatasetContents/${dsn}${closeAfterParam}`)}`;
+    return `${this.agentRootUri(`VSAMdatasetContents/${dsn}${closeAfterParam}`)}`;
   }
   datasetMetadataHlqUri(updateCache?: boolean | undefined, types?: string | undefined, workAreaSize?: number | undefined, resumeName?: string | undefined, resumeCatalogName?: string | undefined): string {
     let updateCacheParam = updateCache ? 'updateCache=' + updateCache : '';
@@ -79,7 +114,7 @@ export class MvdUri implements ZLUX.UriBroker {
     let paramArray = [updateCacheParam, typesParam, workAreaSizeParam, resumeNamesParam, resumeCatalogNameParam];
     let params = this.createParamURL(paramArray);
 
-    return `${this.serverRootUri(`datasetMetadata/hlq${params}`)}`;
+    return `${this.agentRootUri(`datasetMetadata/hlq${params}`)}`;
   }
   datasetMetadataUri(dsn: string, detail?: string | undefined, types?: string | undefined, listMembers?: boolean | undefined, workAreaSize?: number | undefined, includeMigrated?: boolean | undefined, includeUnprintable?: boolean | undefined, resumeName?: string | undefined, resumeCatalogName?: string | undefined, addQualifiers?: string | undefined): string {
     let detailParam = detail ? 'detail=' + detail : '';
@@ -94,7 +129,7 @@ export class MvdUri implements ZLUX.UriBroker {
 
     let paramArray = [detailParam, typesParam, workAreaSizeParam, listMembersParam, includeMigratedParam, includeUnprintableParam, resumeNameParam, resumeCatalogNameParam, addQualifiersParam];
     let params = this.createParamURL(paramArray);
-    return `${this.serverRootUri(`datasetMetadata/name/${dsn}${params}`)}`;
+    return `${this.agentRootUri(`datasetMetadata/name/${dsn}${params}`)}`;
   }
   pluginRootUri(pluginDefinition: ZLUX.Plugin): string {
     let identifier = (pluginDefinition as any).identifier || pluginDefinition.getIdentifier();
@@ -109,6 +144,28 @@ export class MvdUri implements ZLUX.UriBroker {
     } else {
       throw new Error("ZWED5014E - The desktop plugin has not been bootstrapped");
     }
+  }
+
+  agentRootUri(uri: string):  string {
+    if (!this.agentPrefix) {
+      this.fetchAgentPrefix();
+      //async, therefore return with server proxy until answer known
+      return this.serverRootUri(uri);
+    } else {
+      return `${this.agentPrefix}${uri}`;
+    }
+  }
+
+  agentRootUriAsync(uri: string): Promise<string> {
+    return new Promise((resolve) => {
+      if (!this.agentPrefix) {
+        this.fetchAgentPrefix().then((prefix:string)=> {
+          resolve(`${prefix}${uri}`);
+        });
+      } else {
+        resolve(`${this.agentPrefix}${uri}`);
+      }
+    });
   }
 
   serverRootUri(uri: string): string {

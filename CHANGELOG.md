@@ -2,6 +2,11 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `1.21.0`
+
+- Adds a global "environment" object in ZoweZLUX which allows for retreiving select environment properties from the zowe instance for conditional decision-making
+- Desktop uses the new environment object to determine whether or not to contact ZSS through app-server or through apiml depending on if zss is found on apiml
+
 ## `1.18.0`
 
 - Enhanced standalone/single app mode such that Desktop actions (Notifications, right click context menu, etc.) are now available

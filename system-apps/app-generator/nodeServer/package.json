@@ -4,8 +4,7 @@
   "description": "Back-end for App Generator",
   "scripts": {
     "build": "rm -rf ../lib && tsc && npm run copy:modules",
-    "copy:modules": "node ./scripts/copy.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "copy:modules": "node ./scripts/copy.js"
   },
   "author": "",
   "license": "EPL-2.0",
