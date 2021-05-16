@@ -89,6 +89,7 @@
     "ZWED5195W":"Action Mode(%s) specified  in app2app query URL parameter is invalid",
     "ZWED5196W":"Context Data(%s) specified in app2app query URL parameter is not valid JSON",
     "ZWED5197W":"Unable to find registered action for identifier %s specified in app2app query URL parameter",
+    "ZWED5198W":"Attempted to close standalone mode app window, ID=%s",
 
     "ZWED5143E":"Plugin ID required. Use query parameter ?pluginId",
     "ZWED5144E":"Cannot find plugin with ID=%s",
