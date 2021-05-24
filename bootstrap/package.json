@@ -17,19 +17,19 @@
     "@types/core-js": "~2.5.0",
     "@types/jquery": "~3.3.0",
     "compression-webpack-plugin": "~4.0.0",
-    "copy-webpack-plugin": "~5.1.0",
-    "core-js": "~2.6.0",
+    "copy-webpack-plugin": "~5.1.1",
     "html-webpack-plugin": "~3.2.0",
     "source-map-loader": "~0.2.3",
-    "systemjs": "~0.21.4",
     "ts-loader": "~4.4.2",
     "tslint": "~5.10.0",
-    "typescript": "~2.9.0",
+    "typescript": "~3.7.0",
     "webpack": "~4.46.0",
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
+    "core-js": "~2.6.5",
     "rxjs": "~6.2.2",
-    "rxjs-compat": "~6.2.2"
+    "rxjs-compat": "~6.2.2",
+    "systemjs": "~0.21.4"
   }
 }

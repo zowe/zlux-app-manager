@@ -68,7 +68,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
               The inner iframe is not under control of the zlux framework, so the name here is by convention.
               If people use the wrong name, they get nothing.
            */
-           let secondIframe = (theIframe as HTMLIFrameElement).contentWindow.document.getElementById(INNER_IFRAME_NAME);
+           let secondIframe = (theIframe as any).contentWindow.document.getElementById(INNER_IFRAME_NAME);
            if (secondIframe) {
              theIframe = secondIframe;
            }
