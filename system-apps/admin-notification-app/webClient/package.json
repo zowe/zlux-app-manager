@@ -26,7 +26,7 @@
     "@angular/platform-browser-dynamic": "~6.0.9",
     "@angular/router": "~6.0.9",
     "angular2-template-loader": "~0.6.2",
-    "copy-webpack-plugin": "~4.5.2",
+    "copy-webpack-plugin": "~5.1.2",
     "core-js": "~2.5.7",
     "css-loader": "~1.0.0",
     "exports-loader": "^0.7.0",
