@@ -1,0 +1,39 @@
+.editorContainer {
+  padding: 25px 50px;
+  height: 100vh;
+}
+
+.editorViewHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.editorViewTitle {
+  color: #00739f;
+  font-size: 36px;
+  margin-right: 20px;
+}
+
+.backButton {
+  width: 150px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background-color: #009ca9;
+  color: #fff7d6;
+  font-size: 16px;
+  line-height: 31px;
+}
+
+.backButton:hover {
+  cursor: pointer;
+}
+
+.editorWrapper {
+  width: 100%;
+  height: auto;
+  max-height: 800px;
+}

@@ -1,0 +1,32 @@
+{
+  "identifier": "org.zowe.zlux.desktop.documentation.viewer",
+  "apiVersion": "1.0.0",
+  "pluginVersion": "1.0.0",
+  "pluginType": "application",
+  "webContent": {
+    "framework": "react",
+    "launchDefinition": {
+      "pluginShortNameKey": "documentationviewer",
+      "pluginShortNameDefault": "Zowe Desktop Documentation Viewer",
+      "imageSrc": "assets/icon.png"
+    },
+    "descriptionKey": "systemdocumentationviewer",
+    "descriptionDefault": "App enabling users to view text & pdf documents bundled into plugins.",
+    "isSingleWindowApp": true,
+    "defaultWindowStyle": {
+      "width": 900,
+      "height": 420
+    }
+  },
+  "dataServices": [
+    {
+      "type": "router",
+      "name": "plugindetail",
+      "filename": "pluginDetail.js",
+      "routerFactory": "pluginDetailRouter",
+      "dependenciesIncluded": true,
+      "initializerLookupMethod": "external",
+      "version": "1.0.0"
+    }
+  ]
+}

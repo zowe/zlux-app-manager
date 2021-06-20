@@ -1,0 +1,39 @@
+.mainContainer {
+  padding: 25px 50px;
+}
+
+.header {
+  display: flex;
+  margin-bottom: 25px;
+}
+
+.docViewerTitle {
+  color: #00739f;
+  font-size: 36px;
+  margin-right: 35px;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+}
+
+.searchText {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.searchBox {
+  background: #ffffff;
+  border: 2px solid #000000;
+  box-sizing: border-box;
+  border-radius: 100px;
+  padding: 0px 10px;
+  width: 200px;
+  height: 50px;
+}
+
+.pluginsWrapper {
+  display: flex;
+  flex-direction: column;
+}

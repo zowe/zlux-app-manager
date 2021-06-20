@@ -1,0 +1,13 @@
+{
+    "allPlugins":{
+       "test.name.one.sample.angular":{
+          "identifier":"org.zowe.zlux.sample.angular",
+          "pluginType":"application",
+          "location":"location/path/to/folder/one"
+       },
+       "test.name.two.sample.react":{
+          "identifier":"org.zowe.zlux.sample.react",
+          "pluginType":"application",
+          "location":"location/path/to/folder/two"
+       }
+}
