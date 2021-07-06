@@ -3,7 +3,13 @@
   "apiVersion": "1.0.0",
   "pluginVersion": "0.0.0-zlux.version.replacement",
   "pluginType": "bootstrap",
-  "webContent": {},
+  "webContent": {
+    "headers": {
+      "Content-Security-Policy": {
+        "preset": "script-nonce"
+      }
+    }
+  },
   "configurationData": {
     "resources": {
       "plugins": {
