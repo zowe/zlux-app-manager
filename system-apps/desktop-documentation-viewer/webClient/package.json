@@ -1,0 +1,43 @@
+{
+  "name": "org.zowe.zlux.desktop.documentation.viewer.webclient",
+  "version": "1.0.0",
+  "description": "React frontend for Zowe documentation viewer",
+  "license": "EPL-2.0",
+  "dependencies": {
+    "i18next": "~15.1.0",
+    "i18next-browser-languagedetector": "~3.0.1",
+    "i18next-xhr-backend": "~2.0.1",
+    "monaco-editor": "^0.20.0",
+    "react": "~16.8.6",
+    "react-dom": "~16.8.6",
+    "react-i18next": "~10.9.0",
+    "react-monaco-editor": "^0.40.0",
+    "react-router": "~4.3.1",
+    "react-scripts-ts": "2.16.0"
+  },
+  "scripts": {
+    "start": "webpack --progress --colors --watch",
+    "build": "webpack --progress --colors",
+    "eject": "react-scripts-ts eject"
+  },
+  "devDependencies": {
+    "@types/jest": "~26.0.10",
+    "@types/react": "~16.9.46",
+    "@types/react-dom": "~16.9.8",
+    "copy-webpack-plugin": "~4.5.2",
+    "css-loader": "~1.0.0",
+    "exports-loader": "~0.7.0",
+    "file-loader": "~1.1.11",
+    "html-loader": "~0.5.5",
+    "monaco-editor-webpack-plugin": "^1.9.0",
+    "script-loader": "~0.7.2",
+    "source-map-loader": "~0.2.3",
+    "ts-loader": "~4.4.2",
+    "tslint": "~5.10.0",
+    "typescript": "~3.7.0",
+    "url-loader": "~1.0.1",
+    "webpack": "~4.41.6",
+    "webpack-cli": "~3.0.0",
+    "webpack-config": "~7.5.0"
+  }
+}
