@@ -190,6 +190,7 @@ export class LoginComponent implements OnInit {
                 for (let j = 0; j < plugins.length; j++) {
                   this.errorMessage = jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error.message;
                   if(!failedPlugins.has(plugins[j])) {
+                    // Appending the error messages and corresponding unique plugin-ids that have errors
                     this.errorDetails += `${plugins[j]}: ${this.errorMessage}.\n${jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error.body}\n`;
                     failedPlugins.add(plugins[j])
                   }
@@ -348,6 +349,7 @@ export class LoginComponent implements OnInit {
                 for (let j = 0; j < plugins.length; j++) {
                   this.errorMessage = jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error.message;
                   if(!failedPlugins.has(plugins[j])) {
+                    // Appending the error messages and corresponding unique plugin-ids that have errors
                     this.errorDetails += `${plugins[j]}: ${this.errorMessage}.\n${jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error.body}\n`;
                     failedPlugins.add(plugins[j])
                   }
