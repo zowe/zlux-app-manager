@@ -342,6 +342,7 @@ export class LoginComponent implements OnInit {
               this.loginMessage = this.translation.translate(PASSWORD_EXPIRED);
             } else {
               this.errorDetails = '';
+              // Get the server error messages from auth plugins
               for (let i = 0; i < failedTypes.length; i++) {
                 let plugins = Object.keys(jsonMessage.categories[failedTypes[i]].plugins);
                 for (let j = 0; j < plugins.length; j++) {
