@@ -163,6 +163,22 @@
   font-size: 12pt;
 }
 
+.login-error-details {
+  width: 350px;
+  height: 50px;
+  color: #f44336;
+  font-size: 9pt;
+  border-color: Transparent;
+  border: none;
+  text-align: center;
+  outline: none;
+  overflow: auto;
+}
+
+.error-details-wrapper {
+  padding-bottom: 20px;
+}
+
 .login-message {
   text-align: center;
   background-color: lightgoldenrodyellow;
