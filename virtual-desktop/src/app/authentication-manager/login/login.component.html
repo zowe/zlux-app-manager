@@ -47,7 +47,7 @@
     </form>
     <p class="login-error">
       {{this.translation.translate(errorMessage)}}
-      <i class="fa fa-caret-down" title="Expand" aria-hidden="true" *ngIf="showError && !showErrorDetails" (click)="expandError()"></i>
+      <i class="fa fa-caret-down" title="Expand" aria-hidden="true" *ngIf="errorDetails && !showErrorDetails" (click)="expandError()"></i>
       <i class="fa fa-caret-up" title="Collapse" aria-hidden="true" *ngIf="showErrorDetails" (click)="collapseError()"></i>
     </p>
     <div class="error-details-wrapper" [hidden]="!showErrorDetails">

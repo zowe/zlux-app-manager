@@ -42,7 +42,6 @@ export class LoginComponent implements OnInit {
   newPassword: string;
   confirmNewPassword: string;
   errorMessage: string;
-  showError: boolean;
   showErrorDetails: boolean;
   errorDetails: string;
   loginMessage: string;
@@ -75,7 +74,6 @@ export class LoginComponent implements OnInit {
     this.enableExpirationPrompt = true;
     this.renewSession = this.renewSession.bind(this);
     this.isIdle = this.isIdle.bind(this);
-    this.showError = false;
     this.showErrorDetails = false;
     this.errorDetails = '';
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
@@ -169,9 +167,6 @@ export class LoginComponent implements OnInit {
         this.needLogin = false;
       }, errorObservable => {
         let error = errorObservable.error;
-        if(error) {
-          this.showError = true;
-        }
         if (error !== 'No Session Found') {//generated from auth manager, dont display to user
           try {
             let jsonMessage = JSON.parse(error);
@@ -185,16 +180,24 @@ export class LoginComponent implements OnInit {
                 }
               }
               this.errorDetails = '';
+              let err;
               for (let i = 0; i < failedTypes.length; i++) {
                 let plugins = Object.keys(jsonMessage.categories[failedTypes[i]].plugins);
                 for (let j = 0; j < plugins.length; j++) {
-                  this.errorMessage = jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error.message;
-                  if(!failedPlugins.has(plugins[j])) {
-                    // Appending the error messages and corresponding unique plugin-ids that have errors
-                    this.errorDetails += `${plugins[j]}: ${this.errorMessage}.\n${jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error.body}\n`;
-                    failedPlugins.add(plugins[j])
+                  err = jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error;
+                  if(err) {
+                    this.errorMessage = err.message;
+                    if(!failedPlugins.has(plugins[j])) {
+                      // Appending the error messages and corresponding unique plugin-ids that have errors
+                      this.errorDetails += `${plugins[j]}: ${this.errorMessage}.\n${err.body}\n`;
+                      failedPlugins.add(plugins[j])
+                    }
                   }
                 }
+              }
+              if(!err) {
+                this.errorMessage = this.translation.translate('AuthenticationFailed',
+                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
               }
             }
           } catch (e) {
@@ -261,10 +264,10 @@ export class LoginComponent implements OnInit {
 
   attemptLogin(): void {
     this.errorMessage = '';
+    this.errorDetails = '';
     this.needLogin = false;
     this.locked = true;
     this.isLoading = true;
-    this.showError = false;
     this.showErrorDetails = false;
     // See https://github.com/angular/angular/issues/22426
     this.cdr.detectChanges();
@@ -320,7 +323,6 @@ export class LoginComponent implements OnInit {
       },
       error => {
         this.needLogin = true;
-        this.showError = true;
         let jsonMessage = error.json();
         if (jsonMessage) {
           if (jsonMessage.categories) {
@@ -343,17 +345,25 @@ export class LoginComponent implements OnInit {
               this.loginMessage = this.translation.translate(PASSWORD_EXPIRED);
             } else {
               this.errorDetails = '';
+              let err;
               // Get the server error messages from auth plugins
               for (let i = 0; i < failedTypes.length; i++) {
                 let plugins = Object.keys(jsonMessage.categories[failedTypes[i]].plugins);
                 for (let j = 0; j < plugins.length; j++) {
-                  this.errorMessage = jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error.message;
-                  if(!failedPlugins.has(plugins[j])) {
-                    // Appending the error messages and corresponding unique plugin-ids that have errors
-                    this.errorDetails += `${plugins[j]}: ${this.errorMessage}.\n${jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error.body}\n`;
-                    failedPlugins.add(plugins[j])
+                  err = jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error;
+                  if(err) {
+                    this.errorMessage = err.message;
+                    if(!failedPlugins.has(plugins[j])) {
+                      // Appending the error messages and corresponding unique plugin-ids that have errors
+                      this.errorDetails += `${plugins[j]}: ${this.errorMessage}.\n${err.body}\n`;
+                      failedPlugins.add(plugins[j])
+                    }
                   }
                 }
+              }
+              if(!err) {
+                this.errorMessage = this.translation.translate('AuthenticationFailed',
+                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
               }
               this.password = '';
             }
