@@ -1,7 +1,7 @@
 {
   "identifier": "org.zowe.zlux.ng2desktop.webbrowser",
   "apiVersion": "1.0.0",
-  "pluginVersion": "1.1.0",
+  "pluginVersion": "1.1.1",
   "pluginType": "application",
   "webContent": {
     "framework": "angular2",
