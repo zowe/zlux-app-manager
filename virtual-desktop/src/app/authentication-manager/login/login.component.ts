@@ -170,35 +170,8 @@ export class LoginComponent implements OnInit {
         if (error !== 'No Session Found') {//generated from auth manager, dont display to user
           try {
             let jsonMessage = JSON.parse(error);
-            if (jsonMessage.categories) {
-              let failedTypes = [];
-              let failedPlugins = new Set<string>();
-              let keys = Object.keys(jsonMessage.categories);
-              for (let i = 0; i < keys.length; i++) {
-                if (!jsonMessage.categories[keys[i]].success) {
-                  failedTypes.push(keys[i]);
-                }
-              }
-              this.errorDetails = '';
-              let err;
-              for (let i = 0; i < failedTypes.length; i++) {
-                let plugins = Object.keys(jsonMessage.categories[failedTypes[i]].plugins);
-                for (let j = 0; j < plugins.length; j++) {
-                  err = jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error;
-                  if(err) {
-                    this.errorMessage = err.message;
-                    if(!failedPlugins.has(plugins[j])) {
-                      // Appending the error messages and corresponding unique plugin-ids that have errors
-                      this.errorDetails += `${plugins[j]}: ${this.errorMessage}.\n${err.body}\n`;
-                      failedPlugins.add(plugins[j])
-                    }
-                  }
-                }
-              }
-              if(!err) {
-                this.errorMessage = this.translation.translate('AuthenticationFailed',
-                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
-              }
+            if(jsonMessage) {
+              this.displayErrorDetails(jsonMessage);
             }
           } catch (e) {
             this.errorMessage = error;
@@ -324,50 +297,12 @@ export class LoginComponent implements OnInit {
       error => {
         this.needLogin = true;
         let jsonMessage = error.json();
-        if (jsonMessage) {
-          if (jsonMessage.categories) {
-            let failedTypes = [];
-            let failedPlugins = new Set<string>();
-            let keys = Object.keys(jsonMessage.categories);
-            for (let i = 0; i < keys.length; i++) {
-              if (!jsonMessage.categories[keys[i]].success) {
-                failedTypes.push(keys[i]);
-              }
-              let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
-              for (let j = 0; j < plugins.length; j++) {
-                if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
-                  this.passwordServices.add(plugins[j]);
-                }
-              }
-            }
-            if (error.status == HTTP_STATUS_PRECONDITION_REQUIRED) {
-              this.expiredPassword = true;
-              this.loginMessage = this.translation.translate(PASSWORD_EXPIRED);
-            } else {
-              this.errorDetails = '';
-              let err;
-              // Get the server error messages from auth plugins
-              for (let i = 0; i < failedTypes.length; i++) {
-                let plugins = Object.keys(jsonMessage.categories[failedTypes[i]].plugins);
-                for (let j = 0; j < plugins.length; j++) {
-                  err = jsonMessage.categories[failedTypes[i]].plugins[plugins[j]].error;
-                  if(err) {
-                    this.errorMessage = err.message;
-                    if(!failedPlugins.has(plugins[j])) {
-                      // Appending the error messages and corresponding unique plugin-ids that have errors
-                      this.errorDetails += `${plugins[j]}: ${this.errorMessage}.\n${err.body}\n`;
-                      failedPlugins.add(plugins[j])
-                    }
-                  }
-                }
-              }
-              if(!err) {
-                this.errorMessage = this.translation.translate('AuthenticationFailed',
-                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
-              }
-              this.password = '';
-            }
-          }
+        if (error.status == HTTP_STATUS_PRECONDITION_REQUIRED) {
+          this.expiredPassword = true;
+          this.loginMessage = this.translation.translate(PASSWORD_EXPIRED);
+        } else if(jsonMessage) {
+          this.displayErrorDetails(jsonMessage);
+          this.password = '';
         } else {
           this.errorMessage = error.text();
         }
@@ -396,6 +331,44 @@ export class LoginComponent implements OnInit {
       this.errorMessage = "";
       this.newPassword = "";
       this.confirmNewPassword = "";
+    }
+  }
+
+  displayErrorDetails(jsonMessage:any): void {
+    if (jsonMessage.categories) {
+      let failedTypes: string[] = [];
+      let failedPlugins = new Set<string>();
+      let err;
+      this.errorDetails = '';
+      let keys = Object.keys(jsonMessage.categories);
+      for (let i = 0; i < keys.length; i++) {
+        let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
+        if (!jsonMessage.categories[keys[i]].success) {
+          failedTypes.push(keys[i]);
+          for (let j = 0; j < plugins.length; j++) {
+            err = jsonMessage.categories[keys[i]].plugins[plugins[j]].error;
+            if(err) {
+              if(err.message) {
+                this.errorMessage = err.message;
+              }
+              if(!failedPlugins.has(plugins[j]) && (err.message || err.body)) {
+                // Appending the error message, error body and corresponding unique plugin-id that have errors
+                this.errorDetails += `${plugins[j]}: ${err.message === undefined ? "": err.message+"\n"}${err.body === undefined ? "":err.body+"\n"}`;
+                failedPlugins.add(plugins[j])
+              }
+            }
+          }
+        }
+        for (let j = 0; j < plugins.length; j++) {
+          if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
+            this.passwordServices.add(plugins[j]);
+          }
+        }
+      }
+      if(!err || !this.errorMessage) {
+        this.errorMessage = this.translation.translate('AuthenticationFailed',
+        { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+      }
     }
   }
 

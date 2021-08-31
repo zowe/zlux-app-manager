@@ -173,6 +173,7 @@
   text-align: center;
   outline: none;
   overflow: auto;
+  resize: none;
 }
 
 .error-details-wrapper {
