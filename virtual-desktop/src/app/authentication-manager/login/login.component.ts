@@ -171,7 +171,9 @@ export class LoginComponent implements OnInit {
           try {
             let jsonMessage = JSON.parse(error);
             if(jsonMessage) {
-              this.displayErrorDetails(jsonMessage);
+              if(jsonMessage.categories) {
+                this.displayErrorDetails(jsonMessage);
+              }
             }
           } catch (e) {
             this.errorMessage = error;
@@ -297,13 +299,27 @@ export class LoginComponent implements OnInit {
       error => {
         this.needLogin = true;
         let jsonMessage = error.json();
-        if (error.status == HTTP_STATUS_PRECONDITION_REQUIRED) {
-          this.expiredPassword = true;
-          this.loginMessage = this.translation.translate(PASSWORD_EXPIRED);
-        } else if(jsonMessage) {
-          this.displayErrorDetails(jsonMessage);
-          this.password = '';
-        } else {
+        if(jsonMessage) {
+          if(jsonMessage.categories) {
+            let keys = Object.keys(jsonMessage.categories);
+            for (let i = 0; i < keys.length; i++) {
+              let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
+              for (let j = 0; j < plugins.length; j++) {
+                if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
+                  this.passwordServices.add(plugins[j]);
+                }
+              }
+            }
+            if (error.status == HTTP_STATUS_PRECONDITION_REQUIRED) {
+              this.expiredPassword = true;
+              this.loginMessage = this.translation.translate(PASSWORD_EXPIRED);
+            } else {
+              this.displayErrorDetails(jsonMessage);
+              this.password = '';
+            } 
+          }
+        }
+        else {
           this.errorMessage = error.text();
         }
         this.locked = false;
@@ -335,16 +351,15 @@ export class LoginComponent implements OnInit {
   }
 
   displayErrorDetails(jsonMessage:any): void {
-    if (jsonMessage.categories) {
       let failedTypes: string[] = [];
       let failedPlugins = new Set<string>();
       let err;
       this.errorDetails = '';
       let keys = Object.keys(jsonMessage.categories);
       for (let i = 0; i < keys.length; i++) {
-        let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
         if (!jsonMessage.categories[keys[i]].success) {
           failedTypes.push(keys[i]);
+          let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
           for (let j = 0; j < plugins.length; j++) {
             err = jsonMessage.categories[keys[i]].plugins[plugins[j]].error;
             if(err) {
@@ -359,17 +374,11 @@ export class LoginComponent implements OnInit {
             }
           }
         }
-        for (let j = 0; j < plugins.length; j++) {
-          if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
-            this.passwordServices.add(plugins[j]);
-          }
-        }
       }
       if(!err || !this.errorMessage) {
         this.errorMessage = this.translation.translate('AuthenticationFailed',
         { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
       }
-    }
   }
 
   expandError(): void {
