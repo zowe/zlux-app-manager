@@ -671,9 +671,14 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   closeWindow(windowId: MVDWindowManagement.WindowId): void {
     const desktopWindow = this.windowMap.get(windowId);
+    // We should not be able to close a standalone mode application window
+    if(desktopWindow && desktopWindow.isFullscreenStandalone) {
+      this.logger.warn("ZWED5198W", windowId); //this.logger.warn(`Attempted to close standalone mode app window, ID=${windowId}`);
+      return;
+    }
     if (desktopWindow == null) {
       this.logger.warn("ZWED5181W", windowId); //this.logger.warn(`Attempted to close null window, ID=${windowId}`);
-     return;
+      return;
     }
     this.updateLastWindowPositions(desktopWindow.plugin.getIdentifier(), windowId, desktopWindow.windowState.position);
 

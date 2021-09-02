@@ -1,6 +1,6 @@
 {
   "name": "app-generator-back",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Back-end for App Generator",
   "scripts": {
     "build": "rm -rf ../lib && tsc && npm run copy:modules",

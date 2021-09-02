@@ -42,6 +42,8 @@ export class LoginComponent implements OnInit {
   newPassword: string;
   confirmNewPassword: string;
   errorMessage: string;
+  showErrorDetails: boolean;
+  errorDetails: string;
   loginMessage: string;
   expiredPassword: boolean;
   private passwordServices: Set<string>;
@@ -72,6 +74,8 @@ export class LoginComponent implements OnInit {
     this.enableExpirationPrompt = true;
     this.renewSession = this.renewSession.bind(this);
     this.isIdle = this.isIdle.bind(this);
+    this.showErrorDetails = false;
+    this.errorDetails = '';
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
       case MVDHosting.LoginScreenChangeReason.UserLogout:
@@ -166,16 +170,10 @@ export class LoginComponent implements OnInit {
         if (error !== 'No Session Found') {//generated from auth manager, dont display to user
           try {
             let jsonMessage = JSON.parse(error);
-            if (jsonMessage.categories) {
-              let failedTypes = [];
-              let keys = Object.keys(jsonMessage.categories);
-              for (let i = 0; i < keys.length; i++) {
-                if (!jsonMessage.categories[keys[i]].success) {
-                  failedTypes.push(keys[i]);
-                }
+            if(jsonMessage) {
+              if(jsonMessage.categories) {
+                this.displayErrorDetails(jsonMessage);
               }
-              this.errorMessage = this.translation.translate('AuthenticationFailed',
-                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
             }
           } catch (e) {
             this.errorMessage = error;
@@ -241,9 +239,11 @@ export class LoginComponent implements OnInit {
 
   attemptLogin(): void {
     this.errorMessage = '';
+    this.errorDetails = '';
     this.needLogin = false;
     this.locked = true;
     this.isLoading = true;
+    this.showErrorDetails = false;
     // See https://github.com/angular/angular/issues/22426
     this.cdr.detectChanges();
     this.passwordServices.clear();
@@ -299,14 +299,10 @@ export class LoginComponent implements OnInit {
       error => {
         this.needLogin = true;
         let jsonMessage = error.json();
-        if (jsonMessage) {
-          if (jsonMessage.categories) {
-            let failedTypes = [];
+        if(jsonMessage) {
+          if(jsonMessage.categories) {
             let keys = Object.keys(jsonMessage.categories);
             for (let i = 0; i < keys.length; i++) {
-              if (!jsonMessage.categories[keys[i]].success) {
-                failedTypes.push(keys[i]);
-              }
               let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
               for (let j = 0; j < plugins.length; j++) {
                 if (jsonMessage.categories[keys[i]].plugins[plugins[j]].canChangePassword) {
@@ -318,12 +314,12 @@ export class LoginComponent implements OnInit {
               this.expiredPassword = true;
               this.loginMessage = this.translation.translate(PASSWORD_EXPIRED);
             } else {
-              this.errorMessage = this.translation.translate('AuthenticationFailed',
-              { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+              this.displayErrorDetails(jsonMessage);
               this.password = '';
-            }
+            } 
           }
-        } else {
+        }
+        else {
           this.errorMessage = error.text();
         }
         this.locked = false;
@@ -352,6 +348,45 @@ export class LoginComponent implements OnInit {
       this.newPassword = "";
       this.confirmNewPassword = "";
     }
+  }
+
+  displayErrorDetails(jsonMessage:any): void {
+      let failedTypes: string[] = [];
+      let failedPlugins = new Set<string>();
+      let err;
+      this.errorDetails = '';
+      let keys = Object.keys(jsonMessage.categories);
+      for (let i = 0; i < keys.length; i++) {
+        if (!jsonMessage.categories[keys[i]].success) {
+          failedTypes.push(keys[i]);
+          let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
+          for (let j = 0; j < plugins.length; j++) {
+            err = jsonMessage.categories[keys[i]].plugins[plugins[j]].error;
+            if(err) {
+              if(err.message) {
+                this.errorMessage = err.message;
+              }
+              if(!failedPlugins.has(plugins[j]) && (err.message || err.body)) {
+                // Appending the error message, error body and corresponding unique plugin-id that have errors
+                this.errorDetails += `${plugins[j]}: ${err.message === undefined ? "": err.message+"\n"}${err.body === undefined ? "":err.body+"\n"}`;
+                failedPlugins.add(plugins[j])
+              }
+            }
+          }
+        }
+      }
+      if(!err || !this.errorMessage) {
+        this.errorMessage = this.translation.translate('AuthenticationFailed',
+        { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+      }
+  }
+
+  expandError(): void {
+    this.showErrorDetails = true;
+  }
+
+  collapseError(): void {
+    this.showErrorDetails = false;
   }
 }
 
