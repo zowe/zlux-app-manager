@@ -1,6 +1,6 @@
 {
   "name": "org.zowe.zlux.ng2desktop.webbrowser.nodeserver",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Web Browser Proxy service",
   "scripts": {
     "build": "tsc",

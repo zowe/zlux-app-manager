@@ -1,6 +1,6 @@
 {
   "name": "admin-notification",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "start": "webpack --progress --colors --watch",
     "build": "webpack --progress --colors",
@@ -11,8 +11,8 @@
     "@rocketsoftware/carbon-components": "0.0.5",
     "@rocketsoftware/carbon-components-angular": "0.0.6",
     "@rocketsoftware/icons-angular": "0.0.3",
-    "node-sass": "^4.14.1",
-    "sass-loader": "^7.2.0",
+    "sass": "~1.26.0",
+    "sass-loader": "^8.0.0",
     "style-loader": "^1.0.0"
   },
   "devDependencies": {
@@ -27,7 +27,7 @@
     "@angular/router": "~6.0.9",
     "angular2-template-loader": "~0.6.2",
     "copy-webpack-plugin": "~5.1.2",
-    "core-js": "~2.5.7",
+    "core-js": "~2.6.5",
     "css-loader": "~1.0.0",
     "exports-loader": "^0.7.0",
     "file-loader": "~1.1.11",
@@ -38,8 +38,8 @@
     "ts-loader": "~4.4.2",
     "tslint": "~5.10.0",
     "typescript": "~2.9.0",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.12",
+    "webpack": "~4.46.0",
+    "webpack-cli": "~3.3.12",
     "webpack-config": "~7.5.0",
     "zone.js": "~0.8.26"
   }
