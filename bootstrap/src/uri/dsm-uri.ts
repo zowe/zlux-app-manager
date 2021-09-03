@@ -166,6 +166,10 @@ export class DsmUri implements ZLUX.UriBroker {
     return `../dsm/proxy/ZluxProxyServlet`;
   }
 
+  userInfoUri(): string {
+    return this.agentRootUri('user-info');
+  }
+
 }
 
 /*
