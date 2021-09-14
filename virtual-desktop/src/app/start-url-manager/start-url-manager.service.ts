@@ -12,6 +12,8 @@ import { Injectable } from '@angular/core';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { App2AppArgs } from './app2app-args';
 import { App2AppArgsParser } from './app2app-args-parser.service';
+import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
+import { TranslationService } from 'angular-l10n';
 
 const ZOWE_URL_ARGS = [
   "app2app",
@@ -26,7 +28,9 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(
-    public parser: App2AppArgsParser
+    public parser: App2AppArgsParser,
+    private popupManager: ZluxPopupManagerService,
+    public translation: TranslationService,
   ) {
     this.registerTestAction();
   }
@@ -103,6 +107,15 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
       };
       contextData.error = args.error;
       contextData.original = args.contextData;
+      this.popupManager.createErrorReport(
+        ZluxErrorSeverity.WARNING,
+        this.translation.translate(args.error),
+        (this.translation.translate('Bad data: ') + args.contextData), 
+        {
+          blocking: false,
+          buttons: [this.translation.translate('Dismiss')]
+        }
+      );
     } else {
       contextData = JSON.parse(args.contextData);
     }
