@@ -72,10 +72,8 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     } catch (e) {
       // this.logger.warn('Context Data(%s) specified in app2app query URL parameter is not valid JSON', args.contextData);
       this.logger.warn('ZWED5196W', args.contextData);
-      if (args.actionType == 'launch' && args.formatter == 'data') { // If we know what the plugin is, we can still try to launch it w/o app2app data
+      if (args.formatter == 'data') { // If we know what the plugin is, we can still try to launch it w/o app2app data
         args.error = "Context Data specified in app2app query URL parameter is not valid JSON";
-      } else {
-        return false;
       }
     }
     if (args.formatter !== 'data') {
@@ -101,12 +99,6 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     let action: ZLUX.Action;
     let argumentData: any;
     if (args.error) {
-      contextData = {
-        error: '',
-        original: ''
-      };
-      contextData.error = args.error;
-      contextData.original = args.contextData;
       this.popupManager.createErrorReport(
         ZluxErrorSeverity.WARNING,
         this.translation.translate(args.error),

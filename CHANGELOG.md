@@ -2,6 +2,10 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `1.25.0`
+
+- Fixed a bug where using app2app with incorrectly formatted data would not honor launch/message request
+
 ## `1.24.0`
 
 - Error messages on Desktop login screen are now more descriptive
