@@ -45,7 +45,14 @@
         aria-labelledby="confirmNewPassword" tabindex="1" type="password" name="confirmNewPassword"[(ngModel)]="confirmNewPassword" 
         maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
     </form>
-    <p class="login-error">{{this.translation.translate(errorMessage)}}</p>
+    <p class="login-error">
+      {{this.translation.translate(errorMessage)}}
+      <i class="fa fa-caret-down" title="Expand" aria-hidden="true" *ngIf="errorDetails && !showErrorDetails" (click)="expandError()"></i>
+      <i class="fa fa-caret-up" title="Collapse" aria-hidden="true" *ngIf="showErrorDetails" (click)="collapseError()"></i>
+    </p>
+    <div class="error-details-wrapper" [hidden]="!showErrorDetails">
+      <textarea class="login-error-details" readonly>{{this.translation.translate(errorDetails)}}</textarea>
+    </div>
     <div class="fa fa-spinner fa-spin fa-5x" [hidden]="!isLoading"></div>
     <button id="ZAP_LoginPage_SavePassword"
       [hidden]="!expiredPassword && !changePassword" class="login-button" (click)="attemptPasswordReset()" [disabled]="locked">
