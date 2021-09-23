@@ -37,7 +37,7 @@ export class IFramePluginFactory extends PluginFactory {
   ) {
     super();
     window.addEventListener("blur", (event) => { //Checks if focus is lost from the desktop
-      if (iFrameElement != null && document.activeElement.className == "mvd-iframe") //Checks if an IFrame caused it
+      if (iFrameElement != null && document.activeElement && document.activeElement.className == "mvd-iframe") //Checks if an IFrame caused it
       {
         const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
         let stringId = iFrameElement.id.replace(/[^0-9\.]+/g, ""); //Extracts the instance ID from the IFrame ID

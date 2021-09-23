@@ -68,9 +68,15 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
               The inner iframe is not under control of the zlux framework, so the name here is by convention.
               If people use the wrong name, they get nothing.
            */
-           let secondIframe = (theIframe as HTMLIFrameElement).contentWindow.document.getElementById(INNER_IFRAME_NAME);
-           if (secondIframe) {
-             theIframe = secondIframe;
+           let secondIframe;
+           let contentWindow: Window|null = (theIframe as HTMLIFrameElement).contentWindow;
+           if (contentWindow) {
+            secondIframe = contentWindow.document.getElementById(INNER_IFRAME_NAME);
+            if (secondIframe) {
+              theIframe = secondIframe;
+            } else {
+              this.logger.warn("ZWED5323I", applicationInstance.plugin.getIdentifier(),instanceId); //this.logger.warn(`iframe postMessage failed, second iframe not found for ${applicationInstance.plugin.getIdentifier()}, id=${instanceId}`);
+            }
            }
            this.logger.debug(`ZWED5292I`, applicationInstance); //this.logger.debug(`PostMessage for instance=`,applicationInstance);
            let iframeWindow:Window|null = (theIframe as HTMLIFrameElement).contentWindow!;

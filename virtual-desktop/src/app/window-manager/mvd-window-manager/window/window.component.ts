@@ -153,8 +153,10 @@ export class WindowComponent {
 
   positionStyle(): any {
     const position = this.getPosition();
-    this.desktopHeight = document.documentElement.clientHeight;
-    this.desktopWidth = document.documentElement.clientWidth;
+    if (document.documentElement) {
+      this.desktopHeight = document.documentElement.clientHeight;
+      this.desktopWidth = document.documentElement.clientWidth;
+    }
     this.maxHeight = '100%';
     this.maxWidth = '100%';
     this.zIndex = this.desktopWindow.windowState.zIndex;

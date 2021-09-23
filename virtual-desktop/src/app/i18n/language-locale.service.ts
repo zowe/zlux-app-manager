@@ -28,7 +28,9 @@ export class LanguageLocaleService {
   constructor(
   ) {
     const lang = this.getLanguage();
-    document.documentElement.lang = lang;
+    if (document.documentElement) {
+      document.documentElement.lang = lang;
+    }
   }
 
   getLanguage(): string {
