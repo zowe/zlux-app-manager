@@ -2,11 +2,14 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `1.25.0`
+
+- Fixed a bug where using app2app with incorrectly formatted data would not honor launch/message request
+
 ## `1.24.0`
 
 - Error messages on Desktop login screen are now more descriptive
-- Performance for dragging App windows during heavy resource usage has increased
-- Fixed a rare edgecase where you could close the primarty (first) App window in standalone mode
+- Fixed a rare edgecase where you could close the primary (first) App window in standalone mode
 
 ## `1.23.0`
 

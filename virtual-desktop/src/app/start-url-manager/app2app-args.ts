@@ -15,6 +15,7 @@ export interface App2AppArgs {
   formatter: string;
   contextData: string;
   contextZlux: string;
+  error?: string;
 }
 
 

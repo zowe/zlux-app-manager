@@ -268,6 +268,10 @@ export class MvdUri implements ZLUX.UriBroker {
        + `/${relativePath}`;
   }
 
+  userInfoUri(): string {
+    return this.agentRootUri('user-info');
+  }
+
   createParamURL(parameters: String[]): string {
     let parametersFiltered = parameters.filter(String);
     let paramUrl = '';
