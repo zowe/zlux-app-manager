@@ -67,7 +67,7 @@
       [style.left]="minimizeLeft"
       [ngStyle]="hasFocus() ? {'filter': buttonFilter} : {}"
       (click)="minimizeToggle()"
-      [style.display]="displayMinimize"></div>
+      *ngIf="displayMinimize"></div>
     <div class="maximize-button" 
       [style.top]="buttonTop"
       [class.active]="hasFocus()"

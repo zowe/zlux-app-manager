@@ -10,9 +10,12 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="launchbar-container launchbar-large" id="container"
-     [style.height]="barSize"
-     (mouseup)="onMouseUpContainer($event)" [class.active]="isActive">
+<div class="launchbar-container launchbar-large" 
+  id="container"
+  [style.height]="barSize"
+  (mouseup)="onMouseUpContainer($event)" 
+  [class.active]="isActive"
+  [style.display]="displayAppBar">
   <rs-com-launchbar-menu [menuItems]="allItems" [theme]="_theme" (itemClicked)="menuItemClicked($event)"  (refreshClicked)="getNewItems()"></rs-com-launchbar-menu>
   
   <div class="applist row" 

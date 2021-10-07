@@ -29,7 +29,7 @@ export class SimpleComponent implements OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   viewportId: MVDHosting.ViewportId;
   private windowManager: SimpleWindowManagerService;
-  public showLogin:boolean = (window as any).ZOWE_SWM_SHOW_LOGIN == 1 ? true : false;
+  public showLogin:boolean = window.ZOWE_SWM_SHOW_LOGIN == true ? true : false;
   public error:string='';
 
   constructor(
@@ -51,7 +51,7 @@ export class SimpleComponent implements OnInit {
       this.contextMenuDef = menuDef;
     });
     
-    let requestedPluginID: string = (window as any)['GIZA_PLUGIN_TO_BE_LOADED'];
+    let requestedPluginID: string | undefined = window['GIZA_PLUGIN_TO_BE_LOADED'];
 
     if (!requestedPluginID) {
       let message = "Plugin ID required. Use query parameter ?pluginId";

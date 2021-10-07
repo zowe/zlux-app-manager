@@ -2,6 +2,28 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `1.25.0`
+
+- Fixed a bug where using app2app with incorrectly formatted data would not honor launch/message request
+
+## `1.24.0`
+
+- Error messages on Desktop login screen are now more descriptive
+- Fixed a rare edgecase where you could close the primary (first) App window in standalone mode
+
+## `1.23.0`
+
+- Improved ways to detect cookie name during HA and non-HA mode
+
+## `1.21.0`
+
+- Adds a global "environment" object in ZoweZLUX which allows for retrieving select environment properties from the zowe instance for conditional decision-making
+- Desktop uses the new environment object to determine whether or not to contact ZSS through App server or through APIML depending on if ZSS is found on APIML
+
+## `1.18.0`
+
+- Enhanced standalone/single app mode such that Desktop actions (Notifications, right click context menu, etc.) are now available
+
 ## `1.16.0`
 
 - Added the relevant chmod/chown arguments to the Zowe URI Broker to enable the changing of ownership & permissions of USS files & folders

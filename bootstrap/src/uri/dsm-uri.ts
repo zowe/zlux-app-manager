@@ -29,7 +29,7 @@ export class DsmUri implements ZLUX.UriBroker {
               _sourceEncodingOrOptions?: string|ZLUX.UnixFileUriOptions, _targetEncoding?: string,
               _newName?: string, _forceOverwrite?: boolean, _sessionID?: number,
               _lastChunk?: boolean, _responseType?: string, _mode?: string, _recursive?: boolean,
-              _user?: string, _group?: string): string {
+              _user?: string, _group?: string, _type?: ZLUX.TagType, _codeset?: number): string {
     return "";
   }
   omvsSegmentUri(): string {
@@ -52,6 +52,10 @@ export class DsmUri implements ZLUX.UriBroker {
     return "";
   }
 
+  agentRootUri(_uri: string): string {
+    return "";
+  }
+  
   serverRootUri(_uri: string): string {
     return "";
   }
@@ -70,6 +74,13 @@ export class DsmUri implements ZLUX.UriBroker {
   }
 
   pluginResourceUri(pluginDefinition: ZLUX.Plugin, relativePath: string): string {
+    if (relativePath == null) {
+      relativePath = "";
+    }    
+    return this.pluginServletUri()+`?pluginResourceUri=${this.pluginRootUri(pluginDefinition)}/${relativePath}`
+  }
+
+  pluginIframeUri(pluginDefinition: ZLUX.Plugin, relativePath: string): string {
     if (relativePath == null) {
       relativePath = "";
     }    
@@ -153,6 +164,10 @@ export class DsmUri implements ZLUX.UriBroker {
 
   private pluginServletUri(){
     return `../dsm/proxy/ZluxProxyServlet`;
+  }
+
+  userInfoUri(): string {
+    return this.agentRootUri('user-info');
   }
 
 }

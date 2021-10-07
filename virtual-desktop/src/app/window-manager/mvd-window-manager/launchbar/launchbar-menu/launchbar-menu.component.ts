@@ -145,7 +145,8 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   ngOnInit(): void {
     this.appKeyboard.keyUpEvent
       .subscribe((event:KeyboardEvent) => {
-        if (event.which === KeyCode.KEY_M) {
+        // TODO: Disable bottom app bar once mvd-window-manager single app mode is functional. Variable subject to change.
+        if (event.which === KeyCode.KEY_M && !window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
           this.activeToggle();
         }
     });
