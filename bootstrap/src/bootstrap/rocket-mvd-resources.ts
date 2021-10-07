@@ -32,7 +32,7 @@ let environment = new Environment();
 
 fetch('/ZLUX/plugins/org.zowe.zlux.bootstrap/web/assets/i18n/log/messages_en.json')
   .then((response) => {
-    return response.json();
+    return response;
   })
   .then((myJson) => {
     (bootstrapLogger as any)._messages = myJson;

@@ -70,12 +70,12 @@ export class ViewportManager implements MVDHosting.ViewportManagerInterface {
       let handlers = this.closeHandlers.get(viewportId);
       if (handlers) {
         this.closeWatcherLoop(0,handlers,()=> {
-          resolve();
+          resolve(null);
         }, (reason:any)=> {
           reject(reason);
         });
       } else {
-        resolve();
+        resolve(null);
       }
     });
   }

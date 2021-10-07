@@ -47,16 +47,16 @@ export class PluginLoader {
     });
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin> {
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin | null> {
     const candidateFactories = this.frameworkMap.get(pluginDefinition.getFramework()) || [];
     if (pluginDefinition.getFramework() === 'unsupported') {
       return new Promise((resolve, reject) => {
         this.logger.warn("ZWED5175W", pluginDefinition.getIdentifier()); //this.logger.warn(`${pluginDefinition.getIdentifier()} does not use supported framework`);
-        resolve();
+        resolve(null);
       });
     } else if (pluginDefinition.getFramework() === 'n/a') {
       return new Promise((resolve, reject) => {
-        resolve();
+        resolve(null);
       });
     }
 

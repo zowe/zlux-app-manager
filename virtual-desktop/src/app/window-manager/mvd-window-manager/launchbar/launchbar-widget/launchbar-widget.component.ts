@@ -25,8 +25,8 @@ import { Observable } from 'rxjs/Rx';
 import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
 import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
 import { BaseLogger } from '../../../../shared/logger';
-import { MatSnackBar} from '@angular/material';
-import {SnackbarComponent} from '../shared/snackbar/snackbar.component';
+// import { MatSnackBar} from '@angular/material/snack-bar';
+// import {SnackbarComponent} from '../shared/snackbar/snackbar.component';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { TranslationService } from 'angular-l10n';
@@ -68,6 +68,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public NoNotifications: string;
 
   @Input() set theme (newTheme: DesktopTheme) {
+    this.info;
     this.color = newTheme.color;
     
     switch (newTheme.size.launchbar) {
@@ -131,7 +132,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     private injector: Injector,
     private languageLocaleService: LanguageLocaleService,
     private desktopComponent: DesktopComponent,
-    private snackBar: MatSnackBar,
+    // private snackBar: MatSnackBar,
     public windowManager: WindowManagerService,
     public translation: TranslationService,
   ) {
@@ -219,15 +220,15 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     message.recievedDate = recievedDate;
     this.notifications.unshift(message)
     this.info = this.parsePluginInfo()
-    let styleClass = "org_zowe_zlux_ng2desktop_snackbar";
-    if (message.notification.styleClass) {
-      styleClass = message.notification.styleClass;
-    }
-    let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: styleClass, verticalPosition: 'top', horizontalPosition: 'end'})
-    ref.onAction().subscribe(() => {
-      ZoweZLUX.notificationManager.dismissNotification(message.id)
-      this.info = this.parsePluginInfo()
-    });
+    // let styleClass = "org_zowe_zlux_ng2desktop_snackbar";
+    // if (message.notification.styleClass) {
+    //   styleClass = message.notification.styleClass;
+    // }
+    // let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: styleClass, verticalPosition: 'top', horizontalPosition: 'end'})
+    // ref.onAction().subscribe(() => {
+    //   ZoweZLUX.notificationManager.dismissNotification(message.id)
+    //   this.info = this.parsePluginInfo()
+    // });
   }
 
   handleMessageRemoved(id: number): void {

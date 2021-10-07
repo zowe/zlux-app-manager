@@ -9,7 +9,7 @@
 */
 
 import { Injectable, Injector } from '@angular/core';
-import { Http, Headers, RequestOptions } from '@angular/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import 'rxjs/add/operator/catch';
 import { LaunchbarItem } from '../launchbar/shared/launchbar-item';
@@ -34,7 +34,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
 
   constructor(
     private injector: Injector,
-    private http: Http,
+    private http: HttpClient,
     private translation: TranslationService,
     private windowManager: WindowManagerService
   ) {
@@ -56,7 +56,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
     this.pinnedPlugins = [];
     this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res =>{
-        res.json().contents.plugins.forEach((p: string) => {
+        res.contents.plugins.forEach((p: string) => {
           let found = false;
           for (let i = 0; i < accessiblePlugins.length; i++) {
             if (accessiblePlugins[i].plugin.getIdentifier() == p) {
@@ -74,9 +74,9 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
 
   public getResource(scope: string, resourcePath: string, fileName: string): Observable<any>{
     let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
-    return this.http.get(uri, options);
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const requestOptions = { headers: headers };
+    return this.http.get(uri, requestOptions);
   }
 
   public saveResource(plugins: string[], scope: string, resourcePath: string, fileName: string): void{

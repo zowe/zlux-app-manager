@@ -10,7 +10,6 @@
 */
 
 import { Component, Inject, ViewChild, ElementRef } from '@angular/core';
-import {Http} from '@angular/http';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 import { ZoweNotification } from '../../../../../../zlux-platform/base/src/notification-manager/notification'
 
@@ -32,7 +31,7 @@ export class AdminNotificationComponent {
   @ViewChild('titleElem') titleElem: ElementRef;
   @ViewChild('messageElem') messageElem: ElementRef;
 
-  constructor(private http: Http,
+  constructor(
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefinition: ZLUX.ContainerPluginDefinition,
     ) {
     this.response = "";

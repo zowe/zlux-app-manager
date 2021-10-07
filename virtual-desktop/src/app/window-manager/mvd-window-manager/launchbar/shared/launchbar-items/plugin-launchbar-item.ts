@@ -13,7 +13,7 @@
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { LaunchbarItem } from '../launchbar-item';
 import { WindowManagerService } from '../../../shared/window-manager.service';
-import * as html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas/';
 
 export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.PluginWatcher {
   public instanceIds: Array<MVDHosting.InstanceId>;

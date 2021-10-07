@@ -53,7 +53,7 @@ export class StorageService {
         }
         break;
         case StorageKey.SESSION_EVENT: {
-          this.emitSessionEvent(newValue);
+          this.emitSessionEvent(newValue || undefined);
         }
         break;
         default: break;

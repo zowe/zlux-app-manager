@@ -152,7 +152,7 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.authenticationService.checkSessionValidity().subscribe(
       response => {
-        let jsonMessage = response.json();
+        let jsonMessage = response;
         if (jsonMessage.categories) {
           let keys = Object.keys(jsonMessage.categories);
           for (let i = 0; i < keys.length; i++) {
@@ -256,8 +256,8 @@ export class LoginComponent implements OnInit {
       return;
     }
     this.authenticationService.performLogin(this.username!, this.password!).subscribe(
-      result => {
-        let jsonMessage = result.json();
+      (      result: any) => {
+        let jsonMessage = (result as any);
         if (jsonMessage.categories) {
           let nearestExpiration = -1;
           let keys = Object.keys(jsonMessage.categories);
