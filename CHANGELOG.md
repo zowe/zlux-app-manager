@@ -5,6 +5,7 @@ All notable changes to the Zlux App Manager will be documented in this file.
 ## `1.25.0`
 
 - Fixed a bug where using app2app with incorrectly formatted data would not honor launch/message request
+- Upgrade Desktop Angular verison to 7
 
 ## `1.24.0`
 
