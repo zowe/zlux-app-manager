@@ -12,6 +12,8 @@ import { Injectable } from '@angular/core';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { App2AppArgs } from './app2app-args';
 import { App2AppArgsParser } from './app2app-args-parser.service';
+import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
+import { TranslationService } from 'angular-l10n';
 
 const ZOWE_URL_ARGS = [
   "app2app",
@@ -26,7 +28,9 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
 
   constructor(
-    public parser: App2AppArgsParser
+    public parser: App2AppArgsParser,
+    private popupManager: ZluxPopupManagerService,
+    public translation: TranslationService,
   ) {
     this.registerTestAction();
   }
@@ -68,7 +72,9 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     } catch (e) {
       // this.logger.warn('Context Data(%s) specified in app2app query URL parameter is not valid JSON', args.contextData);
       this.logger.warn('ZWED5196W', args.contextData);
-      return false;
+      if (args.formatter == 'data') { // If we know what the plugin is, we can still try to launch it w/o app2app data
+        args.error = "Context Data specified in app2app query URL parameter is not valid JSON";
+      }
     }
     if (args.formatter !== 'data') {
       const abstractAction = dispatcher.getAbstractActionById(args.formatter);
@@ -88,10 +94,23 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     const targetPluginId = args.pluginId;
     const type = args.actionType === 'launch' ? ActionType.Launch : ActionType.Message;
     const mode = args.actionMode === 'create' ? ActionTargetMode.PluginCreate : ActionTargetMode.System;
-    const contextData: any = JSON.parse(args.contextData);
+    let contextData: any;
     let contextZlux = args.contextZlux ? JSON.parse(args.contextZlux) : undefined;
     let action: ZLUX.Action;
     let argumentData: any;
+    if (args.error) {
+      this.popupManager.createErrorReport(
+        ZluxErrorSeverity.WARNING,
+        this.translation.translate(args.error),
+        (this.translation.translate('Bad data: ') + args.contextData), 
+        {
+          blocking: false,
+          buttons: [this.translation.translate('Dismiss')]
+        }
+      );
+    } else {
+      contextData = JSON.parse(args.contextData);
+    }
     if (args.formatter === 'data') {
       const actionTitle = 'Launch app from URL';
       const actionId = 'org.zowe.zlux.url.launch';
