@@ -8,7 +8,7 @@
   
   Copyright Contributors to the Zowe Project.
 */
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { BaseLogger } from '../../../../shared/logger';
 // import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
@@ -26,7 +26,7 @@ const CIRCLE_NAME = 'circle'
   providers: [],
 })
 
-export class PersonalizationComponent implements OnInit {
+export class PersonalizationComponent implements AfterViewInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   public selectedColor: string;
   public selectedSize: string | Object;
@@ -34,26 +34,26 @@ export class PersonalizationComponent implements OnInit {
   public selectedCircle: number;
   public files: UploadFile[];
 
-  @ViewChild('circle1') circle1: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle2') circle2: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle3') circle3: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle4') circle4: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle5') circle5: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle6') circle6: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle7') circle7: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle8') circle8: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle9') circle9: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle10') circle10: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle11') circle11: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle12') circle12: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle13') circle13: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle14') circle14: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle15') circle15: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle16') circle16: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle17') circle17: ElementRef<HTMLCanvasElement>;
-  @ViewChild('circle18') circle18: ElementRef<HTMLCanvasElement>;
+  @ViewChild('circle1') circle1: ElementRef;
+  @ViewChild('circle2') circle2: ElementRef;
+  @ViewChild('circle3') circle3: ElementRef;
+  @ViewChild('circle4') circle4: ElementRef;
+  @ViewChild('circle5') circle5: ElementRef;
+  @ViewChild('circle6') circle6: ElementRef;
+  @ViewChild('circle7') circle7: ElementRef;
+  @ViewChild('circle8') circle8: ElementRef;
+  @ViewChild('circle9') circle9: ElementRef;
+  @ViewChild('circle10') circle10: ElementRef;
+  @ViewChild('circle11') circle11: ElementRef;
+  @ViewChild('circle12') circle12: ElementRef;
+  @ViewChild('circle13') circle13: ElementRef;
+  @ViewChild('circle14') circle14: ElementRef;
+  @ViewChild('circle15') circle15: ElementRef;
+  @ViewChild('circle16') circle16: ElementRef;
+  @ViewChild('circle17') circle17: ElementRef;
+  @ViewChild('circle18') circle18: ElementRef;
 
-  @ViewChild('slider1') slider1: ElementRef<HTMLCanvasElement>;
+  @ViewChild('slider1') slider1: ElementRef;
   private sliderImgData: any;
 
   private paletteColors: string[];
@@ -91,7 +91,7 @@ export class PersonalizationComponent implements OnInit {
     this.updateLanguageStrings();
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     this.selectedColor = this.desktopThemeService.mainColor;
     this.selectedSize = this.desktopThemeService.mainSize;
   

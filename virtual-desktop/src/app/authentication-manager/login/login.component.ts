@@ -169,7 +169,7 @@ export class LoginComponent implements OnInit {
         let error = errorObservable.error;
         if (error !== 'No Session Found') {//generated from auth manager, dont display to user
           try {
-            let jsonMessage = JSON.parse(error);
+            let jsonMessage = error;
             if(jsonMessage) {
               if(jsonMessage.categories) {
                 this.displayErrorDetails(jsonMessage);
