@@ -23,7 +23,7 @@ import { LaunchbarInstanceViewComponent } from './launchbar-instance-view/launch
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from './shared/snackbar/snackbar.component'
 import { SortArray } from './shared/sort-array'
-import {MAT_SNACK_BAR_DATA} from '@angular/material/snack-bar';
+import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 
 
 @NgModule({

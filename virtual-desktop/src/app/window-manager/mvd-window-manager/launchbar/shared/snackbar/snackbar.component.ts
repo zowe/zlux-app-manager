@@ -10,8 +10,8 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component } from '@angular/core';
-// import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
+import { Component, Inject } from '@angular/core';
+import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { TranslationService } from 'angular-l10n';
 
 @Component({
@@ -22,8 +22,8 @@ import { TranslationService } from 'angular-l10n';
 export class SnackbarComponent {
   constructor(
     public translation: TranslationService,
-    // public snackBarRef: MatSnackBarRef<SnackbarComponent>,
-    // @Inject(MAT_SNACK_BAR_DATA) public data: any
+    public snackBarRef: MatSnackBarRef<SnackbarComponent>,
+    @Inject(MAT_SNACK_BAR_DATA) public data: any
   ) {  }
 
 }
