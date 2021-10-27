@@ -27,6 +27,7 @@
     "@angular/platform-browser": "~6.0.9",
     "@angular/platform-browser-dynamic": "~6.0.9",
     "@angular/router": "~6.0.9",
+    "@ngtools/webpack": "~6.2.9",
     "@types/html2canvas": "~0.0.35",
     "@types/xmldom": "0.1.29",
     "@zlux/widgets": "git+https://github.com/zowe/zlux-widgets.git",

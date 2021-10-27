@@ -13,6 +13,7 @@
 const path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+const { AngularCompilerPlugin } = require('@ngtools/webpack');
 
 module.exports = {
   "devtool": "source-map",
@@ -85,11 +86,8 @@ module.exports = {
         ]
       },
       {
-        "test": /\.ts$/,
-        loaders: [
-          'ts-loader',
-          'angular2-template-loader'
-        ]
+        test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
+        loader: '@ngtools/webpack'
       },
       {
         "test": /@angular\/common\/locales\/.*\.js/,
@@ -100,6 +98,12 @@ module.exports = {
     ]
   },
   'plugins': [
+    new AngularCompilerPlugin({
+      tsConfigPath: path.resolve(__dirname, 'tsconfig.json'),
+      mainPath: path.resolve(__dirname, 'src/desktop.ts'),
+      sourceMap: true,
+      skipCodeGeneration: true
+    }),
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, './node_modules/@angular/common/locales'),
