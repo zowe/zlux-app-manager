@@ -35,7 +35,7 @@
     "codelyzer": "~5.1.0",
     "compression-webpack-plugin": "~4.0.0",
     "copy-webpack-plugin": "~5.1.0",
-    "core-js": "~2.6.5",
+    "core-js": "~3.19.0",
     "css-loader": "~1.0.0",
     "exports-loader": "~0.7.0",
     "file-loader": "~1.1.11",
