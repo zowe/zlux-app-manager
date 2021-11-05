@@ -48,11 +48,11 @@
 </div>
 
 <div class="widget-area"
-     [style.min-width]="areaSize"
+     [style.width]="areaSize"
      [style.background]="color.launchbarColor"
      [style.border-radius]="borderRadius"
      id="ZAP_DesktopHome_WidgetArea">
-  <div class="clock two-row" *ngIf="clockTwoRow" [style.font-size]="fontSize" [style.padding-top]="clockOffset" id="ZAP_DesktopHome_LaunchbarClock">
+  <div class="clock two-row" *ngIf="clockTwoRow" [style.width]="clockWidth" [style.font-size]="fontSize" [style.padding-top]="clockOffset" id="ZAP_DesktopHome_LaunchbarClock">
     <span id="ZAP_DesktopHome_TimeLabel">{{date | date:'shortTime'}}</span>
     <br>
     <span id="ZAP_DesktopHome_DateLabel">{{date | date:'shortDate'}}</span>
