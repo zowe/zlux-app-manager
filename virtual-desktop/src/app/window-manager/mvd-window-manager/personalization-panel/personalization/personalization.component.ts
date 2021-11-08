@@ -12,7 +12,7 @@ import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { BaseLogger } from '../../../../shared/logger';
 // import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
-import { UploadEvent, UploadFile, FileSystemFileEntry } from 'ngx-file-drop';
+import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
 import { Colors } from '../../shared/colors';
 import { TranslationService } from 'angular-l10n';
  
@@ -32,7 +32,7 @@ export class PersonalizationComponent implements AfterViewInit {
   public selectedSize: string | Object;
   public selectedLightness: number;
   public selectedCircle: number;
-  public files: UploadFile[];
+  public files: NgxFileDropEntry[];
 
   @ViewChild('circle1') circle1: ElementRef;
   @ViewChild('circle2') circle2: ElementRef;
@@ -362,9 +362,9 @@ export class PersonalizationComponent implements AfterViewInit {
     }
   }
 
-  fileDrop(event: UploadEvent): void {
-    this.files = event.files;
-    for (const droppedFile of event.files) {
+  fileDrop(files: any): void {
+    this.files = files;
+    for (const droppedFile of files) {
 
       // Is it a file?
       if (droppedFile.fileEntry.isFile) { // TODO: Verify file extensions here

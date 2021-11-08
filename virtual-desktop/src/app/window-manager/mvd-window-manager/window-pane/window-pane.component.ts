@@ -19,6 +19,7 @@ import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
 import { TranslationService } from 'angular-l10n';
+import { delay } from 'rxjs/operators';
 
 const DESKTOP_PLUGIN = ZoweZLUX.pluginManager.getDesktopPlugin();
 const DESKTOP_WALLPAPER_URI = ZoweZLUX.uriBroker.pluginConfigUri(DESKTOP_PLUGIN,'ui/themebin', 'wallpaper');
@@ -80,8 +81,8 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
       .subscribe((image:any) => {
         let temp = this.wallpaper.background;
         this.resetWallpaperDefault();
-        // TODO: Fix bug where sometimes uploading one image after another, fails to render new image (but works after restart)
         this.http.put<DesktopTheme>(DESKTOP_WALLPAPER_URI, image)
+          .pipe(delay(250))
           .subscribe((data: any) => { 
             this.resetWallpaperDefault();
             this.logger.debug("Attempted to post image with status: ", data);

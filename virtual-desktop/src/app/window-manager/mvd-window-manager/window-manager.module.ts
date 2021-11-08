@@ -28,7 +28,7 @@ import { AuthenticationModule } from '../../authentication-manager/authenticatio
 import { PersonalizationPanelComponent } from '../mvd-window-manager/personalization-panel/personalization-panel.component';
 import { KeybindingService } from './shared/keybinding.service';
 import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization/personalization.component';
-import { FileDropModule } from 'ngx-file-drop';
+import { NgxFileDropModule } from 'ngx-file-drop';
 import { ThemeEmitterService } from './services/theme-emitter.service';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 
@@ -43,7 +43,7 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     LaunchbarModule,
     HttpClientModule,
     ContextMenuModule,
-    FileDropModule,
+    NgxFileDropModule,
     MatSnackBarModule
   ],
   declarations: [
