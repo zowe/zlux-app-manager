@@ -315,7 +315,7 @@ export class PersonalizationComponent implements AfterViewInit {
     this.Back = this.translation.translate('Back', null);
     this.ResetToDefault = this.translation.translate('Reset to default', null);
     this.Background = this.translation.translate('Wallpaper', null);
-    this.DragWallpaperHereOr = this.translation.translate('Drag wallpaper here or', null);
+    this.DragWallpaperHereOr = this.translation.translate('Drag wallpaper here or', null); // TODO: Needs updated translations
     this.Color = this.translation.translate('Color', null);
     this.SelectColor = this.translation.translate('Select color', null);
     this.OrHue = this.translation.translate('or hue.', null);

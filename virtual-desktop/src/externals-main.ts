@@ -26,7 +26,7 @@ import 'script-loader!jquery';
  2. using exports-loader!popper.js to be compatible with esm/popper.js is not compatible with bootstrap: you still get
    VM4398:1553 Uncaught TypeError: Bootstrap dropdown require Popper.js (https://popper.js.org)
 */
-import 'script-loader!../node_modules/popper.js/dist/umd/popper.js';import 'script-loader!bootstrap';
+import 'script-loader!../node_modules/@popperjs/core/dist/umd/popper.js';import 'script-loader!bootstrap';
 
 /* Load second stage with requirejs */
 const script = document.createElement('script');

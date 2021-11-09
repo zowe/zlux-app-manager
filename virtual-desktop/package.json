@@ -46,7 +46,7 @@
     "moment": "~2.29.1",
     "ngx-file-drop": "~11.3.0",
     "ngx-i18nsupport": "~0.17.1",
-    "popper.js": "~1.14.3",
+    "@popperjs/core": "~2.10.2",
     "raw-loader": "~0.5.1",
     "requirejs": "~2.3.5",
     "rxjs": "~6.2.2",
