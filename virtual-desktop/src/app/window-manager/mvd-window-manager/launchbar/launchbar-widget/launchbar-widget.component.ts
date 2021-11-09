@@ -29,7 +29,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../shared/snackbar/snackbar.component';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { WindowManagerService } from '../../shared/window-manager.service';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'rs-com-launchbar-widget',
@@ -134,7 +134,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     private desktopComponent: DesktopComponent,
     private snackBar: MatSnackBar,
     public windowManager: WindowManagerService,
-    public translation: TranslationService,
+    public translation: L10nTranslationService,
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);

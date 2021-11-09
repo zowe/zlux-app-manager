@@ -13,7 +13,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
 import { App2AppArgs } from './app2app-args';
 import { App2AppArgsParser } from './app2app-args-parser.service';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 
 const ZOWE_URL_ARGS = [
   "app2app",
@@ -30,7 +30,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
   constructor(
     public parser: App2AppArgsParser,
     private popupManager: ZluxPopupManagerService,
-    public translation: TranslationService,
+    public translation: L10nTranslationService,
   ) {
     this.registerTestAction();
   }

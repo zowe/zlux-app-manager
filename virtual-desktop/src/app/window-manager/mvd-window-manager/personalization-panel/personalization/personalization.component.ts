@@ -14,7 +14,7 @@ import { BaseLogger } from '../../../../shared/logger';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
 import { Colors } from '../../shared/colors';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
  
 const SLIDER_NAME = 'slider'
 const CIRCLE_NAME = 'circle'
@@ -79,7 +79,7 @@ export class PersonalizationComponent implements AfterViewInit {
 
   constructor(
     private desktopThemeService: ThemeEmitterService,
-    private translation: TranslationService
+    private translation: L10nTranslationService
   ) {
     this.selectedColor = Colors.COOLGREY_90;
     this.selectedSize = 2;

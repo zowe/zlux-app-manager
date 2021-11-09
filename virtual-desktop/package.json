@@ -29,7 +29,7 @@
     "@types/html2canvas": "~1.0.0",
     "@types/xmldom": "0.1.29",
     "@zlux/widgets": "git+https://github.com/zowe/zlux-widgets.git",
-    "angular-l10n": "~5.2.0",
+    "angular-l10n": "~12.0.0",
     "angular2-template-loader": "~0.6.2",
     "bootstrap": "~4.3.1",
     "codelyzer": "~5.1.0",

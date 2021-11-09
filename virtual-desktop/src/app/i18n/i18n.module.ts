@@ -13,7 +13,7 @@ import { LanguageLocaleService } from './language-locale.service';
 import { localeInitializer, localeIdFactory } from './locale-initializer.provider';
 import { HttpClientModule } from '@angular/common/http';
 import {
-  HttpTranslationProvider,
+  // HttpTranslationProvider,
   ISOCode,
   L10nLoader,
   LOCALE_CONFIG,
@@ -22,7 +22,8 @@ import {
   TranslationConfig,
   TranslationModule
 } from 'angular-l10n';
-import { L10nStorageService } from './l10n-storage.service';
+// import { L10nStorageService } from './l10n-storage.service';
+import { L10nStorage } from 'angular-l10n';
 import { L10nConfigService } from './l10n-config.service';
 import { L10nCustomTranslationProvider } from './l10n-custom-translation.provider';
 
@@ -37,15 +38,15 @@ import { L10nCustomTranslationProvider } from './l10n-custom-translation.provide
         caching: true
       }},
       {
-        localeStorage: L10nStorageService,
+        localeStorage: L10nStorage,
         translationProvider: L10nCustomTranslationProvider
       }
     )
   ],
   providers: [
     L10nConfigService,
-    L10nStorageService,
-    HttpTranslationProvider,
+    L10nStorage,
+    // HttpTranslationProvider,
     L10nCustomTranslationProvider,
     { provide: LOCALE_ID, useFactory: localeIdFactory, deps: [LanguageLocaleService]},
     {
