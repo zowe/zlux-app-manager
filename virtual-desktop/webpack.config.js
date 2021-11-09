@@ -102,7 +102,9 @@ module.exports = {
       tsConfigPath: path.resolve(__dirname, 'tsconfig.json'),
       mainPath: path.resolve(__dirname, 'src/desktop.ts'),
       sourceMap: true,
-      skipCodeGeneration: true
+      platform: 0,
+      //skipCodeGeneration: false // AoT enabled
+      skipCodeGeneration: true // AoT disabled
     }),
     new CopyWebpackPlugin([
       {
