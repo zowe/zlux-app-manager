@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { L10nTranslationService } from 'angular-l10n';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { StorageService } from './storage.service';
 
 @Injectable()
@@ -11,19 +11,19 @@ export class IdleWarnService {
 
   private report: any;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
-  
+
   constructor(private popupManager: ZluxPopupManagerService,
     public translation: L10nTranslationService,
-    private storageService: StorageService  
+    private storageService: StorageService
     ) {
   }
-  
+
   public createRetryErrorReport(renewSession: any, isIdle: any) {
     this.removeErrorReport();
     this.report = this.popupManager.createErrorReport(
       ZluxErrorSeverity.WARNING,
       this.translation.translate('Session Renewal Error'),
-      this.translation.translate('Session could not be renewed. Logout will occur unless renewed. Click here to retry.'), 
+      this.translation.translate('Session could not be renewed. Logout will occur unless renewed. Click here to retry.'),
       {
         blocking: false,
         buttons: [this.translation.translate('Retry'), this.translation.translate('Dismiss')]
@@ -34,14 +34,14 @@ export class IdleWarnService {
     this.onUserActionSubscribe(renewSession,'Retry');
     this.onActivitySubscribe(renewSession, isIdle);
   }
-  
+
   onUserActionSubscribe(renewSession: any, action: string) {
     if(this.report) {
       this.report.subscription.add(this.report.subject.subscribe((buttonName:any)=> {
         if (buttonName == this.translation.translate(action)) {
           renewSession();
         }
-      }));  
+      }));
     }
   }
 
@@ -109,7 +109,7 @@ export class IdleWarnService {
 
   removeErrorReport() {
     if (this.report) {
-      this.popupManager.removeReport(this.report.id); 
+      this.popupManager.removeReport(this.report.id);
       this.report.subscription.unsubscribe();
       this.report = undefined;
     }

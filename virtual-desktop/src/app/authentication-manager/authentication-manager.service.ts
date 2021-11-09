@@ -4,21 +4,20 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
 import { Injectable, Injector, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
-import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
+import { Observable, throwError } from 'rxjs';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
 import { StorageService } from './storage.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
@@ -41,7 +40,7 @@ class initializeNotificationManager implements MVDHosting.LoginActionInterface {
 
 
 //5 minutes default. Less if session is shorter than twice this
-const WARNING_BEFORE_SESSION_EXPIRATION_MS = 300000; 
+const WARNING_BEFORE_SESSION_EXPIRATION_MS = 300000;
 
 export type LoginExpirationIdleCheckEvent = {
   shortestSessionDuration: number;
@@ -132,14 +131,14 @@ export class AuthenticationManager {
               let firstHandler = category[Object.keys(category)[1]];
               if (firstHandler.username) {
                 this.username = firstHandler.username;
-              }                
+              }
             }
           }
           if (this.username) {
             (ZoweZLUX.logger as any)._setBrowserUsername(this.username);
           }
           if (failedTypes.length > 0) {
-            throw ErrorObservable.create('');//no need for a message here, just standard login prompt.
+            return throwError('');//no need for a message here, just standard login prompt.
           }
           this.setSessionTimeoutWatcher(jsonMessage.categories);
           this.performPostLoginActions().subscribe(
@@ -150,14 +149,14 @@ export class AuthenticationManager {
           );
           return result;
         } else {
-          throw ErrorObservable.create((result as any).text());
+          return throwError((result as any).text());
         }
       });//or throw err to subscriber
   }
-  
+
   //requestLogin() used to exist here but it was counter-intuitive in behavior to requestLogout.
   //This was not documented and therefore has been removed to prevent misuse and confusion.
- 
+
   private doLogoutInner(reason: MVDHosting.LoginScreenChangeReason, isStorage: boolean = false): void {
     const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
       this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
@@ -191,7 +190,7 @@ export class AuthenticationManager {
   requestLogout(): void {
     this.doLogoutInner(MVDHosting.LoginScreenChangeReason.UserLogout);
   }
-  
+
   public spawnApplicationsWithNoUsername(): any {
     window.localStorage.setItem('username', "");
     this.username = "";
@@ -233,7 +232,7 @@ export class AuthenticationManager {
       this.log.debug("ZWED5300I", i, success); //this.log.debug(`LogoutAction ${i}=${success}`);
     }
     ZoweZLUX.pluginManager.pluginsById.clear()
-  }  
+  }
 
   private setSessionTimeoutWatcher(categories: any|undefined) {
     if (!categories) {
@@ -276,10 +275,10 @@ export class AuthenticationManager {
       //if someone has a very tiny session, adjust timer
       let logoutAfterWarnTimer = this.nearestExpiration < (WARNING_BEFORE_SESSION_EXPIRATION_MS*2) ?
         Math.round(this.nearestExpiration/5) : WARNING_BEFORE_SESSION_EXPIRATION_MS;
-      
+
       let warnTimer = this.nearestExpiration - logoutAfterWarnTimer;
-      
-      this.expirationWarning = setTimeout(()=> {       
+
+      this.expirationWarning = setTimeout(()=> {
         this.log.info(`ZWED5022W`, logoutAfterWarnTimer/1000); /*this.log.info(`Session will expire soon! Logout will occur in ${logoutAfterWarnTimer/1000} seconds.`);*/
         this.log.debug("ZWED5301I", this.expirations); //this.log.debug(`Session expirations=`,this.expirations);
         if (canRefresh) {
@@ -374,9 +373,9 @@ export class AuthenticationManager {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

@@ -21,7 +21,7 @@ import {
   ViewChild,
   Input
   } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
 import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
 import { BaseLogger } from '../../../../shared/logger';
@@ -43,7 +43,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public date: Date;
   public popupVisible: boolean;
   public fontSize:string;
-  
+
   public clockTwoRow: boolean = true;
   public clockOffset: string;
   public widgetOffset: string;
@@ -70,7 +70,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   @Input() set theme (newTheme: DesktopTheme) {
     this.info;
     this.color = newTheme.color;
-    
+
     switch (newTheme.size.launchbar) {
       case 1:
         this.clockTwoRow = false;
@@ -110,19 +110,19 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         this.notifCountSize = '18px';
         this.notifTopOffset = '-11px';
         this.notifLeftOffset = '10px';
-        break;      
+        break;
     }
   }
 
-  @Output() popupStateChanged = new EventEmitter<boolean>(); 
-  
+  @Output() popupStateChanged = new EventEmitter<boolean>();
+
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
   @ViewChild('notificationarea') notificationArea: ElementRef;
   @ViewChild('notificationicon') notificationIcon: ElementRef;
 
   @Input() menuItems: LaunchbarItem[];
-  
+
   // Convenience widgets for testing the i18n work
   // @ViewChild('languagebutton') languageButton: ElementRef;
   // @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;
@@ -195,7 +195,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       this.popupStateChanged.emit(this.popupVisible);
     }
 
-    if(this.notificationsVisible && event 
+    if(this.notificationsVisible && event
        && !this.notificationArea.nativeElement.contains(event.target)
        && this.notificationIcon.nativeElement !== event.target) {
       this.notificationsVisible = false;
@@ -243,7 +243,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
       var h = Math.floor(seconds / 3600);
       var m = Math.floor(seconds % 3600 / 60);
-  
+
       //TODO: This whole section needs internationalization
       var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
       var mDisplay = m > 0 ? m + (m == 1 ? " minute " : " minutes ") : "";
@@ -273,7 +273,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         imgSrc =  require('../../../../../assets/images/launchbar/notifications/zowe.png')
       }
 
-     
+
       info.push({'title': notification['notification'].title, 'message': notification['notification'].message, "imgSrc": imgSrc})
     }
 

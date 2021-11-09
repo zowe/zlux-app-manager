@@ -40,7 +40,7 @@ export class InjectionManager {
     let identifier = pluginDefinition.getIdentifier();
         
     const l10nPluginConfig: Angular2L10nConfig = {
-      defaultLocale: this.l10nConfigService.getDefaultLocale(),
+      defaultLocale: {languageCode: 'en'}, // this.l10nConfigService.getDefaultLocale(),
       providers: this.l10nConfigService.getTranslationProviders(pluginDefinition.getBasePlugin())
     };
 

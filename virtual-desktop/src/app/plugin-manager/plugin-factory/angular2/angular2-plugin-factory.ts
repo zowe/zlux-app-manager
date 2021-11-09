@@ -16,7 +16,7 @@ import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
 import { Compiler, CompilerOptions, ApplicationRef, Injector } from '@angular/core';
 import { DomPortalOutlet, ComponentPortal } from '@angular/cdk/portal';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
 import { TranslationLoaderService } from '../../../i18n/translation-loader.service';

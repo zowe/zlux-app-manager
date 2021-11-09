@@ -11,7 +11,7 @@
 */
 
 import { Component, ElementRef, HostListener, Input, Output, EventEmitter, Injector, ViewChild } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
@@ -55,7 +55,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public propertyWindowPluginDef : DesktopPluginDefinitionImpl;
   public authenticationManager : MVDHosting.AuthenticationManagerInterface;
   public appFilter:string="";
-  public activeIndex:number;  
+  public activeIndex:number;
   private isContextMenuPresent:boolean;
 
   @Input() set menuItems(items: LaunchbarItem[]) {
@@ -63,7 +63,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     this.displayItems = items;
     this.filterMenuItems();
   }
- 
+
   @Input() set theme(newTheme: DesktopTheme) {
     this.color = newTheme.color;
     let menuIcon:number;
@@ -98,13 +98,13 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
         this.menuBottom = '45px';
         this.borderRadius = '5px 5px 5px 0px';
     }
-    
+
     this.menuIconSize = menuIcon+'px';
     this.appIconSize = appIcon+'px';
     let appLabel:number = Math.round((appIcon/2) - (FONT_SIZE/2));
     this.appLabelPadding = appLabel+'px';
   };
-  
+
   @ViewChild('searchapp') searchAppInputRef: ElementRef;
   @ViewChild('menudiv') menuDivRef: ElementRef;
 
@@ -129,7 +129,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     this.refreshClicked = new EventEmitter();
     this.menuStateChanged = new EventEmitter<boolean>();
     this.authenticationManager.registerPostLoginAction(this);
-    
+
     this.activeIndex = 0;
     this.isContextMenuPresent = false;
   }
@@ -151,7 +151,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
         }
     });
   }
-  
+
   getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
     const basePlugin = plugin.getBasePlugin();
     return {"isPropertyWindow":true,
@@ -160,9 +160,9 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     "appType":basePlugin.getType(),
     "copyright":plugin.getCopyright(),
     "image":plugin.image
-    };    
+    };
   }
-  
+
   launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl){
     let propertyWindowID = this.windowManager.getWindow(this.propertyWindowPluginDef);
     if (propertyWindowID!=null){
@@ -171,7 +171,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       this.applicationManager.spawnApplication(this.propertyWindowPluginDef,this.getAppPropertyInformation(plugin));
     }
   }
-  
+
   activeToggle(): void {
     this.isActive = !this.isActive;
     // gain focus and clear on toggle when active
@@ -248,14 +248,14 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       this.isContextMenuPresent = false;
       return;
     }
-  
+
     if(!this.isSearchFocus()) return;
 
     switch(event.which) {
       case KeyCode.ESCAPE: {
         this.activeToggle();
         break;
-      } 
+      }
       case KeyCode.ENTER: {
           if(this.activeIndex<this.displayItems.length) {
             this.clicked(this.displayItems[this.activeIndex]);
@@ -281,11 +281,11 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       case KeyCode.DOWN_ARROW: {
         if(this.activeIndex < this.displayItems.length-1) {
           this.activeIndex++;
-        } 
+        }
         this.scrollToActiveMenuItem();
         break;
       }
-    }  
+    }
   }
 
   private getActiveMenuItem():any {
@@ -296,7 +296,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     const elm = this.getActiveMenuItem();
     if(elm) {
       const pos = this.getElementPosition(elm);
-      let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
+      let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);
       this.windowManager.contextMenuRequested.next({ xPos: pos.x, yPos: pos.y - 20, items: menuItems });
       this.isContextMenuPresent = true;
     }
@@ -329,7 +329,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
 
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     event.stopPropagation();
-    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
+    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     this.isContextMenuPresent = true;
     return false;

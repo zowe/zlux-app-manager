@@ -15,11 +15,11 @@ import {
   TRANSLATIONS,
   TRANSLATIONS_FORMAT,
 } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/catch';
+import { Observable, throwError } from 'rxjs';
 import { LanguageLocaleService } from './language-locale.service';
-import * as Rx from 'rxjs/Rx';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { from } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Injectable()
 export class TranslationLoaderService {
@@ -61,14 +61,16 @@ export class TranslationLoaderService {
     const fallbackTranslationFileURL = baseLanguage !== language ? this.getTranslationFileURL(plugin, baseLanguage) : null;
     let currentTranslationFileURL = translationFileURL;
     return this.loadTranslations(currentTranslationFileURL)
-      .catch(err => {
+      .pipe(
+      catchError(err => {
         if (fallbackTranslationFileURL != null) {
           this.logger.warn("ZWED5170W", translationFileURL, fallbackTranslationFileURL); //this.logger.warn(`Failed to load language file ${translationFileURL}, using ${fallbackTranslationFileURL}.`);
           currentTranslationFileURL = fallbackTranslationFileURL;
           return this.loadTranslations(currentTranslationFileURL);
         }
-        return Observable.throw(err);
+        return throwError(err);
       })
+      )
       .toPromise()
       .then((translations: string) => [
         { provide: TRANSLATIONS, useValue: translations },
@@ -82,7 +84,7 @@ export class TranslationLoaderService {
   }
 
   private loadTranslations(fileURL: string): Observable<string> {
-    return Rx.Observable.fromPromise(window.fetch(fileURL).then(res => {
+    return from(window.fetch(fileURL).then(res => {
       if (res.ok) {
         return res.text();
       }

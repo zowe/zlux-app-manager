@@ -12,7 +12,7 @@
 
 import { Injectable } from '@angular/core';
 
-import { Subject, Observable } from 'rxjs/Rx';
+import { Subject, Observable } from 'rxjs';
 
 @Injectable()
 export class WindowMonitor {
