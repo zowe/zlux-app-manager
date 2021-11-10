@@ -9,13 +9,9 @@
 */
 
 import { Injectable /*, Inject */ } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/mergeMap';
-import { fromPromise } from 'rxjs/observable/fromPromise';
+import { from, Observable, throwError } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 import { BaseLogger } from '../shared/logger';
-import { _throw } from 'rxjs/observable/throw';
-
 import { Globalization } from './globalization';
 
 @Injectable()
@@ -60,7 +56,7 @@ export class LanguageLocaleService {
     const uri = `${this.makeLocaleURI(localeId)}.js`;
     // From lchudinov: This code is called before Angular's Http API is initialized,
     // hence the call to window.fetch.
-    return fromPromise(window.fetch(uri).then(res => {
+    return from(window.fetch(uri).then(res => {
       if (res.ok) {
         return res.text();
       }
@@ -78,18 +74,18 @@ export class LanguageLocaleService {
   private setLanguageOrLocale(preferenceName: string, requestedValue: string): Observable<any> {
     if (requestedValue == null) {
       // clear the preference, other code will revert to using the browser-specified lang/locale
-      return fromPromise(this.globalization.setPreference(preferenceName, requestedValue));
+      return from(this.globalization.setPreference(preferenceName, requestedValue));
     } else {
-      return this.checkForLocaleFile(requestedValue).mergeMap((value: any) => {
+      return this.checkForLocaleFile(requestedValue).pipe(
+        mergeMap((value: any) => {
         if (value) {
-          return fromPromise(this.globalization.setPreference(preferenceName, requestedValue));
+          return from(this.globalization.setPreference(preferenceName, requestedValue));
         } else {
           const message: string = `ZWED5169W - no locale data found for locale id ${value}`;
           this.logger.warn(message)
-          //return Observable.throwError(message);
-          return _throw(message);
+          return throwError(message);
         }
-      });
+      }));
     }
   }
 

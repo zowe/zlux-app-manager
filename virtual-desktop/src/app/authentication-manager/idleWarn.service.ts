@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { TranslationService } from 'angular-l10n';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { StorageService } from './storage.service';
 
 @Injectable()

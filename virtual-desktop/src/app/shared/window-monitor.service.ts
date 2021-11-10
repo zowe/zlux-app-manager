@@ -12,7 +12,7 @@
 
 import { Injectable } from '@angular/core';
 
-import { Subject, Observable } from 'rxjs/Rx';
+import { Subject, Observable, fromEvent } from 'rxjs';
 
 @Injectable()
 export class WindowMonitor {
@@ -20,7 +20,7 @@ export class WindowMonitor {
 
   constructor() {
     this.windowResized = new Subject();
-    const observable = Observable.fromEvent(window, 'resize') as Observable<UIEvent>;
+    const observable = fromEvent(window, 'resize') as Observable<UIEvent>;
     observable.subscribe(this.windowResized);
   }
 }
