@@ -11,7 +11,6 @@
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import 'rxjs/add/operator/catch';
 import { LaunchbarItem } from '../launchbar/shared/launchbar-item';
 import { PluginLaunchbarItem } from '../launchbar/shared/launchbar-items/plugin-launchbar-item';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';

@@ -22,7 +22,6 @@
  * least one global style in order to create the desktop itself.
  */
 
-import 'rxjs/Rx';
 import 'style-loader!./styles.css';
 
 

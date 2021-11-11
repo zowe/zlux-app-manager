@@ -11,7 +11,8 @@
 import { registerLocaleData } from '@angular/common';
 import { Globalization } from './globalization';
 import { LanguageLocaleService } from './language-locale.service';
-import { Observable } from 'rxjs/Rx';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 const logger: ZLUX.ComponentLogger = ZoweZLUX.logger.makeComponentLogger('org.zowe.zlux.virtual-desktop.i18n');
 
@@ -37,10 +38,11 @@ export const localeInitializer = (localeService: LanguageLocaleService, localeId
     const baseLanguage: string = localeService.getBaseLanguage();
     const localeFileURL = `${baseURI}locales/${localeId}`;
     const fallbackLocaleFileURL = baseLanguage !== localeId ? `${baseURI}locales/${baseLanguage}` : null;
-    return loadLocale(localeId, localeFileURL)
-      .catch(err => (fallbackLocaleFileURL != null) ? loadLocale(baseLanguage, fallbackLocaleFileURL) : Observable.of({}))
-      .toPromise()
-      .catch(err => {})
+    return loadLocale(localeId, localeFileURL).pipe(
+      catchError(err => (fallbackLocaleFileURL != null) ? loadLocale(baseLanguage, fallbackLocaleFileURL) : of({}))
+    )
+    .toPromise()
+    .catch(_err => {})
   };
 }
 

@@ -21,7 +21,7 @@ import {
   ViewChild,
   Input
   } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
+import { interval } from 'rxjs';
 import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
 import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
 import { BaseLogger } from '../../../../shared/logger';
@@ -150,7 +150,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   ngOnInit(): void {
     this.date = new Date();
 
-    Observable.interval(1000).subscribe(() => this.date = new Date());
+    interval(1000).subscribe(() => this.date = new Date());
   }
 
   getUsername(): string | null {

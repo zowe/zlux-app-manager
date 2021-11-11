@@ -11,7 +11,7 @@
 */
 
 import { Injectable, ViewContainerRef, ComponentRef, ComponentFactoryResolver, Injector } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { ViewportComponent } from 'app/application-manager/viewport-manager/viewport/viewport.component';
