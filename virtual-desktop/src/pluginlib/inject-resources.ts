@@ -11,7 +11,7 @@
 */
 
 import { ViewContainerRef } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 export type InstanceId = any;
 export type ViewportId = any;
