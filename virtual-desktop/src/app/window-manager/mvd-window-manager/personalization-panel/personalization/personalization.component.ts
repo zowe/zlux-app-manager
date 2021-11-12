@@ -396,9 +396,9 @@ export class PersonalizationComponent implements AfterViewInit {
 
   whichColorAmI(): void {
     var index: number;
-    for (index = 1; index <= this.paletteColors.length; index++) {
+    for (index = 0; index <= this.paletteColors.length; index++) {
       if (this.selectedColor == this.paletteColors[index]) {
-        this.selectedCircle = index;
+        this.selectedCircle = index+1;
       }
     }
   }
