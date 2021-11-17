@@ -28,7 +28,7 @@ export var bootstrapLogger : ZLUX.ComponentLogger = logger.makeComponentLogger("
 
 fetch('/ZLUX/plugins/org.zowe.zlux.bootstrap/web/assets/i18n/log/messages_en.json')
   .then((response) => {
-    return response;
+    return response.json();
   })
   .then((myJson) => {
     (bootstrapLogger as any)._messages = myJson;

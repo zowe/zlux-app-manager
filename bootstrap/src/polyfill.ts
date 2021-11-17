@@ -11,7 +11,7 @@
 */
 
 import 'systemjs/dist/system'
-import 'core-js/es6/promise'
+import 'core-js/es/promise'
 
 
 /*
