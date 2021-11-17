@@ -10,11 +10,6 @@
 
 import { Injectable } from '@angular/core';
 import { LanguageLocaleService } from './language-locale.service';
-import {
-  ISOCode,
-  ProviderType
-} from 'angular-l10n';
-import { DefaultLocaleCodes } from 'angular-l10n/src/models/types';
 
 @Injectable()
 export class L10nConfigService {
@@ -23,22 +18,22 @@ export class L10nConfigService {
   ) {
   }
 
-  getDefaultLocale(): DefaultLocaleCodes {
+  getDefaultLocale() {
     return {
       languageCode: this.languageLocaleService.getBaseLanguage(),
       countryCode: this.languageLocaleService.getLocale()
     };
   }
 
-  getTranslationProviders(plugin: ZLUX.Plugin): any[] {
-    const prefix = ZoweZLUX.uriBroker.pluginResourceUri(plugin, `assets/i18n/messages.`);
+  getTranslationProviders(_plugin: ZLUX.Plugin): any[] {
+    //const prefix = ZoweZLUX.uriBroker.pluginResourceUri(plugin, `assets/i18n/messages.`);
     return [
       // messages.en.json - a fallback file in case there is no translation file for a given language found
-      { type: ProviderType.Fallback, prefix: `${prefix}en`, fallbackLanguage: [] },
+      // { type: ProviderType.Fallback, prefix: `${prefix}en`, fallbackLanguage: [] },
       // e.g. messages.es.json
-      { type: ProviderType.Fallback, prefix: prefix, fallbackLanguage: [ISOCode.Language] },
+      // { type: ProviderType.Fallback, prefix: prefix, fallbackLanguage: [ISOCode.Language] },
       // e.g. messages.es-ES.json
-      { type: ProviderType.Static, prefix: prefix }
+      // { type: ProviderType.Static, prefix: prefix }
     ];
   }
 

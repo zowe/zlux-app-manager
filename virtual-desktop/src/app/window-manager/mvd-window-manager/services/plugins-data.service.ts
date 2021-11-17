@@ -15,7 +15,7 @@ import { LaunchbarItem } from '../launchbar/shared/launchbar-item';
 import { PluginLaunchbarItem } from '../launchbar/shared/launchbar-items/plugin-launchbar-item';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 
@@ -34,7 +34,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
   constructor(
     private injector: Injector,
     private http: HttpClient,
-    private translation: TranslationService,
+    private translation: L10nTranslationService,
     private windowManager: WindowManagerService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)

@@ -10,7 +10,7 @@
 */
 import { Component, Inject } from '@angular/core';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +24,7 @@ export class AppComponent {
 
   constructor(
     @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any,
-    private translation: TranslationService,
+    private translation: L10nTranslationService,
   ) {
       this.translation; // to prevent compile error
       this.activeComponent = this.launchMetadata.settingsToolName;

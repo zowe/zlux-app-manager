@@ -12,7 +12,7 @@ import { Component, Inject, Optional } from '@angular/core';
 import { BaseLogger } from '../../../../../../virtual-desktop/src/app/shared/logger';
 import { LanguageLocaleService } from '../../../../../../virtual-desktop/src/app/i18n/language-locale.service';
 import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'language-component',
@@ -41,7 +41,7 @@ export class LanguageComponent {
 
   constructor(
     private languageLocaleService: LanguageLocaleService,
-    private translation: TranslationService,
+    private translation: L10nTranslationService,
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
 
   ) {

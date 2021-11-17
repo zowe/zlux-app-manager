@@ -13,7 +13,7 @@
 import { Component, OnInit, ChangeDetectorRef, Injector } from '@angular/core';
 import { AuthenticationManager,
          LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { StorageService } from '../storage.service';
 import { StorageKey } from '../storage-enum';
@@ -54,7 +54,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private authenticationService: AuthenticationManager,
     private storageService: StorageService,
-    public translation: TranslationService,
+    public translation: L10nTranslationService,
     private idleWarnService: IdleWarnService,
     private cdr: ChangeDetectorRef,
     private injector: Injector
@@ -298,7 +298,7 @@ export class LoginComponent implements OnInit {
       },
       error => {
         this.needLogin = true;
-        let jsonMessage = error.json();
+        let jsonMessage = error.error;
         if(jsonMessage) {
           if(jsonMessage.categories) {
             let keys = Object.keys(jsonMessage.categories);

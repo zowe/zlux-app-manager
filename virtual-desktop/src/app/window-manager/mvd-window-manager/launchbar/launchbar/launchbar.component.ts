@@ -18,7 +18,7 @@ import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-p
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 import { generateInstanceActions } from '../shared/context-utils';
 import { DesktopTheme } from '../../desktop/desktop.component';
 import { BaseLogger } from 'virtual-desktop-logger';
@@ -101,13 +101,13 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   private pluginManager: MVDHosting.PluginManagerInterface;
   public propertyWindowPluginDef: DesktopPluginDefinitionImpl;
   public size: number;
-  
+
    constructor(
     private themeService: ThemeEmitterService,
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     public windowManager: WindowManagerService,
-    private translation: TranslationService
+    private translation: L10nTranslationService
   ) {
      // Workaround for AoT problem with namespaces (see angular/angular#15613)
      this.size = 2;
@@ -186,7 +186,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
     this._theme.color.launchbarText = DEFAULT_TEXT_COLOR;
     this._theme.color.launchbarMenuColor = DEFAULT_COLOR;
     this._theme.color.launchbarMenuText = DEFAULT_TEXT_COLOR;
-    
+
     this.changeTheme.emit(this._theme);
   }
 
@@ -263,7 +263,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   onStateChanged(isActive: boolean): void {
     this.isActive = isActive;
   }
-  
+
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     event.stopPropagation();
     let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);
@@ -304,7 +304,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
     }
     */
   }
-  
+
   onMouseUpContainer(event: MouseEvent): void {
     if (this.currentItem != null) {
       this.onMouseUp(event, this.currentItem);

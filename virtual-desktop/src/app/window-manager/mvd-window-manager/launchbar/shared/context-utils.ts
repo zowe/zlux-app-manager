@@ -2,9 +2,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 import { LaunchbarItem } from './launchbar-item';
@@ -12,7 +12,7 @@ import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-p
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 
 const PROPERTIES_APP = 'org.zowe.zlux.appmanager.app.propview';
 const PROPERTIES_ARGUMENT_FORMATTER = {data: {op:'deref',source:'event',path:['data']}};
@@ -49,7 +49,7 @@ function getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
           "appType":basePlugin.getType(),
           "copyright":pluginImpl.getCopyright(),
           "image":plugin.image
-         }};    
+         }};
 }
 
 
@@ -86,7 +86,7 @@ function openStandalone(item: LaunchbarItem): void {
 
 export function generateInstanceActions(item: LaunchbarItem,
                                         pluginsDataService: PluginsDataService,
-                                        translationService: TranslationService,
+                                        translationService: L10nTranslationService,
                                         applicationManager: MVDHosting.ApplicationManagerInterface,
                                         windowManager: WindowManagerService): ContextMenuItem[] {
   let menuItems: ContextMenuItem[];

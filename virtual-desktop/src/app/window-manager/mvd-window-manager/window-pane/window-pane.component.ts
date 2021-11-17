@@ -4,9 +4,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 
@@ -18,7 +18,7 @@ import { DesktopWindow } from '../shared/desktop-window';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 import { delay } from 'rxjs/operators';
 
 const DESKTOP_PLUGIN = ZoweZLUX.pluginManager.getDesktopPlugin();
@@ -37,13 +37,13 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 
   @Input() theme: DesktopTheme;
-  
+
   constructor(
     public windowManager: WindowManagerService,
     private injector: Injector,
     private http: HttpClient,
     private themeService: ThemeEmitterService,
-    private translation: TranslationService,
+    private translation: L10nTranslationService,
   ) {
     this.logger.debug("ZWED5320I", windowManager); //this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;
@@ -83,7 +83,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
         this.resetWallpaperDefault();
         this.http.put<DesktopTheme>(DESKTOP_WALLPAPER_URI, image)
           .pipe(delay(250))
-          .subscribe((data: any) => { 
+          .subscribe((data: any) => {
             this.resetWallpaperDefault();
             this.logger.debug("Attempted to post image with status: ", data);
             this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
@@ -106,7 +106,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
       .subscribe(() => {
         this.resetWallpaperDefault();
         this.http.delete<DesktopTheme>(DESKTOP_WALLPAPER_URI)
-          .subscribe((data: any) => { 
+          .subscribe((data: any) => {
             this.logger.debug("Attempted to delete image with status: ", data);
             this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
           });
@@ -131,9 +131,9 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 

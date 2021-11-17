@@ -3,9 +3,9 @@
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */
 import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
@@ -14,8 +14,8 @@ import { BaseLogger } from '../../../../shared/logger';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
 import { Colors } from '../../shared/colors';
-import { TranslationService } from 'angular-l10n';
- 
+import { L10nTranslationService } from 'angular-l10n';
+
 const SLIDER_NAME = 'slider'
 const CIRCLE_NAME = 'circle'
 
@@ -79,12 +79,12 @@ export class PersonalizationComponent implements AfterViewInit {
 
   constructor(
     private desktopThemeService: ThemeEmitterService,
-    private translation: TranslationService
+    private translation: L10nTranslationService
   ) {
     this.selectedColor = Colors.COOLGREY_90;
     this.selectedSize = 2;
-    this.paletteColors = ["#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3", 
-    "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39", "#ffeb3b", "#ffc107", 
+    this.paletteColors = ["#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3",
+    "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39", "#ffeb3b", "#ffc107",
     "#ff9800", "#252628", "#6d7176", "#f3f4f4"];
     this.files = [];
     this.swatch1Style; this.swatch2Style; this.swatch3Style; this.swatch4Style; this.swatch5Style; // Avoid TS compile problems
@@ -94,10 +94,10 @@ export class PersonalizationComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.selectedColor = this.desktopThemeService.mainColor;
     this.selectedSize = this.desktopThemeService.mainSize;
-  
+
     this.spawnCircles(this.paletteColors);
     this.spawnSlider();
-    
+
     let selectedColorHSL = this.hexToHSL(this.selectedColor);
     if (selectedColorHSL != null) {
       this.updateLightnessSwatches(selectedColorHSL);
@@ -125,7 +125,7 @@ export class PersonalizationComponent implements AfterViewInit {
           h = 0,
           s = 0,
           l = 0;
-    
+
       if (delta == 0)
         h = 0;
       else if (cmax == r)
@@ -134,12 +134,12 @@ export class PersonalizationComponent implements AfterViewInit {
         h = (b - r) / delta + 2;
       else
         h = (r - g) / delta + 4;
-    
+
       h = Math.round(h * 60);
-    
+
       if (h < 0)
         h += 360;
-    
+
       l = (cmax + cmin) / 2;
       s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
 
@@ -194,14 +194,14 @@ export class PersonalizationComponent implements AfterViewInit {
     let rString = r.toString(16);
     let gString = g.toString(16);
     let bString = b.toString(16);
-  
+
     if (rString.length == 1)
       rString = "0" + rString;
     if (gString.length == 1)
       gString = "0" + gString;
     if (bString.length == 1)
       bString = "0" + bString;
-  
+
     return "#" + rString + gString + bString;
   }
 
@@ -262,7 +262,7 @@ export class PersonalizationComponent implements AfterViewInit {
     this.desktopThemeService.changeColor(hexColor, textColor);
   }
 
-  spawnCircles(colors: string[]): void {    
+  spawnCircles(colors: string[]): void {
     var index: number;
     var canvasName: string;
     var canvasElem: ElementRef;
@@ -271,11 +271,11 @@ export class PersonalizationComponent implements AfterViewInit {
     for (index = 1; index <= numOfCircles; index++) {
       canvasName = CIRCLE_NAME + index;
       canvasElem = (<any>this)[canvasName]; // We typecast this to 'any' to avoid silly TS compile problems
-      
+
       var context = canvasElem.nativeElement.getContext('2d');
       var centerX = canvasElem.nativeElement.width / 2;
       var centerY = canvasElem.nativeElement.height / 2;
-    
+
       var radius = 20;
 
       if (context != null) {
@@ -293,7 +293,7 @@ export class PersonalizationComponent implements AfterViewInit {
     var canvasElem: ElementRef = (<any>this)[canvasName]; // We typecast this to 'any' to avoid silly TS compile problems
 
     // Create gradient
-    var ctx = canvasElem.nativeElement.getContext("2d");         
+    var ctx = canvasElem.nativeElement.getContext("2d");
     var gradient = ctx.createLinearGradient(14, 0, 389, 0);
     gradient.addColorStop(0, 'red');
     gradient.addColorStop(1 / 6, 'orange');
@@ -335,7 +335,7 @@ export class PersonalizationComponent implements AfterViewInit {
   colorPreview(color: any): void {
     this.selectedColor = color.hsl;
     let textColor = Colors.COOLGREY_10
-    
+
     if (color.hsl.l >= .65) { // If lightness of color is too high, we change the text to be dark
       textColor = Colors.COOLGREY_90
     }
@@ -408,8 +408,8 @@ export class PersonalizationComponent implements AfterViewInit {
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 */

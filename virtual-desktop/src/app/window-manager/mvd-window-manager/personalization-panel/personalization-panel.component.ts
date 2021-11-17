@@ -14,7 +14,7 @@ import { Component, Injector, HostListener } from '@angular/core';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { DesktopPluginDefinitionImpl } from "../../../../app/plugin-manager/shared/desktop-plugin-definition";
 import { DesktopComponent } from "../desktop/desktop.component";
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
 
 const CHANGE_PASSWORD = "Change Password"
@@ -68,7 +68,7 @@ export class PersonalizationPanelComponent {
     private injector: Injector,
     private windowManager: WindowManagerService,
     private desktopComponent: DesktopComponent,
-    private translation: TranslationService,
+    private translation: L10nTranslationService,
     private themeService: ThemeEmitterService
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
@@ -76,7 +76,7 @@ export class PersonalizationPanelComponent {
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.goToPanel();
    }
-  
+
   ngOnInit(): void {
     this.pluginManager.findPluginDefinition("org.zowe.zlux.ng2desktop.settings").then(personalizationsPlugin => {
       const pluginImpl:DesktopPluginDefinitionImpl = personalizationsPlugin as DesktopPluginDefinitionImpl;
@@ -98,25 +98,25 @@ export class PersonalizationPanelComponent {
   }
 
   openTool(tool: any): void {
-    switch(tool.title) { 
-      case this.translation.translate(CHANGE_PASSWORD): { 
-        this.authenticationManager.requestPasswordChangeScreen(); 
-        break; 
-      } 
-      case this.translation.translate(PERSONALIZATION): { 
+    switch(tool.title) {
+      case this.translation.translate(CHANGE_PASSWORD): {
+        this.authenticationManager.requestPasswordChangeScreen();
+        break;
+      }
+      case this.translation.translate(PERSONALIZATION): {
         this.goToPersonalization();
-        break; 
-      } 
-      default: { 
+        break;
+      }
+      default: {
         let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
         if (propertyWindowID == null) {
           this.desktopComponent.hidePersonalizationPanel();
           this.applicationManager.spawnApplication(this.settingsWindowPluginDef, this.getAppPropertyInformation(tool.title));
         } else {
           this.windowManager.showWindow(propertyWindowID);
-        } 
-        break; 
-      } 
+        }
+        break;
+      }
     }
   }
 
