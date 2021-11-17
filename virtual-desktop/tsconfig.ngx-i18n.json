@@ -16,5 +16,8 @@
         "./app/shared/logger"
       ]      
     }
+  },
+  "angularCompilerOptions": {
+    "enableIvy": false
   }
 }
