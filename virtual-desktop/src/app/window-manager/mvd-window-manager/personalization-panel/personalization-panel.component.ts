@@ -14,12 +14,11 @@ import { Component, Injector, HostListener } from '@angular/core';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { DesktopPluginDefinitionImpl } from "../../../../app/plugin-manager/shared/desktop-plugin-definition";
 import { DesktopComponent } from "../desktop/desktop.component";
-import { TranslationService } from 'angular-l10n';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
 
-const CHANGE_PASSWORD = "Change Password"
-const LANGUAGES = "Languages"
-const PERSONALIZATION = "Personalization"
+const CHANGE_PASSWORD = $localize`Change Password`;
+const LANGUAGES = $localize`Languages`;
+const PERSONALIZATION = $localize`Personalization`;
 
 @Component({
   selector: 'rs-com-personalization-panel',
@@ -42,11 +41,11 @@ export class PersonalizationPanelComponent {
   public personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
                             of the Settings & Personalization app. */
                            {
-                            "title":this.translation.translate(LANGUAGES),
+                            "title": LANGUAGES,
                             "imgSrc":"foreign_language",
                            },
                            {
-                            "title":this.translation.translate(CHANGE_PASSWORD),
+                            "title": CHANGE_PASSWORD,
                             "imgSrc":"password"
                            },
                           /*  {
@@ -54,7 +53,7 @@ export class PersonalizationPanelComponent {
                             "imgSrc":"management",
                            }, */
                            {
-                            "title":this.translation.translate(PERSONALIZATION),
+                            "title": PERSONALIZATION,
                             "imgSrc":"personalization",
                            },
   ];
@@ -68,7 +67,6 @@ export class PersonalizationPanelComponent {
     private injector: Injector,
     private windowManager: WindowManagerService,
     private desktopComponent: DesktopComponent,
-    private translation: TranslationService,
     private themeService: ThemeEmitterService
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
@@ -99,11 +97,11 @@ export class PersonalizationPanelComponent {
 
   openTool(tool: any): void {
     switch(tool.title) { 
-      case this.translation.translate(CHANGE_PASSWORD): { 
+      case CHANGE_PASSWORD: { 
         this.authenticationManager.requestPasswordChangeScreen(); 
         break; 
       } 
-      case this.translation.translate(PERSONALIZATION): { 
+      case PERSONALIZATION: { 
         this.goToPersonalization();
         break; 
       } 

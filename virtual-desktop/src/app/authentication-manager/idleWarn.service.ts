@@ -1,7 +1,6 @@
 import * as moment from 'moment';
 import { Injectable } from '@angular/core';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
-import { TranslationService } from 'angular-l10n';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { Subscription } from 'rxjs';
 import { StorageService } from './storage.service';
@@ -13,7 +12,6 @@ export class IdleWarnService {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   
   constructor(private popupManager: ZluxPopupManagerService,
-    public translation: TranslationService,
     private storageService: StorageService  
     ) {
   }
@@ -22,23 +20,23 @@ export class IdleWarnService {
     this.removeErrorReport();
     this.report = this.popupManager.createErrorReport(
       ZluxErrorSeverity.WARNING,
-      this.translation.translate('Session Renewal Error'),
-      this.translation.translate('Session could not be renewed. Logout will occur unless renewed. Click here to retry.'), 
+      $localize`Session Renewal Error`,
+      $localize`Session could not be renewed. Logout will occur unless renewed. Click here to retry.`, 
       {
         blocking: false,
-        buttons: [this.translation.translate('Retry'), this.translation.translate('Dismiss')]
+        buttons: [$localize`Retry`, $localize`Dismiss`]
       }
     );
 
     this.report.subscription = new Subscription();
-    this.onUserActionSubscribe(renewSession,'Retry');
+    this.onUserActionSubscribe(renewSession, $localize`Retry`);
     this.onActivitySubscribe(renewSession, isIdle);
   }
   
   onUserActionSubscribe(renewSession: any, action: string) {
     if(this.report) {
-      this.report.subscription.add(this.report.subject.subscribe((buttonName:any)=> {
-        if (buttonName == this.translation.translate(action)) {
+      this.report.subscription.add(this.report.subject.subscribe((buttonName: string)=> {
+        if (buttonName == action) {
           renewSession();
         }
       }));  
@@ -74,15 +72,14 @@ export class IdleWarnService {
       }
     }
 
+    const continueSessionText = $localize`Continue session`;
     this.report = this.popupManager.createErrorReport(
       ZluxErrorSeverity.WARNING,
-      this.translation.translate('Session Expiring Soon'),
-      //TODO: Add translation
-      //this.translation.translate('You will be logged out at ', { expirationInMS: moment().add(expirationInMS/1000, 'seconds').format('LT') }),
-      this.translation.translate('You will be logged out at ' + moment().add(expirationInMS/1000, 'seconds').format('LT')),
+      $localize`Session Expiring Soon`,
+      $localize`'You will be logged out at ${moment().add(expirationInMS/1000, 'seconds').format('LT')}`,
       {
         blocking: false,
-        buttons: [this.translation.translate('Continue session')],
+        buttons: [continueSessionText],
         timestamp: false,
         theme: "dark",
         style: popupStyle,
@@ -90,7 +87,7 @@ export class IdleWarnService {
       });
 
       this.report.subscription = new Subscription();
-      this.onUserActionSubscribe(renewSession, 'Continue session');
+      this.onUserActionSubscribe(renewSession, continueSessionText);
       this.onActivitySubscribe(renewSession, isIdle);
   }
 

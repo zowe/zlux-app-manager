@@ -16,11 +16,10 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { AuthenticationManager } from '../../../authentication-manager/authentication-manager.service';
-import { TranslationService } from 'angular-l10n';
 import { Colors } from '../shared/colors';
 
-const ACCOUNT_PASSWORD = "Account Password";
-const PASSWORD_CHANGED = "PasswordChanged"
+const ACCOUNT_PASSWORD = $localize`Account Password`;
+const PASSWORD_CHANGED = $localize`PasswordChanged`;
 const ENABLE_PLUGINS_ADDED_TIMEOUT = 1000;
 
 @Component({
@@ -57,7 +56,6 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     private authenticationService: AuthenticationManager,
     private http: HttpClient,
     private injector: Injector,
-    private translation: TranslationService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
@@ -67,11 +65,9 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
       case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
-        const notifTitle = this.translation.translate(ACCOUNT_PASSWORD);
-        const notifMessage = this.translation.translate(PASSWORD_CHANGED);
         const desktopPluginId = ZoweZLUX.pluginManager.getDesktopPlugin().getIdentifier();
         this.hidePersonalizationPanel();
-        ZoweZLUX.notificationManager.notify(ZoweZLUX.notificationManager.createNotification(notifTitle, notifMessage, 1, desktopPluginId));
+        ZoweZLUX.notificationManager.notify(ZoweZLUX.notificationManager.createNotification(ACCOUNT_PASSWORD, PASSWORD_CHANGED, 1, desktopPluginId));
         break;
       default:
       }

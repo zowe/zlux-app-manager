@@ -25,7 +25,6 @@ const libs: { [index: string]: {library: any} } = {
   '@angular/core': require('@angular/core'),
   '@angular/common': require('@angular/common'),
   '@angular/common/http': require('@angular/common/http'),
-  // '@angular/http': require('@angular/http'),
   '@angular/platform-browser': require('@angular/platform-browser'),
   '@angular/platform-browser/animations': require('@angular/platform-browser/animations'),
   '@angular/platform-browser-dynamic': require('@angular/platform-browser-dynamic'),
@@ -35,6 +34,8 @@ const libs: { [index: string]: {library: any} } = {
   '@angular/forms': require('@angular/forms'),
   '@angular/router': require('@angular/router'),
   '@angular/animations': require('@angular/animations'),
+  '@angular/localize': require('@angular/localize'),
+  '@angular/localize/init': require('@angular/localize/init'),
   'rxjs': require('rxjs'),
   'rxjs/operators': require('rxjs/operators')
 };

@@ -17,7 +17,6 @@ import { LaunchbarItem } from '../shared/launchbar-item';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
-import { TranslationService } from 'angular-l10n';
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
 import { generateInstanceActions } from '../shared/context-utils';
 import { KeybindingService } from '../../shared/keybinding.service';
@@ -117,7 +116,6 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     public windowManager: WindowManagerService,
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
-    private translation: TranslationService,
     private desktopComponent: DesktopComponent,
     private appKeyboard: KeybindingService,
   ) {
@@ -296,7 +294,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     const elm = this.getActiveMenuItem();
     if(elm) {
       const pos = this.getElementPosition(elm);
-      let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
+      let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.applicationManager, this.windowManager);    
       this.windowManager.contextMenuRequested.next({ xPos: pos.x, yPos: pos.y - 20, items: menuItems });
       this.isContextMenuPresent = true;
     }
@@ -329,7 +327,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
 
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     event.stopPropagation();
-    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
+    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.applicationManager, this.windowManager);    
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     this.isContextMenuPresent = true;
     return false;

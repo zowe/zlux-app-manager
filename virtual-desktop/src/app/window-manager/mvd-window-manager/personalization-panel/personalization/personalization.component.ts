@@ -14,7 +14,6 @@ import { BaseLogger } from '../../../../shared/logger';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
 import { Colors } from '../../shared/colors';
-import { TranslationService } from 'angular-l10n';
  
 const SLIDER_NAME = 'slider'
 const CIRCLE_NAME = 'circle'
@@ -79,7 +78,6 @@ export class PersonalizationComponent implements AfterViewInit {
 
   constructor(
     private desktopThemeService: ThemeEmitterService,
-    private translation: TranslationService
   ) {
     this.selectedColor = Colors.COOLGREY_90;
     this.selectedSize = 2;
@@ -312,16 +310,16 @@ export class PersonalizationComponent implements AfterViewInit {
   }
 
   updateLanguageStrings(): void {
-    this.Back = this.translation.translate('Back', null);
-    this.ResetToDefault = this.translation.translate('Reset to default', null);
-    this.Background = this.translation.translate('Wallpaper', null);
-    this.DragWallpaperHereOr = this.translation.translate('Drag wallpaper here or', null); // TODO: Needs updated translations
-    this.Color = this.translation.translate('Color', null);
-    this.SelectColor = this.translation.translate('Select color', null);
-    this.OrHue = this.translation.translate('or hue.', null);
-    this.SelectLightness = this.translation.translate('Select lightness.', null);
-    this.Size = this.translation.translate('Size', null);
-    this.Upload = this.translation.translate('Upload', null);
+    this.Back = $localize`Back`;
+    this.ResetToDefault = $localize`Reset to default`;
+    this.Background = $localize`Wallpaper`;
+    this.DragWallpaperHereOr = $localize`Drag wallpaper here or`; // TODO: Needs updated translations
+    this.Color = $localize`Color`;
+    this.SelectColor = $localize`Select color`;
+    this.OrHue = $localize`or hue.`;
+    this.SelectLightness = $localize`Select lightness.`;
+    this.Size = $localize`Size`;
+    this.Upload = $localize`Upload`;
   }
 
   updateLightnessSwatches(hslColor: number[]): void {

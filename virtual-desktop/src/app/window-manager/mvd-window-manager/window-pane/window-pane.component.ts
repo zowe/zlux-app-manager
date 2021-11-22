@@ -18,7 +18,6 @@ import { DesktopWindow } from '../shared/desktop-window';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
-import { TranslationService } from 'angular-l10n';
 import { delay } from 'rxjs/operators';
 
 const DESKTOP_PLUGIN = ZoweZLUX.pluginManager.getDesktopPlugin();
@@ -43,7 +42,6 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     private injector: Injector,
     private http: HttpClient,
     private themeService: ThemeEmitterService,
-    private translation: TranslationService,
   ) {
     this.logger.debug("ZWED5320I", windowManager); //this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;
@@ -90,13 +88,13 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
           },
           (error: any) => {
             this.wallpaper.background = temp;
-            const notifTitle = this.translation.translate("Personalization");
+            const notifTitle = $localize`Personalization`;
             let notifMessage;
             if (error.status = 413) //payload too large
             { // Needs translations
-              notifMessage = `Wallpaper changed failed: Server supports a max size of '` + DESKTOP_WALLPAPER_MAX_SIZE + `' mb.`;
+              notifMessage = $localize`Wallpaper changed failed: Server supports a max size of '${DESKTOP_WALLPAPER_MAX_SIZE} Mb.`;
             } else {
-              notifMessage = `Wallpaper changed failed - ` + error.status + `: ` + error.message;
+              notifMessage = $localize`Wallpaper changed failed - ${error.status}: ${error.message}`;
             }
             ZoweZLUX.notificationManager.notify(ZoweZLUX.notificationManager.createNotification(notifTitle, notifMessage, 1, "org.zowe.zlux.ng2desktop.settings"));
           } );

@@ -12,7 +12,6 @@ import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-p
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
-import { TranslationService } from 'angular-l10n';
 
 const PROPERTIES_APP = 'org.zowe.zlux.appmanager.app.propview';
 const PROPERTIES_ARGUMENT_FORMATTER = {data: {op:'deref',source:'event',path:['data']}};
@@ -86,34 +85,33 @@ function openStandalone(item: LaunchbarItem): void {
 
 export function generateInstanceActions(item: LaunchbarItem,
                                         pluginsDataService: PluginsDataService,
-                                        translationService: TranslationService,
                                         applicationManager: MVDHosting.ApplicationManagerInterface,
                                         windowManager: WindowManagerService): ContextMenuItem[] {
   let menuItems: ContextMenuItem[];
   if (item.instanceIds.length == 1) {
     menuItems = [
-      { "text": translationService.translate("Open New"), "action": ()=> openWindow(item, applicationManager)},
-      { "text" : translationService.translate("Open in New Browser Tab"), "action": () => openStandalone(item)},
-      { "text": translationService.translate('BringToFront'), "action": () => bringItemFront(item, windowManager) },
+      { "text": $localize`Open New`, "action": ()=> openWindow(item, applicationManager)},
+      { "text" : $localize`Open in New Browser Tab`, "action": () => openStandalone(item)},
+      { "text": $localize`BringToFront`, "action": () => bringItemFront(item, windowManager) },
       pluginsDataService.pinContext(item),
-      { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
-      { "text": translationService.translate("Close All"), "action": ()=> closeAllWindows(item, windowManager)},
+      { "text": $localize`Properties`, "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
+      { "text": $localize`Close All`, "action": ()=> closeAllWindows(item, windowManager)},
     ];
   } else if (item.instanceIds.length != 0) {
     menuItems = [
-      { "text": translationService.translate("Open New"), "action": ()=> openWindow(item, applicationManager)},
-      { "text" : translationService.translate("Open in New Browser Tab"), "action": () => openStandalone(item)},
+      { "text": $localize`Open New`, "action": ()=> openWindow(item, applicationManager)},
+      { "text" : $localize`Open in New Browser Tab`, "action": () => openStandalone(item)},
       pluginsDataService.pinContext(item),
-      { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
-      { "text": translationService.translate("Close All"), "action": ()=> closeAllWindows(item, windowManager)}
+      { "text": $localize`Properties`, "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
+      { "text": $localize`Close All`, "action": ()=> closeAllWindows(item, windowManager)}
     ];
   } else {
     menuItems =
       [
-      { "text": translationService.translate('Open'), "action": () => openWindow(item, applicationManager) },
-      { "text" : translationService.translate("Open in New Browser Tab"), "action": () => openStandalone(item)},
+      { "text": $localize`Open`, "action": () => openWindow(item, applicationManager) },
+      { "text" : $localize`Open in New Browser Tab`, "action": () => openStandalone(item)},
       pluginsDataService.pinContext(item),
-      { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
+      { "text": $localize`Properties`, "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
     ]
   }
   return menuItems;

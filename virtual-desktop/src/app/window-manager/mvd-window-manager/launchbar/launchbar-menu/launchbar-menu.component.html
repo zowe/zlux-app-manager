@@ -29,7 +29,7 @@
       class="refresh-plugins" 
       (click)="refresh()"
       id="ZAP_DesktopHome_RefreshApplications">
-      {{translation.translate("Refresh Applications")}}
+      <ng-container i18n="label|label for refresh application button@@refresh-applications-label">Refresh Applications</ng-container>
       <em style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></em>
     </div>
     <div style="margin: 20px"></div>
@@ -56,7 +56,8 @@
     <div class="launch-menu-search">
       <em class="launch-menu-search-icon fa fa-search"></em>
       <input #searchapp class="launch-menu-search-input" type="text" 
-        placeholder="{{translation.translate('Search')}}"
+        i18n-placeholder="placeholder|placeholder for search input@@search-input-placeholder"
+        placeholder="Search"
         [style.font-size]="menuText"
         [style.color]="color.launchbarMenuText"
         [(ngModel)]="appFilter"

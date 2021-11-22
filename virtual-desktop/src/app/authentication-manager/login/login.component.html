@@ -19,7 +19,8 @@
       <button class="back-button" 
         [hidden]="!changePassword && !expiredPassword" 
         (click)="backButton()"
-        id="ZAP_LoginPage_BackButton">{{this.translation.translate("Back")}}</button>
+        id="ZAP_LoginPage_BackButton"
+        i18n="label|Label for back button@@back-button-label">"Back"</button>
     <div>
     <img class="logo-img" [hidden]="changePassword || expiredPassword" [src]="logo" alt="Zowe - z/OS Lightweight User Experience" />
     <img class="password-logo-img" [hidden]="!changePassword && !expiredPassword" [src]="passwordLogo" alt="Zowe - z/OS Lightweight User Experience" />
@@ -46,17 +47,17 @@
         maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
     </form>
     <p class="login-error">
-      {{this.translation.translate(errorMessage)}}
+      {{ errorMessage }}
       <i class="fa fa-caret-down" title="Expand" aria-hidden="true" *ngIf="errorDetails && !showErrorDetails" (click)="expandError()"></i>
       <i class="fa fa-caret-up" title="Collapse" aria-hidden="true" *ngIf="showErrorDetails" (click)="collapseError()"></i>
     </p>
     <div class="error-details-wrapper" [hidden]="!showErrorDetails">
-      <textarea class="login-error-details" readonly>{{this.translation.translate(errorDetails)}}</textarea>
+      <textarea class="login-error-details" readonly>{{errorDetails}}</textarea>
     </div>
     <div class="fa fa-spinner fa-spin fa-5x" [hidden]="!isLoading"></div>
     <button id="ZAP_LoginPage_SavePassword"
       [hidden]="!expiredPassword && !changePassword" class="login-button" (click)="attemptPasswordReset()" [disabled]="locked">
-            {{this.expiredPassword ? this.translation.translate("Change Password") : this.translation.translate("SavePassword")}}
+            {{this.expiredPassword ? changePasswordText : savePasswordText}}
     </button>
     <div>
       <button id="ZAP_LoginPage_Login"

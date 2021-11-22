@@ -13,7 +13,6 @@ import { BaseLogger } from 'virtual-desktop-logger';
 import { App2AppArgs } from './app2app-args';
 import { App2AppArgsParser } from './app2app-args-parser.service';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
-import { TranslationService } from 'angular-l10n';
 
 const ZOWE_URL_ARGS = [
   "app2app",
@@ -30,7 +29,6 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
   constructor(
     public parser: App2AppArgsParser,
     private popupManager: ZluxPopupManagerService,
-    public translation: TranslationService,
   ) {
     this.registerTestAction();
   }
@@ -101,11 +99,11 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     if (args.error) {
       this.popupManager.createErrorReport(
         ZluxErrorSeverity.WARNING,
-        this.translation.translate(args.error),
-        (this.translation.translate('Bad data: ') + args.contextData), 
+        args.error,
+        $localize`Bad data: ${args.contextData}`, 
         {
           blocking: false,
-          buttons: [this.translation.translate('Dismiss')]
+          buttons: [$localize`Dismiss`]
         }
       );
     } else {

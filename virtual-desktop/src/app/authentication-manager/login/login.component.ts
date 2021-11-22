@@ -13,7 +13,6 @@
 import { Component, OnInit, ChangeDetectorRef, Injector } from '@angular/core';
 import { AuthenticationManager,
          LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
-import { TranslationService } from 'angular-l10n';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { StorageService } from '../storage.service';
 import { StorageKey } from '../storage-enum';
@@ -21,7 +20,7 @@ import { IdleWarnService } from '../idleWarn.service';
 
 let ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
-const PASSWORD_EXPIRED = "PasswordExpired";
+
 
 @Component({
   selector: 'rs-com-login',
@@ -50,11 +49,12 @@ export class LoginComponent implements OnInit {
   private themeManager: any;
   public showLogin: boolean;
   public enableExpirationPrompt: boolean;
+  readonly changePasswordText = $localize`Change Password`;
+  readonly savePasswordText = $localize`Save Password`;
 
   constructor(
     private authenticationService: AuthenticationManager,
     private storageService: StorageService,
-    public translation: TranslationService,
     private idleWarnService: IdleWarnService,
     private cdr: ChangeDetectorRef,
     private injector: Injector
@@ -100,7 +100,7 @@ export class LoginComponent implements OnInit {
       case MVDHosting.LoginScreenChangeReason.SessionExpired:
         this.backButton();
         this.idleWarnService.removeErrorReport();
-        this.errorMessage = this.translation.translate('Session Expired');
+        this.errorMessage = $localize`Session Expired`;
         this.needLogin = true;
         break;
       default:
@@ -248,7 +248,7 @@ export class LoginComponent implements OnInit {
     this.cdr.detectChanges();
     this.passwordServices.clear();
     if (this.username==null || this.username==''){
-      this.errorMessage= this.translation.translate('UsernameRequired');
+      this.errorMessage= $localize`UsernameRequired`;
       this.password = '';
       this.locked = false;
       this.needLogin = true;
@@ -312,7 +312,7 @@ export class LoginComponent implements OnInit {
             }
             if (error.status == HTTP_STATUS_PRECONDITION_REQUIRED) {
               this.expiredPassword = true;
-              this.loginMessage = this.translation.translate(PASSWORD_EXPIRED);
+              this.loginMessage = $localize`PasswordExpired`;
             } else {
               this.displayErrorDetails(jsonMessage);
               this.password = '';
@@ -376,8 +376,7 @@ export class LoginComponent implements OnInit {
         }
       }
       if(!err || !this.errorMessage) {
-        this.errorMessage = this.translation.translate('AuthenticationFailed',
-        { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+        this.errorMessage = $localize`Authentication failed for ${failedTypes.length} types. Types: ${JSON.stringify(failedTypes)}`;
       }
   }
 
