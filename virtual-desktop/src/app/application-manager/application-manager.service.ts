@@ -25,7 +25,7 @@ import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements';
-import { L10nConfigService } from '../i18n/l10n-config.service';
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
@@ -42,7 +42,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     private pluginManager: PluginManager,
     private injectionManager: InjectionManager,
     private compiler: Compiler,
-    private l10nConfigService: L10nConfigService,
+    private languageLocaleService: LanguageLocaleService,
     private http: HttpClient,
   ) {
     this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);
@@ -215,7 +215,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
           resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null));
         } else {
           this.knownLoggerMessageChecks.push(plugin.getIdentifier());
-          let languageCode = this.l10nConfigService.getDefaultLocale().languageCode; // Figure out the desktop language
+          let languageCode = this.languageLocaleService.getLanguage(); // Figure out the desktop language
           let messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_${languageCode}.json`);
           this.http.get(messageLoc).subscribe( // Try to load log messages of desired language
             messages => {

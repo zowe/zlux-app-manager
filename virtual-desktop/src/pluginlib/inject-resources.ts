@@ -104,10 +104,6 @@ export interface ContextMenuItem {
   preventCloseMenu?: boolean;
 }
 
-export interface Angular2L10nConfig {
-  readonly defaultLocale: { languageCode: string; countryCode?: string; };
-  readonly providers: any[];
-}
 
 /*
   This program and the accompanying materials are
