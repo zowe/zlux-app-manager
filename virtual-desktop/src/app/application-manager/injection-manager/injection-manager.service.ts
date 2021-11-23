@@ -18,6 +18,7 @@ import { L10nConfigService } from './../../i18n/l10n-config.service';
 import { Angular2InjectionTokens, Angular2L10nConfig } from 'pluginlib/inject-resources';
 import { LOAD_FAILURE_ERRORS } from '../load-failure/failure-injection-tokens';
 import { Viewport } from '../viewport-manager/viewport';
+import { L10N_CONFIG, L10N_LOCALE } from 'angular-l10n';
 
 const ComponentLoggerContainer:Map<string,ZLUX.ComponentLogger> = new Map<string,ZLUX.ComponentLogger>();
 
@@ -36,9 +37,9 @@ export class InjectionManager {
   // generateModuleInjector make root injector augmented with addition providers
 
   generateModuleInjector(pluginDefinition: MVDHosting.DesktopPluginDefinition, launchMetadata: any,
-                         instanceId: MVDHosting.InstanceId, messages?: any): Injector {
+                         instanceId: MVDHosting.InstanceId, messages?: any, assets?: any): Injector {
     let identifier = pluginDefinition.getIdentifier();
-        
+
     const l10nPluginConfig: Angular2L10nConfig = {
       defaultLocale: this.l10nConfigService.getDefaultLocale(),
       providers: this.l10nConfigService.getTranslationProviders(pluginDefinition.getBasePlugin())
@@ -49,7 +50,6 @@ export class InjectionManager {
       logger = ZoweZLUX.logger.makeComponentLogger(identifier, messages);
       ComponentLoggerContainer.set(identifier,logger);
     }
-    
     return Injector.create([
       {
         provide: Angular2InjectionTokens.LOGGER,
@@ -68,8 +68,12 @@ export class InjectionManager {
         useValue: l10nPluginConfig
       },
       {
-        provide: Angular2InjectionTokens.INSTANCE_ID,
-        useValue: instanceId
+        provide: L10N_LOCALE,
+        useValue: this.l10nConfigService.getDefaultLocale()
+      },
+      {
+        provide: L10N_CONFIG,
+        useValue: this.l10nConfigService.getL10nConfig(assets)
       }
     ], this.injector.get(NgModuleRef).injector);  // gets root injector of virtualDesktop tree
   }

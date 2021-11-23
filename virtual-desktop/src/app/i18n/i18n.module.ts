@@ -17,13 +17,10 @@ import { L10nStorageService } from './l10n-storage.service';
 import { L10nConfigService } from './l10n-config.service';
 import { L10nTranslationLoaderService } from './l10n-translation-loader.service';
 
-const desktopPlugin = ZoweZLUX.pluginManager.getDesktopPlugin();
-const prefix = ZoweZLUX.uriBroker.pluginResourceUri(desktopPlugin, `assets/i18n/messages`);
-
 export const l10nConfig: L10nConfig = {
   format: 'language-region',
   providers: [
-    { name: 'app', asset: prefix },
+    { name: 'app', asset: '', options: {plugin:  ZoweZLUX.pluginManager.getDesktopPlugin()} },
   ],
   cache: true,
   keySeparator: '.',
@@ -44,6 +41,7 @@ export const l10nConfig: L10nConfig = {
   ],
   providers: [
     L10nConfigService,
+    L10nTranslationLoaderService,
     { provide: LOCALE_ID, useFactory: localeIdFactory, deps: [LanguageLocaleService] },
     {
       provide: APP_INITIALIZER,

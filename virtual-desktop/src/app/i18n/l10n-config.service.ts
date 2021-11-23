@@ -9,6 +9,7 @@
 */
 
 import { Injectable } from '@angular/core';
+import { L10nConfig, L10nLocale } from 'angular-l10n';
 import { LanguageLocaleService } from './language-locale.service';
 
 @Injectable()
@@ -18,10 +19,25 @@ export class L10nConfigService {
   ) {
   }
 
-  getDefaultLocale() {
+  getDefaultLocale(): L10nLocale {
+    const language = this.languageLocaleService.getLanguage();
+    const locale = this.languageLocaleService.getLocale();
+    const composedLanguage = locale ? `${language}-${locale}` : language;
     return {
-      languageCode: this.languageLocaleService.getBaseLanguage(),
-      countryCode: this.languageLocaleService.getLocale()
+      language: composedLanguage
+    };
+  }
+
+  getL10nConfig(assets: any): L10nConfig {
+    return <L10nConfig>{
+      format: 'language-region',
+      providers: [
+        { name: 'app', asset: assets },
+      ],
+      cache: true,
+      keySeparator: '.',
+      defaultLocale: this.getDefaultLocale(),
+      schema: [],
     };
   }
 

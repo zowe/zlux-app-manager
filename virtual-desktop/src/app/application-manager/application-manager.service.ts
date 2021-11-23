@@ -9,7 +9,7 @@
 */
 
 import { Injectable, Injector, NgModuleFactory, Compiler, ComponentRef, Type, SimpleChanges, SimpleChange, OnChanges } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 import { PluginLoader } from 'app/plugin-manager/shared/plugin-loader';
@@ -25,7 +25,8 @@ import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements';
-import { L10nConfigService } from '../i18n/l10n-config.service';
+import { LanguageLocaleService } from '../i18n/language-locale.service';
+import { L10nTranslationLoaderService } from 'app/i18n/l10n-translation-loader.service';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
@@ -42,7 +43,8 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     private pluginManager: PluginManager,
     private injectionManager: InjectionManager,
     private compiler: Compiler,
-    private l10nConfigService: L10nConfigService,
+    private languageLocaleService: LanguageLocaleService,
+    private l10nTranslationLoaderService: L10nTranslationLoaderService,
     private http: HttpClient,
   ) {
     this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);
@@ -163,7 +165,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
   }
 
   private generateInjectorAfterCheckingForLoggerMessages(compiled: any, plugin: DesktopPluginDefinitionImpl, launchMetadata: any,
-    applicationInstance: ApplicationInstance, viewportId: MVDHosting.ViewportId, messages: any): number {
+    applicationInstance: ApplicationInstance, viewportId: MVDHosting.ViewportId, messages: any, assets: any): number {
       //  When angular module is compiled, it produces and ngModuleFactory
       //  The ngModuleFactory, when given an injector produces a module ref
       //  The moduleRef, when given type of component and component-level injector produces component-ref
@@ -174,7 +176,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         // so we return as to not repeat the process and create two Viewports for one instance
         return applicationInstance.instanceId;
       }
-      const injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata, applicationInstance.instanceId, messages);
+      const injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata, applicationInstance.instanceId, messages, assets);
     
       this.instantiateApplicationInstance(applicationInstance, compiled.moduleFactory, injector);
       this.logger.debug("ZWED5295I", plugin.getIdentifier(), compiled.initialComponent); //this.logger.debug(`appMgr spawning plugin ID=${plugin.getIdentifier()}, `
@@ -209,13 +211,14 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     // TODO: Race condition problem, this Promise may become out of sync. A check is used to handle this inside this.generateInjectorAfterCheckingForLoggerMessages
     // but would be best to solve the root cause (if there is a better way)
     return new Promise((resolve, reject)=> {
-      this.pluginLoader.loadPlugin(plugin, applicationInstance.instanceId)
-      .then((compiled): void => {
+      const assetsPromise = firstValueFrom(this.l10nTranslationLoaderService.loadAssetsForPlugin('ru-RU' /*this.languageLocaleService.getLanguage()*/, plugin.getBasePlugin()));
+      Promise.all([this.pluginLoader.loadPlugin(plugin, applicationInstance.instanceId), assetsPromise])
+      .then(([compiled, assets]): void => {
         if (this.knownLoggerMessageChecks.indexOf(plugin.getIdentifier()) > -1) { // Check if logger has been instantiated (no need to re-generate messages)
-          resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null));
+          resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null, assets));
         } else {
           this.knownLoggerMessageChecks.push(plugin.getIdentifier());
-          let languageCode = this.l10nConfigService.getDefaultLocale().languageCode; // Figure out the desktop language
+          let languageCode = this.languageLocaleService.getBaseLanguage(); // Figure out the desktop language
           let messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_${languageCode}.json`);
           this.http.get(messageLoc).subscribe( // Try to load log messages of desired language
             messages => {
@@ -224,25 +227,25 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
               this.http.get(messageLocEN).subscribe( // Try to load English log messages
                 messagesEN => {
                   let mergedMessages = Object.assign(messagesEN, messages); // Merge the messages (so English is used as a fallback)
-                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, mergedMessages));
+                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, mergedMessages, assets));
                 },
                 error => { // If English is not found, just return the previously obtained messages.
-                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
+                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages, assets));
                 });
               } else {
-                resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
+                resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages, assets));
               }
           }, error => {
             if (error.status = 404 && languageCode != 'en') { // If log messages are not available in desired language,
               let messageLocEN = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_en.json`); // Default to English
               this.http.get(messageLocEN).subscribe( // ...try English.
                 messages => {
-                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages));
+                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, messages, assets));
                 }, error => { // In all other cases, load the logger without messages.
-                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null));
+                  resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null, assets));
                 });
             } else {
-              resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null));
+              resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null, assets));
             }
           });
         }

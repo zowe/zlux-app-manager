@@ -11,6 +11,7 @@
 */
 
 import { ViewContainerRef } from '@angular/core';
+import { L10nLocale } from 'angular-l10n';
 import { Subject } from 'rxjs';
 
 export type InstanceId = any;
@@ -27,6 +28,7 @@ export const Angular2InjectionTokens = {
   PLUGIN_DEFINITION: 'virtualdesktop-ng2.0-0-0.plugin-definition',
   LAUNCH_METADATA: 'virtualdesktop-ng2.0-0-0.launch-metadata',
   L10N_CONFIG: 'virtualdesktop-ng2.0-0-0.l10n-config',
+  L10N_LOADER: 'virtualdesktop-ng2.0-0-0.l10n-loader',
   INSTANCE_ID: 'virtualdesktop-ng2.0-0-0.instance-id',
 
   /* Component Level Resources */
@@ -105,7 +107,7 @@ export interface ContextMenuItem {
 }
 
 export interface Angular2L10nConfig {
-  readonly defaultLocale: { languageCode: string; countryCode?: string; };
+  readonly defaultLocale: L10nLocale;
   readonly providers: any[];
 }
 
