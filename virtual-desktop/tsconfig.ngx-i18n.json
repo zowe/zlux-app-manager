@@ -5,7 +5,8 @@
     "../../zlux-platform/interface/src/mvd-hosting.d.ts",
     "../../zlux-platform/interface/src/mvd-window-management.d.ts",
     "../../zlux-platform/interface/src/server-framework.d.ts",
-    "./src/app"
+    "./src/app",
+    "./src/polyfills.ts"
   ],
   "compilerOptions": {
     "outDir": "./src/assets/i18n",
@@ -14,10 +15,11 @@
       "zlux-base/*": ["../../../zlux-platform/base/src/*"],
       "virtual-desktop-logger": [
         "./app/shared/logger"
-      ]      
+      ]
     }
   },
   "angularCompilerOptions": {
-    "enableIvy": false
+    "enableI18nLegacyMessageIdFormat": false,
+    "enableIvy": true
   }
 }
