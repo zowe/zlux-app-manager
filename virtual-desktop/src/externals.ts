@@ -31,6 +31,8 @@ const libs: { [index: string]: {library: any} } = {
   '@angular/platform-browser-dynamic': require('@angular/platform-browser-dynamic'),
   '@angular/cdk/portal': require('@angular/cdk/portal'),
   '@angular/material/snack-bar': require('@angular/material/snack-bar'),
+  '@angular/material/dialog': require('@angular/material/dialog'),
+  '@angular/material/icon': require('@angular/material/icon'),
   '@angular/material': require('@angular/material'),
   '@angular/forms': require('@angular/forms'),
   '@angular/router': require('@angular/router'),
