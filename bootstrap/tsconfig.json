@@ -31,7 +31,6 @@
     "strictNullChecks": true,
     "target": "es5",
     "types": [
-      "rxjs",
       "core-js"
     ],
     "typeRoots": [

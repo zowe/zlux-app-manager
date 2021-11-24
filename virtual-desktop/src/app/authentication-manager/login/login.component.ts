@@ -229,7 +229,7 @@ export class LoginComponent implements OnInit {
           this.confirmNewPassword = '';
         },
         error => {
-          let jsonMessage = error.json();
+          let jsonMessage = error.error;
           this.loginMessage = "";
           this.errorMessage = jsonMessage.response;
         }
@@ -320,7 +320,7 @@ export class LoginComponent implements OnInit {
           }
         }
         else {
-          this.errorMessage = error.text();
+          this.errorMessage = error.error.text();
         }
         this.locked = false;
         this.isLoading = false;
