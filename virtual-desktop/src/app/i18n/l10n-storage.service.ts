@@ -10,7 +10,8 @@ Copyright Contributors to the Zowe Project.
 
 import { Injectable } from '@angular/core';
 import { L10nLocale, L10nStorage } from 'angular-l10n';
-import { firstValueFrom, mapTo, zip } from 'rxjs';
+import { zip } from 'rxjs';
+import { mapTo } from 'rxjs/operators';
 import { LanguageLocaleService } from './language-locale.service';
 
 @Injectable()
@@ -25,14 +26,17 @@ export class L10nStorageService implements L10nStorage {
     const locale = this.localeService.getLocale();
     const composedLanguage = locale ? `${language}-${locale}` : language;
     console.log(`l10n storage read locale ${composedLanguage}`);
-    return Promise.resolve({language: composedLanguage});
+    return Promise.resolve({ language: composedLanguage });
   }
 
   public async write(l11Locale: L10nLocale): Promise<void> {
     const composedLanguage = l11Locale.language;
     const [language, locale] = composedLanguage.split('-');
     console.log(`l10n storage write language and locale '${language}' '${locale}'`);
-    return firstValueFrom(zip(this.localeService.setLanguage(language), this.localeService.setLocale(locale)).pipe(mapTo(void(0))));
+    return zip(
+      this.localeService.setLanguage(language),
+      this.localeService.setLocale(locale)
+    ).pipe(mapTo(void (0))).toPromise();
   }
 
 }
