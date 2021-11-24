@@ -26,7 +26,6 @@ import { EmbeddedInstance } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements';
 import { LanguageLocaleService } from '../i18n/language-locale.service';
-import { L10nTranslationLoaderService } from '../i18n/l10n-translation-loader.service';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
@@ -44,7 +43,6 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     private injectionManager: InjectionManager,
     private compiler: Compiler,
     private languageLocaleService: LanguageLocaleService,
-    public l10nTranslationLoaderService: L10nTranslationLoaderService,
     private http: HttpClient,
   ) {
     this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);

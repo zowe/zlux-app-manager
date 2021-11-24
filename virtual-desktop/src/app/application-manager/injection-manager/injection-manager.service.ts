@@ -69,7 +69,7 @@ export class InjectionManager {
       {
         provide: L10nTranslationLoader,
         useClass: L10nTranslationLoaderService,
-        deps: [HttpClient, L10N_CONFIG]
+        deps: [HttpClient]
       }
     ], this.injector.get(NgModuleRef).injector);  // gets root injector of virtualDesktop tree
   }

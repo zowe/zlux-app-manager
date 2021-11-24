@@ -12,7 +12,7 @@ import { NgModule, APP_INITIALIZER, LOCALE_ID } from '@angular/core';
 import { LanguageLocaleService } from './language-locale.service';
 import { localeInitializer, localeIdFactory } from './locale-initializer.provider';
 import { HttpClientModule } from '@angular/common/http';
-import { L10nConfig, L10nIntlModule, L10nLoader, L10nTranslationModule } from 'angular-l10n';
+import { L10nConfig, L10nIntlModule, L10nTranslationModule, L10nTranslationService } from 'angular-l10n';
 import { L10nStorageService } from './l10n-storage.service';
 import { L10nConfigService } from './l10n-config.service';
 import { L10nTranslationLoaderService } from './l10n-translation-loader.service';
@@ -20,7 +20,7 @@ import { L10nTranslationLoaderService } from './l10n-translation-loader.service'
 export const l10nConfig: L10nConfig = {
   format: 'language-region',
   providers: [
-    { name: 'app', asset: '', options: {plugin:  ZoweZLUX.pluginManager.getDesktopPlugin()} },
+    { name: 'app', asset: null, options: {plugin:  ZoweZLUX.pluginManager.getDesktopPlugin()} },
   ],
   cache: true,
   keySeparator: '.',
@@ -41,7 +41,6 @@ export const l10nConfig: L10nConfig = {
   ],
   providers: [
     L10nConfigService,
-    L10nTranslationLoaderService,
     { provide: LOCALE_ID, useFactory: localeIdFactory, deps: [LanguageLocaleService] },
     {
       provide: APP_INITIALIZER,
@@ -52,8 +51,8 @@ export const l10nConfig: L10nConfig = {
   ]
 })
 export class I18nModule {
-  constructor(private l10Loader: L10nLoader) {
-    this.l10Loader.init();
+  constructor(private translation: L10nTranslationService) {
+    this.translation.init();
   }
 
 }
