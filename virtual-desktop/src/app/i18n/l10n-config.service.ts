@@ -28,11 +28,11 @@ export class L10nConfigService {
     };
   }
 
-  getL10nConfig(assets: any): L10nConfig {
+  getL10nConfig(plugin: ZLUX.Plugin): L10nConfig {
     return <L10nConfig>{
       format: 'language-region',
       providers: [
-        { name: 'app', asset: assets },
+        { name: 'app', asset: null, options: { plugin } },
       ],
       cache: true,
       keySeparator: '.',
