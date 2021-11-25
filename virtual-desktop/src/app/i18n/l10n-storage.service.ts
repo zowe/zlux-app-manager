@@ -25,14 +25,12 @@ export class L10nStorageService implements L10nStorage {
     const language = this.localeService.getLanguage();
     const locale = this.localeService.getLocale();
     const composedLanguage = locale ? `${language}-${locale}` : language;
-    console.log(`l10n storage read locale ${composedLanguage}`);
     return Promise.resolve({ language: composedLanguage });
   }
 
   public async write(l11Locale: L10nLocale): Promise<void> {
     const composedLanguage = l11Locale.language;
     const [language, locale] = composedLanguage.split('-');
-    console.log(`l10n storage write language and locale '${language}' '${locale}'`);
     return zip(
       this.localeService.setLanguage(language),
       this.localeService.setLocale(locale)

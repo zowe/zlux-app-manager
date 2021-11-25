@@ -20,7 +20,7 @@ export class L10nConfigService {
   }
 
   getDefaultLocale(): L10nLocale {
-    const language = this.languageLocaleService.getLanguage();
+    const language = this.languageLocaleService.getBaseLanguage();
     const locale = this.languageLocaleService.getLocale();
     const composedLanguage = locale ? `${language}-${locale}` : language;
     return {
@@ -39,18 +39,6 @@ export class L10nConfigService {
       defaultLocale: this.getDefaultLocale(),
       schema: [],
     };
-  }
-
-  getTranslationProviders(_plugin: ZLUX.Plugin): any[] {
-    //const prefix = ZoweZLUX.uriBroker.pluginResourceUri(plugin, `assets/i18n/messages.`);
-    return [
-      // messages.en.json - a fallback file in case there is no translation file for a given language found
-      // { type: ProviderType.Fallback, prefix: `${prefix}en`, fallbackLanguage: [] },
-      // e.g. messages.es.json
-      // { type: ProviderType.Fallback, prefix: prefix, fallbackLanguage: [ISOCode.Language] },
-      // e.g. messages.es-ES.json
-      // { type: ProviderType.Static, prefix: prefix }
-    ];
   }
 
  }

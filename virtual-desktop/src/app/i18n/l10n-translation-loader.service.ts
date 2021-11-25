@@ -10,20 +10,13 @@ export type KeyValue = { [key: string]: any };
 export class L10nTranslationLoaderService implements L10nTranslationLoader {
 
   constructor(private http: HttpClient) {
-    console.log(`translation loader created`);
   }
 
   public get(composedLanguage: string, provider: L10nProvider): Observable<KeyValue> {
-    if (provider.asset) {
-      console.log(`L10nTranslationLoaderService get asset for composedLanguage ${composedLanguage}`);
-      return of(provider.asset[composedLanguage]);
-    }
     const plugin: ZLUX.Plugin | undefined = provider.options?.plugin;
     if (!plugin) {
-      console.log(`L10nTranslationLoaderService get for composedLanguage ${composedLanguage} no plugin provided, return empty object`);
       return of({});
     }
-    console.log(`L10nTranslationLoaderService loadAssetsForPlugin composedLanguage ${composedLanguage}`, plugin.getIdentifier());
     const asset = `assets/i18n/messages`;
     const prefix = ZoweZLUX.uriBroker.pluginResourceUri(plugin, asset);
     const [language, _locale] = composedLanguage.split('-');
