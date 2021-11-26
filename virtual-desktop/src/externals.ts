@@ -45,7 +45,6 @@ const libs: { [index: string]: {library: any} } = {
   '@angular/material/tooltip': require('@angular/material/tooltip'),
   '@angular/material/expansion': require('@angular/material/expansion'),
   '@angular/material/select': require('@angular/material/select'),
-  '@angular/material/core': require('@angular/material/core'),
   '@angular/material': require('@angular/material'),
   '@angular/forms': require('@angular/forms'),
   '@angular/router': require('@angular/router'),
