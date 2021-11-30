@@ -2,6 +2,10 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `1.26.0`
+
+- Fixed small bug with app tray not scaling well with some localizations
+
 ## `1.25.0`
 
 - Fixed a bug where using app2app with incorrectly formatted data would not honor launch/message request
