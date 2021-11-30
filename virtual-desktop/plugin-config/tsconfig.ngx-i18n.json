@@ -9,5 +9,8 @@
         "node_modules/@angular/core"
       ]
     }
+  },
+  "angularCompilerOptions": {
+    "enableIvy": false
   }
 }
