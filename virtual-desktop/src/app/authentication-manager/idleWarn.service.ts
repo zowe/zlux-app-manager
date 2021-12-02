@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 import { Injectable } from '@angular/core';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { L10nTranslationService } from 'angular-l10n';
