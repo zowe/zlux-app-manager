@@ -13,11 +13,12 @@
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { LaunchbarItem } from '../launchbar-item';
 import { WindowManagerService } from '../../../shared/window-manager.service';
-import html2canvas from 'html2canvas/';
+import * as html2canvas from 'html2canvas';
 
 export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.PluginWatcher {
   public instanceIds: Array<MVDHosting.InstanceId>;
   public windowPreviews: Array<HTMLImageElement>;
+  public html2canvas: any = html2canvas;
 
   constructor(
     public readonly plugin: DesktopPluginDefinitionImpl,
@@ -71,7 +72,7 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
       var imgPrev = new Image();
 
       if (windowHTML) {
-        html2canvas(windowHTML, {logging:false}).then(function(canvas) {
+        this.html2canvas(windowHTML, {logging:false}).then(function(canvas: any) {
           imgPrev.src = canvas.toDataURL();
           if (self.instanceIds.length == self.windowPreviews.length){
             self.windowPreviews[index] = imgPrev;
