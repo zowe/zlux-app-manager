@@ -36,7 +36,7 @@ export class MvdUri implements ZLUX.UriBroker {
             if (agentConfig.mediationLayer && agentConfig.mediationLayer.enabled && agentConfig.mediationLayer.serviceName) {
               let version = agentConfig.mediationLayer.serviceVersion || 'v1';
               let name = agentConfig.mediationLayer.serviceName;
-              this.agentPrefix = `/api/${version}/${name}/`
+              this.agentPrefix = `/${name}/api/${version}/`
             }
           }
           resolve(this.agentPrefix);
