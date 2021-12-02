@@ -9,12 +9,8 @@
 */
 
 import { Injectable } from '@angular/core';
+import { L10nConfig, L10nLocale } from 'angular-l10n';
 import { LanguageLocaleService } from './language-locale.service';
-import {
-  ISOCode,
-  ProviderType
-} from 'angular-l10n';
-import { DefaultLocaleCodes } from 'angular-l10n/src/models/types';
 
 @Injectable()
 export class L10nConfigService {
@@ -23,23 +19,26 @@ export class L10nConfigService {
   ) {
   }
 
-  getDefaultLocale(): DefaultLocaleCodes {
+  getDefaultLocale(): L10nLocale {
+    const language = this.languageLocaleService.getBaseLanguage();
+    const locale = this.languageLocaleService.getLocale();
+    const composedLanguage = locale ? `${language}-${locale}` : language;
     return {
-      languageCode: this.languageLocaleService.getBaseLanguage(),
-      countryCode: this.languageLocaleService.getLocale()
+      language: composedLanguage
     };
   }
 
-  getTranslationProviders(plugin: ZLUX.Plugin): any[] {
-    const prefix = ZoweZLUX.uriBroker.pluginResourceUri(plugin, `assets/i18n/messages.`);
-    return [
-      // messages.en.json - a fallback file in case there is no translation file for a given language found
-      { type: ProviderType.Fallback, prefix: `${prefix}en`, fallbackLanguage: [] },
-      // e.g. messages.es.json
-      { type: ProviderType.Fallback, prefix: prefix, fallbackLanguage: [ISOCode.Language] },
-      // e.g. messages.es-ES.json
-      { type: ProviderType.Static, prefix: prefix }
-    ];
+  getL10nConfig(plugin: ZLUX.Plugin): L10nConfig {
+    return <L10nConfig>{
+      format: 'language-region',
+      providers: [
+        { name: 'app', asset: null, options: { plugin } },
+      ],
+      cache: true,
+      keySeparator: '.',
+      defaultLocale: this.getDefaultLocale(),
+      schema: [],
+    };
   }
 
  }
