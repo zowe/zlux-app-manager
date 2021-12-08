@@ -22,6 +22,7 @@ import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-p
 import { generateInstanceActions } from '../shared/context-utils';
 import { KeybindingService } from '../../shared/keybinding.service';
 import { KeyCode } from '../../shared/keycode-enum';
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
 
 const FONT_SIZE=12;
 
@@ -120,6 +121,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     private translation: TranslationService,
     private desktopComponent: DesktopComponent,
     private appKeyboard: KeybindingService,
+    private languageLocaleService: LanguageLocaleService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -296,7 +298,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     const elm = this.getActiveMenuItem();
     if(elm) {
       const pos = this.getElementPosition(elm);
-      let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
+      let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager, this.languageLocaleService);    
       this.windowManager.contextMenuRequested.next({ xPos: pos.x, yPos: pos.y - 20, items: menuItems });
       this.isContextMenuPresent = true;
     }
@@ -329,7 +331,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
 
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     event.stopPropagation();
-    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
+    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager, this.languageLocaleService);    
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     this.isContextMenuPresent = true;
     return false;

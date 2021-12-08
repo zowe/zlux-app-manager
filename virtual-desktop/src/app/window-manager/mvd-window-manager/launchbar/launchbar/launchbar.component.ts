@@ -24,6 +24,7 @@ import { DesktopTheme } from '../../desktop/desktop.component';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { Colors } from '../../shared/colors'
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
 
 /* Current default theme is dark grey, with light text */
 const DEFAULT_COLOR = "#252628"
@@ -107,7 +108,8 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     public windowManager: WindowManagerService,
-    private translation: TranslationService
+    private translation: TranslationService,
+    private languageLocaleService: LanguageLocaleService
   ) {
      // Workaround for AoT problem with namespaces (see angular/angular#15613)
      this.size = 2;
@@ -266,7 +268,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     event.stopPropagation();
-    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);
+    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager, this.languageLocaleService);
     this.windowManager.contextMenuRequested.next({xPos: event.clientX, yPos: event.clientY, items: menuItems});
     return false;
   }

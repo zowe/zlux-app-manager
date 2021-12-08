@@ -15,6 +15,7 @@ import 'rxjs/add/operator/mergeMap';
 import { fromPromise } from 'rxjs/observable/fromPromise';
 import { BaseLogger } from '../shared/logger';
 import { _throw } from 'rxjs/observable/throw';
+import { TranslationService } from 'angular-l10n';
 
 import { Globalization } from './globalization';
 
@@ -25,9 +26,13 @@ export class LanguageLocaleService {
 
   readonly globalization: Globalization = new Globalization();
 
+  public desktopLanguage: string;
+
   constructor(
+    private translation: TranslationService,
   ) {
     const lang = this.getLanguage();
+    this.desktopLanguage = this.getDesktopLanguage();
     document.documentElement.lang = lang;
   }
 
@@ -38,6 +43,11 @@ export class LanguageLocaleService {
   getBaseLanguage(): string {
     const language = this.getLanguage();
     return language.split('-')[0];
+  }
+
+  getDesktopLanguage(): string{
+    this.desktopLanguage = this.globalization.getDesktopLanguage();
+    return this.desktopLanguage;
   }
 
   isConfiguredForDefaultLanguage(): boolean {
@@ -75,6 +85,7 @@ export class LanguageLocaleService {
    */
   private setLanguageOrLocale(preferenceName: string, requestedValue: string): Observable<any> {
     if (requestedValue == null) {
+      console.log("requested val is null");
       // clear the preference, other code will revert to using the browser-specified lang/locale
       return fromPromise(this.globalization.setPreference(preferenceName, requestedValue));
     } else {
@@ -84,7 +95,7 @@ export class LanguageLocaleService {
         } else {
           const message: string = `ZWED5169W - no locale data found for locale id ${value}`;
           this.logger.warn(message)
-          //return Observable.throwError(message);
+          // return Observable.throwError(message);
           return _throw(message);
         }
       });
@@ -96,8 +107,23 @@ export class LanguageLocaleService {
     return this.setLanguageOrLocale('language', language);
   }
 
+  setDesktopLanguage(language: string): void {
+    // return this.setLangorLocale
+    // set up new name in this dictionary that stores desktop language
+    this.desktopLanguage = language;
+    this.globalization.setPreference('desktopLanguage', language);
+
+  }
+
   setLocale(locale: string): Observable<any> {
     return this.setLanguageOrLocale('locale', locale);
   }
 
+  translateDesktopString(text: string, option?: any): any {
+    if(this.translation){
+      return this.translation.translate(text,option,this.getDesktopLanguage()+"-");
+    }else{
+      return text; 
+    }
+  }
 }

@@ -24,10 +24,12 @@ import { SharedModule } from './shared/shared.module';
 import { LanguageLocaleService } from './i18n/language-locale.service';
 import { TranslationLoaderService } from './i18n/translation-loader.service';
 import { I18nModule } from './i18n/i18n.module';
+import { TranslationService } from 'angular-l10n';
 
 export class MvdModuleFactory {
   private static localeService: LanguageLocaleService;
   private static translationLoaderService: TranslationLoaderService;
+  private static translation: TranslationService;
 
   static generateModule(windowManagerModule: Type<any>, mainComponent: Type<any>): Type<any> {
     return NgModule({
@@ -60,7 +62,7 @@ export class MvdModuleFactory {
 
   private static getLocaleService(): LanguageLocaleService {
     if (!MvdModuleFactory.localeService) {
-      MvdModuleFactory.localeService = new LanguageLocaleService();
+      MvdModuleFactory.localeService = new LanguageLocaleService(MvdModuleFactory.translation);
     }
     return MvdModuleFactory.localeService;
   }

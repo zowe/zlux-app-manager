@@ -14,8 +14,8 @@ import { Component, Injector, HostListener } from '@angular/core';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { DesktopPluginDefinitionImpl } from "../../../../app/plugin-manager/shared/desktop-plugin-definition";
 import { DesktopComponent } from "../desktop/desktop.component";
-import { TranslationService } from 'angular-l10n';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
+import { LanguageLocaleService } from '../../../i18n/language-locale.service';
 
 const CHANGE_PASSWORD = "Change Password"
 const LANGUAGES = "Languages"
@@ -42,11 +42,11 @@ export class PersonalizationPanelComponent {
   public personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
                             of the Settings & Personalization app. */
                            {
-                            "title":this.translation.translate(LANGUAGES),
+                            "title":this.languageLocaleService.translateDesktopString(LANGUAGES),
                             "imgSrc":"foreign_language",
                            },
                            {
-                            "title":this.translation.translate(CHANGE_PASSWORD),
+                            "title":this.languageLocaleService.translateDesktopString(CHANGE_PASSWORD),
                             "imgSrc":"password"
                            },
                           /*  {
@@ -54,7 +54,7 @@ export class PersonalizationPanelComponent {
                             "imgSrc":"management",
                            }, */
                            {
-                            "title":this.translation.translate(PERSONALIZATION),
+                            "title":this.languageLocaleService.translateDesktopString(PERSONALIZATION),
                             "imgSrc":"personalization",
                            },
   ];
@@ -68,8 +68,8 @@ export class PersonalizationPanelComponent {
     private injector: Injector,
     private windowManager: WindowManagerService,
     private desktopComponent: DesktopComponent,
-    private translation: TranslationService,
-    private themeService: ThemeEmitterService
+    private themeService: ThemeEmitterService,
+    private languageLocaleService: LanguageLocaleService
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -99,11 +99,11 @@ export class PersonalizationPanelComponent {
 
   openTool(tool: any): void {
     switch(tool.title) { 
-      case this.translation.translate(CHANGE_PASSWORD): { 
-        this.authenticationManager.requestPasswordChangeScreen(); 
+      case this.languageLocaleService.translateDesktopString(CHANGE_PASSWORD): { 
+        this.authenticationManager.requestPasswordChangeScreen();
         break; 
       } 
-      case this.translation.translate(PERSONALIZATION): { 
+      case this.languageLocaleService.translateDesktopString(PERSONALIZATION): { 
         this.goToPersonalization();
         break; 
       } 

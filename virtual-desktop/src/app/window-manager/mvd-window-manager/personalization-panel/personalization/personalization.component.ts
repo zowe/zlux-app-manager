@@ -14,7 +14,7 @@ import { BaseLogger } from '../../../../shared/logger';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { UploadEvent, UploadFile, FileSystemFileEntry } from 'ngx-file-drop';
 import { Colors } from '../../shared/colors';
-import { TranslationService } from 'angular-l10n';
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
  
 const SLIDER_NAME = 'slider'
 const CIRCLE_NAME = 'circle'
@@ -79,7 +79,7 @@ export class PersonalizationComponent implements OnInit {
 
   constructor(
     private desktopThemeService: ThemeEmitterService,
-    private translation: TranslationService
+    private languageLocaleService: LanguageLocaleService
   ) {
     this.selectedColor = Colors.COOLGREY_90;
     this.selectedSize = 2;
@@ -312,16 +312,16 @@ export class PersonalizationComponent implements OnInit {
   }
 
   updateLanguageStrings(): void {
-    this.Back = this.translation.translate('Back', null);
-    this.ResetToDefault = this.translation.translate('Reset to default', null);
-    this.Background = this.translation.translate('Wallpaper', null);
-    this.DragWallpaperHereOr = this.translation.translate('Drag wallpaper here or', null);
-    this.Color = this.translation.translate('Color', null);
-    this.SelectColor = this.translation.translate('Select color', null);
-    this.OrHue = this.translation.translate('or hue.', null);
-    this.SelectLightness = this.translation.translate('Select lightness.', null);
-    this.Size = this.translation.translate('Size', null);
-    this.Upload = this.translation.translate('Upload', null);
+    this.Back = this.languageLocaleService.translateDesktopString('Back');
+    this.ResetToDefault = this.languageLocaleService.translateDesktopString('Reset to default');
+    this.Background = this.languageLocaleService.translateDesktopString('Wallpaper');
+    this.DragWallpaperHereOr = this.languageLocaleService.translateDesktopString('Drag wallpaper here or');
+    this.Color = this.languageLocaleService.translateDesktopString('Color');
+    this.SelectColor = this.languageLocaleService.translateDesktopString('Select color');
+    this.OrHue = this.languageLocaleService.translateDesktopString('or hue');
+    this.SelectLightness = this.languageLocaleService.translateDesktopString('Select lightness.');
+    this.Size = this.languageLocaleService.translateDesktopString('Size');
+    this.Upload = this.languageLocaleService.translateDesktopString('Upload');
   }
 
   updateLightnessSwatches(hslColor: number[]): void {

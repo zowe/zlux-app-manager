@@ -5,6 +5,7 @@ import { TranslationService } from 'angular-l10n';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { Subscription } from 'rxjs/Subscription';
 import { StorageService } from './storage.service';
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
 
 @Injectable()
 export class IdleWarnService {
@@ -14,7 +15,8 @@ export class IdleWarnService {
   
   constructor(private popupManager: ZluxPopupManagerService,
     public translation: TranslationService,
-    private storageService: StorageService  
+    private storageService: StorageService,
+    private languageLocaleService: LanguageLocaleService
     ) {
   }
   
@@ -22,11 +24,11 @@ export class IdleWarnService {
     this.removeErrorReport();
     this.report = this.popupManager.createErrorReport(
       ZluxErrorSeverity.WARNING,
-      this.translation.translate('Session Renewal Error'),
-      this.translation.translate('Session could not be renewed. Logout will occur unless renewed. Click here to retry.'), 
+      this.languageLocaleService.translateDesktopString('Session Renewal Error'),
+      this.languageLocaleService.translateDesktopString('Session could not be renewed. Logout will occur unless renewed. Click here to retry.'), 
       {
         blocking: false,
-        buttons: [this.translation.translate('Retry'), this.translation.translate('Dismiss')]
+        buttons: [this.languageLocaleService.translateDesktopString('Retry'), this.languageLocaleService.translateDesktopString('Dismiss')]
       }
     );
 
@@ -38,7 +40,7 @@ export class IdleWarnService {
   onUserActionSubscribe(renewSession: any, action: string) {
     if(this.report) {
       this.report.subscription.add(this.report.subject.subscribe((buttonName:any)=> {
-        if (buttonName == this.translation.translate(action)) {
+        if (buttonName == this.languageLocaleService.translateDesktopString(action)) {
           renewSession();
         }
       }));  
@@ -76,13 +78,13 @@ export class IdleWarnService {
 
     this.report = this.popupManager.createErrorReport(
       ZluxErrorSeverity.WARNING,
-      this.translation.translate('Session Expiring Soon'),
+      this.languageLocaleService.translateDesktopString('Session Expiring Soon'),
       //TODO: Add translation
-      //this.translation.translate('You will be logged out at ', { expirationInMS: moment().add(expirationInMS/1000, 'seconds').format('LT') }),
-      this.translation.translate('You will be logged out at ' + moment().add(expirationInMS/1000, 'seconds').format('LT')),
+      //this.languageLocaleService.translateDesktopString('You will be logged out at ', { expirationInMS: moment().add(expirationInMS/1000, 'seconds').format('LT') }),
+      this.languageLocaleService.translateDesktopString('You will be logged out at ' + moment().add(expirationInMS/1000, 'seconds').format('LT')),
       {
         blocking: false,
-        buttons: [this.translation.translate('Continue session')],
+        buttons: [this.languageLocaleService.translateDesktopString('Continue session')],
         timestamp: false,
         theme: "dark",
         style: popupStyle,

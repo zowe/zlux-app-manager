@@ -302,7 +302,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   }
 
   updateLanguageStrings(): void {
-    this.NoNotifications = this.translation.translate('No Notifications', null);
+    this.NoNotifications = this.languageLocaleService.translateDesktopString('No Notifications');
   }
 }
 

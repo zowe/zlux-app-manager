@@ -18,7 +18,7 @@ import { DesktopWindow } from '../shared/desktop-window';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
-import { TranslationService } from 'angular-l10n';
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
 
 const DESKTOP_PLUGIN = ZoweZLUX.pluginManager.getDesktopPlugin();
 const DESKTOP_WALLPAPER_URI = ZoweZLUX.uriBroker.pluginConfigUri(DESKTOP_PLUGIN,'ui/themebin', 'wallpaper');
@@ -42,7 +42,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     private injector: Injector,
     private http: HttpClient,
     private themeService: ThemeEmitterService,
-    private translation: TranslationService,
+    private languageLocaleService: LanguageLocaleService
   ) {
     this.logger.debug("ZWED5320I", windowManager); //this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;
@@ -89,7 +89,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
           },
           (error: any) => {
             this.wallpaper.background = temp;
-            const notifTitle = this.translation.translate("Personalization");
+            const notifTitle = this.languageLocaleService.translateDesktopString("Personalization");
             let notifMessage;
             if (error.status = 413) //payload too large
             { // Needs translations

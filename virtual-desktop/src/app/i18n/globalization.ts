@@ -58,7 +58,6 @@ export class Globalization implements ZLUX.Globalization {
     // are cookies
     const cookieStrings: string[] = document.cookie.split(';');
     const preferences: any = {};
-
     for (const cookieString of cookieStrings) {
       const pair: string[] = cookieString.split('=');
       // apparently the cookieString is not reliable with regard to where the spaces are
@@ -87,6 +86,16 @@ export class Globalization implements ZLUX.Globalization {
    */
   getLanguage(): string {
     const configuredLanguage = this.getPreference('language')
+
+    if (configuredLanguage) {
+      return configuredLanguage;
+    } else {
+      return navigator.language;
+    }
+  }
+
+  getDesktopLanguage(): string {
+    const configuredLanguage = this.getPreference('desktopLanguage')
 
     if (configuredLanguage) {
       return configuredLanguage;

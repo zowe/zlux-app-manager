@@ -76,7 +76,7 @@
   height: 45px;
   color: #333;
   background-repeat: repeat-x;
-  font-size: 14px;
+  font-size: 14px; 
 }
 
 .window.active .heading {

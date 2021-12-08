@@ -13,6 +13,7 @@ import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { TranslationService } from 'angular-l10n';
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
 
 const PROPERTIES_APP = 'org.zowe.zlux.appmanager.app.propview';
 const PROPERTIES_ARGUMENT_FORMATTER = {data: {op:'deref',source:'event',path:['data']}};
@@ -22,6 +23,7 @@ const UPDATE_PROPERTIES_ACTION = ZoweZLUX.dispatcher.makeAction(PROPERTIES_APP+'
                                                                 ZoweZLUX.dispatcher.constants.ActionType.Message,
                                                                 PROPERTIES_APP,
                                                                 PROPERTIES_ARGUMENT_FORMATTER);
+
 
 function closeAllWindows(item: LaunchbarItem, windowManager: WindowManagerService): void {
   let windowIds = windowManager.getWindowIDs(item.plugin);
@@ -88,32 +90,34 @@ export function generateInstanceActions(item: LaunchbarItem,
                                         pluginsDataService: PluginsDataService,
                                         translationService: TranslationService,
                                         applicationManager: MVDHosting.ApplicationManagerInterface,
-                                        windowManager: WindowManagerService): ContextMenuItem[] {
+                                        windowManager: WindowManagerService,
+                                        languageLocaleService: LanguageLocaleService): ContextMenuItem[] {
   let menuItems: ContextMenuItem[];
+  // const languageLocaleService = new LanguageLocaleService();
   if (item.instanceIds.length == 1) {
     menuItems = [
-      { "text": translationService.translate("Open New"), "action": ()=> openWindow(item, applicationManager)},
-      { "text" : translationService.translate("Open in New Browser Tab"), "action": () => openStandalone(item)},
-      { "text": translationService.translate('BringToFront'), "action": () => bringItemFront(item, windowManager) },
+      { "text": languageLocaleService.translateDesktopString("Open New"), "action": ()=> openWindow(item, applicationManager)},
+      { "text" : languageLocaleService.translateDesktopString("Open in New Browser Tab"), "action": () => openStandalone(item)},
+      { "text": languageLocaleService.translateDesktopString('BringToFront'), "action": () => bringItemFront(item, windowManager) },
       pluginsDataService.pinContext(item),
-      { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
-      { "text": translationService.translate("Close All"), "action": ()=> closeAllWindows(item, windowManager)},
+      { "text": languageLocaleService.translateDesktopString('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
+      { "text": languageLocaleService.translateDesktopString("Close All"), "action": ()=> closeAllWindows(item, windowManager)},
     ];
   } else if (item.instanceIds.length != 0) {
     menuItems = [
-      { "text": translationService.translate("Open New"), "action": ()=> openWindow(item, applicationManager)},
-      { "text" : translationService.translate("Open in New Browser Tab"), "action": () => openStandalone(item)},
+      { "text": languageLocaleService.translateDesktopString("Open New"), "action": ()=> openWindow(item, applicationManager)},
+      { "text" : languageLocaleService.translateDesktopString("Open in New Browser Tab"), "action": () => openStandalone(item)},
       pluginsDataService.pinContext(item),
-      { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
-      { "text": translationService.translate("Close All"), "action": ()=> closeAllWindows(item, windowManager)}
+      { "text": languageLocaleService.translateDesktopString('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
+      { "text": languageLocaleService.translateDesktopString("Close All"), "action": ()=> closeAllWindows(item, windowManager)}
     ];
   } else {
     menuItems =
       [
-      { "text": translationService.translate('Open'), "action": () => openWindow(item, applicationManager) },
-      { "text" : translationService.translate("Open in New Browser Tab"), "action": () => openStandalone(item)},
+      { "text": languageLocaleService.translateDesktopString('Open'), "action": () => openWindow(item, applicationManager) },
+      { "text" : languageLocaleService.translateDesktopString("Open in New Browser Tab"), "action": () => openStandalone(item)},
       pluginsDataService.pinContext(item),
-      { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
+      { "text": languageLocaleService.translateDesktopString('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
     ]
   }
   return menuItems;

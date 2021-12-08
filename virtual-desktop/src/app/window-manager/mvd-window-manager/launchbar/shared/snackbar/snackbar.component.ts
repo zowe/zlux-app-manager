@@ -13,6 +13,7 @@
 import { Component, Inject } from '@angular/core';
 import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material';
 import { TranslationService } from 'angular-l10n';
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
 
 @Component({
   selector: 'app-snackbar',
@@ -23,8 +24,9 @@ export class SnackbarComponent {
   constructor(
     public translation: TranslationService,
     public snackBarRef: MatSnackBarRef<SnackbarComponent>,
+    public languageLocaleService: LanguageLocaleService,
     @Inject(MAT_SNACK_BAR_DATA) public data: any
-  ) {  }
+  ) { this.languageLocaleService; }
 
 }
 

@@ -16,9 +16,9 @@ import { LaunchbarItem } from '../launchbar/shared/launchbar-item';
 import { PluginLaunchbarItem } from '../launchbar/shared/launchbar-items/plugin-launchbar-item';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
-import { TranslationService } from 'angular-l10n';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
 
 @Injectable()
 export class PluginsDataService implements MVDHosting.LogoutActionInterface {
@@ -35,8 +35,8 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
   constructor(
     private injector: Injector,
     private http: Http,
-    private translation: TranslationService,
-    private windowManager: WindowManagerService
+    private windowManager: WindowManagerService,
+    private languageLocaleService: LanguageLocaleService,
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
@@ -159,7 +159,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
 
   public pinContext(item: LaunchbarItem): ContextMenuItem {
     return {
-      "text": this.isPinnedPlugin(item) ? this.translation.translate('UnpinFromTaskbar') : this.translation.translate('PinToTaskbar'),
+      "text": this.isPinnedPlugin(item) ? this.languageLocaleService.translateDesktopString('UnpinFromTaskbar') : this.languageLocaleService.translateDesktopString('PinToTaskbar'),
       "action": () => this.isPinnedPlugin(item) ? this.removeFromConfigServer(item) : this.saveToConfigServer(item)
     };
   }

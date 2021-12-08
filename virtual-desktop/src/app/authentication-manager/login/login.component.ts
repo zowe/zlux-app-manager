@@ -18,6 +18,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
 import { StorageService } from '../storage.service';
 import { StorageKey } from '../storage-enum';
 import { IdleWarnService } from '../idleWarn.service';
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
 
 let ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
@@ -55,8 +56,10 @@ export class LoginComponent implements OnInit {
     public translation: TranslationService,
     private idleWarnService: IdleWarnService,
     private cdr: ChangeDetectorRef,
-    private injector: Injector
+    private injector: Injector,
+    public languageLocaleService: LanguageLocaleService
   ) {
+    this.languageLocaleService;
     this.themeManager = this.injector.get(MVDHosting.Tokens.ThemeEmitterToken);
     this.isLoading = true;
     this.needLogin = false;
@@ -96,7 +99,7 @@ export class LoginComponent implements OnInit {
       case MVDHosting.LoginScreenChangeReason.SessionExpired:
         this.backButton();
         this.idleWarnService.removeErrorReport();
-        this.errorMessage = this.translation.translate('Session Expired');
+        this.errorMessage = this.languageLocaleService.translateDesktopString('Session Expired');
         this.needLogin = true;
         break;
       default:
@@ -174,8 +177,7 @@ export class LoginComponent implements OnInit {
                   failedTypes.push(keys[i]);
                 }
               }
-              this.errorMessage = this.translation.translate('AuthenticationFailed',
-                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+              this.errorMessage = this.languageLocaleService.translateDesktopString('AuthenticationFailed',{ numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
             }
           } catch (e) {
             this.errorMessage = error;
@@ -248,7 +250,7 @@ export class LoginComponent implements OnInit {
     this.cdr.detectChanges();
     this.passwordServices.clear();
     if (this.username==null || this.username==''){
-      this.errorMessage= this.translation.translate('UsernameRequired');
+      this.errorMessage= this.languageLocaleService.translateDesktopString('UsernameRequired');
       this.password = '';
       this.locked = false;
       this.needLogin = true;
@@ -316,10 +318,9 @@ export class LoginComponent implements OnInit {
             }
             if (error.status == HTTP_STATUS_PRECONDITION_REQUIRED) {
               this.expiredPassword = true;
-              this.loginMessage = this.translation.translate(PASSWORD_EXPIRED);
+              this.loginMessage = this.languageLocaleService.translateDesktopString(PASSWORD_EXPIRED);
             } else {
-              this.errorMessage = this.translation.translate('AuthenticationFailed',
-              { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+              this.errorMessage = this.languageLocaleService.translateDesktopString('AuthenticationFailed',{ numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
               this.password = '';
             }
           }
