@@ -15,9 +15,11 @@ import { L10nConfigService } from './../../i18n/l10n-config.service';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 import { LOAD_FAILURE_ERRORS } from '../load-failure/failure-injection-tokens';
 import { Viewport } from '../viewport-manager/viewport';
-import { L10nTranslationLoader, L10N_CONFIG, L10N_LOCALE } from 'angular-l10n';
+import { L10nStorage, L10nTranslationLoader, L10N_CONFIG, L10N_LOCALE } from 'angular-l10n';
 import { L10nTranslationLoaderService } from 'app/i18n/l10n-translation-loader.service';
 import { HttpClient } from '@angular/common/http';
+import { L10nPluginStorageService } from 'app/i18n/l10n-plugin-storage.service';
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
 
 const ComponentLoggerContainer:Map<string,ZLUX.ComponentLogger> = new Map<string,ZLUX.ComponentLogger>();
 
@@ -70,6 +72,11 @@ export class InjectionManager {
         provide: L10nTranslationLoader,
         useClass: L10nTranslationLoaderService,
         deps: [HttpClient]
+      },
+      {
+        provide: L10nStorage,
+        useClass: L10nPluginStorageService,
+        deps: [LanguageLocaleService]
       }
     ], this.injector.get(NgModuleRef).injector);  // gets root injector of virtualDesktop tree
   }
