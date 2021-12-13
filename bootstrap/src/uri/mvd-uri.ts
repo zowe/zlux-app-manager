@@ -15,8 +15,6 @@ import { Environment } from 'zlux-base/environment/environment'
 
 const uri_prefix = window.location.pathname.split('ZLUX/plugins/')[0];
 const proxy_mode = (uri_prefix !== '/') ? true : false; // Tells whether we're behind API layer (true) or not (false)
-const proxy_version = "v1";
-const proxy_name = "zlux";
 
 export class MvdUri implements ZLUX.UriBroker {
   private agentPrefix: string;
