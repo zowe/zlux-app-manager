@@ -9,7 +9,7 @@
 */
 
 import { Injectable, Injector, NgModuleFactory, Compiler, ComponentRef, Type, SimpleChanges, SimpleChange, OnChanges } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 import { PluginLoader } from 'app/plugin-manager/shared/plugin-loader';
@@ -25,7 +25,7 @@ import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements';
-import { L10nConfigService } from '../i18n/l10n-config.service';
+import { LanguageLocaleService } from '../i18n/language-locale.service';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
@@ -42,7 +42,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     private pluginManager: PluginManager,
     private injectionManager: InjectionManager,
     private compiler: Compiler,
-    private l10nConfigService: L10nConfigService,
+    private languageLocaleService: LanguageLocaleService,
     private http: HttpClient,
   ) {
     this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);
@@ -68,7 +68,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
               The inner iframe is not under control of the zlux framework, so the name here is by convention.
               If people use the wrong name, they get nothing.
            */
-           let secondIframe = (theIframe as HTMLIFrameElement).contentWindow.document.getElementById(INNER_IFRAME_NAME);
+           let secondIframe = (theIframe as HTMLIFrameElement).contentWindow?.document.getElementById(INNER_IFRAME_NAME);
            if (secondIframe) {
              theIframe = secondIframe;
            }
@@ -215,7 +215,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
           resolve(this.generateInjectorAfterCheckingForLoggerMessages(compiled, plugin, launchMetadata, applicationInstance, viewportId, null));
         } else {
           this.knownLoggerMessageChecks.push(plugin.getIdentifier());
-          let languageCode = this.l10nConfigService.getDefaultLocale().languageCode; // Figure out the desktop language
+          let languageCode = this.languageLocaleService.getBaseLanguage(); // Figure out the desktop language
           let messageLoc = ZoweZLUX.uriBroker.pluginResourceUri(plugin.getBasePlugin(), `assets/i18n/log/messages_${languageCode}.json`);
           this.http.get(messageLoc).subscribe( // Try to load log messages of desired language
             messages => {

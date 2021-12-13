@@ -21,6 +21,7 @@
     "noUnusedLocals": true,
     "strictNullChecks": true,
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "paths": {
       "bootstrap/*": [
         "../../bootstrap/dts/*"
@@ -39,6 +40,18 @@
       ],
       "zlux-interface/*": [
         "../../../zlux-platform/interface/src/*"
+      ],
+      "core-js/es7/reflect": [
+        "../node_modules/core-js/proposals/reflect-metadata"
+      ],
+      "core-js/es6/reflect": [
+        "../node_modules/core-js/proposals/reflect-metadata"
+      ],
+      "rxjs": [
+        "../node_modules/rxjs"
+      ],
+      "rxjs/operators": [
+        "../node_modules/rxjs/operators"
       ]
     },
     "target": "es5",

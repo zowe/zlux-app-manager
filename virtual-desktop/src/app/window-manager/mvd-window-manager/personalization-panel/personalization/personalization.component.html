@@ -19,17 +19,15 @@
   </label>
 
   <label class="personalization-label" style="padding-top: 10px;">{{Background}}</label>
-
-  <file-drop 
+  <div class="personalization-text" style="margin-left: -15px;">{{DragWallpaperHereOr}}</div>
+  <ngx-file-drop 
     id="ZAP_Personalization_FileDrop"
     (onFileDrop)="fileDrop($event)" 
     multiple="false"
     style="color: white !important;"
     [showBrowseBtn]="true"
-    browseBtnLabel="{{Upload}}"
-    >   <!-- Full string says "Drag wallpaper here or [button]upload. -->
-        <div style="color: white !important;">{{DragWallpaperHereOr}}&nbsp;</div> 
-    </file-drop>
+    browseBtnLabel="{{Upload}}">
+  </ngx-file-drop>
 
   <label class="personalization-label">{{Color}}</label>
   <div class="personalization-color-1" id="ZAP_Personalization_ColorCircleGroup"> <!-- Color circle group -->

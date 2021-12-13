@@ -14,7 +14,7 @@ import { Component, Injector, HostListener } from '@angular/core';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { DesktopPluginDefinitionImpl } from "../../../../app/plugin-manager/shared/desktop-plugin-definition";
 import { DesktopComponent } from "../desktop/desktop.component";
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
 
 const CHANGE_PASSWORD = "Change Password"
@@ -68,7 +68,7 @@ export class PersonalizationPanelComponent {
     private injector: Injector,
     private windowManager: WindowManagerService,
     private desktopComponent: DesktopComponent,
-    private translation: TranslationService,
+    private translation: L10nTranslationService,
     private themeService: ThemeEmitterService
   ) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);

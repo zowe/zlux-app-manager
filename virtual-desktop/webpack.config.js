@@ -29,7 +29,9 @@ module.exports = {
       "pluginlib": path.resolve(__dirname, "src/pluginlib"),
       "virtual-desktop-logger": path.resolve(__dirname, "src/app/shared/logger.ts"),
       "zlux-base": path.resolve(__dirname, "../../zlux-platform/base/src"),
-      "zlux-interface": path.resolve(__dirname, "../../zlux-platform/interface/src")
+      "zlux-interface": path.resolve(__dirname, "../../zlux-platform/interface/src"),
+      "core-js/es7/reflect": path.resolve(__dirname, "node_modules/core-js/proposals/reflect-metadata"),
+      "core-js/es6/reflect": path.resolve(__dirname, "node_modules/core-js/proposals/reflect-metadata")
     }
   },
   "resolveLoader": {
@@ -118,7 +120,7 @@ module.exports = {
   mode: 'production',
   "externals": [
     function(context, request, callback) {
-      if (/(@angular)|(angular\-l10n)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs\/Rx$)/.test(request)){
+      if (/(@angular)|(angular\-l10n)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs(\/|$))/.test(request)){
         return callback(null, {
           commonjs: request,
           commonjs2: request,

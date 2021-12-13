@@ -12,7 +12,7 @@ import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-p
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 
 const PROPERTIES_APP = 'org.zowe.zlux.appmanager.app.propview';
 const PROPERTIES_ARGUMENT_FORMATTER = {data: {op:'deref',source:'event',path:['data']}};
@@ -86,7 +86,7 @@ function openStandalone(item: LaunchbarItem): void {
 
 export function generateInstanceActions(item: LaunchbarItem,
                                         pluginsDataService: PluginsDataService,
-                                        translationService: TranslationService,
+                                        translationService: L10nTranslationService,
                                         applicationManager: MVDHosting.ApplicationManagerInterface,
                                         windowManager: WindowManagerService): ContextMenuItem[] {
   let menuItems: ContextMenuItem[];

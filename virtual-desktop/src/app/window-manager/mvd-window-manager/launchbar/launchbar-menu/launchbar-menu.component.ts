@@ -11,13 +11,13 @@
 */
 
 import { Component, ElementRef, HostListener, Input, Output, EventEmitter, Injector, ViewChild } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
 import { generateInstanceActions } from '../shared/context-utils';
 import { KeybindingService } from '../../shared/keybinding.service';
@@ -117,7 +117,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     public windowManager: WindowManagerService,
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
-    private translation: TranslationService,
+    private translation: L10nTranslationService,
     private desktopComponent: DesktopComponent,
     private appKeyboard: KeybindingService,
   ) {

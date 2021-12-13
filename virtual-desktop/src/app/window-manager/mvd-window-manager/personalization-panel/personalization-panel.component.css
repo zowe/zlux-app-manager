@@ -14,7 +14,7 @@
   width: 100%;
   height: 100%;
   background: black; /* Alpha transparency colors do not work in MS Edge, so opacity must be set */
-  opacity: 0.9;
+  opacity: 0.85;
   z-index: 5000; /* Set to 5000 so panel stacks on top of windows, 
   but does not take precendence over launchbar UI (6000+ z-index) */
   position: relative;

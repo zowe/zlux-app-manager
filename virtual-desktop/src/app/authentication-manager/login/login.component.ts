@@ -13,7 +13,7 @@
 import { Component, OnInit, ChangeDetectorRef, Injector } from '@angular/core';
 import { AuthenticationManager,
          LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
-import { TranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { StorageService } from '../storage.service';
 import { StorageKey } from '../storage-enum';
@@ -54,7 +54,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private authenticationService: AuthenticationManager,
     private storageService: StorageService,
-    public translation: TranslationService,
+    public translation: L10nTranslationService,
     private idleWarnService: IdleWarnService,
     private cdr: ChangeDetectorRef,
     private injector: Injector
@@ -152,7 +152,7 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     this.authenticationService.checkSessionValidity().subscribe(
       response => {
-        let jsonMessage = response.json();
+        let jsonMessage = response;
         if (jsonMessage.categories) {
           let keys = Object.keys(jsonMessage.categories);
           for (let i = 0; i < keys.length; i++) {
@@ -169,7 +169,7 @@ export class LoginComponent implements OnInit {
         let error = errorObservable.error;
         if (error !== 'No Session Found') {//generated from auth manager, dont display to user
           try {
-            let jsonMessage = JSON.parse(error);
+            let jsonMessage = error;
             if(jsonMessage) {
               if(jsonMessage.categories) {
                 this.displayErrorDetails(jsonMessage);
@@ -229,7 +229,7 @@ export class LoginComponent implements OnInit {
           this.confirmNewPassword = '';
         },
         error => {
-          let jsonMessage = error.json();
+          let jsonMessage = error.error;
           this.loginMessage = "";
           this.errorMessage = jsonMessage.response;
         }
@@ -256,8 +256,8 @@ export class LoginComponent implements OnInit {
       return;
     }
     this.authenticationService.performLogin(this.username!, this.password!).subscribe(
-      result => {
-        let jsonMessage = result.json();
+      (      result: any) => {
+        let jsonMessage = (result as any);
         if (jsonMessage.categories) {
           let nearestExpiration = -1;
           let keys = Object.keys(jsonMessage.categories);
@@ -298,7 +298,7 @@ export class LoginComponent implements OnInit {
       },
       error => {
         this.needLogin = true;
-        let jsonMessage = error.json();
+        let jsonMessage = error.error;
         if(jsonMessage) {
           if(jsonMessage.categories) {
             let keys = Object.keys(jsonMessage.categories);
@@ -320,7 +320,7 @@ export class LoginComponent implements OnInit {
           }
         }
         else {
-          this.errorMessage = error.text();
+          this.errorMessage = error.error.text();
         }
         this.locked = false;
         this.isLoading = false;

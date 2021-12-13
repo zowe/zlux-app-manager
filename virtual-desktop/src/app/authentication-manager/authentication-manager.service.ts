@@ -11,14 +11,14 @@
 */
 
 import { Injectable, Injector, EventEmitter } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
-import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
+import { HttpClient } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
 import { StorageService } from './storage.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
@@ -63,7 +63,7 @@ export class AuthenticationManager {
 
   constructor(
     private storageService: StorageService,
-    public http: Http,
+    public http: HttpClient,
     private injector: Injector,
     private pluginManager: PluginManager,
     private startURLManager: StartURLManager
@@ -112,9 +112,9 @@ export class AuthenticationManager {
   }
 
   checkSessionValidity(): Observable<any> {
-    return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh'))
-      .map(result => {
-        let jsonMessage = result.json();
+    return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh')).pipe(
+      map(result => {
+        let jsonMessage = (result as any);
         if (jsonMessage && jsonMessage.categories) {
           let failedTypes = [];
           let keys = Object.keys(jsonMessage.categories);
@@ -139,7 +139,7 @@ export class AuthenticationManager {
             (ZoweZLUX.logger as any)._setBrowserUsername(this.username);
           }
           if (failedTypes.length > 0) {
-            throw ErrorObservable.create('');//no need for a message here, just standard login prompt.
+            return throwError('');//no need for a message here, just standard login prompt.
           }
           this.setSessionTimeoutWatcher(jsonMessage.categories);
           this.performPostLoginActions().subscribe(
@@ -150,9 +150,9 @@ export class AuthenticationManager {
           );
           return result;
         } else {
-          throw ErrorObservable.create(result.text());
+          return throwError((result as any).text());
         }
-      });//or throw err to subscriber
+      }));//or throw err to subscriber
   }
   
   //requestLogin() used to exist here but it was counter-intuitive in behavior to requestLogout.
@@ -298,30 +298,27 @@ export class AuthenticationManager {
     window.localStorage.setItem("ZoweZLUX.expirationTime",this.nearestExpiration.toString())
   }
 
-  performSessionRenewal(): Observable<Response> {
+  performSessionRenewal(): Observable<Object> {
     this.log.info('ZWED5045I');/*this.log.info('Renewing session');*/
-    return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh')).map(result=> {
-      let jsonMessage = result.json();
+    return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh')).pipe(map(result=> {
+      let jsonMessage = (result as any);
       if (jsonMessage && jsonMessage.success === true) {
         this.log.info('ZWED5046I');/*this.log.info('Session renewal successful');*/
         this.setSessionTimeoutWatcher(jsonMessage.categories);
         return result;
       } else {
         this.log.warn("ZWED5163W"); //this.log.warn('Session renewal unsuccessful');
-        throw Observable.throw(result);
+        return throwError(result);
       }
-    });
+    }));
   }
 
-  performPasswordReset(username: string, password: string, newPassword: string, serviceHandler: string): Observable<Response> {
+  performPasswordReset(username: string, password: string, newPassword: string, serviceHandler: string): Observable<Object> {
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-password'),
-                          {username: username, password: password, newPassword: newPassword, serviceHandler: serviceHandler})
-    .map(result => {
-      return result
-    })
+                          {username: username, password: password, newPassword: newPassword, serviceHandler: serviceHandler});
   }
 
-  performLogin(username: string, password: string): Observable<Response> {
+  performLogin(username: string, password: string): Observable<Object> {
     if (this.username != null && (username != this.username)) {
       const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
         this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
@@ -331,8 +328,8 @@ export class AuthenticationManager {
         this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     windowManager.autoSaveFileAllowDelete = true;
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth'), { username: username, password: password })
-    .map(result => {
-      let jsonMessage = result.json();
+    .pipe(map(result => {
+      let jsonMessage = (result as any);
       if (jsonMessage && jsonMessage.success === true) {
         this.setSessionTimeoutWatcher(jsonMessage.categories);
         window.localStorage.setItem('username', username);
@@ -345,12 +342,12 @@ export class AuthenticationManager {
           });
         return result;
       } else {
-        throw Observable.throw(result);
+        return throwError(result);
       }
-    });
+    }));
   }
 
-  private performLogout(): Observable<Response> {
+  private performLogout(): Observable<Object> {
     this.performPreLogoutActions();
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-logout'), {});
   }
