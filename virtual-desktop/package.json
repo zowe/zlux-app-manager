@@ -26,7 +26,6 @@
     "@angular/platform-browser": "~12.0.0",
     "@angular/platform-browser-dynamic": "~12.0.0",
     "@angular/router": "~12.0.0",
-    "@types/html2canvas": "~1.0.0",
     "@types/xmldom": "0.1.29",
     "@zlux/widgets": "git+https://github.com/zowe/zlux-widgets.git#feature/upgrade-angular",
     "angular-l10n": "~12.0.0",
