@@ -6,8 +6,6 @@
     "../../zlux-platform/interface/src/mvd-hosting.d.ts"
   ],
   "compilerOptions": {
-    "declaration": true,
-    "declarationDir": "../dts",
     "sourceMap": true,
     "moduleResolution": "node",
     "module": "es2015",
