@@ -10,11 +10,10 @@ Copyright Contributors to the Zowe Project.
 
 import { Injectable } from '@angular/core';
 import { L10nLocale, L10nStorage } from 'angular-l10n';
-import { mapTo } from 'rxjs/operators';
 import { LanguageLocaleService } from './language-locale.service';
 
 @Injectable()
-export class L10nStorageService implements L10nStorage {
+export class L10nPluginStorageService implements L10nStorage {
 
   constructor(private localeService: LanguageLocaleService) {
 
@@ -25,8 +24,8 @@ export class L10nStorageService implements L10nStorage {
     return Promise.resolve({ language });
   }
 
-  public async write(l11Locale: L10nLocale): Promise<void> {
-    return this.localeService.setLanguage(l11Locale.language).pipe(mapTo(void (0))).toPromise();
+  public async write(_l11Locale: L10nLocale): Promise<void> {
+    // plugins are not allowed to change language globally
   }
 
 }

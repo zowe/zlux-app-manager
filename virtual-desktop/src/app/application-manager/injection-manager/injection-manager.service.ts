@@ -12,12 +12,14 @@ Copyright Contributors to the Zowe Project.
 
 import { Injectable, Injector, NgModuleRef, ValueProvider } from '@angular/core';
 import { L10nConfigService } from './../../i18n/l10n-config.service';
-
-// import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
-
-import { Angular2InjectionTokens, Angular2L10nConfig } from 'pluginlib/inject-resources';
+import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 import { LOAD_FAILURE_ERRORS } from '../load-failure/failure-injection-tokens';
 import { Viewport } from '../viewport-manager/viewport';
+import { L10nStorage, L10nTranslationLoader, L10N_CONFIG, L10N_LOCALE } from 'angular-l10n';
+import { L10nTranslationLoaderService } from 'app/i18n/l10n-translation-loader.service';
+import { HttpClient } from '@angular/common/http';
+import { L10nPluginStorageService } from 'app/i18n/l10n-plugin-storage.service';
+import { LanguageLocaleService } from 'app/i18n/language-locale.service';
 
 const ComponentLoggerContainer:Map<string,ZLUX.ComponentLogger> = new Map<string,ZLUX.ComponentLogger>();
 
@@ -38,18 +40,13 @@ export class InjectionManager {
   generateModuleInjector(pluginDefinition: MVDHosting.DesktopPluginDefinition, launchMetadata: any,
                          instanceId: MVDHosting.InstanceId, messages?: any): Injector {
     let identifier = pluginDefinition.getIdentifier();
-        
-    const l10nPluginConfig: Angular2L10nConfig = {
-      defaultLocale: this.l10nConfigService.getDefaultLocale(),
-      providers: this.l10nConfigService.getTranslationProviders(pluginDefinition.getBasePlugin())
-    };
+    const plugin = pluginDefinition.getBasePlugin();
 
     let logger:ZLUX.ComponentLogger|undefined = ComponentLoggerContainer.get(identifier);
     if (!logger) {
       logger = ZoweZLUX.logger.makeComponentLogger(identifier, messages);
       ComponentLoggerContainer.set(identifier,logger);
     }
-    
     return Injector.create([
       {
         provide: Angular2InjectionTokens.LOGGER,
@@ -64,12 +61,22 @@ export class InjectionManager {
         useValue: launchMetadata
       },
       {
-        provide: Angular2InjectionTokens.L10N_CONFIG,
-        useValue: l10nPluginConfig
+        provide: L10N_LOCALE,
+        useValue: this.l10nConfigService.getDefaultLocale()
       },
       {
-        provide: Angular2InjectionTokens.INSTANCE_ID,
-        useValue: instanceId
+        provide: L10N_CONFIG,
+        useValue: this.l10nConfigService.getL10nConfig(plugin)
+      },
+      {
+        provide: L10nTranslationLoader,
+        useClass: L10nTranslationLoaderService,
+        deps: [HttpClient]
+      },
+      {
+        provide: L10nStorage,
+        useClass: L10nPluginStorageService,
+        deps: [LanguageLocaleService]
       }
     ], this.injector.get(NgModuleRef).injector);  // gets root injector of virtualDesktop tree
   }
