@@ -46,6 +46,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   
   public clockTwoRow: boolean = true;
   public clockOffset: string;
+  public clockWidth: string;
   public widgetOffset: string;
   public widgetSize: string;
   public areaSize: string;
@@ -112,6 +113,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         this.notifLeftOffset = '10px';
         break;      
     }
+    this.clockWidth = '61px';
   }
 
   @Output() popupStateChanged = new EventEmitter<boolean>(); 
