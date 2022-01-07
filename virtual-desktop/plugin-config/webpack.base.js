@@ -84,7 +84,7 @@ var config = {
   },
   'externals': [
     function(context, request, callback) {
-      if (/(@angular)|(angular\-l10n)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs\/Rx$)/.test(request)){
+      if (/(@angular)|(angular\-l10n)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs(\/operators)?$)/.test(request)){
         return callback(null, {
           commonjs: request,
           commonjs2: request,
