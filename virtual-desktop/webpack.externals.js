@@ -33,22 +33,22 @@ var config = {
       {
         "enforce": "pre",
         "test": /\.js$/,
-        "loader": "source-map-loader",
+        "use": [ "source-map-loader" ],
         "exclude": [
           /\/node_modules\//
         ]
       },
       {
         "test": /\.ts$/,
-        "loader": 'ts-loader'
+        "use": [ 'ts-loader' ]
       }
     ]
   },
   optimization: {
+    moduleIds: 'named'
   },
   mode: 'production',
   plugins: [
-    new webpack.NamedModulesPlugin(),
     new webpack.ContextReplacementPlugin(
       /angular(\\|\/)core(\\|\/)@angular/,
       path.resolve(__dirname),
