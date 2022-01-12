@@ -30,6 +30,10 @@ module.exports = {
     "alias": {
       "zlux-base": path.resolve(__dirname, "../../zlux-platform/base/src"),
       "zlux-interface": path.resolve(__dirname, "../../zlux-platform/interface/src")
+    },
+    fallback: {
+      fs: false,
+      os: false
     }
   },
   "resolveLoader": {
@@ -46,44 +50,46 @@ module.exports = {
     "filename": "main.js",
     "libraryTarget": "umd"
   },
+  "stats": {
+    "errorDetails": true
+  },
   "module": {
     "rules": [
       {
         "enforce": "pre",
         "test": /\.js$/,
-        "loader": "source-map-loader",
+        "use": [ "source-map-loader" ],
         "exclude": [
           /\/node_modules\//
         ]
       },
       {
         "test": /\.ts$/,
-        loaders: [
+        use: [
           'ts-loader'
         ]
       }
     ]
   },
+  "mode": "production",
   "plugins": [
     // new NoEmitOnErrorsPlugin(),
     new ProgressPlugin(),
     new HtmlWebpackPlugin({
       "title": "Zowe Desktop"
     }),
-    new CopyWebpackPlugin([
+    new CopyWebpackPlugin({
+      patterns: [
       {
         from: path.resolve(__dirname, './src/assets/i18n'),
         to: path.resolve('./web/assets/i18n')
       }
-    ]),
+    ]}),
     new CompressionPlugin({
       threshold: 100000,
       minRatio: 0.8
     })    
-  ],
-  "node": {
-    "fs": "empty"
-  }
+  ]
 };
 
 
