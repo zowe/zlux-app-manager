@@ -65,7 +65,7 @@
     "ZWED5169W":"RESERVED: no locale data found for locale id %s",
     "ZWED5170W":"Failed to load language file %s, using %s",
     "ZWED5171W":"Failed to load language file %s, using no translation files",
-    "ZWED5172W":"Unable to parse plugin defintion.  Error: ",
+    "ZWED5172W":"Unable to parse plugin definition.  Error: ",
     "ZWED5173W":"No component definition for plugin %s",
     "ZWED5174W":"Plugin %s has no framework specified",
     "ZWED5175W":"%s does not use supported framework",
@@ -91,6 +91,7 @@
     "ZWED5196W":"Context Data(%s) specified in app2app query URL parameter is not valid JSON",
     "ZWED5197W":"Unable to find registered action for identifier %s specified in app2app query URL parameter",
     "ZWED5198W":"Attempted to close standalone mode app window, ID=%s",
+    "ZWED5199W":"Attempted to postMessage for type %s without source",
 
     "ZWED5143E":"Plugin ID required. Use query parameter ?pluginId",
     "ZWED5144E":"Cannot find plugin with ID=%s",
