@@ -80,7 +80,7 @@ export class IFramePluginComponent {
           instanceId: this.instanceId,
           error: 'Unable to parse plugin definition'
         }, '*');
-        this.logger.warn("ZWED5172W", e); //this.logger.warn('Unable to parse plugin defintion.  Error: ', e);
+        this.logger.warn("ZWED5172W", e); //this.logger.warn('Unable to parse plugin definition.  Error: ', e);
       }
       this.windowEvents.minimized.subscribe(() => {
         this.postWindowEvent('windowEvents.minimized');
@@ -239,21 +239,32 @@ export class IFramePluginComponent {
     let fnRet: any;
     let fnString: string = message.data.request.function;
     let instanceId: number = message.data.request.instanceId;
-    let fakeHMA = function(key: any, notification: any){
-      message.source.postMessage({
-        key: key,
-        originCall: 'handleMessageAdded',
-        notification: notification,
-        instanceId: instanceId
-      }, '*')
+    // TODO: This looks like Iframe handler workaround code. Is this still relevant?
+    let fakeHMA = function(this: any, key: any, notification: any){
+      try {
+        message.source.postMessage({
+          key: key,
+          originCall: 'handleMessageAdded',
+          notification: notification,
+          instanceId: instanceId
+        }, '*')
+      } catch (e) { /* TODO: Every once in a while, message.source won't exist after app2app. 
+        This could be a timing issue with the echoes or at least, doesn't seem to affect app2app. */
+        this.logger.warn("ZWED5199W", 'handleMessageAdded'); //this.logger.warn("Attempted to postMessage for type %s without source", e);
+      }
     }
-    let fakeHMR = function(key: any, notificationId: any){
-      message.source.postMessage({
-        key: key,
-        originCall: 'handleMessageRemoved',
-        notificationId: notificationId,
-        instanceId: instanceId
-      }, '*')
+    let fakeHMR = function(this: any, key: any, notificationId: any){
+      try {
+        message.source.postMessage({
+          key: key,
+          originCall: 'handleMessageRemoved',
+          notificationId: notificationId,
+          instanceId: instanceId
+        }, '*')
+      } catch (e) { /* TODO: Every once in a while, message.source won't exist after app2app. 
+        This could be a timing issue with the echoes or at least, doesn't seem to affect app2app. */
+        this.logger.warn("ZWED5199W", 'handleMessageRemoved'); //this.logger.warn("Attempted to postMessage for type %s without source", e);
+      }
     }
     fn = (this.getAttrib(Object.assign({}, ZoweZLUX), split.join('.')) as Function);
     if(typeof fn === 'function'){
