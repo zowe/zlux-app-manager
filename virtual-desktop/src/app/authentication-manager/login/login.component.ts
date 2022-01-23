@@ -23,6 +23,12 @@ let ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
 const PASSWORD_EXPIRED = "PasswordExpired";
 
+type ErrorInfo = {
+  errorMessage: string;
+  errorDetails: string;
+  isFallback: boolean;
+};
+
 @Component({
   selector: 'rs-com-login',
   templateUrl: 'login.component.html',
@@ -172,7 +178,15 @@ export class LoginComponent implements OnInit {
             let jsonMessage = error;
             if(jsonMessage) {
               if(jsonMessage.categories) {
-                this.displayErrorDetails(jsonMessage);
+                let errorInfo = this.getErrorDetails(jsonMessage);
+                if (!errorInfo.isFallback) {
+                  if (errorInfo.errorMessage) {
+                    this.errorMessage = errorInfo.errorMessage;
+                  }
+                  if (errorInfo.errorDetails) {
+                    this.errorDetails = errorInfo.errorDetails;
+                  }
+                }
               }
             }
           } catch (e) {
@@ -350,35 +364,52 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  displayErrorDetails(jsonMessage:any): void {
-      let failedTypes: string[] = [];
-      let failedPlugins = new Set<string>();
-      let err;
-      this.errorDetails = '';
-      let keys = Object.keys(jsonMessage.categories);
-      for (let i = 0; i < keys.length; i++) {
-        if (!jsonMessage.categories[keys[i]].success) {
-          failedTypes.push(keys[i]);
-          let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
-          for (let j = 0; j < plugins.length; j++) {
-            err = jsonMessage.categories[keys[i]].plugins[plugins[j]].error;
-            if(err) {
-              if(err.message) {
-                this.errorMessage = err.message;
-              }
-              if(!failedPlugins.has(plugins[j]) && (err.message || err.body)) {
-                // Appending the error message, error body and corresponding unique plugin-id that have errors
-                this.errorDetails += `${plugins[j]}: ${err.message === undefined ? "": err.message+"\n"}${err.body === undefined ? "":err.body+"\n"}`;
-                failedPlugins.add(plugins[j])
-              }
+  private getErrorDetails(jsonMessage: any): ErrorInfo {
+    let errorMessage: string='';
+    let errorDetails: string='';
+    let isFallback: boolean = false;
+    let failedTypes: string[] = [];
+    let failedPlugins = new Set<string>();
+    let err;
+    this.errorDetails = '';
+    let keys = Object.keys(jsonMessage.categories);
+    for (let i = 0; i < keys.length; i++) {
+      if (!jsonMessage.categories[keys[i]].success) {
+        failedTypes.push(keys[i]);
+        let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
+        for (let j = 0; j < plugins.length; j++) {
+          err = jsonMessage.categories[keys[i]].plugins[plugins[j]].error;
+          if(err) {
+            if(err.message) {
+              errorMessage = err.message;
+            }
+            if(!failedPlugins.has(plugins[j]) && (err.message || err.body)) {
+              // Appending the error message, error body and corresponding unique plugin-id that have errors
+              errorDetails += `${plugins[j]}: ${err.message === undefined ? "": err.message+"\n"}${err.body === undefined ? "":err.body+"\n"}`;
+              failedPlugins.add(plugins[j])
             }
           }
         }
       }
-      if(!err || !this.errorMessage) {
-        this.errorMessage = this.translation.translate('AuthenticationFailed',
-        { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
-      }
+    }
+    if(!err || !this.errorMessage) {
+      isFallback = true;
+      errorMessage = this.translation.translate('AuthenticationFailed',
+                                                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+    }
+    return {
+      errorMessage, errorDetails, isFallback
+    }
+  }
+  
+  displayErrorDetails(jsonMessage:any): void {
+    let errorInfo = this.getErrorDetails(jsonMessage);
+    if (errorInfo.errorMessage) {
+      this.errorMessage = errorInfo.errorMessage;
+    }
+    if (errorInfo.errorDetails) {
+      this.errorDetails = errorInfo.errorDetails;
+    }
   }
 
   expandError(): void {
