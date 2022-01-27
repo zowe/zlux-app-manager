@@ -36,7 +36,7 @@ export class MvdUri implements ZLUX.UriBroker {
             if (agentConfig.mediationLayer && agentConfig.mediationLayer.enabled && agentConfig.mediationLayer.serviceName) {
               let version = agentConfig.mediationLayer.serviceVersion || 'v1';
               let name = agentConfig.mediationLayer.serviceName;
-              this.agentPrefix = `/api/${version}/${name}/`
+              this.agentPrefix = `/${name}/api/${version}/`
             }
           }
           resolve(this.agentPrefix);
@@ -212,10 +212,14 @@ export class MvdUri implements ZLUX.UriBroker {
     // This is a workaround for the mediation layer not having a dynamic way to get the websocket uri for zlux
     // Since we know our uri is /ui/v1/zlux/ behind the api-layer we replace the ui with ws to get /ws/v1/zlux/
     if (proxy_mode) {
-      if (uri.startsWith('/api/')) {
-        return uri.replace('/api/', '/ws/');
-      } else {
+      let apiIndex = uri.indexOf('/api/');
+      let uiIndex = uri.indexOf('/ui/');
+      if (apiIndex == -1 && uiIndex == -1) {
+        return uri;
+      } else if (apiIndex == -1 || (uiIndex != -1 && (uiIndex < apiIndex))) {
         return uri.replace('/ui/', '/ws/');
+      } else {
+        return uri.replace('/api/', '/ws/');
       }
     } else {
       return uri;
