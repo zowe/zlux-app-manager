@@ -2,6 +2,10 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `2.0.0`
+
+- New desktop library versions: Angular 6->12, Corejs 2->3, Typescript 2->4 etc. For more information, visit https://www.zowe.org/vnext
+
 ## `1.25.0`
 
 - Fixed a bug where using app2app with incorrectly formatted data would not honor launch/message request

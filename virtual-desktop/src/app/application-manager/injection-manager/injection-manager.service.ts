@@ -77,6 +77,10 @@ export class InjectionManager {
         provide: L10nStorage,
         useClass: L10nPluginStorageService,
         deps: [LanguageLocaleService]
+      },
+      {
+        provide: Angular2InjectionTokens.INSTANCE_ID,
+        useValue: instanceId
       }
     ], this.injector.get(NgModuleRef).injector);  // gets root injector of virtualDesktop tree
   }

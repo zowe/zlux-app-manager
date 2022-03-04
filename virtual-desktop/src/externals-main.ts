@@ -11,22 +11,12 @@
 */
 
 /* Load globals */
-import 'script-loader!jquery';
-/*
- Action dropdown in zlux-workflow Workflow tab fails due to lack of Popper.js
- The following seemed to be the best way to follow the advice in the top answer to
- https://stackoverflow.com/questions/45680644/angular-4-bootstrap-dropdown-require-popper-js
- NOTES
- 1. simple 'script-loader!popper.js loads, for some reason, ../node_modules/popper.js/dist/esm/popper.js
-    This results in:
-   main.js:1 [Script Loader] SyntaxError: Unexpected token export
-    at eval (<anonymous>)
-    at t.exports (main.js:1)
-    at Object../node_modules/script-loader/index.js!./node_modules/popper.js/dist/esm/popper.js (main.js:1)
- 2. using exports-loader!popper.js to be compatible with esm/popper.js is not compatible with bootstrap: you still get
-   VM4398:1553 Uncaught TypeError: Bootstrap dropdown require Popper.js (https://popper.js.org)
-*/
-import 'script-loader!../node_modules/@popperjs/core/dist/umd/popper.js';import 'script-loader!bootstrap';
+import 'jquery';
+// Dropdown component in workflows-app requires bootstrap JS components and popper.js
+// In Zowe v2 we remove the workflows-app
+// TODO: consider to remove the two imports below
+import 'popper.js';
+import 'bootstrap';
 
 /* Load second stage with requirejs */
 const script = document.createElement('script');
