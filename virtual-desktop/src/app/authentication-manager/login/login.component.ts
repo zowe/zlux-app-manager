@@ -277,7 +277,7 @@ export class LoginComponent implements OnInit {
                 }
               }
               if (plugin.canChangePassword) {
-                this.passwordServices.add(plugin);
+                this.passwordServices.add(pluginKeys[j]);
               }
             }
           }
