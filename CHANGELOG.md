@@ -4,7 +4,9 @@ All notable changes to the Zlux App Manager will be documented in this file.
 
 ## `2.0.0`
 
-- New desktop library versions: Angular 6->12, Corejs 2->3, Typescript 2->4 etc. For more information, visit https://www.zowe.org/vnext
+- Enhancement: New desktop library versions: Angular 6->12, Corejs 2->3, Typescript 2->4 etc. For more information, visit https://www.zowe.org/vnext
+- Breaking change: Due to new library versions, native apps such as Angular and React apps written for Zowe v1 may not work in Zowe v2. Rebuilding the apps with the same versions and the latest webpack build scripts is recommended.
+- Enhancement: The web-browser and admin-desktop-notification apps now contains a manifest file so that it can be installed with `zwe components install`
 
 ## `1.25.0`
 

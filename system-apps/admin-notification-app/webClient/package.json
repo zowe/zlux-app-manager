@@ -1,6 +1,6 @@
 {
-  "name": "admin-notification",
-  "version": "1.0.1",
+  "name": "admin-desktop-notification",
+  "version": "2.0.0",
   "scripts": {
     "start": "webpack --progress --colors --watch",
     "build": "webpack --progress --colors",
