@@ -1,6 +1,6 @@
 {
   "name": "org.zowe.zlux.appmanager.app.propview.webclient",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "scripts": {
     "start": "webpack --progress --colors --watch",
     "build": "webpack --progress --colors",

@@ -1,11 +1,14 @@
 {
   "identifier": "org.zowe.zlux.ng2desktop.settings",
-  "apiVersion": "1.0.0",
-  "pluginVersion": "1.0.3",
+  "apiVersion": "2.0.0",
+  "pluginVersion": "2.0.0",
   "pluginType": "application",
+  "license": "EPL-2.0",
+  "author": "Zowe",
+  "homepage": "https://github.com/zowe/zlux-app-manager",
   "isSystemPlugin":true,
   "webContent": {
-    "framework": "angular2",
+    "framework": "angular",
     "launchDefinition": {
       "pluginShortNameKey": "Personalization",
       "pluginShortNameDefault": "Personalization",
