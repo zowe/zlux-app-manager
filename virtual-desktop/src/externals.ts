@@ -35,7 +35,9 @@ const libs: { [index: string]: {library: any} } = {
   '@angular/router': require('@angular/router'),
   '@angular/animations': require('@angular/animations'),
   'angular-l10n': require('angular-l10n'),
-  'rxjs/Rx': require('rxjs/Rx')
+  'rxjs/Rx': require('rxjs/Rx'),
+  'rxjs': require('rxjs'),
+  'rxjs/operators': require('rxjs/operators'),
 };
 
 /* Expose modules to requirejs */
