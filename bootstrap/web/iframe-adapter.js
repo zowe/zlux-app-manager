@@ -30,6 +30,8 @@ let messageHandler = function(message) {
     if(data.constructorData){
         ZoweZLUX.iframe.pluginDef = data.constructorData.pluginDef;
         ZoweZLUX.iframe.launchMetadata = data.constructorData.launchMetadata;
+        let iframeRegistered = new CustomEvent('ZoweZLUX.iframe', {detail: {event: 'registered'}});
+        window.dispatchEvent(iframeRegistered);
     }
     let key = data.key
     if(ZoweZLUX.iframe.__iframeAdapter.__responses[key]){
