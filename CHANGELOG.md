@@ -2,6 +2,10 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `1.28.0`
+
+- Bugfix that would prevent using the password reset tool for auth plugins that implemented more than one auth category
+
 ## `1.26.0`
 
 - Fixed small bug with app tray not scaling well with some localizations
