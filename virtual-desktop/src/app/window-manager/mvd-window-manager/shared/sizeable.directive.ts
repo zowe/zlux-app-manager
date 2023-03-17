@@ -43,6 +43,8 @@ export class SizeableDirective implements OnInit {
   overshootHeight: number;
   handle: HTMLElement | null;
   handles: Array<HTMLElement>;
+  
+  private lastChange: number = 0;
 
   constructor(private ref: ChangeDetectorRef) {
     this.top = 0;
@@ -163,7 +165,10 @@ export class SizeableDirective implements OnInit {
         break;
     }
   
-    this.ref.detectChanges(); // manually trigger change detection
+    if ((Date.now() - this.lastChange) > 17000) {
+      this.lastChange = Date.now();
+      this.ref.detectChanges(); // manually trigger change detection
+    }
   }
 
   resizeCompass(compass: Compass, topDelta: number, leftDelta: number): void {
@@ -230,7 +235,10 @@ export class SizeableDirective implements OnInit {
     [this.top, this.left] = [top, left];
     [this.overshootWidth, this.overshootHeight] = [0, 0];
 
-    this.ref.detectChanges(); // manually trigger change detection
+    if ((Date.now() - this.lastChange) > 17000) {
+      this.lastChange = Date.now();
+      this.ref.detectChanges(); // manually trigger change detection
+    }
   }
 }
 
