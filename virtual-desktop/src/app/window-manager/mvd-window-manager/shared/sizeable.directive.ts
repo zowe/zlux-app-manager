@@ -52,9 +52,6 @@ export class SizeableDirective implements OnInit {
     this.handle = null;
     this.handles = new Array<HTMLElement>(Compass.size);
     ref.detach(); // deactivate change detection
-    setInterval(() => {
-      this.ref.detectChanges(); // manually trigger change detection
-    }, 17);
   }
 
   ngOnInit(): void {
@@ -165,6 +162,8 @@ export class SizeableDirective implements OnInit {
         this.resizeCompass(Compass.s, topDelta, leftDelta);
         break;
     }
+  
+    this.ref.detectChanges(); // manually trigger change detection
   }
 
   resizeCompass(compass: Compass, topDelta: number, leftDelta: number): void {
@@ -230,6 +229,8 @@ export class SizeableDirective implements OnInit {
 
     [this.top, this.left] = [top, left];
     [this.overshootWidth, this.overshootHeight] = [0, 0];
+
+    this.ref.detectChanges(); // manually trigger change detection
   }
 }
 
