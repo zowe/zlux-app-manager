@@ -22,8 +22,6 @@ export class DraggableDirective implements OnInit {
   //private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private static readonly draggleCss = ' cursor-draggable';
   
-  private lastChange: number = 0;
-
   @Input('rs-com-draggable-window') desktopWindow: DesktopWindow;
   @Input('rs-com-draggable-handle') handle: HTMLElement;
   @Input('rs-com-draggable-enabled') draggable: boolean;
@@ -49,7 +47,7 @@ export class DraggableDirective implements OnInit {
     this.topOffset = 0;
     this.leftOffset = 0;
     this.mouseDown = false;
-    ref.detach(); // deactivate change detection
+    this.ref.detach(); // deactivate change detection
   }
 
   // TODO: This is a bit of a mess
@@ -126,10 +124,6 @@ export class DraggableDirective implements OnInit {
 
     this.topOffset  = top  - this.desktopWindow.windowState.position.top;
     this.leftOffset = left - this.desktopWindow.windowState.position.left;
-    if ((Date.now() - this.lastChange) > 17000) {
-      this.lastChange = Date.now();
-      this.ref.detectChanges(); // manually trigger change detection
-    }
   }
 
   move(event: MouseEvent | TouchEvent): void {
@@ -139,10 +133,6 @@ export class DraggableDirective implements OnInit {
     const nTop = (top - this.topOffset);
     const nLeft = (left - this.leftOffset);
     this.desktopWindow.windowState.position = { top: nTop, left: nLeft, width: width, height: height};
-    if ((Date.now() - this.lastChange) > 17000) {
-      this.lastChange = Date.now();
-      this.ref.detectChanges(); // manually trigger change detection
-    }
   }
 }
 
