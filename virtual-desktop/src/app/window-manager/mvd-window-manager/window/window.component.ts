@@ -50,6 +50,22 @@ export class WindowComponent {
   private desktopWidth: number;
   private zIndex: number;
   private launchbarHeight: number;
+
+  private lastTime: number = 0;
+
+  @Input() set refresh(timestamp: number) {
+    if (this.desktopWindow) {
+      if (this.isMinimized()) {
+        return;
+      }
+      if (this.hasFocus()) {
+        this.ref.detectChanges();
+      } else if ((timestamp - this.lastTime) > 33) {
+        this.ref.detectChanges();
+      }
+      this.lastTime = timestamp;
+    }
+  }
   
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.debug('Window theme set=',newTheme);
@@ -126,10 +142,6 @@ export class WindowComponent {
   @Input() desktopWindow: DesktopWindow;
   applicationManager: MVDHosting.ApplicationManagerInterface;
 
-  private intervalFunction: any;
-  private hadFocus: boolean = false;
-
-
   constructor(
     public windowManager: WindowManagerService,
     private injector: Injector,
@@ -138,9 +150,6 @@ export class WindowComponent {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.ref.detach(); // deactivate change detection
-    this.intervalFunction = setInterval(()=> {
-      this.ref.detectChanges(); // manually trigger change detection
-    }, 17);
   }
 
   isMinimized(): boolean {
@@ -156,15 +165,7 @@ export class WindowComponent {
   }
 
   hasFocus(): boolean {
-    let focus = this.windowManager.windowHasFocus(this.desktopWindow.windowId);
-    if (focus != this.hadFocus) {
-      clearTimeout(this.intervalFunction);
-      this.intervalFunction = setInterval(()=> {
-        this.ref.detectChanges(); // manually trigger change detection
-      }, focus ? 17 : 33); //60hz when window active, 30hz otherwise.
-    }
-    this.hadFocus = focus;    
-    return focus;
+    return this.windowManager.windowHasFocus(this.desktopWindow.windowId);
   }
 
   positionStyle(): any {
