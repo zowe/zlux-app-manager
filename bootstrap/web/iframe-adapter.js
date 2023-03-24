@@ -188,22 +188,7 @@ var ZoweZLUX = {
             return new Promise(function(resolve, reject)  {
                 if (window.top.GIZA_PLUGIN_TO_BE_LOADED) { //Ancient edgecase
                     resolve(true); //Standalone mode
-                } else { // The below hacky edgecase is to account for timing issues
-                    // let intervalId = setInterval(checkForStandaloneMode, 100);
-                    // function checkForStandaloneMode() {
-                    //     if (ZoweZLUX.iframe.pluginDef) { //If we have the plugin definition
-                    //         clearInterval(intervalId);
-                    //         resolve(false);
-                    //     }
-                    // }
-                    // setTimeout(() => { 
-                    //     clearInterval(intervalId);
-                    //     if (ZoweZLUX.iframe.pluginDef === undefined || null) {
-                    //         resolve(true);
-                    //     } else {
-                    //         resolve(false);
-                    //     }
-                    // }, 1000);
+                } else { 
                     resolve(false);
                 }
             });
@@ -215,21 +200,6 @@ var ZoweZLUX = {
                 if (window.top.GIZA_SIMPLE_CONTAINER_REQUESTED) { //Ancient edgecase
                     resolve(true); //Standalone mode
                 } else {
-                    // let intervalId = setInterval(checkForStandaloneMode, 100);
-                    // function checkForStandaloneMode() {
-                    //     if (ZoweZLUX.iframe.pluginDef) { //If we have the plugin definition
-                    //         clearInterval(intervalId);
-                    //         resolve(false);
-                    //     }
-                    // }
-                    // setTimeout(() => { 
-                    //     clearInterval(intervalId);
-                    //     if (ZoweZLUX.iframe.pluginDef === undefined || null) {
-                    //         resolve(true);
-                    //     } else {
-                    //         resolve(false);
-                    //     }
-                    // }, 1000);
                     resolve(false);
                 }
             });
