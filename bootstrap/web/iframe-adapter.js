@@ -72,7 +72,8 @@ let messageHandler = function(message) {
                 window.dispatchEvent(restored)
                 return;
             case 'windowEvents.resized':
-                //console.log('resized')
+                let resized = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'resized'}});
+                window.dispatchEvent(resized);
                 return;
             case 'windowEvents.titleChanged':
                 let titleChanged = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'titleChange'}});
