@@ -56,7 +56,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
-  private _lastScreenshotPluginId: string = '';  
+  //private _lastScreenshotPluginId: string = '';  
   private _lastScreenshotWindowId: number = -1;
   public showPersonalizationPanel: boolean = false;
   private autoSaveInterval : number = 300000;
@@ -757,9 +757,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       this.logger.warn("ZWED5187W", destination); //this.logger.warn('Attempted to request focus for null window, ID=${destination}');
       return false;
     }
-    let requestScreenshot = false;
+    //let requestScreenshot = false;
     if (!this.windowHasFocus(destination) && this._lastScreenshotWindowId != destination){
-      requestScreenshot = true;
+      //requestScreenshot = true;
     }
 
     //can't focus an unseen window!
@@ -769,13 +769,14 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     this.focusedWindow = desktopWindow;
     desktopWindow.windowState.zIndex = this.topZIndex ++;
-    if (requestScreenshot){
-      setTimeout(()=> {
-        this.screenshotRequestEmitter.next({pluginId: this._lastScreenshotPluginId, windowId: this._lastScreenshotWindowId});
-        this._lastScreenshotWindowId = destination;
-        this._lastScreenshotPluginId = desktopWindow.plugin.getIdentifier();
-      },500); //delay a bit for performance perception
-    }
+    // TODO: Generate snapshot code needs optimization due to incredible desktop performance slowdown
+    // if (requestScreenshot){
+    //   setTimeout(()=> {
+    //     this.screenshotRequestEmitter.next({pluginId: this._lastScreenshotPluginId, windowId: this._lastScreenshotWindowId});
+    //     this._lastScreenshotWindowId = destination;
+    //     this._lastScreenshotPluginId = desktopWindow.plugin.getIdentifier();
+    //   },500); //delay a bit for performance perception
+    // }
     this.setDesktopTitle(desktopWindow.windowTitle);
     return true;
   }
