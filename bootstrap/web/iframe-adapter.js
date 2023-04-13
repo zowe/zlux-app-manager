@@ -238,6 +238,9 @@ var ZoweZLUX = {
                                     resumeName, resumeCatalogName, addQualifiers){
           return translateFunction('ZoweZLUX.uriBroker.datasetMetadataUri', Array.prototype.slice.call(arguments))
         },
+        datasetCopyUri(dsn, newDataset) {
+          return translateFunction('ZoweZLUX.uriBroker.datasetCopyUri', Array.prototype.slice.call(arguments))
+        },
         datasetContentsUri(dsn){
           return translateFunction('ZoweZLUX.uriBroker.datasetContentsUri', Array.prototype.slice.call(arguments))
         },
