@@ -57,7 +57,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
   //private _lastScreenshotPluginId: string = '';  
-  private _lastScreenshotWindowId: number = -1;
+  //private _lastScreenshotWindowId: number = -1;
   public showPersonalizationPanel: boolean = false;
   private autoSaveInterval : number = 300000;
   public autoSaveFiles : {[key:string]:number} = {};
@@ -758,9 +758,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       return false;
     }
     //let requestScreenshot = false;
-    if (!this.windowHasFocus(destination) && this._lastScreenshotWindowId != destination){
+    //if (!this.windowHasFocus(destination) && this._lastScreenshotWindowId != destination){
       //requestScreenshot = true;
-    }
+    //}
 
     //can't focus an unseen window!
     if (desktopWindow.windowState.stateType === DesktopWindowStateType.Minimized) {

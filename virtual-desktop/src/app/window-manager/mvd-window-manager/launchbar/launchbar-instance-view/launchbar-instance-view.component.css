@@ -50,6 +50,11 @@
     margin-top: -10px;
 }
 
+.instance-preview-caption {
+    font-size: large; 
+    padding-top: 1rem;
+}
+
 .instance-snapshot:hover .instance-preview {
     opacity: 0.5;
 }
