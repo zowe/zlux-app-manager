@@ -51,6 +51,9 @@ export class DsmUri implements ZLUX.UriBroker {
                       _addQualifiers?: string | undefined): string {
     return "";
   }
+  datasetCopyUri(_relativePath: string, _newDataset: string) {
+    return "";
+  }
 
   agentRootUri(_uri: string): string {
     return "";
