@@ -2,6 +2,12 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `2.8.0`
+- Bugfix: Fixed the iframe-adapter not properly recognizing standalone mode
+- Bugfix: Fixed Iframes from unintentionally loading their sources multiple times during refocus & multi-app situations
+- Enhancement: Added new isSingleAppModeSimple() to iframe-adapter to differentiate between standalone mode and simple standalone mode
+- Enhancement: Replace existing snapshot preview with lighter UI to magnitudes increase multi-app Desktop performance
+
 ## `2.0.0`
 
 - Enhancement: New desktop library versions: Angular 6->12, Corejs 2->3, Typescript 2->4 etc. For more information, visit https://www.zowe.org/vnext
