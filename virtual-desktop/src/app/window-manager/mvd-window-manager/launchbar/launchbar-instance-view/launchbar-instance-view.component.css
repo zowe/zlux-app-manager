@@ -12,9 +12,8 @@
 
 .instance-item {
     width: 200px;
-    height: 120px;
-    margin-left: 3px;
-    margin-right: 3px;
+    height: 140px;
+    margin: 3px;
 }
 
 .instance-viewer {
@@ -49,6 +48,11 @@
     width: 200px;
     height: 120px;
     margin-top: -10px;
+}
+
+.instance-preview-caption {
+    font-size: large; 
+    padding-top: 1rem;
 }
 
 .instance-snapshot:hover .instance-preview {
