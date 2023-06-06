@@ -72,7 +72,8 @@ let messageHandler = function(message) {
                 window.dispatchEvent(restored)
                 return;
             case 'windowEvents.resized':
-                //console.log('resized')
+                let resized = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'resized'}});
+                window.dispatchEvent(resized);
                 return;
             case 'windowEvents.titleChanged':
                 let titleChanged = new CustomEvent('ZoweZLUX.windowEvents', {detail: {event:'titleChange'}});
@@ -183,27 +184,24 @@ var ZoweZLUX = {
         pluginDef: undefined,
         launchMetadata: undefined,
 
-        //True - Standalone, False - We are in regular desktop mode
+        //True - Single app mode, False - We are in regular desktop mode
         isSingleAppMode() {
             return new Promise(function(resolve, reject)  {
-                if (window.GIZA_SIMPLE_CONTAINER_REQUESTED) { //Ancient edgecase
+                if (window.top.GIZA_PLUGIN_TO_BE_LOADED) { //Ancient edgecase
+                    resolve(true); //Standalone mode
+                } else { 
+                    resolve(false);
+                }
+            });
+        },
+
+        //True - Standalone + using simple window manager, False - We are in regular desktop or using the MVD window manager for single app mode
+        isSingleAppModeSimple() {
+            return new Promise(function(resolve, reject)  {
+                if (window.top.GIZA_SIMPLE_CONTAINER_REQUESTED) { //Ancient edgecase
                     resolve(true); //Standalone mode
                 } else {
-                let intervalId = setInterval(checkForStandaloneMode, 100);
-                function checkForStandaloneMode() {
-                    if (ZoweZLUX.iframe.pluginDef) { //If we have the plugin definition
-                        clearInterval(intervalId);
-                        resolve(false);
-                    }
-                }
-                setTimeout(() => { 
-                    clearInterval(intervalId);
-                    if (ZoweZLUX.iframe.pluginDef === undefined || null) {
-                        resolve(true);
-                    } else {
-                        resolve(false);
-                    }
-                }, 1000);
+                    resolve(false);
                 }
             });
         }
@@ -237,6 +235,9 @@ var ZoweZLUX = {
         datasetMetadataUri(dsn, detail, types, listMembers, workAreaSize, includeMigrated, includeUnprintable,
                                     resumeName, resumeCatalogName, addQualifiers){
           return translateFunction('ZoweZLUX.uriBroker.datasetMetadataUri', Array.prototype.slice.call(arguments))
+        },
+        datasetCopyUri(dsn, newDataset) {
+          return translateFunction('ZoweZLUX.uriBroker.datasetCopyUri', Array.prototype.slice.call(arguments))
         },
         datasetContentsUri(dsn){
           return translateFunction('ZoweZLUX.uriBroker.datasetContentsUri', Array.prototype.slice.call(arguments))
