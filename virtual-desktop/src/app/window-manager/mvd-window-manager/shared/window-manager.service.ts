@@ -56,8 +56,8 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
   private focusedWindow: DesktopWindow | null;
   private topZIndex: number;
-  private _lastScreenshotPluginId: string = '';  
-  private _lastScreenshotWindowId: number = -1;
+  //private _lastScreenshotPluginId: string = '';  
+  //private _lastScreenshotWindowId: number = -1;
   public showPersonalizationPanel: boolean = false;
   private autoSaveInterval : number = 300000;
   public autoSaveFiles : {[key:string]:number} = {};
@@ -144,7 +144,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       .subscribe((event:KeyboardEvent) => {
         if (event.which === KeyCode.DOWN_ARROW) {
           // TODO: Disable minimize hotkey once mvd-window-manager single app mode is functional. Variable subject to change.
-          if(this.focusedWindow && !window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+          if(this.focusedWindow && !window['GIZA_PLUGIN_TO_BE_LOADED']) {
             this.minimizeToggle(this.focusedWindow.windowId);
           }
         }
@@ -273,7 +273,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {
     //This is the window viewport size, so you must subtract the header and launchbar from the height, if not in standalone mode.
     let height;
-    if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+    if (window['GIZA_PLUGIN_TO_BE_LOADED']) {
       height = window.innerHeight;
     } else {
       height = window.innerHeight - WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET;
@@ -757,10 +757,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       this.logger.warn("ZWED5187W", destination); //this.logger.warn('Attempted to request focus for null window, ID=${destination}');
       return false;
     }
-    let requestScreenshot = false;
-    if (!this.windowHasFocus(destination) && this._lastScreenshotWindowId != destination){
-      requestScreenshot = true;
-    }
+    //let requestScreenshot = false;
+    //if (!this.windowHasFocus(destination) && this._lastScreenshotWindowId != destination){
+      //requestScreenshot = true;
+    //}
 
     //can't focus an unseen window!
     if (desktopWindow.windowState.stateType === DesktopWindowStateType.Minimized) {
@@ -769,13 +769,14 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
 
     this.focusedWindow = desktopWindow;
     desktopWindow.windowState.zIndex = this.topZIndex ++;
-    if (requestScreenshot){
-      setTimeout(()=> {
-        this.screenshotRequestEmitter.next({pluginId: this._lastScreenshotPluginId, windowId: this._lastScreenshotWindowId});
-        this._lastScreenshotWindowId = destination;
-        this._lastScreenshotPluginId = desktopWindow.plugin.getIdentifier();
-      },500); //delay a bit for performance perception
-    }
+    // TODO: Generate snapshot code needs optimization due to incredible desktop performance slowdown
+    // if (requestScreenshot){
+    //   setTimeout(()=> {
+    //     this.screenshotRequestEmitter.next({pluginId: this._lastScreenshotPluginId, windowId: this._lastScreenshotWindowId});
+    //     this._lastScreenshotWindowId = destination;
+    //     this._lastScreenshotPluginId = desktopWindow.plugin.getIdentifier();
+    //   },500); //delay a bit for performance perception
+    // }
     this.setDesktopTitle(desktopWindow.windowTitle);
     return true;
   }
