@@ -131,6 +131,12 @@ export class MvdUri implements ZLUX.UriBroker {
     let params = this.createParamURL(paramArray);
     return `${this.agentRootUri(`datasetMetadata/name/${dsn}${params}`)}`;
   }
+  datasetCopyUri(dsn: string, newDataset: string) {
+    let newDatasetParam = newDataset ? 'newDataset=' + newDataset : '';
+    let paramArray = [newDatasetParam];
+    let params = this.createParamURL(paramArray);
+    return `${this.agentRootUri(`datasetCopy/${dsn}${params}`)}`;
+  }
   pluginRootUri(pluginDefinition: ZLUX.Plugin): string {
     let identifier = (pluginDefinition as any).identifier || pluginDefinition.getIdentifier();
     return `${this.serverRootUri(`ZLUX/plugins/${identifier}/`)}`;
