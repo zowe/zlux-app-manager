@@ -11,7 +11,7 @@
 $css--body: false;
 $css--reset: false;
 
-@import "~@rocketsoftware/carbon-components/scss/globals/scss/styles.scss";
+@import "~carbon-components/scss/globals/scss/styles.scss";
 
 .parent {
   flex-direction: column;

@@ -16,9 +16,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
 import { AdminNotificationComponent } from './adminnotification-component';
-import {RadioModule} from '@rocketsoftware/carbon-components-angular'
-import {InputModule} from '@rocketsoftware/carbon-components-angular'
-import {DropdownModule} from '@rocketsoftware/carbon-components-angular'
+import {RadioModule} from "carbon-components-angular";
+import {InputModule} from 'carbon-components-angular'
+import {DropdownModule} from 'carbon-components-angular'
 
 @NgModule({
   imports: [FormsModule, HttpClientModule, ReactiveFormsModule, CommonModule, RadioModule, InputModule, DropdownModule],
