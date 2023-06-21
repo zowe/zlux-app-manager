@@ -144,7 +144,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
       .subscribe((event:KeyboardEvent) => {
         if (event.which === KeyCode.DOWN_ARROW) {
           // TODO: Disable minimize hotkey once mvd-window-manager single app mode is functional. Variable subject to change.
-          if(this.focusedWindow && !window['GIZA_PLUGIN_TO_BE_LOADED']) {
+          if(this.focusedWindow && !window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
             this.minimizeToggle(this.focusedWindow.windowId);
           }
         }
@@ -273,7 +273,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private refreshMaximizedWindowSize(desktopWindow: DesktopWindow): void {
     //This is the window viewport size, so you must subtract the header and launchbar from the height, if not in standalone mode.
     let height;
-    if (window['GIZA_PLUGIN_TO_BE_LOADED']) {
+    if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
       height = window.innerHeight;
     } else {
       height = window.innerHeight - WindowManagerService.MAXIMIZE_WINDOW_HEIGHT_OFFSET;

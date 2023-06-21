@@ -77,7 +77,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
     }
 
     // TODO: Disable bottom app bar once mvd-window-manager single app mode is functional. Variable subject to change.
-    if (window['GIZA_PLUGIN_TO_BE_LOADED']) {
+    if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
       this.displayAppBar = "none";
     } else {
       this.displayAppBar = "inherit";

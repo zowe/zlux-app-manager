@@ -184,24 +184,27 @@ var ZoweZLUX = {
         pluginDef: undefined,
         launchMetadata: undefined,
 
-        //True - Single app mode, False - We are in regular desktop mode
+        //True - Standalone, False - We are in regular desktop mode
         isSingleAppMode() {
             return new Promise(function(resolve, reject)  {
-                if (window.top.GIZA_PLUGIN_TO_BE_LOADED) { //Ancient edgecase
-                    resolve(true); //Standalone mode
-                } else { 
-                    resolve(false);
-                }
-            });
-        },
-
-        //True - Standalone + using simple window manager, False - We are in regular desktop or using the MVD window manager for single app mode
-        isSingleAppModeSimple() {
-            return new Promise(function(resolve, reject)  {
-                if (window.top.GIZA_SIMPLE_CONTAINER_REQUESTED) { //Ancient edgecase
+                if (window.GIZA_SIMPLE_CONTAINER_REQUESTED) { //Ancient edgecase
                     resolve(true); //Standalone mode
                 } else {
-                    resolve(false);
+                let intervalId = setInterval(checkForStandaloneMode, 100);
+                function checkForStandaloneMode() {
+                    if (ZoweZLUX.iframe.pluginDef) { //If we have the plugin definition
+                        clearInterval(intervalId);
+                        resolve(false);
+                    }
+                }
+                setTimeout(() => { 
+                    clearInterval(intervalId);
+                    if (ZoweZLUX.iframe.pluginDef === undefined || null) {
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                }, 1000);
                 }
             });
         }
