@@ -2,6 +2,13 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `1.28.4`
+
+- Bugfix: Fixed the iframe-adapter not properly recognizing standalone mode
+- Bugfix: Fixed Iframes from unintentionally loading their sources multiple times during refocus & multi-app situations
+- Enhancement: Added new isSingleAppModeSimple() to iframe-adapter to differentiate between standalone mode and simple standalone mode
+- Enhancement: Replace existing snapshot preview with lighter UI to significantly increase multi-app Desktop performance
+
 ## `1.28.0`
 
 - Bugfix that would prevent using the password reset tool for auth plugins that implemented more than one auth category
