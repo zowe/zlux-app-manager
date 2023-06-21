@@ -180,7 +180,7 @@ export class LoginComponent implements OnInit {
           }
         }
         this.isLoading = false;
-        if (!this.showLogin && window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+        if (!this.showLogin && window['GIZA_PLUGIN_TO_BE_LOADED']) {
           this.authenticationService.spawnApplicationsWithNoUsername();
           this.enableExpirationPrompt = false;
           this.needLogin = false;

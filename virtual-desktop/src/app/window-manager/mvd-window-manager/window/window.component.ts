@@ -69,7 +69,7 @@ export class WindowComponent {
         this.displayMinimize = true;
 
         // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
-        if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+        if (window['GIZA_PLUGIN_TO_BE_LOADED']) {
           this.displayMinimize = false;
           this.maximizeLeft = this.minimizeLeft;
         }
@@ -86,7 +86,7 @@ export class WindowComponent {
         this.displayMinimize = true;
 
         // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
-        if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+        if (window['GIZA_PLUGIN_TO_BE_LOADED']) {
           this.displayMinimize = false;
           this.maximizeLeft = this.minimizeLeft;
         }
@@ -103,7 +103,7 @@ export class WindowComponent {
         this.displayMinimize = true;
 
         // TODO: Disable minimize button once mvd-window-manager single app mode is functional. Variable subject to change.
-        if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
+        if (window['GIZA_PLUGIN_TO_BE_LOADED']) {
           this.displayMinimize = false;
           this.maximizeLeft = this.minimizeLeft;
         }
@@ -159,7 +159,7 @@ export class WindowComponent {
     this.maxWidth = '100%';
     this.zIndex = this.desktopWindow.windowState.zIndex;
     // In standalone app mode, our launchbar doesn't exist
-    this.launchbarHeight = (window.GIZA_SIMPLE_CONTAINER_REQUESTED ? 0 : WindowManagerService.LAUNCHBAR_HEIGHT);
+    this.launchbarHeight = (window.GIZA_PLUGIN_TO_BE_LOADED ? 0 : WindowManagerService.LAUNCHBAR_HEIGHT);
 
     /* These 4 conditionals check if a window is out of bounds by checking if a window has been
     dragged too far out of view, in either of the 4 directions, and locks it from going further. */
