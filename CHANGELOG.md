@@ -2,6 +2,11 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `1.28.4`
+
+- Bugfix: Fixed Iframes from unintentionally loading their sources multiple times during refocus & multi-app situations (#530)
+- Bugfix: Replace existing snapshot preview with lighter UI to significantly increase multi-app Desktop performance (#530)
+
 ## `1.28.0`
 
 - Bugfix that would prevent using the password reset tool for auth plugins that implemented more than one auth category

@@ -38,7 +38,8 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
       }
       let index = this.instanceIds.indexOf(window.windowId);
       if (index != -1) {
-        this.generateSnapshot(index);
+        // TODO: Generate snapshot code needs optimization due to incredible desktop performance slowdown
+        // this.generateSnapshot(index);
       }
     });
   }
@@ -92,21 +93,24 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
   }
 
   instanceAdded(instanceId: MVDHosting.InstanceId, isEmbedded: boolean|undefined) {
-    var self = this;
+    //var self = this;
     if (!isEmbedded) {
       this.instanceIds.push(instanceId);
-      let index = this.instanceIds.length-1;
+      //let index = this.instanceIds.length-1;
       if (this.instanceIds.length != 1) {
         //skip first for performance
         setTimeout(function() {
-          self.generateSnapshot(index);
+          // TODO: Generate snapshot code needs optimization due to incredible desktop performance slowdown
+          //self.generateSnapshot(index);
         }, 3000);
       } if (this.instanceIds.length == 2) {
         //go back and init first. slightly worse for performance
-        self.generateSnapshot(0);
+        // TODO: Generate snapshot code needs optimization due to incredible desktop performance slowdown
+        //self.generateSnapshot(0);
       }
     }
   }
+  
   instanceRemoved(instanceId: MVDHosting.InstanceId) {
     let index = this.instanceIds.indexOf(instanceId);
     if (index != -1) {
