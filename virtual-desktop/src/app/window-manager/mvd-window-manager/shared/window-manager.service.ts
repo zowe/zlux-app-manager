@@ -153,10 +153,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
             this.maximizeToggle(this.focusedWindow.windowId);
           }
         }
-        else if (event.which === KeyCode.COMMA) {                  
+        else if (event.which === KeyCode.COMMA || event.which === KeyCode.LEFT_ARROW) {                  
             this.switchWindow(-1);
         }
-        else if (event.which === KeyCode.PERIOD) { 
+        else if (event.which === KeyCode.PERIOD || event.which === KeyCode.RIGHT_ARROW) { 
             this.switchWindow(1);
         }
         else if (event.which === KeyCode.KEY_W) {
