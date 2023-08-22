@@ -76,7 +76,7 @@ jobs:
             # Extract text after "changelog:"
             CHANGELOG_TEXT=$(echo $PR_DESCRIPTION | sed -n 's/.*CHANGELOG: \(.*\)/\1/p')
             # Extract VERSION: from PR description
-            VERSION=$(echo "$PR_DESCRIPTION" | grep -oP 'VERSION:\s*\Kv\d+\.\d+\.\d+')
+            VERSION=$(echo "$PR_DESCRIPTION" | grep -oP 'VERSION:\s*\K\d+\.\d+\.\d+')
             echo "Extracted changelog: $CHANGELOG_TEXT"
             echo "::set-output name=changelog::$CHANGELOG_TEXT"
             echo "::set-output name=version::$VERSION"
@@ -92,7 +92,7 @@ jobs:
           # Check if version exists in CHANGELOG.md
             if grep -q "## ${{ steps.extract-changelog.outputs.version }}" CHANGELOG.md; then
               # Append PR description to existing version
-              sed -i "/## ${{ steps.extract-changelog.outputs.version }}/ a- ${{ steps.extract-changelog.outputs.changelog }} . (#${{ github.event.pull_request.number }})" CHANGELOG.md
+              sed -i "/## ${{ steps.extract-changelog.outputs.version }}/ a- ${{ steps.extract-changelog.outputs.changelog }} (#${{ github.event.pull_request.number }})" CHANGELOG.md
             else
               # Append new version and PR description
               echo "$(awk '/All notable changes to the Zlux App Server package will be documented in this file\./ {
