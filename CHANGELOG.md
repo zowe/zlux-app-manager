@@ -3,6 +3,7 @@
 All notable changes to the Zlux App Manager will be documented in this file.
 
 ## `2.10.0`
+ 
 - Bugfix: Fixed a timing issue with the iframe-adapter for Firefox (#532)
 
 ## `2.8.0`
