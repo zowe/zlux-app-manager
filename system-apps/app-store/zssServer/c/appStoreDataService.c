@@ -44,6 +44,30 @@ typedef struct AppStoreServiceData_t
   uint64 loggingId;
 } AppStoreServiceData;
 
+static jsonPrinter *writeSuccess(HttpResponse *response, int rc, char *type) {
+  int convert = TRUE;
+  int outCCSID = CCSID_EBCDIC_1047;
+  int reasonCode = 0;
+  int translationLength = 0;
+  char *convertBuffer = safeMalloc(4096, "ConvertBuffer");
+
+  if (!strcmp(type, "tar") || !strcmp(type, "pax")){
+    convert = FALSE;
+  }
+
+  jsonPrinter *p = respondWithJsonPrinter(response);
+    
+  setResponseStatus(response, 200, "OK");
+  setDefaultJSONRESTHeaders(response);
+  writeHeader(response);
+    
+  jsonStart(p);
+  jsonStartMultipartString(p, "output");
+  jsonEndMultipartString(p);
+  safeFree(convertBuffer, 4096);
+  return p;
+}
+
 static int appStoreDataService(HttpService *service, HttpResponse *response)
 {
   HttpRequest *request = response->request;
@@ -80,7 +104,7 @@ static int appStoreDataService(HttpService *service, HttpResponse *response)
     // Convert the header for mainframe
     char *nativeBody = copyStringToNative(request->slh, inPtr, strlen(inPtr));
     int inLen = strlen(nativeBody);
-    char *errBuf[1024];
+    char errBuf[1024];
 
     // Checks for the validity of the body if the body is not valid then it will return NULL
     Json *body = jsonParseUnterminatedString(
@@ -116,7 +140,15 @@ static int appStoreDataService(HttpService *service, HttpResponse *response)
 
     if (autoEncodingJson != NULL)
     {
-      autoEncoding = jsonAsBoolean(autoEncodingJson);
+      if (jsonAsBoolean(autoEncodingJson)) {
+        char encoding[5];
+        strcpy(encoding, "yes");
+        autoEncoding = encoding;
+      } else {
+        char encoding[5];
+        strcpy(encoding, "no");
+        autoEncoding = encoding;
+      }
     }
     else
     {
@@ -128,7 +160,9 @@ static int appStoreDataService(HttpService *service, HttpResponse *response)
 
     if (skipEnableJson != NULL)
     {
-      skipEnable = jsonAsBoolean(skipEnableJson);
+      if (jsonAsBoolean(skipEnableJson)) {
+        skipEnable  = true;
+      }
     }
 
     if (registryJson == NULL)
@@ -147,6 +181,8 @@ static int appStoreDataService(HttpService *service, HttpResponse *response)
     char *name = jsonAsString(nameJson);
     char *registry = jsonAsString(registryJson);
     char *handler = jsonAsString(handlerJson);
+
+    char *type = "string";
 
     char cmd[10280];
 
@@ -172,7 +208,7 @@ static int appStoreDataService(HttpService *service, HttpResponse *response)
             "App Store call '%s' ended in rc=%d\n", cmd, retCode);
     
     if (!retCode) {
-      jsonPrinter *p = writeSuccess(response, retCode, "string");
+      jsonPrinter *p = writeSuccess(response, retCode, type);
       jsonAddInt(p, "rc", retCode);
 
       jsonEnd(p);
