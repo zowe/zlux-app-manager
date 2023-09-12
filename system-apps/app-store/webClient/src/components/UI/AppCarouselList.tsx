@@ -49,12 +49,13 @@ const AppCarouselList: React.FC<AppCarouselList> = ({ apps }) => {
       <Slider {...settings}>
         {apps.map((app) => (
           <AppCard
-            key={app.id}
-            id={app.id}
-            name={app.name}
-            description={app.description}
-            icon={app.icon}
-            publisher={app.publisher}
+            key={app.identifier}
+            id={app.identifier}
+            name={app.webContent.launchDefinition.pluginShortNameDefault}
+            description={app.webContent.descriptionDefault}
+            icon={app.webContent.launchDefinition.imageSrc}
+            publisher={app?.author || 'Zowe'}
+            installed={app.installed}
           />
         ))}
       </Slider>

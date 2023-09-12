@@ -3,7 +3,6 @@
     "apiVersion": "1.0.0",
     "pluginVersion": "1.0.0",
     "pluginType": "application",
-    "isSystemPlugin":true,
     "webContent": {
       "framework": "react",
       "launchDefinition": {

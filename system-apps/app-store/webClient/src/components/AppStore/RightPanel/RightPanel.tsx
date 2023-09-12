@@ -10,6 +10,7 @@ const RightPanel: React.FC = ({
             overflowY: "scroll",
             paddingBottom: "40px",
             minHeight: "100vh",
+            borderLeft: "1px solid #333",
         }}>
             {children}
         </div>

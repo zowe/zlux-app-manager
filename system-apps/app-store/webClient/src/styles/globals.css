@@ -1,3 +1,12 @@
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .appStoreContainer {
   font-family: "Roboto", sans-serif;
   background-color: #2f2f2f;
@@ -92,6 +101,11 @@
   justify-content: center;
 }
 
+.installButton[disabled] {
+  background: #555;
+  cursor: not-allowed;
+}
+
 .appList {
   width: 90%;
 }
@@ -115,6 +129,11 @@
   font-weight: 500;
 }
 
+.optionButton.active {
+  background: #343434;
+  color: #fff;
+}
+
 .optionButton:focus {
   outline: none;
 }
@@ -122,6 +141,45 @@
 .optionButton:hover {
   background: #343434;
   color: #fff;
+}
+
+select {
+  appearance: none;
+  outline: 0;
+  border: 0;
+  box-shadow: none;
+  flex: 1;
+  padding: 0 1em;
+  color: #fff;
+  background-color: #333;
+  background-image: none;
+  cursor: pointer;
+}
+select::-ms-expand {
+  display: none;
+}
+.select {
+  position: relative;
+  display: flex;
+  width: 20em;
+  height: 3em;
+  border-radius: 0.25em;
+  overflow: hidden;
+}
+/* Arrow */
+.select::after {
+  content: "\25BC";
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 1em;
+  background-color: #333;
+  transition: 0.25s all ease;
+  pointer-events: none;
+}
+/* Transition */
+.select:hover::after {
+  color: #f39c12;
 }
 
 ::-webkit-scrollbar {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const options = [
   {
@@ -35,6 +35,7 @@ const options = [
 ];
 
 const NavigationButtons = () => {
+  const location = useLocation();
   return (
     <div
       style={{
@@ -43,7 +44,13 @@ const NavigationButtons = () => {
       }}
     >
       {options.map((opt) => (
-        <Link key={opt.id} to={opt.href} className={"optionButton"}>
+        <Link
+          key={opt.id}
+          to={opt.href}
+          className={`optionButton ${
+            location.pathname === opt.href && "active"
+          }`}
+        >
           {opt.name}
         </Link>
       ))}
