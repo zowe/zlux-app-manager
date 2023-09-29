@@ -2,6 +2,9 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `2.11.0`
+- Added App Store for installing plugins in Zowe Desktop
+
 ## `2.10.0`
  
 - Bugfix: Fixed a timing issue with the iframe-adapter for Firefox (#532)
