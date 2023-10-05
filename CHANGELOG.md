@@ -1,6 +1,6 @@
 # Zlux App Manager Changelog
 
-All notable changes to the Zlux App Manager will be documented in this file. 
+All notable changes to the Zlux App Manager will be documented in this file.
 
 ## `2.10.0`
  
