@@ -3,9 +3,11 @@
 All notable changes to the Zlux App Manager will be documented in this file.
 
 ## `2.10.0`
+ 
 - Bugfix: Fixed a timing issue with the iframe-adapter for Firefox (#532)
 
 ## `2.8.0`
+
 - Bugfix: Fixed the iframe-adapter not properly recognizing standalone mode
 - Bugfix: Fixed Iframes from unintentionally loading their sources multiple times during refocus & multi-app situations
 - Enhancement: Added new isSingleAppModeSimple() to iframe-adapter to differentiate between standalone mode and simple standalone mode
