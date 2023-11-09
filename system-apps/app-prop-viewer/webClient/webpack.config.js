@@ -10,7 +10,7 @@
 
 const path = require('path');
 const { merge } = require('webpack-merge');
-const baseConfig = require(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack.base.js'));
+const baseConfig = require(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack5.base.js'));
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 if (process.env.MVD_DESKTOP_DIR == null) {
