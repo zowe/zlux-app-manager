@@ -1,3 +1,5 @@
+
+
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -14,86 +16,73 @@ var os = require('os');
 var desktopDir = path.resolve(__dirname, '..');
 
 var config = {
-  devtool: 'source-map',
-  output: {
-    libraryTarget: 'umd',
-    umdNamedDefine: true
+  'devtool': 'source-map',
+  'output': {
+    'libraryTarget': 'umd',
+    'umdNamedDefine': true
   },
-  resolve: {
-    extensions: ['.js', '.ts'],
-    alias: {
-      pluginlib: path.resolve(desktopDir, 'src/pluginlib'),
+  'resolve': {
+    'extensions': ['.js', '.ts'],
+    'alias': {
+      'pluginlib': path.resolve(desktopDir, 'src/pluginlib'),
       'zlux-base': path.resolve(__dirname, '../../zlux-platform/base/src'),
       'zlux-interface': path.resolve(__dirname, '../../zlux-platform/interface/src')
     }
   },
-  module: {
-    rules: [
+  'module': {
+    'rules': [
       {
         /* Javascript source map loader */
-        enforce: 'pre',
-        test: /\.js$/,
-        use: 'source-map-loader',
-        exclude: /\/node_modules\//
+        'enforce': 'pre',
+        'test': /\.js$/,
+        'loader': 'source-map-loader',
+        'exclude': [
+          /\/node_modules\//
+        ]
       },
       {
         /* HTML URL resolution loader */
-        test: /\.html$/,
-        use: 'html-loader'
+        'test': /\.html$/,
+        'loader': 'html-loader'
       },
       {
-        test: /\.svg$/,
-        use: 'svg-sprite-loader'
+        'test': /\.svg$/,
+        'loader': 'svg-sprite-loader'
       },
       {
         /* External file loader */
-        test: /\.eot$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[hash:20].[ext]'
-            }
-          }
-        ]
+        'test': /\.eot$/,
+        'loader': 'file-loader?name=[name].[hash:20].[ext]'
       },
       {
         /* External (or inline) file loader */
-        test: /\.(jpg|png|gif|otf|ttf|woff|woff2|cur|ani)$/,
-        use: [
+        'test': /\.(jpg|png|gif|otf|ttf|woff|woff2|cur|ani)$/,
+        'loader': 'url-loader?name=[name].[hash:20].[ext]&limit=10000'
+      },
+      {
+        /* CSS URL loader, TODO: reconsider */
+        'test': /\.css$/,
+        'use': [
+          'exports-loader?module.exports.toString()',
           {
-            loader: 'url-loader',
-            options: {
-              name: '[name].[hash:20].[ext]',
-              limit: 10000
+            'loader': 'css-loader',
+            'options': {
+              'sourceMap': false
             }
           }
         ]
       },
       {
-        /* CSS URL loader */
-        test: /\.css$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              sourceMap: false
-            }
-          }
-        ]
-      },
-      {
-        /* TS and Angular loader */
-        test: /\.ts$/,
-        use: [
+        /* TS and angular loader */
+        'test': /\.ts$/,
+        'loaders': [
           'ts-loader',
           'angular2-template-loader'
         ]
       }
     ]
   },
-  externals: [
+  'externals': [
     function(context, request, callback) {
       if (/(@angular)|(angular\-l10n)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs(\/operators)?$)/.test(request)){
         return callback(null, {
@@ -108,6 +97,7 @@ var config = {
 };
 
 module.exports = config;
+
 
 /*
   This program and the accompanying materials are
