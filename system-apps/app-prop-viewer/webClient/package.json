@@ -2,7 +2,7 @@
   "name": "org.zowe.zlux.appmanager.app.propview.webclient",
   "version": "2.0.0",
   "scripts": {
-    "start": "webpack --progress --colors --watch",
+    "start": "webpack --progress --watch",
     "build": "webpack --progress",
     "i18n": "ng-xi18n -p tsconfig.i18n.json --i18nFormat=xlf  --outFile=messages.xlf",
     "lint": "tslint -c tslint.json \"./**/*.ts\""
