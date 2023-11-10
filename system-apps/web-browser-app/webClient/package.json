@@ -2,8 +2,8 @@
   "name": "org.zowe.zlux.ng2desktop.webbrowser.webclient",
   "version": "2.0.0",
   "scripts": {
-    "start": "webpack --progress --colors --watch",
-    "build": "webpack --progress --colors",
+    "start": "webpack --progress --color --watch",
+    "build": "webpack --progress --color",
     "i18n": "ng-xi18n -p tsconfig.i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json",
     "lint": "tslint -c tslint.json \"./**/*.ts\"",
     "ng": "ng"
