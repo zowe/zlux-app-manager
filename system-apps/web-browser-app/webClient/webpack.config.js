@@ -20,26 +20,34 @@ if (process.env.MVD_DESKTOP_DIR == null) {
 
 var config = {
   mode: 'development',
-  'entry': [
+  entry: [
     path.resolve(__dirname, './src/plugin.ts')
   ],
-  'output': {
-    'path': path.resolve(__dirname, '../web'),
-    'filename': 'main.js',
+  output: {
+    path: path.resolve(__dirname, '../web'),
+    filename: 'main.js',
   },
-  'module': {
-    'rules': [
+  module: {
+    rules: [
+      // SCSS handling
       {
-        'test': /\.scss$/,
-        'use': [
-          { 'loader': 'to-string-loader'},
-          { 'loader': 'css-loader' },
-          { 'loader': 'sass-loader' }
+        test: /\.scss$/,
+        use: [
+          // For development, inject styles into the DOM using 'style-loader'
+          // For production, consider using MiniCssExtractPlugin.loader for separate CSS files
+          'style-loader', 
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true, // Set to false if you don't want source maps for CSS
+            },
+          },
+          'sass-loader', // Compiles Sass to CSS
         ],
       },
     ]
   },
-  'plugins': [
+  plugins: [
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, './src/assets'),
@@ -50,7 +58,7 @@ var config = {
 };
 
 module.exports = new webpackConfig.Config()
-  .extend(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack.base.js'))
+  .extend(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack5.base.js'))
   .merge(config);
 
 
