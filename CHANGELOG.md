@@ -2,6 +2,11 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `3.0.0`
+
+- Enhancement: Updated all webpack configurations across supported zlux-app-manager apps (virtual-desktop, bootstrap, app-prop-viewer,
+web-browser-app, system-settings-preferences) from 4 --> 5. This includes all associated loaders, modules, and dependencies with removal of deprecated ones. Old Webpack 4 base configuration has been left for app's backwards compatibility. For more information, visit https://www.zowe.org/vnext (#550)
+
 ## `2.10.0`
  
 - Bugfix: Fixed a timing issue with the iframe-adapter for Firefox (#532)
