@@ -119,8 +119,7 @@ export class IFramePluginFactory extends PluginFactory {
     const decoratedComponent = Component(metadata)(componentClass);
     @NgModule({
       imports: [CommonModule],
-      declarations: [decoratedComponent],
-      entryComponents: [decoratedComponent]
+      declarations: [decoratedComponent]
     })
     class RuntimePluginModule {}
     return this.compiler.compileModuleAsync(RuntimePluginModule).then(factory =>
