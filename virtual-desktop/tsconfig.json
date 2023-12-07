@@ -64,6 +64,9 @@
       "es6",
       "dom"
     ]
+  },
+  "angularCompilerOptions": {
+    "enableIvy": false
   }
 
 }

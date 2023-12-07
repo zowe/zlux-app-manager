@@ -15,7 +15,8 @@
       "virtual-desktop-logger": [
         "./app/shared/logger"
       ]      
-    }
+    },
+    "skipLibCheck": true
   },
   "angularCompilerOptions": {
     "enableIvy": false
