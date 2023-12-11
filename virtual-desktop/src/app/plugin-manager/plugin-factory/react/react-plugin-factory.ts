@@ -72,7 +72,8 @@ export class ReactPluginFactory extends PluginFactory {
           class ReactPluginComponentPrime extends ReactPluginComponent {}
           @NgModule({
             imports: [CommonModule],
-            declarations: [ReactPluginComponentPrime],
+            //declarations: [ReactPluginComponentPrime],
+            declarations: [],
             providers: [
               {
                 provide: ReactEntryHook,
