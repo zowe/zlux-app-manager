@@ -332,7 +332,6 @@ export class AuthenticationManager {
       let jsonMessage = (result as any);
       if (jsonMessage && jsonMessage.success === true) {
         this.setSessionTimeoutWatcher(jsonMessage.categories);
-        window.localStorage.setItem('username', username);
         this.username = username;
         (ZoweZLUX.logger as any)._setBrowserUsername(username);
         this.performPostLoginActions().subscribe(
