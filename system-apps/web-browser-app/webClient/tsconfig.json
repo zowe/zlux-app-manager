@@ -1,3 +1,10 @@
 {
-  "extends": "../../../virtual-desktop/plugin-config/tsconfig.strict.json"
+  "extends": "../../../virtual-desktop/plugin-config/tsconfig.strict.json",
+  "include": [
+    "./src"
+  ],
+  "angularCompilerOptions": {
+    "genDir": "aot/",
+    "skipMetadataEmit": true
+  }
 }

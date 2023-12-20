@@ -1,12 +1,10 @@
 {
   "extends": "../../../virtual-desktop/plugin-config/tsconfig.ngx-i18n.json",
-
   "include": [
     "./src"
   ],
-
-  "compilerOptions": {
-    "outDir": "./src/assets/i18n",
+  "angularCompilerOptions": {
+    "genDir": "aot/",
     "skipLibCheck": true
   }
 }

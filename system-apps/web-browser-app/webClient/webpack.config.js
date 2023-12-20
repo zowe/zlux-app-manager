@@ -13,6 +13,7 @@
 var path = require('path');
 var webpackConfig = require('webpack-config');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+var { AngularCompilerPlugin } = require('@ngtools/webpack');
 
 if (process.env.MVD_DESKTOP_DIR == null) {
   throw new Error('You must specify MVD_DESKTOP_DIR in your environment');
@@ -40,6 +41,13 @@ var config = {
     ]
   },
   'plugins': [
+    new AngularCompilerPlugin({
+      tsConfigPath: path.resolve(__dirname, './tsconfig.json'),
+      mainPath: path.resolve(__dirname, './src/plugin.ts'),
+      sourceMap: true,
+      skipCodeGeneration: true,
+      platform: 0
+    }),
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, './src/assets'),
@@ -50,7 +58,7 @@ var config = {
 };
 
 module.exports = new webpackConfig.Config()
-  .extend(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack.base.js'))
+  .extend(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack.base..ng.js'))
   .merge(config);
 
 
