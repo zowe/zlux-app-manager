@@ -39,6 +39,10 @@
   background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/personalization.png');
 }
 
+.panel-item-app_store{
+  background-image: url('../../../../../../system-apps/app-store/webClient/src/assets/icon.png');
+}
+
 .panel-item-password{
   background-image: url('../../../../assets/images/login/password-reset.png');
   background-size: contain;

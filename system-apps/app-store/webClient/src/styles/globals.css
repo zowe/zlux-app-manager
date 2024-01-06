@@ -1,0 +1,196 @@
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.appStoreContainer {
+  font-family: "Roboto", sans-serif;
+  background-color: #2f2f2f;
+}
+
+.sliderArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  background-color: #222;
+  border-radius: 50%;
+  padding: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+}
+
+.sliderArrow:hover {
+  background-color: #333;
+}
+
+.nextArrow {
+  right: -20px;
+}
+
+.prevArrow {
+  left: -20px;
+}
+
+.appContainer {
+  display: flex;
+  width: 90%;
+  min-height: 150px;
+  background: #222;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 0 auto;
+  color: #fff;
+  text-decoration: none;
+}
+
+.appContainer:hover {
+  background: #333;
+}
+
+.appIcon {
+  max-width: 48px;
+  max-height: 48px;
+}
+
+.appInfoContainer {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.appNameContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.appName {
+  font-size: 14px;
+  color: white;
+}
+
+.appPublisher {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.appDescription {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.installButton {
+  border: none;
+  border-radius: 4px;
+  color: whitesmoke;
+  cursor: pointer;
+  padding: 6px;
+  background: #3162ac;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.installButton[disabled] {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.appList {
+  width: 90%;
+}
+
+.optionButton {
+  height: 30px;
+  border: none;
+  outline: none;
+  color: #9b9c9e;
+  background: inherit;
+  padding: 0 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.optionButton.active {
+  background: #343434;
+  color: #fff;
+}
+
+.optionButton:focus {
+  outline: none;
+}
+
+.optionButton:hover {
+  background: #343434;
+  color: #fff;
+}
+
+select {
+  appearance: none;
+  outline: 0;
+  border: 0;
+  box-shadow: none;
+  flex: 1;
+  padding: 0 1em;
+  color: #fff;
+  background-color: #333;
+  background-image: none;
+  cursor: pointer;
+}
+select::-ms-expand {
+  display: none;
+}
+.select {
+  position: relative;
+  display: flex;
+  width: 20em;
+  height: 3em;
+  border-radius: 0.25em;
+  overflow: hidden;
+}
+/* Arrow */
+.select::after {
+  content: "\25BC";
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 1em;
+  background-color: #333;
+  transition: 0.25s all ease;
+  pointer-events: none;
+}
+/* Transition */
+.select:hover::after {
+  color: #f39c12;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

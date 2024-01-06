@@ -1,0 +1,39 @@
+{
+  "name": "appstore",
+  "version": "1.0.0",
+  "description": "Zowe App Store",
+  "scripts": {
+    "start": "webpack --config webpack.config.js --watch",
+    "build": "webpack --config webpack.config.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.8.1",
+    "exports-loader": "^4.0.0",
+    "postcss-import": "^15.1.0",
+    "postcss-loader": "^7.3.3",
+    "postcss-preset-env": "^8.5.1",
+    "script-loader": "^0.7.2",
+    "source-map-loader": "^4.0.1",
+    "style-loader": "^3.3.3",
+    "svg-sprite-loader": "^6.0.11",
+    "ts-loader": "^9.4.3",
+    "webpack": "^5.87.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1",
+    "webpack-merge": "^5.9.0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.14.2",
+    "react-slick": "^0.29.0",
+    "reactjs-popup": "^2.0.5",
+    "rxjs": "^7.8.1",
+    "slick-carousel": "^1.8.1",
+    "typescript": "^5.1.3"
+  }
+}
