@@ -200,7 +200,6 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
                         +`App ID=${plugin.getIdentifier()}, Instance Obj=`,notATurtle); */
       }
 
-
       return applicationInstance.instanceId;
     }
 
