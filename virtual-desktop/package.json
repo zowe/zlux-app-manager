@@ -44,7 +44,7 @@
     "html2canvas": "~1.0.0-rc.1",
     "jquery": "~3.5.0",
     "json-loader": "~0.5.7",
-    "moment": "~2.25.3",
+    "moment": "~2.29.2",
     "ngx-file-drop": "~6.0.1",
     "ngx-i18nsupport": "~0.17.1",
     "popper.js": "~1.14.3",
