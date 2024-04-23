@@ -8,9 +8,6 @@
     "lint": "tslint -c tslint.json \"./**/*.ts\""
   },
   "license": "EPL-2.0",
-  "dependencies": {
-    "express": "^4.19.2"
-  },
   "devDependencies": {
     "@angular-devkit/build-angular": "~12.0.0",
     "@angular/animations": "~12.0.0",
