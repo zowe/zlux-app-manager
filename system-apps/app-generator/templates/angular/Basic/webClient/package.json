@@ -32,7 +32,7 @@
     "rxjs-compat": "~6.2.2",
     "source-map-loader": "~0.2.3",
     "ts-loader": "~4.4.2",
-    "tslint": "~5.10.0",
+    "tslint": "~6.1.0",
     "typescript": "~2.7.2",
     "webpack": "^4.41.0",
     "webpack-cli": "^3.1.0",
