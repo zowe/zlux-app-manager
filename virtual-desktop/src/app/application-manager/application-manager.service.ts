@@ -8,7 +8,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, Injector, NgModuleFactory, Compiler, ComponentRef, Type, SimpleChanges, SimpleChange, OnChanges } from '@angular/core';
+import { Injectable, Injector, NgModuleFactory, Compiler, ComponentRef, Type, SimpleChanges, SimpleChange, OnChanges, ViewContainerRef } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
@@ -26,6 +26,7 @@ import { EmbeddedInstance } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements';
 import { LanguageLocaleService } from '../i18n/language-locale.service';
+import { ViewportComponent } from './viewport-manager/viewport/viewport.component';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
@@ -37,6 +38,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
 
   constructor(
     private injector: Injector,
+    private viewContainer: ViewContainerRef,
     private pluginLoader: PluginLoader,
     private viewportManager: ViewportManager,   // convention in angular is that injectable singleton provider from module will by keyed by type and placed in slot.
     private pluginManager: PluginManager,
@@ -139,8 +141,14 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
       throw new Error('ZWED5147E - Unknown viewport when requesting component generation');
     }
 
-    const factory = instance.moduleRef.componentFactoryResolver.resolveComponentFactory(component);
-    const componentRef = factory.create(this.injectionManager.generateComponentInjector(viewport, instance.moduleRef.injector));
+    // ViewContainerRef.createComponent does not require resolving factory first anymore - internal factory used
+    // const factory = instance.moduleRef.componentFactoryResolver.resolveComponentFactory(component);
+    // const componentRef = factory.create(this.injectionManager.generateComponentInjector(viewport, instance.moduleRef.injector));
+    // const componentRef: ComponentRef<ViewportComponent> = viewContainer.createComponent(component, undefined, this.injectionManager.generateComponentInjector(viewport, instance.moduleRef.injector));
+    const componentRef: ComponentRef<ViewportComponent> = this.viewContainer.createComponent(component, {
+      injector: this.injectionManager.generateComponentInjector(viewport, instance.moduleRef.injector)
+    });
+
     //this.logger.info("AppMgr about to associate aInst with component "+componentRef);
     //this.logger.info(componentRef);
     instance.viewportContents.set(viewportId, componentRef);

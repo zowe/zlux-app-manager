@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, ViewContainerRef, ComponentRef, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Injectable, ViewContainerRef, ComponentRef, Injector } from '@angular/core';
 import { Subject } from 'rxjs';
 
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
@@ -84,7 +84,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   constructor(
     private injector: Injector,
     private windowMonitor: WindowMonitor,
-    private componentFactoryResolver: ComponentFactoryResolver,
+    // private componentFactoryResolver: ComponentFactoryResolver, - deprecated
     private appKeyboard: KeybindingService,
     private themeService: ThemeEmitterService,
     private http: HttpClient
@@ -413,13 +413,18 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   private generateEmbedAction(windowId: MVDWindowManagement.WindowId): Angular2PluginEmbedActions {
     return {
       createEmbeddedInstance: (identifier: string, launchMetadata: any, viewContainer: ViewContainerRef): Promise<EmbeddedInstance> => {
-        return this.pluginManager.findPluginDefinition(identifier).then((plugin): InstanceId => {
+        // ideally - return this.pluginManager.findPluginDefinition(identifier).then((plugin: Type<any> ???): InstanceId => {
+        return this.pluginManager.findPluginDefinition(identifier).then((plugin: any): InstanceId => {
           if (plugin == null) {
             throw new Error('ZWED5154E - No matching plugin definition found');
           }
 
-          const factory = this.componentFactoryResolver.resolveComponentFactory(ViewportComponent);
-          const componentRef: ComponentRef<ViewportComponent> = viewContainer.createComponent(factory, viewContainer.length);
+          // ViewContainerRef.createComponent does not require resolving factory first anymore - internal factory used
+          // const factory = this.componentFactoryResolver.resolveComponentFactory(ViewportComponent);
+          // const componentRef: ComponentRef<ViewportComponent> = viewContainer.createComponent(factory, viewContainer.length);
+          // TODO: Plugin is ECMAScript (.mjs) plugin
+          // plugin --> plugin.getBasePlugin().getType() ? unsure
+          const componentRef: ComponentRef<ViewportComponent> = viewContainer.createComponent(plugin);
 
           const viewportComponent = componentRef.instance;
 
