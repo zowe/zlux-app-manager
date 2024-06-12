@@ -15,6 +15,7 @@ var path = require('path');
 const CompressionPlugin = require('compression-webpack-plugin');
 
 var config = {
+  'devtool': 'source-map',
   "entry":  {
     "main": "./src/externals-main.ts",
     "externals": "./src/externals.ts"
@@ -46,7 +47,7 @@ var config = {
   },
   optimization: {
   },
-  mode: 'production',
+  mode: 'development',
   plugins: [
     new webpack.NamedModulesPlugin(),
     new webpack.ContextReplacementPlugin(
