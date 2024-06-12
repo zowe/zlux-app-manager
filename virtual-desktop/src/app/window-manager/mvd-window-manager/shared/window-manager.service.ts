@@ -115,6 +115,15 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
         this.requestWindowFocus(id);
       }
     });
+    ZoweZLUX.dispatcher.registerEventListener('org.zowe.zlux.windowmanager.maximize',
+                                              (event:any)=>{this.maximize(event.detail.data.id);},
+                                              'org.zowe.zlux.ng2desktop');
+    ZoweZLUX.dispatcher.registerEventListener('org.zowe.zlux.windowmanager.minimize',
+                                              (event:any)=>{this.minimize(event.detail.data.id);},
+                                              'org.zowe.zlux.ng2desktop');
+    ZoweZLUX.dispatcher.registerEventListener('org.zowe.zlux.windowmanager.focus',
+                                              (event:any)=>{this.requestWindowFocus(event.detail.data.id);},
+                                              'org.zowe.zlux.ng2desktop');
     this.screenshotRequestEmitter = new Subject();
     this.windowMonitor.windowResized.subscribe(() => {
       Array.from(this.windowMap.values())
