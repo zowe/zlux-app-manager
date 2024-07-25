@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -17,10 +15,10 @@
  * tilde (~) to inform the css-loader. 
  */
 
-@import url('~typeface-roboto/index.css');
+/* @import url('~typeface-roboto/index.css');
 @import url('~bootstrap/dist/css/bootstrap.min.css');
 @import url('~font-awesome/css/font-awesome.min.css');
-@import url('./assets/css/desktop.css');
+@import url('./assets/css/desktop.css'); */
 
 .cdk-visually-hidden {
   border: 0;
@@ -99,12 +97,14 @@
   overflow-y: scroll
 }
 
-::selection { /* WebKit/Blink Browsers */
+::selection {
+  /* WebKit/Blink Browsers */
   background: grey;
   color: white;
 }
 
-::-moz-selection { /* Gecko Browsers */
+::-moz-selection {
+  /* Gecko Browsers */
   background: grey;
   color: white;
 }
@@ -118,4 +118,3 @@
   
   Copyright Contributors to the Zowe Project.
 */
-

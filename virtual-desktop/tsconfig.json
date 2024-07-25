@@ -7,8 +7,12 @@
     "../../zlux-platform/interface/src/mvd-window-management.d.ts",
     "../../zlux-platform/interface/src/server-framework.d.ts"
   ],
+  "files": [
+    "./src/desktop.ts",
+    "./src/polyfills.ts"
+  ],
   "compilerOptions": {
-    "outDir": "./dist/out-tsc",
+    "outDir": "dist/out-tsc",
     "baseUrl": "src",
     "sourceMap": true,
     "declaration": false,
@@ -64,6 +68,8 @@
       "es6",
       "dom"
     ]
+  },
+  "angularCompilerOptions": {
+    "enableIvy": true
   }
-
 }

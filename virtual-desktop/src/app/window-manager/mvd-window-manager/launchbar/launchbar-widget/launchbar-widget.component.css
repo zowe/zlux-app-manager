@@ -47,16 +47,16 @@
 }
 
 .launchbar-tray-icon.user {
-  background-image: url('../../../../../assets/images/launchbar/person.png');
+  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/person.png');
   margin-right: 12px;
 }
 
 .launchbar-tray-icon.settings {
-  background-image: url('../../../../../assets/images/launchbar/settings.png');
+  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/settings.png');
 }
 
 .launchbar-tray-icon.notification {
-  background-image: url('../../../../../assets/images/launchbar/notifications/notification.png');
+  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/notifications/notification.png');
 }
 
 .launchbar-user:hover {

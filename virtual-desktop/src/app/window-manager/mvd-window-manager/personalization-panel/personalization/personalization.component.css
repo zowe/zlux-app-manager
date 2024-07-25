@@ -67,15 +67,15 @@
 }
 
 .personalization-preview-item.preview-small{
-  background-image: url('../../../../../assets/images/personalization/preview-1.png');
+  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/personalization/preview-1.png');
 }
 
 .personalization-preview-item.preview-medium{
-  background-image: url('../../../../../assets/images/personalization/preview-2.png');
+  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/personalization/preview-2.png');
 }
 
 .personalization-preview-item.preview-large{
-  background-image: url('../../../../../assets/images/personalization/preview-3.png');
+  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/personalization/preview-3.png');
   margin-right: 0px;
 }
 

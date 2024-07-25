@@ -22,7 +22,7 @@
  * least one global style in order to create the desktop itself.
  */
 
-import './styles.css';
+// import './styles.css';
 
 
 /*
