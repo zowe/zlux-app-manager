@@ -39,19 +39,11 @@ type ErrorInfo = {
 export class LoginComponent implements OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
-<<<<<<< HEAD
   logo: string = `assets/images/login/Zowe_Logo.png`;
   passwordLogo: string = `assets/images/login/password-reset.png`;
   isLoading: boolean;
   needLogin: boolean;
   changePassword: boolean;
-=======
-  logo: string = ''; //require('../../../assets/images/login/Zowe_Logo.png');
-  passwordLogo: string = ''; //require('../../../assets/images/login/password-reset.png');
-  isLoading:boolean;
-  needLogin:boolean;
-  changePassword:boolean;
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
   locked: boolean;
   username: string;
   password: string;
@@ -441,4 +433,3 @@ export class LoginComponent implements OnInit {
 
   Copyright Contributors to the Zowe Project.
 */
-
