@@ -55,7 +55,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public notifCountSize: string;
   public notifTopOffset: string;
   public notifLeftOffset: string;
-  public closeImage: string = require('../../../../../assets/images/window/close-active.png')
+  public closeImage: string = '/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/close-active.png';
 
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public notificationsVisible: boolean;
@@ -270,7 +270,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         }
       }
       if (imgSrc === "") {
-        imgSrc =  require('../../../../../assets/images/launchbar/notifications/zowe.png')
+        imgSrc = '/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/notifications/zowe.png';
       }
 
      

@@ -26,9 +26,11 @@ const uriBroker = ZoweZLUX.uriBroker;
 __webpack_public_path__ = uriBroker.desktopRootUri();
 
 /* Load external/global resources */
-import './include.ts';
-
+// import './include.ts';
 /* Standard Angular bootstrap */
+
+import '@angular/compiler';
+import '@angular/localize/init';
 import { enableProdMode, Type } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
@@ -41,6 +43,17 @@ import { WindowManagerModule } from 'app/window-manager/mvd-window-manager/windo
 import { SimpleComponent } from 'app/window-manager/simple-window-manager/simple.component';
 import { StartURLManager } from '../src/app/start-url-manager/start-url-manager.service';
 
+/* Load globals */
+import 'jquery';
+// Dropdown component in workflows-app requires bootstrap JS components and popper.js
+// In Zowe v2 we remove the workflows-app
+// TODO: consider to remove the two imports below
+import 'popper.js';
+import 'bootstrap';
+import 'zone.js';
+// import "./assets/css/desktop.css";
+
+// import '@angular/compiler';
 if (environment.production) {
   enableProdMode();
 }
@@ -63,12 +76,14 @@ for (let index = 0; index < app2appArray.length; index++) {
   }
 }
 
-export function performBootstrap(): void {
+function performBootstrap(): void {
   MvdModuleFactory.getTranslationProviders()
     .then(providers => platformBrowserDynamic().bootstrapModule(mainModule
       || MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent), {providers: providers}));
 }
-
+const element = document.createElement('rs-com-root');
+document.body.appendChild(element);
+performBootstrap();
 
 /*
   This program and the accompanying materials are

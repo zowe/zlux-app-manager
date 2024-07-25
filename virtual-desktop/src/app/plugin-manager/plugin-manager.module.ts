@@ -14,9 +14,9 @@ import { NgModule } from '@angular/core';
 
 import { PluginManager } from './shared/plugin-manager';
 import { PluginLoader } from './shared/plugin-loader';
-import { Angular2PluginFactory } from './plugin-factory/angular2/angular2-plugin-factory';
-import { IFramePluginFactory } from './plugin-factory/iframe/iframe-plugin-factory';
-import { ReactPluginFactory } from './plugin-factory/react/react-plugin-factory';
+// import { Angular2PluginFactory } from './plugin-factory/angular2/angular2-plugin-factory';
+// import { IFramePluginFactory } from './plugin-factory/iframe/iframe-plugin-factory';
+// import { ReactPluginFactory } from './plugin-factory/react/react-plugin-factory';
 import { ReactPluginComponent } from './plugin-factory/react/react-plugin.component';
 
 @NgModule({
@@ -24,9 +24,9 @@ import { ReactPluginComponent } from './plugin-factory/react/react-plugin.compon
     ReactPluginComponent
   ],
   providers: [
-    Angular2PluginFactory,
-    IFramePluginFactory,
-    ReactPluginFactory,
+    // Angular2PluginFactory,
+    // IFramePluginFactory,
+    // ReactPluginFactory,
     PluginManager,
     PluginLoader,
     /* Expose plugin manager to external window managers */

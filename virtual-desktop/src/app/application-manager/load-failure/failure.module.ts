@@ -22,9 +22,9 @@ import { LoadFailureComponent } from './load-failure.component';
   declarations: [
     LoadFailureComponent
   ],
-  entryComponents: [
-    LoadFailureComponent
-  ]
+  // entryComponents: [
+  //   LoadFailureComponent
+  // ]
 })
 export class FailureModule {
 

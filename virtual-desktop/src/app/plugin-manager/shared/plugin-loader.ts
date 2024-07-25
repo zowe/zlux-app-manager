@@ -15,9 +15,9 @@ import { Injectable } from '@angular/core';
 import { CompiledPlugin } from './compiled-plugin';
 // import { DesktopPluginDefinition } from './desktop-plugin-definition';
 import { PluginFactory } from '../plugin-factory/plugin-factory';
-import { Angular2PluginFactory } from '../plugin-factory/angular2/angular2-plugin-factory';
-import { IFramePluginFactory } from '../plugin-factory/iframe/iframe-plugin-factory';
-import { ReactPluginFactory } from '../plugin-factory/react/react-plugin-factory';
+// import { Angular2PluginFactory } from '../plugin-factory/angular2/angular2-plugin-factory';
+// import { IFramePluginFactory } from '../plugin-factory/iframe/iframe-plugin-factory';
+// import { ReactPluginFactory } from '../plugin-factory/react/react-plugin-factory';
 import { BaseLogger } from 'virtual-desktop-logger';
 
 @Injectable()
@@ -26,26 +26,26 @@ export class PluginLoader {
   private frameworkMap: Map<string, PluginFactory[]>;
 
   constructor(
-    angular2: Angular2PluginFactory,
-    iframe: IFramePluginFactory,
-    react: ReactPluginFactory
+    // angular2: Angular2PluginFactory,
+    // iframe: IFramePluginFactory,
+    // react: ReactPluginFactory
   ) {
     this.frameworkMap = new Map<string, PluginFactory[]>();
     /* This can be moved to a more substantial registration system later on */
-    this.registerPluginFactory(angular2);
-    this.registerPluginFactory(iframe);
-    this.registerPluginFactory(react);
+    // this.registerPluginFactory(angular2);
+    // this.registerPluginFactory(iframe);
+    // this.registerPluginFactory(react);
   }
 
-  private registerPluginFactory(pluginFactory: PluginFactory): void {
-    pluginFactory.acceptableFrameworks().forEach(framework => {
-      if (!this.frameworkMap.has(framework)) {
-        this.frameworkMap.set(framework, []);
-      }
+  // private registerPluginFactory(pluginFactory: PluginFactory): void {
+  //   pluginFactory.acceptableFrameworks().forEach(framework => {
+  //     if (!this.frameworkMap.has(framework)) {
+  //       this.frameworkMap.set(framework, []);
+  //     }
 
-      this.frameworkMap.get(framework)!.push(pluginFactory);
-    });
-  }
+  //     this.frameworkMap.get(framework)!.push(pluginFactory);
+  //   });
+  // }
 
   loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin | null> {
     const candidateFactories = this.frameworkMap.get(pluginDefinition.getFramework()) || [];

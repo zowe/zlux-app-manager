@@ -14,7 +14,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { ZluxPopupManagerModule } from '@zlux/widgets';
+// import { ZluxPopupManagerModule } from '@zlux/widgets';
 import { LoginComponent } from './login/login.component';
 import { AuthenticationManager } from './authentication-manager.service';
 import { StartURLManagerModule } from '../start-url-manager';
@@ -26,7 +26,7 @@ import { IdleWarnService } from './idleWarn.service';
     CommonModule,
     FormsModule,
     HttpClientModule,
-    ZluxPopupManagerModule,
+    // ZluxPopupManagerModule,
     StartURLManagerModule,
   ],
   declarations: [
