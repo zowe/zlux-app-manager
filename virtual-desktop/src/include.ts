@@ -10,19 +10,20 @@
   Copyright Contributors to the Zowe Project.
 */
 
-.window-pane {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-  display: flex;
-<<<<<<< HEAD
-  background: url("assets/images/background.jpg") no-repeat center/cover;
-=======
-  background: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/background.jpg") no-repeat center/cover;
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
-}
+/*
+ * This file loads external scripts and stylesheets needed for the desktop.
+ * script-loader loads scripts into the global context (no modules, namespacing,
+ * etc.). It should *only* be used for legacy external resources that do not
+ * have a module-based distribution.
+ *
+ * style-loader loads the CSS into the page via a <style> tag. Ideally, the non-
+ * external, global styles will be eliminated in favor of component-level styles
+ * wherever possible. However, since this is a desktop plugin, we must have at
+ * least one global style in order to create the desktop itself.
+ */
+
+// import './styles.css';
+
 
 /*
   This program and the accompanying materials are

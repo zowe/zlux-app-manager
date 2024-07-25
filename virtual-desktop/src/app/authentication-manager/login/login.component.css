@@ -49,7 +49,11 @@
   height: 100%;
   top: 0;
   left: 0;
+<<<<<<< HEAD
   background: url("assets/images/background.jpg") no-repeat center/cover;
+=======
+  background: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/background.jpg") no-repeat center/cover;
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 }
 
 .login-panel.hidden {
@@ -119,17 +123,30 @@
   display: inline-block;
   width: 76px;
   height: 76px;
+<<<<<<< HEAD
   background-image: url('assets/images/login/login-btn-normal.png');
+=======
+  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/login/login-btn-normal.png');
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
   background-position: center center;
   background-repeat: no-repeat;
 }
 
+<<<<<<< HEAD
 .login-button>.login-button-icon:hover {
   background-image: url('assets/images/login/login-btn-hover.png');
 }
 
 .login-button>.login-button-icon:active {
   background-image: url('assets/images/login/login-btn-pressed.png');
+=======
+.login-button > .login-button-icon:hover {
+  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/login/login-btn-hover.png');
+}
+
+.login-button > .login-button-icon:active {
+  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/login/login-btn-pressed.png');
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 }
 
 .login-button:disabled {

@@ -140,21 +140,34 @@
 
 .maximize-button {
   left: 73px;
+<<<<<<< HEAD
   background-image: url("assets/images/window/expand-inactive.png");
+=======
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/expand-inactive.png");
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 }
 
 .maximize-button.maximized {
   left: 73px;
+<<<<<<< HEAD
   background-image: url("assets/images/window/expanded-inactive.png");
+=======
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/expanded-inactive.png");
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 }
 
 .minimize-button {
   left: 42px;
+<<<<<<< HEAD
   background-image: url("assets/images/window/minimize-inactive.png");
+=======
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/minimize-inactive.png");
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 }
 
 .close-button {
   left: 12px;
+<<<<<<< HEAD
   background-image: url("assets/images/window/close-inactive.png");
 }
 
@@ -208,6 +221,61 @@
 
 .close-button.active:active {
   background-image: url("assets/images/window/close-pressed.png");
+=======
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/close-inactive.png");
+}
+
+.maximize-button.active:hover {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/expand-hover-active.png");
+}
+
+.maximize-button.maximized.active:hover {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/expanded-hover-active.png");
+}
+
+.minimize-button.active:hover {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/minimize-hover-active.png");
+}
+
+.close-button.active:hover {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/close-hover-active.png");
+}
+
+.maximize-button.active {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/expand-active.png");
+}
+
+.maximize-button.maximized.active {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/expanded-active.png");
+}
+
+.minimize-button.active {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/minimize-active.png");
+}
+
+.close-button.active {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/close-active.png");
+}
+
+.close-button.active:active {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/close-pressed.png");
+}
+
+.maximize-button.active:active {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/expand-pressed.png");
+}
+
+.maximize-button.maximized.active:active {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/expanded-pressed.png");
+}
+
+.minimize-button.active:active {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/minimize-pressed.png");
+}
+
+.close-button.active:active {
+  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/close-pressed.png");
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 }
 
 .grip-n,

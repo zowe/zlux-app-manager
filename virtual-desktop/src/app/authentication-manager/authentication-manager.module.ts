@@ -13,6 +13,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+<<<<<<< HEAD
+=======
+import { HttpClientModule } from '@angular/common/http';
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 // import { ZluxPopupManagerModule } from '@zlux/widgets';
 import { LoginComponent } from './login/login.component';
 import { AuthenticationManager } from './authentication-manager.service';
@@ -25,6 +29,10 @@ import { provideHttpClient } from '@angular/common/http';
   imports: [
     CommonModule,
     FormsModule,
+<<<<<<< HEAD
+=======
+    HttpClientModule,
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
     // ZluxPopupManagerModule,
     StartURLManagerModule,
   ],

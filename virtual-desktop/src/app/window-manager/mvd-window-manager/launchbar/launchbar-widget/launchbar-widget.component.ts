@@ -55,7 +55,11 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public notifCountSize: string;
   public notifTopOffset: string;
   public notifLeftOffset: string;
+<<<<<<< HEAD
   public closeImage: string = `${ZoweZLUX?.uriBroker.desktopRootUri()}assets/images/window/close-active.png`;
+=======
+  public closeImage: string = '/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/close-active.png';
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public notificationsVisible: boolean;
@@ -270,7 +274,11 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         }
       }
       if (imgSrc === "") {
+<<<<<<< HEAD
         imgSrc = `${ZoweZLUX?.uriBroker.desktopRootUri()}assets/images/launchbar/notifications/zowe.png`;
+=======
+        imgSrc = '/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/notifications/zowe.png';
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
       }
 
 

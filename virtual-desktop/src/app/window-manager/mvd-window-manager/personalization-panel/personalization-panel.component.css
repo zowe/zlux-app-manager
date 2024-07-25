@@ -32,15 +32,19 @@
 }
 
 .panel-item-foreign_language{
-  background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/language_icon.png');
+  /* background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/language_icon.png'); */
 }
 
 .panel-item-personalization{
-  background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/personalization.png');
+  /* background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/personalization.png'); */
 }
 
 .panel-item-password{
+<<<<<<< HEAD
   background-image: url('assets/images/login/password-reset.png');
+=======
+  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/login/password-reset.png');
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
   background-size: contain;
 }
 

@@ -22,6 +22,12 @@ import { LoadFailureComponent } from './load-failure.component';
   declarations: [
     LoadFailureComponent
   ],
+<<<<<<< HEAD
+=======
+  // entryComponents: [
+  //   LoadFailureComponent
+  // ]
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 })
 export class FailureModule {
 

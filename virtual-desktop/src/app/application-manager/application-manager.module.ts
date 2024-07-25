@@ -40,7 +40,14 @@ import { I18nModule } from '../i18n/i18n.module';
   ],
   exports: [
     ViewportComponent
+<<<<<<< HEAD
   ]
+=======
+  ],
+  // entryComponents: [
+  //   ViewportComponent
+  // ]
+>>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 })
 export class ApplicationManagerModule {
 
