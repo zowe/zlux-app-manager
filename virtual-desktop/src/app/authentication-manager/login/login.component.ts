@@ -37,8 +37,8 @@ type ErrorInfo = {
 export class LoginComponent implements OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
-  logo: string = ''; //require('../../../assets/images/login/Zowe_Logo.png');
-  passwordLogo: string = ''; //require('../../../assets/images/login/password-reset.png');
+  logo: string = '/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/login/Zowe_Logo.png';
+  passwordLogo: string = '/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/login/password-reset.png';
   isLoading:boolean;
   needLogin:boolean;
   changePassword:boolean;
