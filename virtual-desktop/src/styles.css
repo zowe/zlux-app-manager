@@ -20,7 +20,7 @@
 @import url('~font-awesome/css/font-awesome.min.css');
 @import url('./assets/css/desktop.css'); */
 
-.cdk-visually-hidden {
+/* .cdk-visually-hidden {
   border: 0;
   clip: rect(0 0 0 0);
   height: 1px;
@@ -95,19 +95,19 @@
   position: fixed;
   width: 100%;
   overflow-y: scroll
-}
+} */
 
-::selection {
+/* ::selection { */
   /* WebKit/Blink Browsers */
-  background: grey;
-  color: white;
-}
+  /* background: grey; */
+  /* color: white; */
+/* } */
 
-::-moz-selection {
+/* ::-moz-selection { */
   /* Gecko Browsers */
-  background: grey;
-  color: white;
-}
+  /* background: grey; */
+  /* color: white; */
+/* } */
 
 /*
   This program and the accompanying materials are
