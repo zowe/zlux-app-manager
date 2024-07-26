@@ -23,11 +23,7 @@
               "zone.js"
             ], 
             "baseHref": "./",
-<<<<<<< HEAD
             "tsConfig": "tsconfig.json",
-=======
-            "tsConfig": "tsconfig.ngx-i18n.json",
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
             "assets": [
               {
                 "glob": "**/*",
@@ -35,13 +31,7 @@
                 "output": "assets"
               }
             ],
-<<<<<<< HEAD
             "styles": [],
-=======
-            "styles": [
-              "src/styles.css"           
-            ],
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
             "scripts": []
           },
           "configurations": {
