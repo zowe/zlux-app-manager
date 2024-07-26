@@ -14,11 +14,7 @@
   margin-left: 5px;
   margin-right: 5px;
   padding: 0;
-<<<<<<< HEAD
   background-image: url("assets/images/launchbar/menu-zowe-icon.png");
-=======
-  background-image: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/menu-zowe-icon.png");
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 }
 
 .app-label {

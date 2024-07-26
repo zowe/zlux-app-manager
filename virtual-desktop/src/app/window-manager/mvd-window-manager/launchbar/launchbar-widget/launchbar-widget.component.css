@@ -46,28 +46,16 @@
 }
 
 .launchbar-tray-icon.user {
-<<<<<<< HEAD
   background-image: url('assets/images/launchbar/person.png');
-=======
-  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/person.png');
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
   margin-right: 12px;
 }
 
 .launchbar-tray-icon.settings {
-<<<<<<< HEAD
   background-image: url('assets/images/launchbar/settings.png');
 }
 
 .launchbar-tray-icon.notification {
   background-image: url('assets/images/launchbar/notifications/notification.png');
-=======
-  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/settings.png');
-}
-
-.launchbar-tray-icon.notification {
-  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/notifications/notification.png');
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 }
 
 .launchbar-user:hover {

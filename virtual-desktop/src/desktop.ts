@@ -18,20 +18,6 @@
  * implementation exists at ZoweZLUX.
  */
 
-<<<<<<< HEAD
-=======
-
-/* Establish our public path before loading CSS resources */
-// @ts-ignore
-declare let __webpack_public_path__: string;
-const uriBroker = ZoweZLUX.uriBroker;
-__webpack_public_path__ = uriBroker.desktopRootUri();
-
-/* Load external/global resources */
-// import './include.ts';
-/* Standard Angular bootstrap */
-
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 import '@angular/compiler';
 import '@angular/localize/init';
 import { enableProdMode, Type } from '@angular/core';
@@ -58,10 +44,6 @@ import 'jquery';
 import 'popper.js';
 import 'bootstrap';
 import 'zone.js';
-<<<<<<< HEAD
-
-=======
-// import "./assets/css/desktop.css";
 
 // import '@angular/compiler';
 >>>>>>> a5805ca (version update to Angular 18 and relevant changes)
@@ -171,7 +153,15 @@ function performBootstrap(): void {
     .then(providers => platformBrowserDynamic().bootstrapModule(mainModule
       || MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent), {providers: providers}));
 }
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
+
+// set baseurl 
+const baseUrl = document.createElement('base');
+baseUrl.setAttribute("href", ZoweZLUX?.uriBroker.desktopRootUri());
+
+if (document.head) {
+  document.head.appendChild(baseUrl);
+}
+
 const element = document.createElement('rs-com-root');
 document.body.appendChild(element);
 performBootstrap();

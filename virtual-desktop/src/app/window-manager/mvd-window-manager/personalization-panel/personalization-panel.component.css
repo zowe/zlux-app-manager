@@ -40,11 +40,7 @@
 }
 
 .panel-item-password{
-<<<<<<< HEAD
   background-image: url('assets/images/login/password-reset.png');
-=======
-  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/login/password-reset.png');
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
   background-size: contain;
 }
 

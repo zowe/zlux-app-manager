@@ -17,11 +17,7 @@
   left: 0;
   top: 0;
   display: flex;
-<<<<<<< HEAD
   background: url("assets/images/background.jpg") no-repeat center/cover;
-=======
-  background: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/background.jpg") no-repeat center/cover;
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 }
 
 /*
