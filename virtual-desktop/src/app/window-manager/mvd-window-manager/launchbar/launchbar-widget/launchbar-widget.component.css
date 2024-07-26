@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -25,7 +23,8 @@
   bottom: 0;
   right: 0;
   width: fit-content;
-  min-width: 175px; /* fit-content seems to fail at times with Safari, min-width here as a safety */
+  min-width: 175px;
+  /* fit-content seems to fail at times with Safari, min-width here as a safety */
   height: 100%;
   z-index: 7;
   color: #eee;
@@ -47,16 +46,16 @@
 }
 
 .launchbar-tray-icon.user {
-  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/person.png');
+  background-image: url('assets/images/launchbar/person.png');
   margin-right: 12px;
 }
 
 .launchbar-tray-icon.settings {
-  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/settings.png');
+  background-image: url('assets/images/launchbar/settings.png');
 }
 
 .launchbar-tray-icon.notification {
-  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/notifications/notification.png');
+  background-image: url('assets/images/launchbar/notifications/notification.png');
 }
 
 .launchbar-user:hover {
@@ -85,7 +84,7 @@
   color: #3333337d;
 }
 
-.btn.btn-primary.launchbar-button{
+.btn.btn-primary.launchbar-button {
   width: 100%;
   margin: 5px 0px 5px 0px;
 }
@@ -140,7 +139,7 @@
 }
 
 .notification-item:after:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .notification-icon-container {
@@ -218,7 +217,7 @@
   cursor: pointer;
   text-align: center;
   vertical-align: middle;
-  line-height: 22px; 
+  line-height: 22px;
 }
 
 .notification-breaker {
@@ -238,6 +237,7 @@
   vertical-align: middle;
   line-height: 13;
 }
+
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -247,4 +247,3 @@
   
   Copyright Contributors to the Zowe Project.
 */
-

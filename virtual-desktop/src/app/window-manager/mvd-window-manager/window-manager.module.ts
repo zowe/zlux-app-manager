@@ -30,7 +30,8 @@ import { KeybindingService } from './shared/keybinding.service';
 import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization/personalization.component';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { ThemeEmitterService } from './services/theme-emitter.service';
-import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { IncludeExternalCssComponent } from 'app/shared/include-external-css.component';
 
 
 @NgModule({
@@ -42,9 +43,9 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     SharedModule,
     LaunchbarModule,
     HttpClientModule,
-    ContextMenuModule,
     NgxFileDropModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    IncludeExternalCssComponent
   ],
   declarations: [
     DesktopComponent,
