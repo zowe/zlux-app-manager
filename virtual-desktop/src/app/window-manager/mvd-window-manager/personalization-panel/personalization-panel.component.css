@@ -40,7 +40,7 @@
 }
 
 .panel-item-password{
-  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/login/password-reset.png');
+  background-image: url('assets/images/login/password-reset.png');
   background-size: contain;
 }
 

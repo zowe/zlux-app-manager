@@ -19,6 +19,7 @@ import { ApplicationManagerModule } from '../../application-manager/application-
 import { AuthenticationModule } from '../../authentication-manager/authentication-manager.module';
 import { ContextMenuModule } from '../../context-menu/context-menu.module';
 import { ThemeEmitterService } from '../mvd-window-manager/services/theme-emitter.service';
+import { IncludeExternalCssComponent } from 'app/shared/include-external-css.component';
 
 @NgModule({
   imports: [
@@ -26,7 +27,8 @@ import { ThemeEmitterService } from '../mvd-window-manager/services/theme-emitte
     AuthenticationModule,
     ContextMenuModule,
     CommonModule,
-    ContextMenuModule
+    ContextMenuModule,
+    IncludeExternalCssComponent
   ],
   declarations: [
     SimpleComponent

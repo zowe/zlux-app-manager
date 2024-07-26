@@ -17,7 +17,7 @@
   left: 0;
   top: 0;
   display: flex;
-  background: url("/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/background.jpg") no-repeat center/cover;
+  background: url("assets/images/background.jpg") no-repeat center/cover;
 }
 
 /*

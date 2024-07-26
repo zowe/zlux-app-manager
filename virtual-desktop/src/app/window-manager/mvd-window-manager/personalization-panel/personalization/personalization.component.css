@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -14,7 +12,7 @@
   font-size: larger;
   padding: 5px;
   width: 100%;
-  color:#f3f4f4;
+  color: #f3f4f4;
   padding-top: 15px;
 }
 
@@ -66,16 +64,16 @@
   border: 2px solid white;
 }
 
-.personalization-preview-item.preview-small{
-  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/personalization/preview-1.png');
+.personalization-preview-item.preview-small {
+  background-image: url('assets/images/personalization/preview-1.png');
 }
 
-.personalization-preview-item.preview-medium{
-  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/personalization/preview-2.png');
+.personalization-preview-item.preview-medium {
+  background-image: url('assets/images/personalization/preview-2.png');
 }
 
-.personalization-preview-item.preview-large{
-  background-image: url('/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/personalization/preview-3.png');
+.personalization-preview-item.preview-large {
+  background-image: url('assets/images/personalization/preview-3.png');
   margin-right: 0px;
 }
 
@@ -102,7 +100,7 @@
 }
 
 .personalization-file-drop-content {
-  display: flex !important; 
+  display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   height: 100px !important;
@@ -120,7 +118,7 @@
   padding: 2px;
 }
 
-.personalization-circle.selected{
+.personalization-circle.selected {
   border: 2px solid white;
   border-radius: 30px;
   width: 44px;
@@ -132,7 +130,7 @@
   height: 14px;
 }
 
-.personalization-swatch.selected{
+.personalization-swatch.selected {
   border: 2px solid white;
   height: 16px;
 }
@@ -161,6 +159,7 @@
   grid-column-start: 5;
   grid-column-end: 6;
 }
+
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -170,4 +169,3 @@
   
   Copyright Contributors to the Zowe Project.
 */
-

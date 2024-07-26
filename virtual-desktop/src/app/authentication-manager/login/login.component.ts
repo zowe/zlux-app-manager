@@ -11,8 +11,10 @@
 */
 
 import { Component, OnInit, ChangeDetectorRef, Injector } from '@angular/core';
-import { AuthenticationManager,
-         LoginExpirationIdleCheckEvent } from '../authentication-manager.service';
+import {
+  AuthenticationManager,
+  LoginExpirationIdleCheckEvent
+} from '../authentication-manager.service';
 import { L10nTranslationService } from 'angular-l10n';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { StorageService } from '../storage.service';
@@ -32,16 +34,16 @@ type ErrorInfo = {
 @Component({
   selector: 'rs-com-login',
   templateUrl: 'login.component.html',
-  styleUrls: [ 'login.component.css' ]
+  styleUrls: ['login.component.css']
 })
 export class LoginComponent implements OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
-  logo: string = '/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/login/Zowe_Logo.png';
-  passwordLogo: string = '/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/login/password-reset.png';
-  isLoading:boolean;
-  needLogin:boolean;
-  changePassword:boolean;
+  logo: string = `assets/images/login/Zowe_Logo.png`;
+  passwordLogo: string = `assets/images/login/password-reset.png`;
+  isLoading: boolean;
+  needLogin: boolean;
+  changePassword: boolean;
   locked: boolean;
   username: string;
   password: string;
@@ -84,37 +86,37 @@ export class LoginComponent implements OnInit {
     this.errorDetails = '';
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
-      case MVDHosting.LoginScreenChangeReason.UserLogout:
-        this.needLogin = true;
-        this.passwordServices.clear();
-        break;
-      case MVDHosting.LoginScreenChangeReason.UserLogin:
-        this.errorMessage = '';
-        this.needLogin = false;
-        this.renewSession();
-        this.detectActivity();
-        break;
-      case MVDHosting.LoginScreenChangeReason.PasswordChange:
-        this.changePassword = true;
-        break;
-      case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
-        this.changePassword = false;
-        break;
-      case MVDHosting.LoginScreenChangeReason.HidePasswordChange:
-        this.changePassword = false;
-        break;
-      case MVDHosting.LoginScreenChangeReason.SessionExpired:
-        this.backButton();
-        this.idleWarnService.removeErrorReport();
-        this.errorMessage = this.translation.translate('Session Expired');
-        this.needLogin = true;
-        break;
-      default:
-        this.logger.warn('ZWED5168W', eventReason); //this.logger.warn('Ignoring unknown login screen change reason='+eventReason);
+        case MVDHosting.LoginScreenChangeReason.UserLogout:
+          this.needLogin = true;
+          this.passwordServices.clear();
+          break;
+        case MVDHosting.LoginScreenChangeReason.UserLogin:
+          this.errorMessage = '';
+          this.needLogin = false;
+          this.renewSession();
+          this.detectActivity();
+          break;
+        case MVDHosting.LoginScreenChangeReason.PasswordChange:
+          this.changePassword = true;
+          break;
+        case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
+          this.changePassword = false;
+          break;
+        case MVDHosting.LoginScreenChangeReason.HidePasswordChange:
+          this.changePassword = false;
+          break;
+        case MVDHosting.LoginScreenChangeReason.SessionExpired:
+          this.backButton();
+          this.idleWarnService.removeErrorReport();
+          this.errorMessage = this.translation.translate('Session Expired');
+          this.needLogin = true;
+          break;
+        default:
+          this.logger.warn('ZWED5168W', eventReason); //this.logger.warn('Ignoring unknown login screen change reason='+eventReason);
       }
       this.isLoading = false;
     });
-    this.authenticationService.loginExpirationIdleCheck.subscribe((e: LoginExpirationIdleCheckEvent)=> {
+    this.authenticationService.loginExpirationIdleCheck.subscribe((e: LoginExpirationIdleCheckEvent) => {
       //it's not just about if its idle, but how long we've been idle for or when we were last active
       if (!this.isIdle()) {
         this.logger.info('ZWED5047I'); /*this.logger.info('Near session expiration, but renewing session due to activity');*/
@@ -131,15 +133,15 @@ export class LoginComponent implements OnInit {
   private isIdle(): boolean {
     const activityTime = parseInt(StorageService.getItem(StorageKey.LAST_ACTIVE) || '0');
     let idle = (Date.now() - activityTime) > ACTIVITY_IDLE_TIMEOUT_MS;
-    this.logger.debug("ZWED5304I", activityTime, Date.now(), idle); 
+    this.logger.debug("ZWED5304I", activityTime, Date.now(), idle);
     //this.logger.debug(`User lastActive=${lastActive}, now=${Date.now()}, idle={idle}`);
     return idle;
   }
 
   renewSession(): void {
-    this.authenticationService.performSessionRenewal().subscribe((result:any)=> {
+    this.authenticationService.performSessionRenewal().subscribe((result: any) => {
       this.idleWarnService.removeErrorReport();
-    }, (errorObservable)=> {
+    }, (errorObservable) => {
       this.idleWarnService.createRetryErrorReport(this.renewSession, this.isIdle);
     });
   }
@@ -176,8 +178,8 @@ export class LoginComponent implements OnInit {
         if (error !== 'No Session Found') {//generated from auth manager, dont display to user
           try {
             let jsonMessage = error;
-            if(jsonMessage) {
-              if(jsonMessage.categories) {
+            if (jsonMessage) {
+              if (jsonMessage.categories) {
                 let errorInfo = this.getErrorDetails(jsonMessage);
                 if (!errorInfo.isFallback) {
                   if (errorInfo.errorMessage) {
@@ -216,7 +218,7 @@ export class LoginComponent implements OnInit {
 
   detectActivity(): void {
     this.storageService.updateLastActive();
-    this.idleWarnService.removeErrorReport();   
+    this.idleWarnService.removeErrorReport();
   }
 
   attemptPasswordReset(): void {
@@ -261,8 +263,8 @@ export class LoginComponent implements OnInit {
     // See https://github.com/angular/angular/issues/22426
     this.cdr.detectChanges();
     this.passwordServices.clear();
-    if (this.username==null || this.username==''){
-      this.errorMessage= this.translation.translate('UsernameRequired');
+    if (this.username == null || this.username == '') {
+      this.errorMessage = this.translation.translate('UsernameRequired');
       this.password = '';
       this.locked = false;
       this.needLogin = true;
@@ -270,7 +272,7 @@ export class LoginComponent implements OnInit {
       return;
     }
     this.authenticationService.performLogin(this.username!, this.password!).subscribe(
-      (      result: any) => {
+      (result: any) => {
         let jsonMessage = (result as any);
         if (jsonMessage.categories) {
           let nearestExpiration = -1;
@@ -286,7 +288,7 @@ export class LoginComponent implements OnInit {
                   nearestExpirationForCategory = plugin.expms;
                   if (nearestExpiration == -1 || nearestExpiration > nearestExpirationForCategory) {
                     nearestExpiration = nearestExpirationForCategory;
-                    window.localStorage.setItem("ZoweZLUX.expirationTime",nearestExpiration.toString())
+                    window.localStorage.setItem("ZoweZLUX.expirationTime", nearestExpiration.toString())
                   }
                 }
               }
@@ -296,7 +298,7 @@ export class LoginComponent implements OnInit {
             }
           }
           if (nearestExpiration != -1 && nearestExpiration < 300000) {
-            ACTIVITY_IDLE_TIMEOUT_MS = Math.round(nearestExpiration/2);
+            ACTIVITY_IDLE_TIMEOUT_MS = Math.round(nearestExpiration / 2);
           } else {
             ACTIVITY_IDLE_TIMEOUT_MS = 300000;
           }
@@ -313,8 +315,8 @@ export class LoginComponent implements OnInit {
       error => {
         this.needLogin = true;
         let jsonMessage = error.error;
-        if(jsonMessage) {
-          if(jsonMessage.categories) {
+        if (jsonMessage) {
+          if (jsonMessage.categories) {
             let keys = Object.keys(jsonMessage.categories);
             for (let i = 0; i < keys.length; i++) {
               let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
@@ -330,7 +332,7 @@ export class LoginComponent implements OnInit {
             } else {
               this.displayErrorDetails(jsonMessage);
               this.password = '';
-            } 
+            }
           }
         }
         else {
@@ -365,8 +367,8 @@ export class LoginComponent implements OnInit {
   }
 
   private getErrorDetails(jsonMessage: any): ErrorInfo {
-    let errorMessage: string='';
-    let errorDetails: string='';
+    let errorMessage: string = '';
+    let errorDetails: string = '';
     let isFallback: boolean = false;
     let failedTypes: string[] = [];
     let failedPlugins = new Set<string>();
@@ -379,30 +381,30 @@ export class LoginComponent implements OnInit {
         let plugins = Object.keys(jsonMessage.categories[keys[i]].plugins);
         for (let j = 0; j < plugins.length; j++) {
           err = jsonMessage.categories[keys[i]].plugins[plugins[j]].error;
-          if(err) {
-            if(err.message) {
+          if (err) {
+            if (err.message) {
               errorMessage = err.message;
             }
-            if(!failedPlugins.has(plugins[j]) && (err.message || err.body)) {
+            if (!failedPlugins.has(plugins[j]) && (err.message || err.body)) {
               // Appending the error message, error body and corresponding unique plugin-id that have errors
-              errorDetails += `${plugins[j]}: ${err.message === undefined ? "": err.message+"\n"}${err.body === undefined ? "":err.body+"\n"}`;
+              errorDetails += `${plugins[j]}: ${err.message === undefined ? "" : err.message + "\n"}${err.body === undefined ? "" : err.body + "\n"}`;
               failedPlugins.add(plugins[j])
             }
           }
         }
       }
     }
-    if(!err || !this.errorMessage) {
+    if (!err || !this.errorMessage) {
       isFallback = true;
       errorMessage = this.translation.translate('AuthenticationFailed',
-                                                { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
+        { numTypes: failedTypes.length, types: JSON.stringify(failedTypes) });
     }
     return {
       errorMessage, errorDetails, isFallback
     }
   }
-  
-  displayErrorDetails(jsonMessage:any): void {
+
+  displayErrorDetails(jsonMessage: any): void {
     let errorInfo = this.getErrorDetails(jsonMessage);
     if (errorInfo.errorMessage) {
       this.errorMessage = errorInfo.errorMessage;

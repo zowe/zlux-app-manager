@@ -20,7 +20,7 @@ import {
   Output,
   ViewChild,
   Input
-  } from '@angular/core';
+} from '@angular/core';
 import { interval } from 'rxjs';
 import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
 import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
@@ -34,7 +34,7 @@ import { L10nTranslationService } from 'angular-l10n';
 @Component({
   selector: 'rs-com-launchbar-widget',
   templateUrl: 'launchbar-widget.component.html',
-  styleUrls: [ 'launchbar-widget.component.css', '../shared/shared.css' ],
+  styleUrls: ['launchbar-widget.component.css', '../shared/shared.css'],
   providers: [LanguageLocaleService],
 })
 export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatcher, OnInit {
@@ -42,8 +42,8 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   public date: Date;
   public popupVisible: boolean;
-  public fontSize:string;
-  
+  public fontSize: string;
+
   public clockTwoRow: boolean = true;
   public clockOffset: string;
   public widgetOffset: string;
@@ -55,7 +55,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public notifCountSize: string;
   public notifTopOffset: string;
   public notifLeftOffset: string;
-  public closeImage: string = '/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/window/close-active.png';
+  public closeImage: string = `${ZoweZLUX?.uriBroker.desktopRootUri()}assets/images/window/close-active.png`;
 
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public notificationsVisible: boolean;
@@ -67,17 +67,17 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   public NoNotifications: string;
 
-  @Input() set theme (newTheme: DesktopTheme) {
+  @Input() set theme(newTheme: DesktopTheme) {
     this.info;
     this.color = newTheme.color;
-    
+
     switch (newTheme.size.launchbar) {
       case 1:
         this.clockTwoRow = false;
         this.clockOffset = '5px';
         this.widgetOffset = '5px';
         this.areaSize = "188px";
-        this.widgetSize="16px";
+        this.widgetSize = "16px";
         this.fontSize = '12px';
         this.popupBottom = '30px';
         this.borderRadius = '3px 3px 0px 3px';
@@ -90,7 +90,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         this.widgetOffset = '24px';
         this.clockOffset = '20px';
         this.areaSize = "200px";
-        this.widgetSize="32px";
+        this.widgetSize = "32px";
         this.fontSize = '16px';
         this.popupBottom = '81px';
         this.borderRadius = '7px 7px 0px 7px';
@@ -103,26 +103,26 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         this.clockOffset = '5px';
         this.widgetOffset = '10px';
         this.areaSize = "175px";
-        this.widgetSize="24px";
+        this.widgetSize = "24px";
         this.fontSize = '14px';
         this.popupBottom = '46px';
         this.borderRadius = '5px 5px 0px 5px';
         this.notifCountSize = '18px';
         this.notifTopOffset = '-11px';
         this.notifLeftOffset = '10px';
-        break;      
+        break;
     }
   }
 
-  @Output() popupStateChanged = new EventEmitter<boolean>(); 
-  
+  @Output() popupStateChanged = new EventEmitter<boolean>();
+
   @ViewChild('usericon') userIcon: ElementRef;
   @ViewChild('logoutbutton') logoutButton: ElementRef;
   @ViewChild('notificationarea') notificationArea: ElementRef;
   @ViewChild('notificationicon') notificationIcon: ElementRef;
 
   @Input() menuItems: LaunchbarItem[];
-  
+
   // Convenience widgets for testing the i18n work
   // @ViewChild('languagebutton') languageButton: ElementRef;
   // @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;
@@ -184,20 +184,20 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent): void {
     if (this.popupVisible && event
-        && !this.userIcon.nativeElement.contains(event.target)
-        && this.logoutButton.nativeElement !== event.target
-        // Convenience widgets for testing the i18n work
-        // && this.languageButton.nativeElement !== event.target
-        // && this.clearLanguageButton.nativeElement !== event.target
-        // && this.localeButton.nativeElement !== event.target
-      ) {
+      && !this.userIcon.nativeElement.contains(event.target)
+      && this.logoutButton.nativeElement !== event.target
+      // Convenience widgets for testing the i18n work
+      // && this.languageButton.nativeElement !== event.target
+      // && this.clearLanguageButton.nativeElement !== event.target
+      // && this.localeButton.nativeElement !== event.target
+    ) {
       this.popupVisible = false;
       this.popupStateChanged.emit(this.popupVisible);
     }
 
-    if(this.notificationsVisible && event 
-       && !this.notificationArea.nativeElement.contains(event.target)
-       && this.notificationIcon.nativeElement !== event.target) {
+    if (this.notificationsVisible && event
+      && !this.notificationArea.nativeElement.contains(event.target)
+      && this.notificationIcon.nativeElement !== event.target) {
       this.notificationsVisible = false;
     }
   }
@@ -212,7 +212,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   }
 
   setLocale(value: string): void {
-    this.languageLocaleService.setLocale('US').subscribe(arg => this.logger.debug("ZWED5317I",arg))
+    this.languageLocaleService.setLocale('US').subscribe(arg => this.logger.debug("ZWED5317I", arg))
   }
 
   handleMessageAdded(message: any): void {
@@ -224,7 +224,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     if (message.notification.styleClass) {
       styleClass = message.notification.styleClass;
     }
-    let ref = this.snackBar.openFromComponent(SnackbarComponent, {data: this.info[0], duration: 5000, panelClass: styleClass, verticalPosition: 'top', horizontalPosition: 'end'})
+    let ref = this.snackBar.openFromComponent(SnackbarComponent, { data: this.info[0], duration: 5000, panelClass: styleClass, verticalPosition: 'top', horizontalPosition: 'end' })
     ref.onAction().subscribe(() => {
       ZoweZLUX.notificationManager.dismissNotification(message.id)
       this.info = this.parsePluginInfo()
@@ -239,11 +239,11 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     let times = []
     for (let notification of this.notifications) {
       let currentDate = new Date();
-      var seconds = Math.floor((currentDate.getTime() - notification.recievedDate.getTime())/1000);
+      var seconds = Math.floor((currentDate.getTime() - notification.recievedDate.getTime()) / 1000);
 
       var h = Math.floor(seconds / 3600);
       var m = Math.floor(seconds % 3600 / 60);
-  
+
       //TODO: This whole section needs internationalization
       var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
       var mDisplay = m > 0 ? m + (m == 1 ? " minute " : " minutes ") : "";
@@ -264,17 +264,17 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
     for (let notification of this.notifications) {
       let imgSrc = ""
-      for(let item of this.menuItems) {
+      for (let item of this.menuItems) {
         if (item.plugin.getBasePlugin().getIdentifier() === notification['notification'].plugin) {
           imgSrc = item.image || ""
         }
       }
       if (imgSrc === "") {
-        imgSrc = '/ZLUX/plugins/org.zowe.zlux.ng2desktop/web/assets/images/launchbar/notifications/zowe.png';
+        imgSrc = `${ZoweZLUX?.uriBroker.desktopRootUri()}assets/images/launchbar/notifications/zowe.png`;
       }
 
-     
-      info.push({'title': notification['notification'].title, 'message': notification['notification'].message, "imgSrc": imgSrc})
+
+      info.push({ 'title': notification['notification'].title, 'message': notification['notification'].message, "imgSrc": imgSrc })
     }
 
     return info
@@ -288,10 +288,10 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   focusApplication(i: any) {
     let pluginId = this.notifications[i].notification.plugin
 
-    for(let item of this.menuItems) {
+    for (let item of this.menuItems) {
       if (item.plugin.getBasePlugin().getIdentifier() === pluginId) {
         let windowIds = this.windowManager.getWindowIDs(item.plugin)
-        if (windowIds != null){
+        if (windowIds != null) {
           if (windowIds.length > 0) {
             this.windowManager.requestWindowFocus(windowIds[0])
           } else {
