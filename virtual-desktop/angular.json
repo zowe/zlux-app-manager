@@ -23,7 +23,7 @@
               "zone.js"
             ], 
             "baseHref": "./",
-            "tsConfig": "tsconfig.ngx-i18n.json",
+            "tsConfig": "tsconfig.json",
             "assets": [
               {
                 "glob": "**/*",
@@ -31,9 +31,7 @@
                 "output": "assets"
               }
             ],
-            "styles": [
-              "src/styles.css"           
-            ],
+            "styles": [],
             "scripts": []
           },
           "configurations": {
