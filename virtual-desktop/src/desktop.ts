@@ -46,6 +46,9 @@ if (environment.production) {
   enableProdMode();
 }
 
+// Importing all external libraries from externals.ts
+import './externals';
+
 let mainModule: Type<any>;
 
 /* Check which window manager to use from URL */
