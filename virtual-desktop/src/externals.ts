@@ -13,9 +13,9 @@
 /*
   Imperfect solution to an imperfect world. See https://github.com/requirejs/requirejs/issues/787 and https://requirejs.org/docs/api.html#config-waitSeconds
 */
-(window as any).requirejs.config({
-  waitSeconds: 0
-});
+// (window as any).requirejs.config({
+//   waitSeconds: 0
+// });
 
 /* These will be packaged into a single bundle by the webpack bundling system.
  * We then expose them to our module loader (requirejs) manually and use that
@@ -55,14 +55,14 @@ const libs: { [index: string]: {library: any} } = {
   'rxjs/operators': require('rxjs/operators')
 };
 
-/* Expose modules to requirejs */
-for (const library in libs) {
-  if (libs[library]) {
-    (window as any).define(library, libs[library]);
-  } else {
-    console.warn(`Missing library ${library}`);
-  }
-}
+// /* Expose modules to requirejs */
+// for (const library in libs) {
+//   if (libs[library]) {
+//     (window as any).define(library, libs[library]);
+//   } else {
+//     console.warn(`Missing library ${library}`);
+//   }
+// }
 
 // /* Perform bootstrap using requirejs */
 // (window as any).requirejs([
