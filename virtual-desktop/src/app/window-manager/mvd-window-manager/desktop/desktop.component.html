@@ -14,9 +14,8 @@
   <com-rs-mvd-context-menu [xPos]="contextMenuDef.xPos" [yPos]="contextMenuDef.yPos" [menuItems]="contextMenuDef.items" (complete)="closeContextMenu()"></com-rs-mvd-context-menu>
 </ng-container>
 
-<rs-com-window-pane [theme]="_theme"></rs-com-window-pane>
+<!--<rs-com-window-pane [theme]="_theme"></rs-com-window-pane>-->
 <rs-com-launchbar (changeTheme)="setTheme($event)" (previewTheme)="previewTheme($event)" [theme]="_theme"></rs-com-launchbar>
-<rs-com-personalization-panel *ngIf="isPersonalizationPanelVisible"></rs-com-personalization-panel>
 
 <!-- 
   This program and the accompanying materials are

@@ -14,7 +14,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, Type, StaticProvider } from '@angular/core';
 // import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
-import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { HashLocationStrategy, LocationStrategy, CommonModule } from '@angular/common';
 
 // Modules
 import { PluginManagerModule } from './plugin-manager/plugin-manager.module';
@@ -30,8 +30,11 @@ export class MvdModuleFactory {
   private static translationLoaderService: TranslationLoaderService;
 
   static generateModule(windowManagerModule: Type<any>, mainComponent: Type<any>): Type<any> {
+    console.log('bootstrapping:',mainComponent);
+    
     return NgModule({
       imports: [
+        CommonModule,
         BrowserModule,
         BrowserAnimationsModule,
         // HttpModule,

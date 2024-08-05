@@ -13,7 +13,6 @@
 import { Plugin } from 'zlux-base/plugin-manager/plugin'
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
 import { ZoweZLUXResources } from './rocket-mvd-resources'
-import { DSMResources } from './dsm-resources'
 
 export class BootstrapManager {
   private static bootstrapPerformed = false;
@@ -22,11 +21,7 @@ export class BootstrapManager {
     const uriBroker = window['GIZA_ENVIRONMENT'];
     console.log("ZWED5004I - bootstrapGlobalResources standaloneContainerRequested flag value: ", standaloneContainerRequested);
     console.log("ZWED5005I - bootstrapGlobalResources GIZA_ENVIRONMENT value: ", uriBroker);
-    if (standaloneContainerRequested && uriBroker && uriBroker.toUpperCase() === 'DSM') {
-      window.ZoweZLUX = DSMResources;
-    } else {
-      window.ZoweZLUX = ZoweZLUXResources;
-    }
+    window.ZoweZLUX = ZoweZLUXResources;
   }
 
   private static bootstrapDesktopPlugin(desktop: ZLUX.Plugin, injectionCallback: (plugin: ZLUX.Plugin) => Promise<void>) {

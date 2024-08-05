@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { NgModule } from '@angular/core';
+import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -41,6 +41,9 @@ import { IdleWarnService } from './idleWarn.service';
     { provide: MVDHosting.Tokens.AuthenticationManagerToken, useExisting: AuthenticationManager },
     StorageService,
     IdleWarnService
+  ],
+  schemas: [   
+    NO_ERRORS_SCHEMA
   ]
 })
 export class AuthenticationModule {

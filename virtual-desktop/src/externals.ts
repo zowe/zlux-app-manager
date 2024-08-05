@@ -22,14 +22,15 @@
  * to load the desktop and external plugins. These requires use webpack. */
 
 const libs: { [index: string]: {library: any} } = {
+  '@angular/compiler': require('@angular/compiler'),
   '@angular/core': require('@angular/core'),
   '@angular/common': require('@angular/common'),
   '@angular/common/http': require('@angular/common/http'),
-  // '@angular/http': require('@angular/http'),
   '@angular/platform-browser': require('@angular/platform-browser'),
   '@angular/platform-browser/animations': require('@angular/platform-browser/animations'),
   '@angular/platform-browser-dynamic': require('@angular/platform-browser-dynamic'),
   '@angular/cdk/portal': require('@angular/cdk/portal'),
+  '@angular/localize/init': require('@angular/localize/init'),
   '@angular/material/snack-bar': require('@angular/material/snack-bar'),
   '@angular/material/dialog': require('@angular/material/dialog'),
   '@angular/material/icon': require('@angular/material/icon'),

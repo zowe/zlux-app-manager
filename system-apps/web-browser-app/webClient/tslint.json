@@ -1,5 +1,0 @@
-{
-  "extends": [
-    "../../../virtual-desktop/plugin-config/tslint.base.json"
-  ]
-}

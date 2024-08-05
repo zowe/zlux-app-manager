@@ -11,6 +11,6 @@
     }
   },
   "angularCompilerOptions": {
-    "enableIvy": false
+      "compliationMode": "partial"
   }
 }

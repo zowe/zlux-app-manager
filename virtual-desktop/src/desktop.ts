@@ -41,7 +41,7 @@ import { WindowManagerModule } from 'app/window-manager/mvd-window-manager/windo
 import { SimpleComponent } from 'app/window-manager/simple-window-manager/simple.component';
 import { StartURLManager } from '../src/app/start-url-manager/start-url-manager.service';
 
-if (environment.production) {
+if (!environment.production) {
   enableProdMode();
 }
 
