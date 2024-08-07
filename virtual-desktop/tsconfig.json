@@ -8,8 +8,7 @@
     "../../zlux-platform/interface/src/server-framework.d.ts"
   ],
   "files": [
-    "./src/desktop.ts",
-    "./src/polyfills.ts"
+    "./src/desktop.ts"
   ],
   "compilerOptions": {
     "outDir": "dist/out-tsc",
