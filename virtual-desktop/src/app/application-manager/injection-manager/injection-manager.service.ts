@@ -38,7 +38,7 @@ export class InjectionManager {
   // generateModuleInjector make root injector augmented with addition providers
 
   generateModuleInjector(pluginDefinition: MVDHosting.DesktopPluginDefinition, launchMetadata: any,
-                         instanceId: MVDHosting.InstanceId, messages?: any): Injector {
+                         instanceId: MVDHosting.InstanceId, messages?: any, providers?: any[]): Injector {
     let identifier = pluginDefinition.getIdentifier();
     const plugin = pluginDefinition.getBasePlugin();
 
@@ -47,7 +47,8 @@ export class InjectionManager {
       logger = ZoweZLUX.logger.makeComponentLogger(identifier, messages);
       ComponentLoggerContainer.set(identifier,logger);
     }
-    return Injector.create([
+    
+    const providersArray = [
       {
         provide: Angular2InjectionTokens.LOGGER,
         useValue: logger
@@ -82,7 +83,13 @@ export class InjectionManager {
         provide: Angular2InjectionTokens.INSTANCE_ID,
         useValue: instanceId
       }
-    ], this.injector.get(NgModuleRef).injector);  // gets root injector of virtualDesktop tree
+    ];
+    
+    if (providers?.length) {
+      providersArray.push(...providers)
+    }
+
+    return Injector.create(providersArray, this.injector.get(NgModuleRef).injector);  // gets root injector of virtualDesktop tree
   }
 
   generateComponentInjector(viewport: Viewport, parent: Injector): Injector {

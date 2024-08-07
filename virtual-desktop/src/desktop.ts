@@ -64,6 +64,29 @@ for (let index = 0; index < app2appArray.length; index++) {
   }
 }
 
+/* Load second stage with requirejs */
+const script = document.createElement('script');
+
+// script.setAttribute('src', ZoweZLUX.uriBroker.pluginResourceUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'require.js'));
+script.setAttribute('src', ZoweZLUX.uriBroker.pluginResourceUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'require.js'));
+script.onload = () => {
+  if (typeof (window as any).requirejs !== 'undefined') {
+    (window as any).requirejs.config({
+      waitSeconds: 0
+    });
+    // Any additional RequireJS configuration or loading should go here
+    console.log('RequireJS loaded and configured successfully.');
+  } else {
+    console.error('RequireJS did not load correctly.');
+  }
+};
+script.onerror = () => {
+  console.error('Failed to load RequireJS script.');
+};
+if (document.head) {
+  document.head.appendChild(script);
+}
+
 function performBootstrap(): void {
   MvdModuleFactory.getTranslationProviders()
     .then(providers => platformBrowserDynamic().bootstrapModule(mainModule
