@@ -142,7 +142,6 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
       environmentInjector: this.environmentInjector,
       elementInjector: injector
     });
-
     // const componentRef = factory.create(this.injectionManager.generateComponentInjector(viewport, instance.moduleRef.injector));
     //this.logger.info("AppMgr about to associate aInst with component "+componentRef);
     //this.logger.info(componentRef);

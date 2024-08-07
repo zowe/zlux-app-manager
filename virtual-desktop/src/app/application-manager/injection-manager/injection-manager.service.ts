@@ -39,6 +39,7 @@ export class InjectionManager {
 
   generateModuleInjector(pluginDefinition: MVDHosting.DesktopPluginDefinition, launchMetadata: any,
                          instanceId: MVDHosting.InstanceId, messages?: any, providers?: any[]): Injector {
+                         instanceId: MVDHosting.InstanceId, messages?: any, providers?: any[]): Injector {
     let identifier = pluginDefinition.getIdentifier();
     const plugin = pluginDefinition.getBasePlugin();
 
@@ -47,6 +48,8 @@ export class InjectionManager {
       logger = ZoweZLUX.logger.makeComponentLogger(identifier, messages);
       ComponentLoggerContainer.set(identifier,logger);
     }
+    
+    const providersArray = [
     
     const providersArray = [
       {
@@ -89,11 +92,7 @@ export class InjectionManager {
       providersArray.push(...providers)
     }
 
-    const injectorOptions = {
-      providers: providersArray,
-      parent: this.injector.get(NgModuleRef).injector
-    }
-    return Injector.create(injectorOptions);  // gets root injector of virtualDesktop tree
+    return Injector.create(providersArray, this.injector.get(NgModuleRef).injector);  // gets root injector of virtualDesktop tree
   }
 
   generateComponentInjector(viewport: Viewport, parent: Injector): Injector {

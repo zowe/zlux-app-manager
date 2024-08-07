@@ -69,7 +69,6 @@ for (let index = 0; index < app2appArray.length; index++) {
   }
 }
 
-<<<<<<< HEAD
 /* Load second stage with requirejs */
 const script = document.createElement('script');
 
@@ -137,21 +136,6 @@ function performBootstrap(): void {
   MvdModuleFactory.getTranslationProviders()
     .then(providers => platformBrowserDynamic().bootstrapModule(mainModule
       || MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent), { providers: providers }));
-}
-
-// set baseurl 
-const baseUrl = document.createElement('base');
-baseUrl.setAttribute("href", ZoweZLUX?.uriBroker.desktopRootUri());
-
-if (document.head) {
-  document.head.appendChild(baseUrl);
-}
-
-=======
-function performBootstrap(): void {
-  MvdModuleFactory.getTranslationProviders()
-    .then(providers => platformBrowserDynamic().bootstrapModule(mainModule
-      || MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent), {providers: providers}));
 }
 
 // set baseurl 
