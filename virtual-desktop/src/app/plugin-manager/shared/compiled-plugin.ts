@@ -21,7 +21,14 @@ export class CompiledPlugin {
   }
 }
 
-
+export class CompiledPluginCustom {
+  constructor(
+    public initialComponent: Type<any>,
+    public ngModule?: Type<any>,
+    public providers?: any[]
+  ) {
+  }
+}
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies

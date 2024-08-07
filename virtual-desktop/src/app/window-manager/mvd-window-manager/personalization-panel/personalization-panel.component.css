@@ -32,11 +32,11 @@
 }
 
 .panel-item-foreign_language{
-  /* background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/language_icon.png'); */
+  background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/language_icon.png');
 }
 
 .panel-item-personalization{
-  /* background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/personalization.png'); */
+  background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/personalization.png');
 }
 
 .panel-item-password{

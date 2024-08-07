@@ -8,7 +8,12 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, Injector, NgModuleFactory, Compiler, ComponentRef, Type, SimpleChanges, SimpleChange, OnChanges } from '@angular/core';
+import {
+  Injectable, Injector,
+  ComponentRef, Type, SimpleChanges,
+  SimpleChange, OnChanges, EnvironmentInjector,
+  createComponent, createNgModule,
+} from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
@@ -19,7 +24,7 @@ import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { LoadFailureComponent } from './load-failure/load-failure.component';
 import { InjectionManager } from './injection-manager/injection-manager.service';
 import { ApplicationInstance } from './application-instance';
-import { FailureModule } from './load-failure/failure.module';
+// import { FailureModule } from './load-failure/failure.module';
 // import { ViewportId } from './viewport-manager/viewport';
 import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
@@ -29,7 +34,7 @@ import { LanguageLocaleService } from '../i18n/language-locale.service';
 
 @Injectable()
 export class ApplicationManager implements MVDHosting.ApplicationManagerInterface {
-  private failureModuleFactory: NgModuleFactory<FailureModule>;
+  // private failureModuleFactory: NgModuleFactory<FailureModule>;
   private applicationInstances: Map<MVDHosting.InstanceId, ApplicationInstance>;
   private nextInstanceId: MVDHosting.InstanceId;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
@@ -41,11 +46,11 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     private viewportManager: ViewportManager,   // convention in angular is that injectable singleton provider from module will by keyed by type and placed in slot.
     private pluginManager: PluginManager,
     private injectionManager: InjectionManager,
-    private compiler: Compiler,
+    // private compiler: Compiler,
     private languageLocaleService: LanguageLocaleService,
     private http: HttpClient,
   ) {
-    this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);
+    // this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);
     this.applicationInstances = new Map();
     this.knownLoggerMessageChecks = [];
     this.nextInstanceId = 0;
@@ -118,10 +123,10 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     return applicationInstance;
   }
 
-  private instantiateApplicationInstance(instance: ApplicationInstance, moduleFactory: NgModuleFactory<any>, injector: Injector): void {
-    const moduleRef = moduleFactory.create(injector);
-    instance.setModuleRef(moduleRef);
-  }
+  // private instantiateApplicationInstance(instance: ApplicationInstance, moduleFactory: NgModuleFactory<any>, injector: Injector): void {
+  //   const moduleRef = moduleFactory.create(injector);
+  //   instance.setModuleRef(moduleRef);
+  // }
 
   // This is the component instantiator and injector
 
@@ -139,8 +144,13 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
       throw new Error('ZWED5147E - Unknown viewport when requesting component generation');
     }
 
-    const factory = instance.moduleRef.componentFactoryResolver.resolveComponentFactory(component);
-    const componentRef = factory.create(this.injectionManager.generateComponentInjector(viewport, instance.moduleRef.injector));
+    const injector = this.injectionManager.generateComponentInjector(viewport, instance.moduleRef.injector);
+    const componentRef = createComponent<any>(component, {
+      environmentInjector: this.environmentInjector,
+      elementInjector: injector
+    });
+    
+    // const componentRef = factory.create(this.injectionManager.generateComponentInjector(viewport, instance.moduleRef.injector));
     //this.logger.info("AppMgr about to associate aInst with component "+componentRef);
     //this.logger.info(componentRef);
     instance.viewportContents.set(viewportId, componentRef);
@@ -176,7 +186,9 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
       }
       const injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata, applicationInstance.instanceId, messages);
     
-      this.instantiateApplicationInstance(applicationInstance, compiled.moduleFactory, injector);
+      // this.instantiateApplicationInstance(applicationInstance, compiled.moduleFactory, injector);
+      const moduleRef = createNgModule(compiled.ngModule, injector);
+      applicationInstance.setModuleRef(moduleRef);
       this.logger.debug("ZWED5295I", plugin.getIdentifier(), compiled.initialComponent); //this.logger.debug(`appMgr spawning plugin ID=${plugin.getIdentifier()}, `
                         //+`compiled.initialComponent=`,compiled.initialComponent);
       applicationInstance.setMainComponent(compiled.initialComponent); 
@@ -248,8 +260,8 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
         }
       })
       .catch((errors) => {
-        const injector = this.injectionManager.generateFailurePluginInjector(errors);
-        this.instantiateApplicationInstance(applicationInstance, this.failureModuleFactory, injector);
+        // const injector = this.injectionManager.generateFailurePluginInjector(errors);
+        // this.instantiateApplicationInstance(applicationInstance, this.failureModuleFactory, injector);
         applicationInstance.setMainComponent(LoadFailureComponent);
         this.generateMainComponentRefFor(applicationInstance, viewportId);
 
