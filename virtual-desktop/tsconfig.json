@@ -8,12 +8,7 @@
     "../../zlux-platform/interface/src/server-framework.d.ts"
   ],
   "files": [
-<<<<<<< HEAD
     "./src/desktop.ts"
-=======
-    "./src/desktop.ts",
-    "./src/polyfills.ts"
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
   ],
   "compilerOptions": {
     "outDir": "dist/out-tsc",
