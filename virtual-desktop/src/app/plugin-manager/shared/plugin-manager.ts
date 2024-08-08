@@ -13,7 +13,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 
 import { DesktopPluginDefinitionImpl } from './desktop-plugin-definition';
-import { PluginLoader } from './plugin-loader';
 
 const SCAN_INTERVAL_MINIMUM = 300000;
 
@@ -25,7 +24,6 @@ export class PluginManager implements MVDHosting.PluginManagerInterface, MVDHost
   public pluginsAdded: EventEmitter<MVDHosting.DesktopPluginDefinition[]> = new EventEmitter();
 
   constructor(
-    private pluginLoader: PluginLoader
   ) {
   }
 
@@ -74,7 +72,6 @@ export class PluginManager implements MVDHosting.PluginManagerInterface, MVDHost
         }
         const pluginDefs = plugins.map(plugin => new DesktopPluginDefinitionImpl(plugin));
         pluginDefs.forEach((plugin) => PluginManager._pluginDefinitions.set(plugin.getIdentifier(), plugin));
-        pluginDefs.forEach((plugin) => this.pluginLoader.loadPluginComponentFactories(plugin));
         if (pluginDefs.length > 0) {
           this.pluginsAdded.emit(pluginDefs);
         }

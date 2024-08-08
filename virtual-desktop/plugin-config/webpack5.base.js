@@ -15,7 +15,7 @@ const desktopDir = path.resolve(__dirname, '..');
 
 const config = {
   devtool: 'source-map',
-  mode: 'production',
+  mode: 'development',
   output: {
     libraryTarget: 'umd',
     umdNamedDefine: true

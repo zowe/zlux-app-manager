@@ -12,7 +12,7 @@
 
 import { Injectable } from '@angular/core';
 
-import { CompiledPlugin } from './compiled-plugin';
+import { CompiledPlugin, CompiledPluginCustom } from './compiled-plugin';
 // import { DesktopPluginDefinition } from './desktop-plugin-definition';
 import { PluginFactory } from '../plugin-factory/plugin-factory';
 import { Angular2PluginFactory } from '../plugin-factory/angular2/angular2-plugin-factory';
@@ -47,7 +47,7 @@ export class PluginLoader {
     });
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin | null> {
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin | CompiledPluginCustom | null> {
     const candidateFactories = this.frameworkMap.get(pluginDefinition.getFramework()) || [];
     if (pluginDefinition.getFramework() === 'unsupported') {
       return new Promise((resolve, reject) => {
@@ -66,29 +66,6 @@ export class PluginLoader {
         factory.loadPlugin(pluginDefinition, instanceId).catch((error) => Promise.reject(errors.concat([error])))
       ),
       Promise.reject([new Error(`ZWED5152E - All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
-    );
-  }
-
-  loadPluginComponentFactories(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<void> {
-    const candidateFactories = this.frameworkMap.get(pluginDefinition.getFramework()) || [];
-
-    if (pluginDefinition.getFramework() === 'unsupported') {
-      return new Promise((resolve, reject) => {
-        this.logger.warn("ZWED5176W", pluginDefinition.getIdentifier()); //this.logger.warn(`${pluginDefinition.getIdentifier()} does not use supported framework`);
-        resolve();
-      });
-    } else if (pluginDefinition.getFramework() === 'n/a') {
-      return new Promise((resolve, reject) => {
-        resolve();
-      });
-    }
-
-    /* Attempt all registered factories for the given framework */
-    return candidateFactories.reduce(
-      (promise, factory) => promise.catch((errors: any[]) =>
-        factory.loadComponentFactories(pluginDefinition).catch((error) => Promise.reject(errors.concat([error])))
-      ),
-      Promise.reject([new Error(`ZWED5153E - All plugin factories for framework type "${pluginDefinition.getFramework()}" failed`)])
     );
   }
 }

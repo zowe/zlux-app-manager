@@ -76,6 +76,48 @@ script.onload = () => {
     });
     // Any additional RequireJS configuration or loading should go here
     console.log('RequireJS loaded and configured successfully.');
+     const libs: { [index: string]: {library: any} } = {
+       '@angular/core': require('@angular/core'),
+       '@angular/common': require('@angular/common'),
+       '@angular/common/http': require('@angular/common/http'),
+       '@angular/platform-browser': require('@angular/platform-browser'),
+       '@angular/platform-browser/animations': require('@angular/platform-browser/animations'),
+       '@angular/platform-browser-dynamic': require('@angular/platform-browser-dynamic'),
+       '@angular/cdk/portal': require('@angular/cdk/portal'),
+       '@angular/material/snack-bar': require('@angular/material/snack-bar'),
+       '@angular/material/dialog': require('@angular/material/dialog'),
+       '@angular/material/icon': require('@angular/material/icon'),
+       '@angular/material/autocomplete': require('@angular/material/autocomplete'),
+       '@angular/material/button': require('@angular/material/button'),
+       '@angular/material/button-toggle': require('@angular/material/button-toggle'),
+       '@angular/material/checkbox': require('@angular/material/checkbox'),
+       '@angular/material/form-field': require('@angular/material/form-field'),
+       '@angular/material/input': require('@angular/material/input'),
+       '@angular/material/list': require('@angular/material/list'),
+       '@angular/material/slide-toggle': require('@angular/material/slide-toggle'),
+       '@angular/material/table': require('@angular/material/table'),
+       '@angular/material/tooltip': require('@angular/material/tooltip'),
+       '@angular/material/expansion': require('@angular/material/expansion'),
+       '@angular/material/select': require('@angular/material/select'),
+       '@angular/material': require('@angular/material'),
+       '@angular/forms': require('@angular/forms'),
+       '@angular/router': require('@angular/router'),
+       '@angular/animations': require('@angular/animations'),
+       '@angular/cdk': require('@angular/cdk'),
+       'angular-l10n': require('angular-l10n'),
+       'rxjs': require('rxjs'),
+       'rxjs/operators': require('rxjs/operators')
+     };
+
+     /* Expose modules to requirejs */
+     for (const library in libs) {
+       if (libs[library]) {
+         (window as any).define(library, libs[library]);
+       } else {
+         console.warn(`Missing library ${library}`);
+       }
+     }
+
   } else {
     console.error('RequireJS did not load correctly.');
   }

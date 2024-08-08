@@ -27,17 +27,17 @@ var config = {
     'filename': 'main.js',
   },
   'plugins': [
-    new CopyWebpackPlugin([
-      {
+    new CopyWebpackPlugin({
+      patterns: [{
         from: path.resolve(__dirname, './src/assets'),
         to: path.resolve('../web/assets')
-      }
-    ])
+      }]
+    })
   ]
 };
 
 module.exports = new webpackConfig.Config()
-  .extend(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack.base.js'))
+  .extend(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack5.base.js'))
   .merge(config);
 
 

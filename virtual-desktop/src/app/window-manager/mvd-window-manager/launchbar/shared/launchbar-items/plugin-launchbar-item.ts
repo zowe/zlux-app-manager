@@ -13,7 +13,6 @@
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { LaunchbarItem } from '../launchbar-item';
 import { WindowManagerService } from '../../../shared/window-manager.service';
-import html2canvas from 'html2canvas';
 
 export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.PluginWatcher {
   public instanceIds: Array<MVDHosting.InstanceId>;
@@ -35,11 +34,6 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
       }
       if (this.instanceIds.length < 2) {
         return; //performance hack until we get some task viewer that needs this
-      }
-      let index = this.instanceIds.indexOf(window.windowId);
-      if (index != -1) {
-        // TODO: Generate snapshot code needs optimization due to incredible desktop performance slowdown
-        // this.generateSnapshot(index);
       }
     });
   }
@@ -64,34 +58,6 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
     return this.instanceIds;
   }
 
-  generateSnapshot(index: number){
-    var self = this;
-    let instanceId = self.instanceIds[index];
-    if (instanceId != -1) {
-      var windowHTML = this.windowManager.getHTML(instanceId);
-      var imgPrev = new Image();
-
-      if (windowHTML) {
-        html2canvas(windowHTML, {logging:false}).then(function(canvas) {
-          imgPrev.src = canvas.toDataURL();
-          if (self.instanceIds.length == self.windowPreviews.length){
-            self.windowPreviews[index] = imgPrev;
-          } else {
-            self.windowPreviews.push(imgPrev);
-          }
-        });
-      } else if (self.instanceIds.length == self.windowPreviews.length){
-        self.windowPreviews.push(imgPrev);
-      }
-    }
-  }
-
-  destroySnapshot(index: number) {
-    if (index > -1) {
-      this.windowPreviews.splice(index, 1);
-    }
-  }
-
   instanceAdded(instanceId: MVDHosting.InstanceId, isEmbedded: boolean|undefined) {
     //var self = this;
     if (!isEmbedded) {
@@ -113,7 +79,6 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
   instanceRemoved(instanceId: MVDHosting.InstanceId) {
     let index = this.instanceIds.indexOf(instanceId);
     if (index != -1) {
-      this.destroySnapshot(index);
       this.instanceIds.splice(index,1);
     }
   }

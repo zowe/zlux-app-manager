@@ -49,6 +49,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     // private compiler: Compiler,
     private languageLocaleService: LanguageLocaleService,
     private http: HttpClient,
+    private environmentInjector: EnvironmentInjector
   ) {
     // this.failureModuleFactory = this.compiler.compileModuleSync(FailureModule);
     this.applicationInstances = new Map();
