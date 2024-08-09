@@ -33,11 +33,7 @@ import { SimpleComponent } from 'app/window-manager/simple-window-manager/simple
 import { StartURLManager } from '../src/app/start-url-manager/start-url-manager.service';
 
 /* Load globals */
-<<<<<<< HEAD
 // import 'jquery';
-=======
-import 'jquery';
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 // Dropdown component in workflows-app requires bootstrap JS components and popper.js
 // In Zowe v2 we remove the workflows-app
 // TODO: consider to remove the two imports below
@@ -45,8 +41,6 @@ import 'popper.js';
 import 'bootstrap';
 import 'zone.js';
 
-// import '@angular/compiler';
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
 if (environment.production) {
   enableProdMode();
 }
@@ -159,4 +153,3 @@ performBootstrap();
 
   Copyright Contributors to the Zowe Project.
 */
-
