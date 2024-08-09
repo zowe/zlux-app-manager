@@ -42,10 +42,6 @@ import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
     SnackbarComponent,
     SortArray
   ],
-<<<<<<< HEAD
-=======
-  // entryComponents: [SnackbarComponent],
->>>>>>> a5805ca (version update to Angular 18 and relevant changes)
   exports: [
     LaunchbarComponent
   ],

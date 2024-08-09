@@ -13,7 +13,7 @@
 import { Injectable, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PluginFactory } from '../plugin-factory';
-import { CompiledPlugin, CompiledPluginCustom } from '../../shared/compiled-plugin';
+import { CompiledPlugin } from '../../shared/compiled-plugin';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { IFramePluginComponent } from '../iframe/iframe-plugin.component';
 
@@ -47,14 +47,14 @@ export class IFramePluginFactory extends PluginFactory {
         return Promise.resolve();
     }
 
-    loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin | CompiledPluginCustom> {
+    loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin> {
         this._pluginDefinition = pluginDefinition;
         @NgModule({
             imports: [CommonModule],
             declarations: [IFramePluginComponent],
         })
         class RuntimePluginModule { }
-        return Promise.resolve(new CompiledPluginCustom(IFramePluginComponent, RuntimePluginModule));
+        return Promise.resolve(new CompiledPlugin(IFramePluginComponent, RuntimePluginModule));
     }
 }
 /*

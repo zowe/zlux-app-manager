@@ -92,7 +92,11 @@ export class InjectionManager {
       providersArray.push(...providers)
     }
 
-    return Injector.create(providersArray, this.injector.get(NgModuleRef).injector);  // gets root injector of virtualDesktop tree
+    const injectorOptions = {
+      providers: providersArray,
+      parent: this.injector.get(NgModuleRef).injector
+    }
+    return Injector.create(injectorOptions);  // gets root injector of virtualDesktop tree
   }
 
   generateComponentInjector(viewport: Viewport, parent: Injector): Injector {
