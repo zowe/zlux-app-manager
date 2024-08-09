@@ -12,8 +12,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, Type, StaticProvider } from '@angular/core';
-// import { HttpModule } from '@angular/http';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 // Modules
@@ -34,8 +33,6 @@ export class MvdModuleFactory {
       imports: [
         BrowserModule,
         BrowserAnimationsModule,
-        // HttpModule,
-        HttpClientModule,
         // Our stuff,
         SharedModule,
         PluginManagerModule,
@@ -45,6 +42,7 @@ export class MvdModuleFactory {
         AuthenticationModule
       ],
       providers: [
+        provideHttpClient(),
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         { provide: LanguageLocaleService, useFactory: MvdModuleFactory.getLocaleService},
         { provide: TranslationLoaderService, useFactory: MvdModuleFactory.getTranslationLoaderService}

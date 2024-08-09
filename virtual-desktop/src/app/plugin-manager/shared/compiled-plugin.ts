@@ -24,7 +24,7 @@ export class CompiledPlugin {
 export class CompiledPluginCustom {
   constructor(
     public initialComponent: Type<any>,
-    public ngModule?: Type<any>,
+    public ngModule: Type<any>,
     public providers?: any[]
   ) {
   }

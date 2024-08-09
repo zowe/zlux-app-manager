@@ -41,7 +41,6 @@ import 'popper.js';
 import 'bootstrap';
 import 'zone.js';
 
-// import '@angular/compiler';
 if (environment.production) {
   enableProdMode();
 }
