@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "scripts": {
     "start": "webpack --progress --watch",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider webpack --progress",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --progress",
     "i18n": "ng-xi18n -p tsconfig.i18n.json --i18nFormat=xlf  --outFile=messages.xlf",
     "lint": "tslint -c tslint.json \"./**/*.ts\""
   },
@@ -27,6 +27,7 @@
     "codelyzer": "~6.0.2",
     "copy-webpack-plugin": "~12.0.2",
     "core-js": "~3.19.0",
+    "cross-env": "^7.0.3",
     "css-loader": "~7.1.1",
     "exports-loader": "~5.0.0",
     "html-loader": "~4.2.0",
