@@ -14,7 +14,7 @@ import { Injectable, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { PluginFactory } from '../plugin-factory';
-import { CompiledPluginCustom } from '../../shared/compiled-plugin';
+import { CompiledPlugin } from '../../shared/compiled-plugin';
 
 import { ReactPluginComponent, ReactEntryHook } from './react-plugin.component';
 import { BaseLogger } from 'virtual-desktop-logger';
@@ -63,7 +63,7 @@ export class ReactPluginFactory extends PluginFactory {
     });
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPluginCustom> {
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin> {
     const scriptUrl = ReactPluginFactory.getReactModuleURL(pluginDefinition);
     return new Promise((resolve, reject) => {
       (window as any).require([scriptUrl],
@@ -80,7 +80,7 @@ export class ReactPluginFactory extends PluginFactory {
           })
           class ReactPluginModule { }
 
-          resolve(new CompiledPluginCustom(ReactPluginComponent, ReactPluginModule));
+          resolve(new CompiledPlugin(ReactPluginComponent, ReactPluginModule));
         },
         (failure: any) =>
           reject(failure)

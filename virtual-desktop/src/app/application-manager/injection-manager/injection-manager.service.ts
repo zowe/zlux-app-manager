@@ -89,7 +89,11 @@ export class InjectionManager {
       providersArray.push(...providers)
     }
 
-    return Injector.create(providersArray, this.injector.get(NgModuleRef).injector);  // gets root injector of virtualDesktop tree
+    const injectorOptions = {
+      providers: providersArray,
+      parent: this.injector.get(NgModuleRef).injector
+    }
+    return Injector.create(injectorOptions);  // gets root injector of virtualDesktop tree
   }
 
   generateComponentInjector(viewport: Viewport, parent: Injector): Injector {
@@ -100,7 +104,7 @@ export class InjectionManager {
         useValue: value
       });
     });
-    return Injector.create(mappings, parent);
+    return Injector.create({ providers: mappings, parent });
   }
 
   generateFailurePluginInjector(errors: any[]): Injector {
@@ -109,7 +113,7 @@ export class InjectionManager {
       useValue: errors
     };
 
-    return Injector.create([errorProvider], this.injector);
+    return Injector.create({ providers: [errorProvider], parent: this.injector });
   }
 }
 
