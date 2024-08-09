@@ -12,7 +12,6 @@
 
 import { Component, ComponentRef, Input, Injector } from '@angular/core';
 
-// import { ViewportId } from '../viewport';
 import { ApplicationManager } from '../../application-manager.service';
 
 @Component({

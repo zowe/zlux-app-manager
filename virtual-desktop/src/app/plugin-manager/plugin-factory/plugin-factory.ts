@@ -10,12 +10,11 @@
   Copyright Contributors to the Zowe Project.
 */
 
-//import { DesktopPluginDefinition } from '../shared/desktop-plugin-definition';
-import { CompiledPlugin, CompiledPluginCustom } from '../shared/compiled-plugin';
+import { CompiledPlugin } from '../shared/compiled-plugin';
 
 export abstract class PluginFactory {
   abstract acceptableFrameworks(): string[];
-  abstract loadPlugin(plugin: MVDHosting.DesktopPluginDefinition, id: MVDHosting.ViewportId): Promise<CompiledPlugin | CompiledPluginCustom>;
+  abstract loadPlugin(plugin: MVDHosting.DesktopPluginDefinition, id: MVDHosting.ViewportId): Promise<CompiledPlugin>;
   abstract loadComponentFactories(plugin: MVDHosting.DesktopPluginDefinition): Promise<void>;
 }
 

@@ -13,7 +13,7 @@
 import { createComponent, Injectable } from '@angular/core';
 
 import { PluginFactory } from '../plugin-factory';
-import { CompiledPlugin, CompiledPluginCustom } from '../../shared/compiled-plugin';
+import { CompiledPlugin } from '../../shared/compiled-plugin';
 import { ApplicationRef, Injector } from '@angular/core';
 import { from, Observable } from 'rxjs';
 
@@ -86,8 +86,6 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
   constructor(
-    // private compilerFactory: CompilerFactory,
-    // private compiler: Compiler,
     private applicationRef: ApplicationRef,
     private injector: Injector,
     private translationLoaderService: TranslationLoaderService
@@ -129,7 +127,7 @@ export class Angular2PluginFactory extends PluginFactory {
     });
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin | CompiledPluginCustom> {
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin> {
     this.loadComponentFactories(pluginDefinition);
     const scriptUrl = Angular2PluginFactory.getAngularModuleURL(pluginDefinition);
 
@@ -139,7 +137,7 @@ export class Angular2PluginFactory extends PluginFactory {
       (window as any).require([scriptUrl],
         (plugin: MvdNativeAngularPlugin) => {
           this.translationLoaderService.getTranslationProviders(pluginDefinition.getBasePlugin()).then(providers => {
-            resolve(new CompiledPluginCustom(plugin.pluginComponent, plugin.pluginModule, providers));
+            resolve(new CompiledPlugin(plugin.pluginComponent, plugin.pluginModule, providers));
           });
         });
     });

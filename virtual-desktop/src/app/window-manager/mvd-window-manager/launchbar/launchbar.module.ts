@@ -42,7 +42,6 @@ import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
     SnackbarComponent,
     SortArray
   ],
-  // entryComponents: [SnackbarComponent],
   exports: [
     LaunchbarComponent
   ],
