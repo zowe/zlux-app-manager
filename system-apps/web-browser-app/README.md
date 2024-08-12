@@ -19,7 +19,7 @@ See the zowe documentation: https://docs.zowe.org/stable/extend/extend-desktop/m
 
 ## Environment Variables
 
-- `ZOWE_WEB_BROWSER_PROXY_PORT_RANGE=61000..61100`: Specifies a range of ports that the web browser app is allowed to use in proxy mode. You can have 1 (6100...61000) or more ports specified, and each domain proxied will utilize one port. The proxy attempts to clean up ports when no users of a domain remain.
+- `ZOWE_WEB_BROWSER_PROXY_PORT_RANGE=61000..61100`: Specifies a range of ports that the web browser app is allowed to use in proxy mode. You can have 1 (61000...61000) or more ports specified, and each domain proxied will utilize one port. The proxy attempts to clean up ports when no users of a domain remain.
 
 ## App2App Launch Metadata
 
