@@ -7,7 +7,7 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "http-proxy": "^1.18.0"
+    "http-proxy": "^1.18.1"
   },
   "devDependencies": {
     "@types/express": "^4.16.1",
