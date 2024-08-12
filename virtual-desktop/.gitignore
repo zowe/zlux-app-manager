@@ -44,6 +44,7 @@
 npm-debug.log
 testem.log
 /typings
+.angular
 
 # developer proxy file
 proxy.conf.json
