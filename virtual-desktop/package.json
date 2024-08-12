@@ -9,7 +9,8 @@
   "scripts": {
     "build:externals": "webpack --progress --config webpack.externals.js",
     "start": "webpack --watch --progress",
-    "build": "webpack --progress",
+    "build": "ng build && npm run copy",
+    "copy": "cpx node_modules/requirejs/require.js web/",
     "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json",
     "lint": "tslint -c tslint.json \"src/**/*.ts\""
   },
@@ -75,6 +76,8 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
     "@babel/plugin-syntax-decorators": "^7.24.7",
     "@babel/preset-env": "^7.24.7",
-    "@babel/preset-typescript": "^7.24.7"
+    "@babel/preset-typescript": "^7.24.7",
+    "@popperjs/core": "^2.11.8",
+    "cpx": "^1.5.0"
   }
 }

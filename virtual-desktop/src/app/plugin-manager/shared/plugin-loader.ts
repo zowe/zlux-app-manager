@@ -12,7 +12,7 @@
 
 import { Injectable } from '@angular/core';
 
-import { CompiledPlugin } from './compiled-plugin';
+import { CompiledPlugin, CompiledPluginCustom } from './compiled-plugin';
 // import { DesktopPluginDefinition } from './desktop-plugin-definition';
 import { PluginFactory } from '../plugin-factory/plugin-factory';
 import { Angular2PluginFactory } from '../plugin-factory/angular2/angular2-plugin-factory';
@@ -47,7 +47,7 @@ export class PluginLoader {
     });
   }
 
-  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin | null> {
+  loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin | CompiledPluginCustom | null> {
     const candidateFactories = this.frameworkMap.get(pluginDefinition.getFramework()) || [];
     if (pluginDefinition.getFramework() === 'unsupported') {
       return new Promise((resolve, reject) => {
