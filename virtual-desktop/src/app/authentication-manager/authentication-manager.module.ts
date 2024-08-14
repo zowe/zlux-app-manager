@@ -19,6 +19,7 @@ import { AuthenticationManager } from './authentication-manager.service';
 import { StartURLManagerModule } from '../start-url-manager';
 import { StorageService } from './storage.service';
 import { IdleWarnService } from './idleWarn.service';
+import { provideHttpClient } from '@angular/common/http';
 
 @NgModule({
   imports: [
