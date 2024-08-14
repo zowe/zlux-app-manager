@@ -33,7 +33,7 @@ import { SimpleComponent } from 'app/window-manager/simple-window-manager/simple
 import { StartURLManager } from '../src/app/start-url-manager/start-url-manager.service';
 
 /* Load globals */
-import 'jquery';
+// import 'jquery';
 // Dropdown component in workflows-app requires bootstrap JS components and popper.js
 // In Zowe v2 we remove the workflows-app
 // TODO: consider to remove the two imports below
@@ -41,7 +41,6 @@ import 'popper.js';
 import 'bootstrap';
 import 'zone.js';
 
-// import '@angular/compiler';
 if (environment.production) {
   enableProdMode();
 }
@@ -67,7 +66,6 @@ for (let index = 0; index < app2appArray.length; index++) {
 /* Load second stage with requirejs */
 const script = document.createElement('script');
 
-// script.setAttribute('src', ZoweZLUX.uriBroker.pluginResourceUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'require.js'));
 script.setAttribute('src', ZoweZLUX.uriBroker.pluginResourceUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'require.js'));
 script.onload = () => {
   if (typeof (window as any).requirejs !== 'undefined') {

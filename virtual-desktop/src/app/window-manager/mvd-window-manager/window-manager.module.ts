@@ -12,7 +12,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { SharedModule } from 'app/shared/shared.module';
 import { ApplicationManagerModule } from 'app/application-manager/application-manager.module';
 import { ContextMenuModule } from '../../context-menu/context-menu.module';
@@ -42,7 +42,6 @@ import { IncludeExternalCssComponent } from 'app/shared/include-external-css.com
     CommonModule,
     SharedModule,
     LaunchbarModule,
-    HttpClientModule,
     NgxFileDropModule,
     MatSnackBarModule,
     IncludeExternalCssComponent
@@ -63,6 +62,7 @@ import { IncludeExternalCssComponent } from 'app/shared/include-external-css.com
   providers: [
     WindowManagerService,
     ThemeEmitterService,
+    provideHttpClient(),
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
     { provide: MVDHosting.Tokens.ThemeEmitterToken, useExisting: ThemeEmitterService },

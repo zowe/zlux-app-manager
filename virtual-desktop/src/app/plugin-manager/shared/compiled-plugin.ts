@@ -10,21 +10,12 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { NgModuleFactory, Type } from '@angular/core';
+import { Type } from '@angular/core';
 
 export class CompiledPlugin {
-
   constructor(
     public initialComponent: Type<any>,
-    public moduleFactory: NgModuleFactory<any>
-  ) {
-  }
-}
-
-export class CompiledPluginCustom {
-  constructor(
-    public initialComponent: Type<any>,
-    public ngModule?: Type<any>,
+    public ngModule: Type<any>,
     public providers?: any[]
   ) {
   }
