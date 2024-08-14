@@ -19,7 +19,6 @@ import { IFramePluginFactory } from './plugin-factory/iframe/iframe-plugin-facto
 import { ReactPluginFactory } from './plugin-factory/react/react-plugin-factory';
 
 @NgModule({ 
-@NgModule({ 
   providers: [
     Angular2PluginFactory,
     IFramePluginFactory,
@@ -44,4 +43,3 @@ export class PluginManagerModule {
 
   Copyright Contributors to the Zowe Project.
 */
-

@@ -39,7 +39,6 @@ export class InjectionManager {
 
   generateModuleInjector(pluginDefinition: MVDHosting.DesktopPluginDefinition, launchMetadata: any,
                          instanceId: MVDHosting.InstanceId, messages?: any, providers?: any[]): Injector {
-                         instanceId: MVDHosting.InstanceId, messages?: any, providers?: any[]): Injector {
     let identifier = pluginDefinition.getIdentifier();
     const plugin = pluginDefinition.getBasePlugin();
 
@@ -48,8 +47,6 @@ export class InjectionManager {
       logger = ZoweZLUX.logger.makeComponentLogger(identifier, messages);
       ComponentLoggerContainer.set(identifier,logger);
     }
-    
-    const providersArray = [
     
     const providersArray = [
       {
@@ -130,4 +127,3 @@ export class InjectionManager {
 
   Copyright Contributors to the Zowe Project.
 */
-

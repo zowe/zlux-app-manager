@@ -21,7 +21,6 @@ import {
   ViewChild,
   Input
 } from '@angular/core';
-} from '@angular/core';
 import { interval } from 'rxjs';
 import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
 import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
@@ -36,7 +35,6 @@ import { L10nTranslationService } from 'angular-l10n';
   selector: 'rs-com-launchbar-widget',
   templateUrl: 'launchbar-widget.component.html',
   styleUrls: ['launchbar-widget.component.css', '../shared/shared.css'],
-  styleUrls: ['launchbar-widget.component.css', '../shared/shared.css'],
   providers: [LanguageLocaleService],
 })
 export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatcher, OnInit {
@@ -44,8 +42,6 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   public date: Date;
   public popupVisible: boolean;
-  public fontSize: string;
-
   public fontSize: string;
 
   public clockTwoRow: boolean = true;
@@ -269,7 +265,6 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     for (let notification of this.notifications) {
       let imgSrc = ""
       for (let item of this.menuItems) {
-      for (let item of this.menuItems) {
         if (item.plugin.getBasePlugin().getIdentifier() === notification['notification'].plugin) {
           imgSrc = item.image || ""
         }
@@ -278,8 +273,6 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
         imgSrc = `${ZoweZLUX?.uriBroker.desktopRootUri()}assets/images/launchbar/notifications/zowe.png`;
       }
 
-
-      info.push({ 'title': notification['notification'].title, 'message': notification['notification'].message, "imgSrc": imgSrc })
 
       info.push({ 'title': notification['notification'].title, 'message': notification['notification'].message, "imgSrc": imgSrc })
     }
@@ -296,10 +289,8 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     let pluginId = this.notifications[i].notification.plugin
 
     for (let item of this.menuItems) {
-    for (let item of this.menuItems) {
       if (item.plugin.getBasePlugin().getIdentifier() === pluginId) {
         let windowIds = this.windowManager.getWindowIDs(item.plugin)
-        if (windowIds != null) {
         if (windowIds != null) {
           if (windowIds.length > 0) {
             this.windowManager.requestWindowFocus(windowIds[0])
@@ -326,4 +317,3 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   Copyright Contributors to the Zowe Project.
 */
-

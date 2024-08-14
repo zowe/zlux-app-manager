@@ -24,22 +24,16 @@
   bottom: 0;
   left: 0;
   right: 0;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
   margin: 0 auto;
 
   text-align: center;
   background: white;
-
 
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.login-overlay>div {
 .login-overlay>div {
   background: white;
   overflow-x: hidden;
@@ -140,7 +134,6 @@
 
 .login-button:disabled {
   opacity: 0.3;
-  filter: grayscale(100%);
   filter: grayscale(100%);
 }
 
