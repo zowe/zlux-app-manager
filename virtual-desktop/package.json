@@ -45,7 +45,7 @@
     "ngx-file-drop": "~11.3.0",
     "ngx-i18nsupport": "~0.17.1",
     "popper.js": "~1.14.7",
-    "requirejs": "~2.3.6",
+    "requirejs": "~2.3.7",
     "rxjs": "~6.6.0",
     "source-map-loader": "~3.0.0",
     "style-loader": "~3.3.1",
