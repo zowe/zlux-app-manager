@@ -64,7 +64,7 @@ export class BootstrapManager {
       if (desktops.length == 0) {
         console.error("ZWED5012E - No desktops available to bootstrap.");
       } else if (useV2Desktop) {
-        console.error("ZWED5324I - The requested Desktop version (V2) is in maintenance mode. To use the newest Desktop version instead, remove the query parameter 'use-v2-desktop'.");
+        console.warn("ZWED5324I - The requested Desktop version (V2) is in maintenance mode. To use the newest Desktop version instead, remove the query parameter 'use-v2-desktop'.");
         BootstrapManager.bootstrapDesktopPlugin(v2Desktop[0], injectionCallback);
       } else if (v3Desktop.length == 1) {
         BootstrapManager.bootstrapDesktopPlugin(v3Desktop[0], injectionCallback);
