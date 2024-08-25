@@ -59,7 +59,7 @@ export class BootstrapManager {
       const searchParams = new URLSearchParams(window.location.search);
       const v2Desktop = desktops.filter((desktop)=> { desktop.getIdentifier() == "org.zowe.zlux.ng2desktop" });
       const v3Desktop = desktops.filter((desktop)=> { desktop.getIdentifier() == "org.zowe.zlux.ivydesktop" });
-      const useV2Desktop = v2Desktop.length == 1 && searchParams.has("use-v2-desktop") && (searchParams.get("use-v2-desktop") == '1'); 
+      const useV2Desktop = v2Desktop.length == 1 && searchParams.has("use-v2-desktop") && (searchParams.get("use-v2-desktop") == 'true'); 
       
       if (desktops.length == 0) {
         console.error("ZWED5012E - No desktops available to bootstrap.");
