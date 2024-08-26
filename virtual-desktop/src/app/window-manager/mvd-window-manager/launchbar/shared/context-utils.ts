@@ -42,14 +42,17 @@ function bringItemFront(item: LaunchbarItem, windowManager: WindowManagerService
 function getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
   const pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
   const basePlugin = pluginImpl.getBasePlugin();
-  return {data:{"isPropertyWindow":true,
+  return {
+    data: {
+      "isPropertyWindow": true,
           "appName":pluginImpl.defaultWindowTitle,
           "appId":pluginImpl.getIdentifier(),
           "appVersion":basePlugin.getVersion(),
           "appType":basePlugin.getType(),
           "copyright":pluginImpl.getCopyright(),
           "image":plugin.image
-         }};    
+    }
+  };
 }
 
 

@@ -28,7 +28,7 @@ const ENABLE_PLUGINS_ADDED_TIMEOUT = 1000;
   templateUrl: 'desktop.component.html'
 })
 export class DesktopComponent implements MVDHosting.LoginActionInterface {
-  contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
+  contextMenuDef: { xPos: number, yPos: number, items: ContextMenuItem[] } | null;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public isPersonalizationPanelVisible: boolean;
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
@@ -51,7 +51,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
       launchbarMenu: 2
     }
   }
-  
+
   constructor(
     public windowManager: WindowManagerService,
     private authenticationService: AuthenticationManager,
@@ -66,29 +66,29 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     this.authenticationManager.registerPostLoginAction(new AppDispatcherLoader(this.http, this.injector));
     this.authenticationService.loginScreenVisibilityChanged.subscribe((eventReason: MVDHosting.LoginScreenChangeReason) => {
       switch (eventReason) {
-      case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
-        const notifTitle = this.translation.translate(ACCOUNT_PASSWORD);
-        const notifMessage = this.translation.translate(PASSWORD_CHANGED);
-        const desktopPluginId = ZoweZLUX.pluginManager.getDesktopPlugin().getIdentifier();
-        this.hidePersonalizationPanel();
-        ZoweZLUX.notificationManager.notify(ZoweZLUX.notificationManager.createNotification(notifTitle, notifMessage, 1, desktopPluginId));
-        break;
-      default:
+        case MVDHosting.LoginScreenChangeReason.PasswordChangeSuccess:
+          const notifTitle = this.translation.translate(ACCOUNT_PASSWORD);
+          const notifMessage = this.translation.translate(PASSWORD_CHANGED);
+          const desktopPluginId = ZoweZLUX.pluginManager.getDesktopPlugin().getIdentifier();
+          this.hidePersonalizationPanel();
+          ZoweZLUX.notificationManager.notify(ZoweZLUX.notificationManager.createNotification(notifTitle, notifMessage, 1, desktopPluginId));
+          break;
+        default:
       }
     });
   }
 
   ngOnInit(): void {
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
-    this.contextMenuDef = menuDef;
+      this.contextMenuDef = menuDef;
     });
   }
 
-  onLogin(username:string, plugins: ZLUX.Plugin[]): boolean {
+  onLogin(username: string, plugins: ZLUX.Plugin[]): boolean {
     // When the user logs in, we attempt to retrieve their theme settings from the configuration dataservice
     this.http.get(ZoweZLUX.uriBroker.pluginConfigUri(ZoweZLUX.pluginManager.getDesktopPlugin(), 'ui/theme', 'config.json')).subscribe((data: any) => {
       if (data) {
-        this.log.debug('Desktop config=',data.contents);
+        this.log.debug('Desktop config=', data.contents);
         if (Object.keys(data.contents).length !== 0) { //If the retrived theme became blank, we don't replace existing one with a corrupt object
           this._theme = (data.contents as DesktopTheme);
         }
@@ -123,8 +123,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
   }
 
   personalizationPanelToggle(): void {
-    if (this.isPersonalizationPanelVisible)
-    {
+    if (this.isPersonalizationPanelVisible) {
       this.isPersonalizationPanelVisible = false;
     } else {
       this.isPersonalizationPanelVisible = true;
@@ -163,15 +162,15 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
     private injector: Injector) {
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     AppDispatcherLoader.enablePluginsAddedSubscribe = false;
-    this.pluginManager.pluginsAdded.subscribe((plugins: ZLUX.Plugin[])=> {
+    this.pluginManager.pluginsAdded.subscribe((plugins: ZLUX.Plugin[]) => {
       if (AppDispatcherLoader.enablePluginsAddedSubscribe) {
         this.getAndDispatchRecognizers(plugins);
         this.getAndDispatchActions(plugins);
       }
     });
-   }
+  }
 
-  onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
+  onLogin(username: string, plugins: ZLUX.Plugin[]): boolean {
     this.getAndDispatchRecognizers(plugins);
     this.getAndDispatchActions(plugins);
     // To not double-load recognizers & actions, we enable pluginsAdded subscribe after 1 second
@@ -180,16 +179,16 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
   }
 
   getAndDispatchRecognizers(plugins: ZLUX.Plugin[]) {
-    let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
-    let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'recognizers');
+    let desktop: ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
+    let recognizersUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop, 'recognizers');
     this.log.debug(`Getting recognizers from "${recognizersUri}"`);
-    this.http.get(recognizersUri).subscribe((config: any)=> {
+    this.http.get(recognizersUri).subscribe((config: any) => {
       if (config && config.contents) {
         let appContents = config.contents;
-        plugins.forEach((plugin:ZLUX.Plugin)=> {
+        plugins.forEach((plugin: ZLUX.Plugin) => {
           const id = plugin.getIdentifier();
           if (appContents[id] && appContents[id].recognizers) { // If config has pre-existing recognizers for this plugin id,
-            appContents[id].recognizers.forEach((recognizerObject: any)=> {
+            appContents[id].recognizers.forEach((recognizerObject: any) => {
               ZoweZLUX.dispatcher.addRecognizerObject(recognizerObject); // register each object with the Dispatcher.
             });
             this.log.info(`ZWED5055I`, appContents[id].recognizers.length, id); //this.log.info(`Loaded ${appContents[id].recognizers.length} recognizers for App(${id})`);    
@@ -200,16 +199,16 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
   }
 
   getAndDispatchActions(plugins: ZLUX.Plugin[]) {
-    let desktop:ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
-    let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop,'actions');
+    let desktop: ZLUX.Plugin = ZoweZLUX.pluginManager.getDesktopPlugin();
+    let actionsUri = ZoweZLUX.uriBroker.pluginConfigUri(desktop, 'actions');
     this.log.debug(`Getting actions from "${actionsUri}"`);
-    this.http.get(actionsUri).subscribe((config: any)=> {
+    this.http.get(actionsUri).subscribe((config: any) => {
       if (config && config.contents) {
         let appContents = config.contents;
-        plugins.forEach((plugin:ZLUX.Plugin)=> {
+        plugins.forEach((plugin: ZLUX.Plugin) => {
           const id = plugin.getIdentifier();
           if (appContents[id] && appContents[id].actions) { // If config has pre-existing actions for this plugin id,
-            appContents[id].actions.forEach((actionObject: any)=> {
+            appContents[id].actions.forEach((actionObject: any) => {
               if (this.isValidAction(actionObject)) {
                 ZoweZLUX.dispatcher.registerAbstractAction(ZoweZLUX.dispatcher.makeActionFromObject(actionObject));
               }
@@ -224,18 +223,18 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
   isValidAction(actionObject: any): boolean {
     switch (actionObject.objectType) {
       case 'ActionContainer':
-      return actionObject.id && actionObject.defaultName && actionObject.children && actionObject.children.length > 0;
+        return actionObject.id && actionObject.defaultName && actionObject.children && actionObject.children.length > 0;
 
       default:
-      const mode: any = ZoweZLUX.dispatcher.constants.ActionTargetMode[actionObject.targetMode];
-      const type: any = ZoweZLUX.dispatcher.constants.ActionType[actionObject.type];
-      return (actionObject.id && actionObject.defaultName && actionObject.targetId
-        && actionObject.arg && mode !== undefined && type !== undefined);
+        const mode: any = ZoweZLUX.dispatcher.constants.ActionTargetMode[actionObject.targetMode];
+        const type: any = ZoweZLUX.dispatcher.constants.ActionType[actionObject.type];
+        return (actionObject.id && actionObject.defaultName && actionObject.targetId
+          && actionObject.arg && mode !== undefined && type !== undefined);
     }
   }
 }
 
-window.onbeforeunload = function(e: Event) {
+window.onbeforeunload = function (e: Event) {
   let dialogText = 'Are you sure you want to navigate away from the Desktop? Apps & Changes will be lost.';
   e.returnValue = false;
   return dialogText;

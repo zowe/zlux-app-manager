@@ -8,7 +8,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable /*, Inject */ } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { from, Observable, throwError } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { BaseLogger } from '../shared/logger';

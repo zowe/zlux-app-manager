@@ -11,8 +11,10 @@
 import { ViewChild, ElementRef, AfterViewInit, OnDestroy, InjectionToken, Inject, Component, Optional } from '@angular/core';
 
 import { ReactMVDResources } from 'pluginlib/react-inject-resources';
-import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, 
-  Angular2PluginSessionEvents, Angular2PluginViewportEvents, Angular2PluginThemeEvents } from 'pluginlib/inject-resources';
+import {
+  Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents,
+  Angular2PluginSessionEvents, Angular2PluginViewportEvents, Angular2PluginThemeEvents
+} from 'pluginlib/inject-resources';
 
 interface MvdNativeReactPlugin {
   renderPlugin: (domElement: HTMLElement, resources: ReactMVDResources) => void;

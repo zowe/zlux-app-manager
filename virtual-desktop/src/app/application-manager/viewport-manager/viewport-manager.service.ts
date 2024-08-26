@@ -12,7 +12,6 @@
 
 import { Injectable } from '@angular/core';
 import { Viewport } from './viewport';
-// import { InstanceId } from '../application-instance';
 import { BaseLogger } from 'virtual-desktop-logger';
 
 @Injectable()
