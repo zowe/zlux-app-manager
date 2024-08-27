@@ -26,7 +26,7 @@ export class AppComponent {
     @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any,
     private translation: L10nTranslationService,
   ) {
-    this.isLanguagesComponentActive = (this.launchMetadata.settingsToolName === this.translation.translate('Languages'));
+    this.isLanguagesComponentActive = (this.launchMetadata.settingsToolName === this.translation?.translate('Languages'));
   }
 }
 /*
