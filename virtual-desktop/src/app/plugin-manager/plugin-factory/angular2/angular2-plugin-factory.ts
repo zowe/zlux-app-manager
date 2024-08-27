@@ -85,8 +85,13 @@ class SimpleAngularComponentFactory extends ComponentFactory {
 export class Angular2PluginFactory extends PluginFactory {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private static getAngularModuleURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
-    let entryPoint = pluginDefinition.getBasePlugin().getWebEntryPoint() || 'main.js';
-    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), entryPoint);
+    let pluginDefBase = pluginDefinition.getBasePlugin();
+    let pluginDefAny:any = (pluginDefBase as any);
+    let entryPoint = 'main.js';
+    if (pluginDefAny.getWebEntryPoint) {
+      entryPoint = pluginDefAny.getWebEntryPoint() || 'main.js';
+    }
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefBase, entryPoint);
   }
 
   private static getAngularComponentsURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
