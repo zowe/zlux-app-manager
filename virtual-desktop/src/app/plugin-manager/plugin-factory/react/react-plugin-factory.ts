@@ -27,9 +27,13 @@ interface MvdNativeReactPluginComponentDefinition {
 export class ReactPluginFactory extends PluginFactory {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private static getReactModuleURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
-    // TODO: clean this up with .d.ts file
-    let entryPoint = pluginDefinition.getBasePlugin().getWebEntryPoint() || 'main.js';
-    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), entryPoint);
+    let pluginDefBase = pluginDefinition.getBasePlugin();
+    let pluginDefAny:any = (pluginDefBase as any);
+    let entryPoint = 'main.js';
+    if (pluginDefAny.getWebEntryPoint) {
+      entryPoint = pluginDefAny.getWebEntryPoint() || 'main.js';
+    }
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefBase, entryPoint);
   }
 
   private static getReactComponentsURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
