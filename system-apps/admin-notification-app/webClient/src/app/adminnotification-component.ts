@@ -19,7 +19,7 @@ const ALL_ACTIVE_USERS = "All Active Users"
 @Component({
   selector: 'adminnotification',
   templateUrl: 'adminnotification-component.html',
-  styleUrls: ['adminnotification-component.scss']
+  styleUrls: ['adminnotification-component.css']
 })
 
 export class AdminNotificationComponent {
