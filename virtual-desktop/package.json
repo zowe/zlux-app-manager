@@ -9,6 +9,7 @@
   "scripts": {
     "start": "ng build --watch",
     "build": "ng build && npm run copy",
+    "build:externals": "exit 0",
     "copy": "cpx node_modules/requirejs/require.js web/",
     "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json",
     "lint": "tslint -c tslint.json \"src/**/*.ts\""
