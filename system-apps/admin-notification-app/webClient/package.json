@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "scripts": {
     "start": "webpack --progress --watch",
-    "build": "webpack --progress",
+    "build": "webpack --progress --stats verbose",
     "lint": "tslint -c tslint.json \"src/**/*.ts\""
   },
   "private": false,
