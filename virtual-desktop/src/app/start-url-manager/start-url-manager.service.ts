@@ -157,7 +157,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     const argumentFormatter = { data: { op: 'deref', source: 'event', path: ['data'] } };
     const type = dispatcher.constants.ActionType.Launch;
     const mode = dispatcher.constants.ActionTargetMode.PluginCreate;
-    const testAction = dispatcher.makeAction(actionId, actionTitle, mode, type, 'org.zowe.zlux.ng2desktop', argumentFormatter);
+    const testAction = dispatcher.makeAction(actionId, actionTitle, mode, type, 'org.zowe.zlux.ivydesktop', argumentFormatter);
     dispatcher.registerAction(testAction);
   }
   

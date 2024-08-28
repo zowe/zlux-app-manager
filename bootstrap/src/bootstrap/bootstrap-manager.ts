@@ -13,7 +13,6 @@
 import { Plugin } from 'zlux-base/plugin-manager/plugin'
 import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
 import { ZoweZLUXResources } from './rocket-mvd-resources'
-import { DSMResources } from './dsm-resources'
 
 export class BootstrapManager {
   private static bootstrapPerformed = false;
@@ -22,11 +21,7 @@ export class BootstrapManager {
     const uriBroker = window['GIZA_ENVIRONMENT'];
     console.log("ZWED5004I - bootstrapGlobalResources standaloneContainerRequested flag value: ", standaloneContainerRequested);
     console.log("ZWED5005I - bootstrapGlobalResources GIZA_ENVIRONMENT value: ", uriBroker);
-    if (standaloneContainerRequested && uriBroker && uriBroker.toUpperCase() === 'DSM') {
-      window.ZoweZLUX = DSMResources;
-    } else {
-      window.ZoweZLUX = ZoweZLUXResources;
-    }
+    window.ZoweZLUX = ZoweZLUXResources;
   }
 
   private static bootstrapDesktopPlugin(desktop: ZLUX.Plugin, injectionCallback: (plugin: ZLUX.Plugin) => Promise<void>) {
@@ -61,8 +56,18 @@ export class BootstrapManager {
       console.log(`ZWED5007I - ${desktops.length} desktops available`);
       console.log('ZWED5008I - desktops: ', desktops);
 
+      const searchParams = new URLSearchParams(window.location.search);
+      const v2Desktop = desktops.filter((desktop)=> { desktop.getIdentifier() == "org.zowe.zlux.ng2desktop" });
+      const v3Desktop = desktops.filter((desktop)=> { desktop.getIdentifier() == "org.zowe.zlux.ivydesktop" });
+      const useV2Desktop = v2Desktop.length == 1 && searchParams.has("use-v2-desktop") && (searchParams.get("use-v2-desktop") == 'true'); 
+      
       if (desktops.length == 0) {
         console.error("ZWED5012E - No desktops available to bootstrap.");
+      } else if (useV2Desktop) {
+        console.warn("ZWED5324I - The requested Desktop version (V2) is in maintenance mode. To use the newest Desktop version instead, remove the query parameter 'use-v2-desktop'.");
+        BootstrapManager.bootstrapDesktopPlugin(v2Desktop[0], injectionCallback);
+      } else if (v3Desktop.length == 1) {
+        BootstrapManager.bootstrapDesktopPlugin(v3Desktop[0], injectionCallback);
       } else {
         BootstrapManager.bootstrapDesktopPlugin(desktops[0], injectionCallback);
       }
