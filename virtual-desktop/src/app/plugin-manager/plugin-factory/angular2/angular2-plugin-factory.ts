@@ -139,7 +139,9 @@ export class Angular2PluginFactory extends PluginFactory {
           this.translationLoaderService.getTranslationProviders(pluginDefinition.getBasePlugin()).then(providers => {
             resolve(new CompiledPlugin(plugin.pluginComponent, plugin.pluginModule, providers));
           });
-        });
+        },
+        (failure: any) => reject(failure)
+      );
     });
   }
 }
