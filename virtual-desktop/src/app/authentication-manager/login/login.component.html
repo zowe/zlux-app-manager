@@ -1,5 +1,3 @@
-
-
 <!--
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -10,66 +8,68 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="desktop-cover" (click)="detectActivity()" (keypress)="detectActivity()" [class.active]="isLoading || needLogin">
+<div class="desktop-cover" (click)="detectActivity()" (keypress)="detectActivity()"
+  [class.active]="isLoading || needLogin">
   <ng-content></ng-content>
 </div>
 
 <div class="login-panel" [class.hidden]="!isLoading && !needLogin && !changePassword">
-  <div class="login-overlay" src="'../../../assets/images/login/back-button.png'">
-      <button class="back-button" 
-        [hidden]="!changePassword && !expiredPassword" 
-        (click)="backButton()"
-        id="ZAP_LoginPage_BackButton">{{this.translation.translate("Back")}}</button>
+  <div class="login-overlay" src="'assets/images/login/back-button.png'">
+    <button class="back-button" [hidden]="!changePassword && !expiredPassword" (click)="backButton()"
+      id="ZAP_LoginPage_BackButton">{{this.translation.translate("Back")}}</button>
     <div>
-    <img class="logo-img" [hidden]="changePassword || expiredPassword" [src]="logo" alt="Zowe - z/OS Lightweight User Experience" />
-    <img class="password-logo-img" [hidden]="!changePassword && !expiredPassword" [src]="passwordLogo" alt="Zowe - z/OS Lightweight User Experience" />
-    <form class="login-form" [class.login-form-expired]="expiredPassword" [class.password-login-form]="changePassword">
-      <p class="login-message">{{loginMessage}}</p>
-      <label [hidden]="changePassword" for="userid" i18n="label|Label for username@@username-label">Username</label>
-      <input 
-        [hidden]="changePassword" class="userid" id="ZAP_LoginPage_Username" aria-labelledby="user id" tabindex="1" type="text" 
-        name="userid" [(ngModel)]="username" minlength="1" maxlength="100" autofocus [attr.disabled]="locked?'':null" 
-        (keyup)="considerSubmit($event)"/>
-      <label for="password" i18n="label|Label for password@@password-label">{{this.expiredPassword ? "Old Password" : "Password"}}</label>
-      <input 
-        class="password" id="ZAP_LoginPage_Password" aria-labelledby="password" tabindex="1" type="password" 
-        name="password"[(ngModel)]="password" maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
-      <label [hidden]="!expiredPassword && !changePassword" for="newPassword" i18n="label|Label for password@@new-password-label">New Password</label>
-      <input 
-        [hidden]="!expiredPassword && !changePassword" class="newPassword" id="ZAP_LoginPage_NewPassword" aria-labelledby="newPassword" 
-        tabindex="1" type="password" name="newPassword"[(ngModel)]="newPassword" maxlength="100" [attr.disabled]="locked?'':null" 
-        (keyup)="considerSubmit($event)"/>
-      <label [hidden]="!expiredPassword && !changePassword" for="confirmNewPassword" i18n="label|Label for password@@confirm-new-password-label">Confirm New Password</label>
-      <input 
-        [hidden]="!expiredPassword && !changePassword" class="confirmNewPassword" id="ZAP_LoginPage_ConfirmNewPassword" 
-        aria-labelledby="confirmNewPassword" tabindex="1" type="password" name="confirmNewPassword"[(ngModel)]="confirmNewPassword" 
-        maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)"/>
-    </form>
-    <p class="login-error">
-      {{this.translation.translate(errorMessage)}}
-      <i class="fa fa-caret-down" title="Expand" aria-hidden="true" *ngIf="errorDetails && !showErrorDetails" (click)="expandError()"></i>
-      <i class="fa fa-caret-up" title="Collapse" aria-hidden="true" *ngIf="showErrorDetails" (click)="collapseError()"></i>
-    </p>
-    <div class="error-details-wrapper" [hidden]="!showErrorDetails">
-      <textarea class="login-error-details" readonly>{{this.translation.translate(errorDetails)}}</textarea>
-    </div>
-    <div class="fa fa-spinner fa-spin fa-5x" [hidden]="!isLoading"></div>
-    <button id="ZAP_LoginPage_SavePassword"
-      [hidden]="!expiredPassword && !changePassword" class="login-button" (click)="attemptPasswordReset()" [disabled]="locked">
-            {{this.expiredPassword ? this.translation.translate("Change Password") : this.translation.translate("SavePassword")}}
-    </button>
-    <div>
-      <button id="ZAP_LoginPage_Login"
-        class="login-button"
-        (click)="attemptLogin()"
-        [hidden]="!needLogin || expiredPassword"
-        [disabled]="locked"
-        i18n="label|Label for login@@login-button-title">
-        Login
+      <img class="logo-img" [hidden]="changePassword || expiredPassword" [src]="logo"
+        alt="Zowe - z/OS Lightweight User Experience" />
+      <img class="password-logo-img" [hidden]="!changePassword && !expiredPassword" [src]="passwordLogo"
+        alt="Zowe - z/OS Lightweight User Experience" />
+      <form class="login-form" [class.login-form-expired]="expiredPassword"
+        [class.password-login-form]="changePassword">
+        <p class="login-message">{{loginMessage}}</p>
+        <label [hidden]="changePassword" for="userid" i18n="label|Label for username@@username-label">Username</label>
+        <input [hidden]="changePassword" class="userid" id="ZAP_LoginPage_Username" aria-labelledby="user id"
+          tabindex="1" type="text" name="userid" [(ngModel)]="username" minlength="1" maxlength="100" autofocus
+          [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)" />
+        <label for="password" i18n="label|Label for password@@password-label">{{this.expiredPassword ? "Old Password" :
+          "Password"}}</label>
+        <input class="password" id="ZAP_LoginPage_Password" aria-labelledby="password" tabindex="1" type="password"
+          name="password" [(ngModel)]="password" maxlength="100" [attr.disabled]="locked?'':null"
+          (keyup)="considerSubmit($event)" />
+        <label [hidden]="!expiredPassword && !changePassword" for="newPassword"
+          i18n="label|Label for password@@new-password-label">New Password</label>
+        <input [hidden]="!expiredPassword && !changePassword" class="newPassword" id="ZAP_LoginPage_NewPassword"
+          aria-labelledby="newPassword" tabindex="1" type="password" name="newPassword" [(ngModel)]="newPassword"
+          maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)" />
+        <label [hidden]="!expiredPassword && !changePassword" for="confirmNewPassword"
+          i18n="label|Label for password@@confirm-new-password-label">Confirm New Password</label>
+        <input [hidden]="!expiredPassword && !changePassword" class="confirmNewPassword"
+          id="ZAP_LoginPage_ConfirmNewPassword" aria-labelledby="confirmNewPassword" tabindex="1" type="password"
+          name="confirmNewPassword" [(ngModel)]="confirmNewPassword" maxlength="100" [attr.disabled]="locked?'':null"
+          (keyup)="considerSubmit($event)" />
+      </form>
+      <p class="login-error">
+        {{this.translation.translate(errorMessage)}}
+        <i class="fa fa-caret-down" title="Expand" aria-hidden="true" *ngIf="errorDetails && !showErrorDetails"
+          (click)="expandError()"></i>
+        <i class="fa fa-caret-up" title="Collapse" aria-hidden="true" *ngIf="showErrorDetails"
+          (click)="collapseError()"></i>
+      </p>
+      <div class="error-details-wrapper" [hidden]="!showErrorDetails">
+        <textarea class="login-error-details" readonly>{{this.translation.translate(errorDetails)}}</textarea>
+      </div>
+      <div class="fa fa-spinner fa-spin fa-5x" [hidden]="!isLoading"></div>
+      <button id="ZAP_LoginPage_SavePassword" [hidden]="!expiredPassword && !changePassword" class="login-button"
+        (click)="attemptPasswordReset()" [disabled]="locked">
+        {{this.expiredPassword ? this.translation.translate("Change Password") :
+        this.translation.translate("SavePassword")}}
       </button>
+      <div>
+        <button id="ZAP_LoginPage_Login" class="login-button" (click)="attemptLogin()"
+          [hidden]="!needLogin || expiredPassword" [disabled]="locked" i18n="label|Label for login@@login-button-title">
+          Login
+        </button>
+      </div>
     </div>
-  </div>
-  <span class="login-plugin-version" id="ZAP_LoginPage_Version">{{getPluginVersion()}}</span>
+    <span class="login-plugin-version" id="ZAP_LoginPage_Version">{{getPluginVersion()}}</span>
   </div>
 </div>
 
@@ -86,4 +86,3 @@
 
   Copyright Contributors to the Zowe Project.
 -->
-

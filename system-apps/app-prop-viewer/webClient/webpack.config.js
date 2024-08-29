@@ -8,22 +8,23 @@
   Copyright Contributors to the Zowe Project.
 */
 
-const path = require('path');
-const { merge } = require('webpack-merge');
-const baseConfig = require(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack5.base.js'));
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+var path = require('path');
+var webpackConfig = require('webpack-config');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 if (process.env.MVD_DESKTOP_DIR == null) {
   throw new Error('You must specify MVD_DESKTOP_DIR in your environment');
 }
 
-const config = {
-  entry: path.resolve(__dirname, './src/plugin.ts'),
-  output: {
-    path: path.resolve(__dirname, '../web'),
-    filename: 'main.js',
+var config = {
+  'entry': [
+    path.resolve(__dirname, './src/plugin.ts')
+  ],
+  'output': {
+    'path': path.resolve(__dirname, '../web'),
+    'filename': 'main.js',
   },
-  plugins: [
+  'plugins': [
     new CopyWebpackPlugin({
       patterns: [
         {
@@ -35,7 +36,10 @@ const config = {
   ],
 };
 
-module.exports = merge(baseConfig, config);
+module.exports = new webpackConfig.Config()
+  .extend(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack5.base.js'))
+  .merge(config);
+
 
 /*
   This program and the accompanying materials are

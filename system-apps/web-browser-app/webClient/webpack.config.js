@@ -24,7 +24,7 @@ var config = {
     path.resolve(__dirname, './src/plugin.ts')
   ],
   output: {
-    path: path.resolve(__dirname, '../web'),
+    path: path.resolve(__dirname, '../web/v3'),
     filename: 'main.js',
   },
   module: {
@@ -52,10 +52,10 @@ var config = {
       patterns: [
         {
           from: path.resolve(__dirname, './src/assets'),
-          to: path.resolve(__dirname, '../web/assets')
+          to: path.resolve(__dirname, '../web/v3/assets')
         },
       ],
-    })
+    }),
   ]
 };
 

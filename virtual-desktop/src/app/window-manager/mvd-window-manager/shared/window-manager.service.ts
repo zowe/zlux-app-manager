@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, ViewContainerRef, ComponentRef, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Injectable, ViewContainerRef, ComponentRef, Injector, createComponent, EnvironmentInjector } from '@angular/core';
 import { Subject } from 'rxjs';
 
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
@@ -23,7 +23,8 @@ import { WindowPosition } from './window-position';
 import { DesktopWindowState, DesktopWindowStateType } from '../shared/desktop-window-state';
 import { DesktopTheme } from "../desktop/desktop.component";
 import { WindowMonitor } from 'app/shared/window-monitor.service';
-import { ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEvents, Angular2PluginThemeEvents,
+import {
+  ContextMenuItem, Angular2PluginWindowActions, Angular2PluginSessionEvents, Angular2PluginThemeEvents,
   Angular2PluginWindowEvents, Angular2InjectionTokens, Angular2PluginViewportEvents, Angular2PluginEmbedActions, 
   InstanceId, EmbeddedInstance
 } from 'pluginlib/inject-resources';
@@ -84,10 +85,10 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
   constructor(
     private injector: Injector,
     private windowMonitor: WindowMonitor,
-    private componentFactoryResolver: ComponentFactoryResolver,
     private appKeyboard: KeybindingService,
     private themeService: ThemeEmitterService,
-    private http: HttpClient
+    private http: HttpClient,
+    private environmentInjector: EnvironmentInjector
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -418,9 +419,12 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
             throw new Error('ZWED5154E - No matching plugin definition found');
           }
 
-          const factory = this.componentFactoryResolver.resolveComponentFactory(ViewportComponent);
-          const componentRef: ComponentRef<ViewportComponent> = viewContainer.createComponent(factory, viewContainer.length);
-
+          // TODO: Need to test below code
+          const componentRef: ComponentRef<ViewportComponent> = createComponent(ViewportComponent, {
+            environmentInjector: this.environmentInjector,
+            hostElement: viewContainer?.element.nativeElement,
+            elementInjector: viewContainer.injector
+          });
           const viewportComponent = componentRef.instance;
 
 

@@ -11,7 +11,7 @@
 import { NgModule, APP_INITIALIZER, LOCALE_ID } from '@angular/core';
 import { LanguageLocaleService } from './language-locale.service';
 import { localeInitializer, localeIdFactory } from './locale-initializer.provider';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { L10nConfig, L10nIntlModule, L10nTranslationModule, L10nTranslationService } from 'angular-l10n';
 import { L10nStorageService } from './l10n-storage.service';
 import { L10nConfigService } from './l10n-config.service';
@@ -29,7 +29,6 @@ export const l10nConfig: L10nConfig = {
 };
 @NgModule({
   imports: [
-    HttpClientModule,
     L10nTranslationModule.forRoot(
        l10nConfig,
        {
@@ -40,6 +39,7 @@ export const l10nConfig: L10nConfig = {
     L10nIntlModule
   ],
   providers: [
+    provideHttpClient(),
     L10nConfigService,
     { provide: LOCALE_ID, useFactory: localeIdFactory, deps: [LanguageLocaleService] },
     {
