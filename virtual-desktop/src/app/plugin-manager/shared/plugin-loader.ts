@@ -13,7 +13,6 @@
 import { Injectable } from '@angular/core';
 
 import { CompiledPlugin } from './compiled-plugin';
-// import { DesktopPluginDefinition } from './desktop-plugin-definition';
 import { PluginFactory } from '../plugin-factory/plugin-factory';
 import { Angular2PluginFactory } from '../plugin-factory/angular2/angular2-plugin-factory';
 import { IFramePluginFactory } from '../plugin-factory/iframe/iframe-plugin-factory';

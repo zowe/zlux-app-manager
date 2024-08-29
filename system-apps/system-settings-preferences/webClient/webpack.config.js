@@ -10,32 +10,32 @@
   Copyright Contributors to the Zowe Project.
 */
 
-const path = require('path');
-const webpackConfig = require('webpack-config');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+var path = require('path');
+var webpackConfig = require('webpack-config');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 if (process.env.MVD_DESKTOP_DIR == null) {
   throw new Error('You must specify MVD_DESKTOP_DIR in your environment');
 }
 
-const config = {
-  entry: [
+var config = {
+  'entry': [
     path.resolve(__dirname, './src/plugin.ts')
   ],
   output: {
-    path: path.resolve(__dirname, '../web'),
+    path: path.resolve(__dirname, '../web/v3'),
     filename: 'main.js',
   },
-  plugins: [
+  'plugins': [
     new CopyWebpackPlugin({
       patterns: [
         {
           from: path.resolve(__dirname, './src/assets'),
-          to: path.resolve(__dirname, '../web/assets')
+          to: path.resolve(__dirname, '../web/v3/assets')
         },
       ],
-    })
-  ]
+    }),
+  ],
 };
 
 module.exports = new webpackConfig.Config()

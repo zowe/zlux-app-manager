@@ -10,12 +10,11 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Injectable, CompilerFactory } from '@angular/core';
+import { createComponent, Injectable } from '@angular/core';
 
 import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
-import { Compiler, CompilerOptions, ApplicationRef, Injector } from '@angular/core';
-import { DomPortalOutlet, ComponentPortal } from '@angular/cdk/portal';
+import { ApplicationRef, Injector } from '@angular/core';
 import { from, Observable } from 'rxjs';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
@@ -45,7 +44,7 @@ interface MvdNativeAngularPluginComponentDefinition {
 class SimpleAngularComponentFactory extends ComponentFactory {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   constructor(
-    private compiler: Compiler,
+    // private compiler: Compiler,
     private applicationRef: ApplicationRef,
     private injector: Injector,
     private componentModulePath: string,
@@ -55,22 +54,16 @@ class SimpleAngularComponentFactory extends ComponentFactory {
     super(componentClass, capabilities);
   }
 
-  instantiateIntoDOM(target: HTMLElement): Observable<ZLUX.IComponent> {
-    const promise: Promise<ZLUX.IComponent> = new Promise((resolve, reject) => {
+  instantiateIntoDOM(target: any): Observable<any> {
+    const promise: Promise<any> = new Promise((resolve, reject) => {
       (window as any).require([this.componentModulePath],
         (fullPlugin: MvdNativeAngularComponent) => {
-          this.logger.debug("ZWED5314I",fullPlugin); //this.logger.debug(`Instantiating into DOM=`,fullPlugin);
-          return this.compiler.compileModuleAsync(fullPlugin.componentNgModule).then(factory => {
-            const resolver = factory.create(this.injector).componentFactoryResolver;
-            const outlet = new DomPortalOutlet(target, resolver, this.applicationRef, this.injector);
-            const portal = new ComponentPortal(fullPlugin.componentNgComponent, null); /* TODO */
-            const componentRef = outlet.attachComponentPortal(portal);
-
-            resolve(componentRef.instance as ZLUX.IComponent);
-          }).catch((failure: any) => {
-            this.logger.warn("ZWED5315I", failure); //this.logger.warn(`Could not instantiate into DOM,`, failure);
-            reject();
+          this.logger.debug("ZWED5314I", fullPlugin); //this.logger.debug(`Instantiating into DOM=`,fullPlugin);
+          const componentRef = createComponent<any>(fullPlugin.componentNgComponent, {
+            environmentInjector: this.applicationRef.injector,
+            elementInjector: this.injector
           });
+          resolve(componentRef.instance as any);
         },
         (failure: any) => {
           reject();
@@ -93,8 +86,6 @@ export class Angular2PluginFactory extends PluginFactory {
   }
 
   constructor(
-    private compilerFactory: CompilerFactory,
-    private compiler: Compiler,
     private applicationRef: ApplicationRef,
     private injector: Injector,
     private translationLoaderService: TranslationLoaderService
@@ -115,8 +106,8 @@ export class Angular2PluginFactory extends PluginFactory {
           (components: MvdNativeAngularPluginComponentDefinition) => {
             const factoryDefs = components.getComponentFactoryDefinitions(pluginDefinition);
             factoryDefs.forEach((factory: AngularComponentFactoryDefinition) => {
-              const componentFactory = new SimpleAngularComponentFactory(this.compiler, this.applicationRef, this.injector,
-              factory.componentScriptUrl, factory.componentClass, factory.capabilities);
+              const componentFactory = new SimpleAngularComponentFactory(this.applicationRef, this.injector,
+                factory.componentScriptUrl, factory.componentClass, factory.capabilities);
 
               this.logger.info(`ZWED5051I`, pluginDefinition.getIdentifier()); //this.logger.info(`Registering component factory for plugin=${pluginDefinition.getIdentifier()}:`);
               this.logger.debug("ZWED5306I", componentFactory); //this.logger.debug(componentFactory);
@@ -130,9 +121,9 @@ export class Angular2PluginFactory extends PluginFactory {
             this.logger.warn("ZWED5164W", pluginDefinition.getIdentifier()); //this.logger.warn(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
             resolve();
           });
-        } else {
-          resolve();
-        }
+      } else {
+        resolve();
+      }
     });
   }
 
@@ -144,37 +135,24 @@ export class Angular2PluginFactory extends PluginFactory {
 
     return new Promise((resolve, reject) => {
       (window as any).require([scriptUrl],
-        (plugin: MvdNativeAngularPlugin) =>
-          this.getCompiler(pluginDefinition).then(compiler => {
-            resolve(compiler.compileModuleAsync(plugin.pluginModule).then(factory =>
-              new CompiledPlugin(plugin.pluginComponent, factory)
-            ));
-          }),
-        (failure: any) =>
-          reject(failure)
-      );
+        (plugin: MvdNativeAngularPlugin) => {
+          this.translationLoaderService.getTranslationProviders(pluginDefinition.getBasePlugin()).then(providers => {
+            resolve(new CompiledPlugin(plugin.pluginComponent, plugin.pluginModule, providers));
+          });
+        });
     });
   }
-
-  getCompiler(pluginDefinition: MVDHosting.DesktopPluginDefinition): Promise<Compiler> {
-    return this.translationLoaderService.getTranslationProviders(pluginDefinition.getBasePlugin()).then(providers => {
-      const options: CompilerOptions = {
-        providers: providers
-      };
-      return <Compiler>this.compilerFactory.createCompiler([options]);
-    });
-  }
-
 }
 
-
 /*
-  This program and the accompanying materials are
-  made available under the terms of the Eclipse Public License v2.0 which accompanies
-  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+ This program and the accompanying materials are
+ made available under the terms of the Eclipse Public License v2.0 which accompanies
+ this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
 
-  SPDX-License-Identifier: EPL-2.0
+ SPDX-License-Identifier: EPL-2.0
+ SPDX-License-Identifier: EPL-2.0
 
-  Copyright Contributors to the Zowe Project.
+ Copyright Contributors to the Zowe Project.
+ Copyright Contributors to the Zowe Project.
 */
 

@@ -58,8 +58,10 @@
 </div>
 
 <!-- Zowe popup window is immutable by design, so we must pass a style via HTML -->
-<div class="global-veil" *ngIf="isVeilVisible">
-<zlux-popup-window
+@if(isVeilVisible){
+<div class="global-veil">
+  @if(isRestartWindowVisible){
+  <zlux-popup-window
       header="{{LanguageChanges}}"
       (onCloseWindow)="closeRestartWindow()"
       [dark]="true"
@@ -71,8 +73,7 @@
       'margin': 'auto' ,
       'text-align': 'center', 
       'margin-top': '15%', 
-      'color': '#36617a' }"
-      *ngIf="isRestartWindowVisible">
+      'color': '#36617a' }">
       <div class="content-close"><br>{{RestartDescr1}}<br>{{RestartDescr2}}</div>
       <zlux-popup-window-button-area [ngStyle]="{'background-color':'rgb(236, 200, 240)'}">
         <zlux-button (click)="restartZowe(); exit();"
@@ -84,7 +85,9 @@
         </zlux-button>
       </zlux-popup-window-button-area>
   </zlux-popup-window>
+  }
 </div>
+}
 
 
 <!-- 

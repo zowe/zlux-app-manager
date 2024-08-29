@@ -15,7 +15,7 @@ import {
   TRANSLATIONS,
   TRANSLATIONS_FORMAT,
 } from '@angular/core';
-import { from, Observable, throwError } from 'rxjs';
+import { from, lastValueFrom, Observable, throwError } from 'rxjs';
 import { LanguageLocaleService } from './language-locale.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { catchError } from 'rxjs/operators';
@@ -59,7 +59,7 @@ export class TranslationLoaderService {
     // ex.: messages.es.xlf
     const fallbackTranslationFileURL = baseLanguage !== language ? this.getTranslationFileURL(plugin, baseLanguage) : null;
     let currentTranslationFileURL = translationFileURL;
-    return this.loadTranslations(currentTranslationFileURL).pipe(
+    return lastValueFrom(this.loadTranslations(currentTranslationFileURL).pipe(
       catchError(err => {
         if (fallbackTranslationFileURL != null) {
           this.logger.warn("ZWED5170W", translationFileURL, fallbackTranslationFileURL); //this.logger.warn(`Failed to load language file ${translationFileURL}, using ${fallbackTranslationFileURL}.`);
@@ -67,8 +67,7 @@ export class TranslationLoaderService {
           return this.loadTranslations(currentTranslationFileURL);
         }
         return throwError(err);
-      }))
-      .toPromise()
+      })))
       .then((translations: string) => [
         { provide: TRANSLATIONS, useValue: translations },
         { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },

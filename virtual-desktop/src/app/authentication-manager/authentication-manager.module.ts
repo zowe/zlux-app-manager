@@ -13,20 +13,19 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { ZluxPopupManagerModule } from '@zlux/widgets';
+// import { ZluxPopupManagerModule } from '@zlux/widgets';
 import { LoginComponent } from './login/login.component';
 import { AuthenticationManager } from './authentication-manager.service';
 import { StartURLManagerModule } from '../start-url-manager';
 import { StorageService } from './storage.service';
 import { IdleWarnService } from './idleWarn.service';
+import { provideHttpClient } from '@angular/common/http';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
-    HttpClientModule,
-    ZluxPopupManagerModule,
+    // ZluxPopupManagerModule,
     StartURLManagerModule,
   ],
   declarations: [
@@ -37,6 +36,7 @@ import { IdleWarnService } from './idleWarn.service';
   ],
   providers: [
     AuthenticationManager,
+    provideHttpClient(),
     /* Expose authentication manager to window managers */
     { provide: MVDHosting.Tokens.AuthenticationManagerToken, useExisting: AuthenticationManager },
     StorageService,

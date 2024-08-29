@@ -7,18 +7,24 @@
   
   Copyright Contributors to the Zowe Project.
 */
-import { Injectable, Inject, Component, Optional } from '@angular/core';
-import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents, 
-  Angular2PluginSessionEvents, Angular2PluginViewportEvents, Angular2PluginThemeEvents } from '../../../../pluginlib/inject-resources';
-import { SafeResourceUrl } from '@angular/platform-browser';
+import { Injectable, Inject, Component, Optional, OnInit, Injector } from '@angular/core';
+import {
+  Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWindowEvents,
+  Angular2PluginSessionEvents, Angular2PluginViewportEvents, Angular2PluginThemeEvents
+} from '../../../../pluginlib/inject-resources';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { BaseLogger } from '../../../../app/shared/logger'
+import { IFRAME_NAME_PREFIX } from 'app/shared/named-elements';
+import { IFramePluginFactory } from './iframe-plugin-factory';
 
 @Component({
-    templateUrl: './iframe-plugin.component.html'
+  selector: 'rs-com-mvd-iframe-component',
+  templateUrl: './iframe-plugin.component.html',
+  styleUrls: ['./iframe-plugin.component.css']
 })
 
 @Injectable()
-export class IFramePluginComponent {
+export class IFramePluginComponent implements OnInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   startingPage: SafeResourceUrl;
   iframeId: string;
@@ -26,6 +32,9 @@ export class IFramePluginComponent {
   frameSource: any;
   responses: any = {};
   DEFAULT_CLOSE_TIMEOUT: number = 5000;
+  dragOn = false;
+  mouseDown = false;
+  iFrameElement: HTMLElement;
 
   constructor(
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
@@ -34,34 +43,113 @@ export class IFramePluginComponent {
     @Inject(Angular2InjectionTokens.PLUGIN_DEFINITION) private pluginDefintion: ZLUX.ContainerPluginDefinition,
     @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any,
     @Inject(Angular2InjectionTokens.SESSION_EVENTS) private sessionEvents: Angular2PluginSessionEvents,
-    @Optional() @Inject(Angular2InjectionTokens.THEME_EVENTS) private themeEvents: Angular2PluginThemeEvents
-  ){
+    @Optional() @Inject(Angular2InjectionTokens.THEME_EVENTS) private themeEvents: Angular2PluginThemeEvents,
+    private injector: Injector,
+    private sanitizer: DomSanitizer,
+    private iFramePluginFactory: IFramePluginFactory
+  ) {
     addEventListener("message", this.postMessageListener.bind(this));
     //The following references are to suppress typescript warnings
-    this.iFrameMouseOver;
+    // this.iFrameMouseOver;
+    this.registerWindowEvents();
+
+    const pluginDefinition = this.iFramePluginFactory.pluginDefinition;
+    const instanceId = this.iFramePluginFactory.instanceId;
+    const basePlugin = pluginDefinition.getBasePlugin();
+    const startingPageUri = this.getStartingPageUri(basePlugin);
+    this.logger.debug('ZWED5308I', startingPageUri); //this.logger.debug('iframe startingPageUri', startingPageUri);
+    const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
+    this.logger.info(`ZWED5053I`, startingPageUri); //this.logger.info(`Loading iframe, URI=${startingPageUri}`);
+    const theIframeId = IFRAME_NAME_PREFIX + (instanceId); //Syncs the IFrame ID with its instance ID counterpart
+
+    this.startingPage = safeStartingPageUri;
+    this.iframeId = theIframeId;
   }
 
-  private postWindowEvent(originCall: string){
+  ngOnInit(): void {
+  }
+
+  private getStartingPageUri(basePlugin: ZLUX.Plugin): string {
+    let startingPage;
+    let startingPageUri;
+
+    //remote iframe with destination property
+    if (basePlugin.getWebContent().destination > '') {
+      startingPageUri = ZoweZLUX.uriBroker.pluginIframeUri(basePlugin, '');
+    }
+    //iframe with startingPage property
+    else {
+      startingPage = basePlugin.getWebContent().startingPage || 'index.html';
+      if (startingPage.startsWith('http://') || startingPage.startsWith('https://')) {
+        startingPageUri = startingPage;
+      } else {
+        startingPageUri = ZoweZLUX.uriBroker.pluginResourceUri(basePlugin, startingPage);
+      }
+    }
+
+    this.logger.debug('ZWED5307I', startingPage); //this.logger.debug('iframe startingPage', startingPage);
+    return startingPageUri;
+  }
+
+  private postWindowEvent(originCall: string) {
     this.frameSource.postMessage({
       key: -1,
       originCall: originCall,
       instanceId: this.instanceId
     }, '*')
   }
-  
+
+  private registerWindowEvents() {
+    window.addEventListener("blur", (event) => { //Checks if focus is lost from the desktop
+      if (this.iFrameElement != null && document.activeElement?.className == "mvd-iframe") //Checks if an IFrame caused it
+      {
+        const windowManager: MVDWindowManagement.WindowManagerServiceInterface = this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
+        let stringId = this.iFrameElement.id.replace(/[^0-9\.]+/g, ""); //Extracts the instance ID from the IFrame ID
+        windowManager.requestWindowFocus(parseInt(stringId, 10));
+      }
+    }, false);
+
+    window.addEventListener("mouseover", (event) => {
+      window.focus(); //Without giving focus back to the desktop, there is no easy way to tell for clicks between IFrame to IFrame
+    }, false);
+
+
+    window.addEventListener("mousedown", (event) => {
+      this.mouseDown = true;
+      setTimeout(() => {
+        if (this.mouseDown == true) {
+          this.dragOn = true;
+          if (this.iFrameElement != null) {
+            this.iFrameElement.style.pointerEvents = "none";
+          }
+        } else {
+          this.dragOn = false;
+        }
+      }, 100)
+    }, false);
+
+    window.addEventListener("mouseup", (event) => {
+      this.mouseDown = false;
+      this.dragOn = false;
+      if (this.iFrameElement != null) {
+        this.iFrameElement.style.pointerEvents = "auto";
+      }
+    }, false);
+  }
+
   private postMessageListener(message: any): void {
-    if(!message.data.request || !message.data.request.function || message.data.key === undefined
-        || message.data.request.instanceId === undefined){
+    if (!message.data.request || !message.data.request.function || message.data.key === undefined
+      || message.data.request.instanceId === undefined) {
       return;
     }
     let data: any = message.data;
     let key: number = message.data.key;
     let fnString: string = data.request.function;
     let split: Array<string> = fnString.split('.');
-    if(split[0] === 'registerAdapterInstance' && this.instanceId == -1){
+    if (split[0] === 'registerAdapterInstance' && this.instanceId == -1) {
       this.instanceId = data.request.instanceId;
       this.frameSource = message.source;
-      try{
+      try {
         this.frameSource.postMessage({
           key: -1,
           constructorData: {
@@ -70,7 +158,7 @@ export class IFramePluginComponent {
           },
           instanceId: this.instanceId
         }, '*')
-      }catch(e){
+      } catch (e) {
         this.frameSource.postMessage({
           key: -1,
           constructorData: {
@@ -120,7 +208,7 @@ export class IFramePluginComponent {
       });
       return;
     }
-    if(data.request.instanceId === this.instanceId){
+    if (data.request.instanceId === this.instanceId) {
       this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
         message.source.postMessage({
           key: key,
@@ -133,8 +221,8 @@ export class IFramePluginComponent {
     return;
   }
 
-  private resolvePromisesRecursively(p: any){
-    if(p instanceof Promise){
+  private resolvePromisesRecursively(p: any) {
+    if (p instanceof Promise) {
       return p.then(res => {
         this.resolvePromisesRecursively(res);
       })
@@ -143,52 +231,52 @@ export class IFramePluginComponent {
     }
   }
 
-  private getAttrib(object: object, path: string){
-    if(object === undefined || path === undefined || 
+  private getAttrib(object: object, path: string) {
+    if (object === undefined || path === undefined ||
       typeof path !== 'string' || typeof object !== 'object') return undefined;
     let objCopy: object = Object.assign({}, object);
-    try{
+    try {
       let props = (path || '').split('.');
-      for(let i = 0; i < props.length; i++){
+      for (let i = 0; i < props.length; i++) {
         objCopy = (objCopy as any)[props[i]];
       }
-    }catch(e){
+    } catch (e) {
       return undefined;
     }
     return (objCopy === undefined) ? undefined : objCopy;
   }
 
-  private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>, type: string){
-    try{
+  private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>, type: string) {
+    try {
       let copy = JSON.parse(JSON.stringify(itemsArray));
-      for(let i = 0; i < copy.length; i++){
+      for (let i = 0; i < copy.length; i++) {
         copy[i].action = () => {
           source.postMessage({
             key: key,
-            originCall: type+'.spawnContextMenu',
+            originCall: type + '.spawnContextMenu',
             instanceId: this.instanceId,
             contextMenuItemIndex: i
           }, '*')
         }
       }
       return copy;
-    }catch(e){
+    } catch (e) {
       this.logger.warn('ZWED5151E', e); //this.logger.warn('Unable to parse context menu items.  Error: ', e);
       return undefined;
     }
   }
 
-  private windowActionsHandler(fnSplit: Array<string>, args: Array<any>, message: any){
+  private windowActionsHandler(fnSplit: Array<string>, args: Array<any>, message: any) {
     let fn: Function;
     let fnRet: any;
     let fnString: string = message.data.request.function;
     fn = (this.getAttrib(Object.assign({}, this.windowActions), fnSplit.join('.')) as Function);
-    if(typeof fn === 'function'){
+    if (typeof fn === 'function') {
       fn = fn.bind(this.windowActions);
-      if(args.length === 0){
+      if (args.length === 0) {
         fnRet = fn();
       } else {
-        if(fnString == 'windowActions.spawnContextMenu' && Array.isArray(args[2])){
+        if (fnString == 'windowActions.spawnContextMenu' && Array.isArray(args[2])) {
           args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2], 'windowActions')
         }
         fnRet = fn(...args);
@@ -199,18 +287,18 @@ export class IFramePluginComponent {
     }
   }
 
-  private viewportEventsHandler(fnSplit: Array<string>, args: Array<any>, message: any){
+  private viewportEventsHandler(fnSplit: Array<string>, args: Array<any>, message: any) {
     let fn: Function;
     let fnString: string = message.data.request.function;
     fn = (this.getAttrib(Object.assign({}, this.viewportEvents), fnSplit.join('.')) as Function);
-    if(typeof fn === 'function'){
+    if (typeof fn === 'function') {
       fn = fn.bind(this.viewportEvents);
-      if(fnString === 'viewportEvents.registerCloseHandler' && args.length === 1){
+      if (fnString === 'viewportEvents.registerCloseHandler' && args.length === 1) {
         let that = this;
-        args[0] = function(): Promise<void>{
-          return new Promise(function(resolve: any, reject: any){
+        args[0] = function (): Promise<void> {
+          return new Promise(function (resolve: any, reject: any) {
             that.responses[message.data.key] = {
-              resolve: function(){
+              resolve: function () {
                 resolve();
               }
             }
@@ -225,7 +313,7 @@ export class IFramePluginComponent {
           }.bind(this))
         }
         return fn(...args);
-      } else if(fnString == 'viewportEvents.spawnContextMenu' && Array.isArray(args[2])){
+      } else if (fnString == 'viewportEvents.spawnContextMenu' && Array.isArray(args[2])) {
         args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2], 'viewportEvents');
         return fn(...args);
       }
@@ -234,13 +322,13 @@ export class IFramePluginComponent {
     return undefined;
   }
 
-  private zoweZLUXHandler(split: Array<string>, args: Array<any>, message: any){
+  private zoweZLUXHandler(split: Array<string>, args: Array<any>, message: any) {
     let fn: Function;
     let fnRet: any;
     let fnString: string = message.data.request.function;
     let instanceId: number = message.data.request.instanceId;
     // TODO: This looks like Iframe handler workaround code. Is this still relevant?
-    let fakeHMA = function(this: any, key: any, notification: any){
+    let fakeHMA = function (this: any, key: any, notification: any) {
       try {
         message.source.postMessage({
           key: key,
@@ -253,7 +341,7 @@ export class IFramePluginComponent {
         this.logger.warn("ZWED5199W", 'handleMessageAdded'); //this.logger.warn("Attempted to postMessage for type %s without source", e);
       }
     }
-    let fakeHMR = function(this: any, key: any, notificationId: any){
+    let fakeHMR = function (this: any, key: any, notificationId: any) {
       try {
         message.source.postMessage({
           key: key,
@@ -267,17 +355,17 @@ export class IFramePluginComponent {
       }
     }
     fn = (this.getAttrib(Object.assign({}, ZoweZLUX), split.join('.')) as Function);
-    if(typeof fn === 'function'){
+    if (typeof fn === 'function') {
       fn = fn.bind((ZoweZLUX as any)[split[0]]);
-      if(args.length === 0){
+      if (args.length === 0) {
         fnRet = fn();
       } else {
-        if(fnString === 'ZoweZLUX.notificationManager.addMessageHandler'){
+        if (fnString === 'ZoweZLUX.notificationManager.addMessageHandler') {
           args[0] = {
-            handleMessageAdded(notification: any){
+            handleMessageAdded(notification: any) {
               fakeHMA(message.data.key, notification);
             },
-            handleMessageRemoved(id: any){
+            handleMessageRemoved(id: any) {
               fakeHMR(message.data.key, id);
             }
           }
@@ -290,12 +378,12 @@ export class IFramePluginComponent {
     }
   }
 
-  private translateFunction(message: any){
+  private translateFunction(message: any) {
     let args = message.data.request.args || [];
     let fnString: string = message.data.request.function;
     let split: Array<string> = fnString.split('.');
-    if(split.length > 0){
-      switch(split[0]){
+    if (split.length > 0) {
+      switch (split[0]) {
         case 'ZoweZLUX':
           split.shift();
           return this.zoweZLUXHandler(split, args, message);
@@ -306,7 +394,7 @@ export class IFramePluginComponent {
           split.shift();
           return this.viewportEventsHandler(split, args, message);
         case 'resolveCloseHandler':
-          if(this.responses[args[0]]){
+          if (this.responses[args[0]]) {
             this.responses[args[0]].resolve();
           }
           return undefined;
@@ -316,5 +404,13 @@ export class IFramePluginComponent {
     }
   }
 
-  iFrameMouseOver(event: any){}
+  iFrameMouseOver(event: any) {
+    this.iFrameElement = event.target;
+    if (this.dragOn) {
+      event.target.style.pointerEvents = "none";
+    }
+    else {
+      event.target.style.pointerEvents = "auto";
+    }
+  }
 }
