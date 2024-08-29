@@ -29,7 +29,7 @@
     "@popperjs/core": "^2.11.8",
     "angular-l10n": "^16.0.0",
     "bootstrap": "~5.3.2",
-    "core-js": "~3.19.0",
+    "core-js": "~3.38.1",
     "font-awesome": "~4.7.0",
     "moment": "~2.29.4",
     "ngx-file-drop": "^16.0.0",

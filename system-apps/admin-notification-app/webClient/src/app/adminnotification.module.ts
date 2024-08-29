@@ -10,21 +10,18 @@
 */
 
 import { NgModule } from '@angular/core';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-// import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 
 import { AdminNotificationComponent } from './adminnotification-component';
-import {RadioModule} from '@rocketsoftware/carbon-components-angular'
-import {InputModule} from '@rocketsoftware/carbon-components-angular'
-import {DropdownModule} from '@rocketsoftware/carbon-components-angular'
 
 @NgModule({
-  imports: [FormsModule, HttpClientModule, ReactiveFormsModule, CommonModule, RadioModule, InputModule, DropdownModule],
+  imports: [FormsModule, HttpClientModule, ReactiveFormsModule, CommonModule, MatFormFieldModule, MatInputModule],
   declarations: [AdminNotificationComponent],
-  exports: [AdminNotificationComponent],
-  entryComponents: [AdminNotificationComponent]
+  exports: [AdminNotificationComponent]
 })
 export class AdminNotificationModule { }
 

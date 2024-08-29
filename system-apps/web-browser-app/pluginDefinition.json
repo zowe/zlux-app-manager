@@ -1,7 +1,7 @@
 {
   "identifier": "org.zowe.zlux.ng2desktop.webbrowser",
   "apiVersion": "2.0.0",
-  "pluginVersion": "2.0.0",
+  "pluginVersion": "3.0.0",
   "pluginType": "application",
   "license": "EPL-2.0",
   "author": "Zowe",
@@ -11,13 +11,17 @@
     "launchDefinition": {
       "pluginShortNameKey": "webbrowser",
       "pluginShortNameDefault": "Web Browser",
-      "imageSrc": "assets/icon.png"
+      "imageSrc": "assets/v3/icon.png"
     },
     "descriptionKey": "webbrowserdescription",
     "descriptionDefault": "Web Browser Application",
     "defaultWindowStyle": {
       "width": 850,
       "height": 450
+    },
+    "entryPoint": {
+      "2.0": "main.js",
+      "3.0": "v3/main.js"
     }
   },
   "dataServices": [

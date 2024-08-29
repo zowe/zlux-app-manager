@@ -22,16 +22,16 @@ var config = {
   'entry': [
     path.resolve(__dirname, './src/plugin.ts')
   ],
-  'output': {
-    'path': path.resolve(__dirname, '../web'),
-    'filename': 'main.js',
+  output: {
+    path: path.resolve(__dirname, '../web/v3'),
+    filename: 'main.js',
   },
   'plugins': [
     new CopyWebpackPlugin({
       patterns: [
         {
           from: path.resolve(__dirname, './src/assets'),
-          to: path.resolve(__dirname, '../web/assets')
+          to: path.resolve(__dirname, '../web/v3/assets')
         },
       ],
     }),
