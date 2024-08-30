@@ -49,6 +49,7 @@ export class IFramePluginFactory extends PluginFactory {
 
     loadPlugin(pluginDefinition: MVDHosting.DesktopPluginDefinition, instanceId: MVDHosting.InstanceId): Promise<CompiledPlugin> {
         this._pluginDefinition = pluginDefinition;
+        this._instanceId = instanceId;
         @NgModule({
             imports: [CommonModule],
             declarations: [IFramePluginComponent],
