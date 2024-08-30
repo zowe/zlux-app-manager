@@ -13,7 +13,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-// import { ZluxPopupManagerModule } from '@zlux/widgets';
+import { ZluxPopupManagerModule } from 'zlux-widgets';
 import { LoginComponent } from './login/login.component';
 import { AuthenticationManager } from './authentication-manager.service';
 import { StartURLManagerModule } from '../start-url-manager';
@@ -25,7 +25,7 @@ import { provideHttpClient } from '@angular/common/http';
   imports: [
     CommonModule,
     FormsModule,
-    // ZluxPopupManagerModule,
+    ZluxPopupManagerModule,
     StartURLManagerModule,
   ],
   declarations: [

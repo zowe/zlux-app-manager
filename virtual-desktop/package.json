@@ -38,6 +38,7 @@
     "rxjs": "~7.8.1",
     "tslib": "^2.6.3",
     "typeface-roboto": "~1.1.13",
+    "zlux-widgets": "github:wadkarsatish/zlux-widgets-angular18#zlux-widgets-angular-library",
     "zone.js": "~0.14.4"
   },
   "devDependencies": {
@@ -52,5 +53,5 @@
     "tslint": "~6.1.0",
     "tslint-react": "~5.0.0",
     "typescript": "~5.4.5"
-}
+  }
 }

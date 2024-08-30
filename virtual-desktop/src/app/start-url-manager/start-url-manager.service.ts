@@ -12,7 +12,7 @@ import { Injectable } from '@angular/core';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { App2AppArgs } from './app2app-args';
 import { App2AppArgsParser } from './app2app-args-parser.service';
-// import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
+import { ZluxPopupManagerService, ZluxErrorSeverity } from 'zlux-widgets';
 import { L10nTranslationService } from 'angular-l10n';
 
 const ZOWE_URL_ARGS = [
@@ -29,7 +29,7 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
 
   constructor(
     public parser: App2AppArgsParser,
-    // private popupManager: ZluxPopupManagerService,
+    private popupManager: ZluxPopupManagerService,
     public translation: L10nTranslationService,
   ) {
     this.registerTestAction();
@@ -99,16 +99,15 @@ export class StartURLManager implements MVDHosting.LoginActionInterface {
     let action: ZLUX.Action;
     let argumentData: any;
     if (args.error) {
-      // this.popupManager.createErrorReport(
-      //   ZluxErrorSeverity.WARNING,
-      //   this.translation.translate(args.error),
-      //   (this.translation.translate('Bad data: ') + args.contextData), 
-      //   {
-      //     blocking: false,
-      //     buttons: [this.translation.translate('Dismiss')]
-      //   }
-      // );
-      console.log("BAD DATA!!!!");
+      this.popupManager.createErrorReport(
+        ZluxErrorSeverity.WARNING,
+        this.translation.translate(args.error),
+        (this.translation.translate('Bad data: ') + args.contextData), 
+        {
+          blocking: false,
+          buttons: [this.translation.translate('Dismiss')]
+        }
+      );
     } else {
       contextData = JSON.parse(args.contextData);
     }
