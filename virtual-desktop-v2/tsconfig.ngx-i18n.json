@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "../../zlux-platform/interface/src/index.d.ts",
+    "../../zlux-platform/interface/src/mvd-hosting.d.ts",
+    "../../zlux-platform/interface/src/mvd-window-management.d.ts",
+    "../../zlux-platform/interface/src/server-framework.d.ts",
+    "./src/app"
+  ],
+  "compilerOptions": {
+    "outDir": "./src/assets/i18n",
+    "paths": {
+      "@angular/core": ["../node_modules/@angular/core"],
+      "zlux-base/*": ["../../../zlux-platform/base/src/*"],
+      "virtual-desktop-logger": [
+        "./app/shared/logger"
+      ]      
+    }
+  },
+  "angularCompilerOptions": {
+    "enableIvy": false
+  }
+}

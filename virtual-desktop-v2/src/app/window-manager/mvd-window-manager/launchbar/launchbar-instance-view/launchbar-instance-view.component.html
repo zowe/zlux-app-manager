@@ -1,0 +1,26 @@
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+  -->
+<div class="instance-viewer" [style.bottom]="viewerBottom"
+     [style.background]="color.launchbarMenuColor"
+     [style.color]="color.launchbarMenuText">
+  <div class="all-instances-box">
+    <div class="instance-item" [style.background]="color.windowColorInactive" (mousedown)="clicked(windowId, launchbarItem)" *ngFor="let windowId of windowManager.getWindowIDs(launchbarItem.plugin); let i = index">
+      <div *ngIf="isWindowFocused(windowId)" [style.background]="color.launchbarColor">
+        <p class="caption truncate instance-preview-caption">{{i}} {{getTitleForWindow(windowId)}}</p>
+      </div>
+      <div *ngIf="!isWindowFocused(windowId)">
+        <p class="caption truncate instance-preview-caption">{{i}} {{getTitleForWindow(windowId)}}</p>
+      </div>
+      <div class="instance-snapshot" (click)="clicked(windowId)" [style.background-color]="black">
+        <!-- <img class="instance-preview" src={{getPreview(i,launchbarItem)}} alt="{{i}} {{getTitleForWindow(windowId)}}"/> -->
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template" target-language="fr">
+    <body>
+      <trans-unit id="plugin-loading-failed-message" datatype="html">
+        <source>The plugin failed to load</source><target state="new">Le plugin n'a pas pu être chargé</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/application-manager/load-failure/load-failure.component.ts</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+        <note priority="1" from="description">Message when plugin failed to load</note>
+        <note priority="1" from="meaning">message</note>
+      </trans-unit><trans-unit id="paginator" datatype="html">
+        <source>of</source><target state="new">of</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/@zlux/widgets/components/paginator/paginator.component.d.ts</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">node_modules/@zlux/widgets/components/paginator/paginator.component.d.ts</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+        <note priority="1" from="description">of preposition in clause n-m of total</note>
+      </trans-unit><trans-unit id="username-label" datatype="html">
+        <source>Username</source><target state="new">Nom d'utilisateur</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+        <note priority="1" from="description">Label for username</note>
+        <note priority="1" from="meaning">label</note>
+      </trans-unit>
+      <trans-unit id="password-label" datatype="html">
+        <source>Password</source><target state="new">Mot de Passe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+        <note priority="1" from="description">Label for password</note>
+        <note priority="1" from="meaning">label</note>
+      </trans-unit>
+      <trans-unit id="new-password-label" datatype="html">
+        <source>New Password</source><target state="new">Nouveau Mot de Passe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+        <note priority="1" from="description">Label for new password</note>
+        <note priority="1" from="meaning">label</note>
+      </trans-unit>
+      <trans-unit id="confirm-new-password-label" datatype="html">
+        <source>Confirm New Password</source><target state="new">Confirmer le Nouveau Mot de Passe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+        <note priority="1" from="description">Label for confirm new password</note>
+        <note priority="1" from="meaning">label</note>
+      </trans-unit>
+      <trans-unit id="login-button-title" datatype="html">
+        <source>Log in</source><target state="new">Me connecter</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication-manager/login/login.component.ts</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+        <note priority="1" from="description">Title of Login button</note>
+        <note priority="1" from="meaning">button title</note>
+      </trans-unit>
+      <trans-unit id="signout-button-title" datatype="html">
+        <source>Log out</source><target state="new">Déconnexion</target>
+        
+        <note priority="1" from="description">Title of Sign out button</note>
+        <note priority="1" from="meaning">signout button</note>
+      <context-group purpose="location"><context context-type="sourcefile">src/app/window-manager/mvd-window-manager/launchbar/launchbar-widget/launchbar-widget.component.ts</context><context context-type="linenumber">14</context></context-group></trans-unit>
+    </body>
+  </file>
+</xliff>

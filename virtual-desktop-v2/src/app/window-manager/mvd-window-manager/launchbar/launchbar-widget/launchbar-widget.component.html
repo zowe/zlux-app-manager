@@ -1,0 +1,105 @@
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->
+
+<div class="launchbar-user-popup" [class.hidden]="!popupVisible"
+     [style.background]="color.launchbarMenuColor"
+     [style.bottom]="popupBottom"
+     [style.color]="color.launchbarMenuText">
+  <h5 class="launchbar-username" id="ZAP_DesktopHome_UsernameLabel">{{getUsername()}}</h5>
+  <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()" id="ZAP_DesktopHome_LogoutButton"
+    i18n="signout button|Title of Sign out button@@signout-button-title">Log out</button>
+  <h6 class="launchbar-plugin-version" [style.color]="color.launchbarMenuText" id="ZAP_DesktopHome_VersionLabel">{{getPluginVersion()}}</h6>
+</div>
+
+<div #notificationarea [hidden]="!notificationsVisible" class='notifications'
+     [style.bottom]="popupBottom"
+     [style.background]="color.launchbarMenuColor"
+     [style.color]="color.launchbarMenuText"
+     id="ZAP_DesktopHome_NotificationsPanel">
+  <div [hidden]="notifications.length > 0" class="no-notifications">{{NoNotifications}}</div>
+  <div class="notification-item" *ngFor="let item of notifications; let i = index" [attr.data-index]="i">
+      <div class="outer-container" (click)="focusApplication(i)">
+          <div class="notification-icon-container">
+            <img class="notification-icon" [src]="info[i].imgSrc" alt="">
+          </div>
+          <div class="notification-content">
+            <div class="notification-title" id="ZAP_DesktopHome_NotificationsTitle">{{item['notification'].title}}</div>
+            <div class="notification-message" id="ZAP_DesktopHome_NotificationsMessage">{{item['notification'].message}}</div>
+          </div>
+          <img class="delete-notification" 
+            (click)="deleteNotification(item);$event.stopPropagation()" 
+            [src]="closeImage" 
+            alt="Delete notification"
+            id="ZAP_DesktopHome_NotificationsDelete">
+          <div class="time-container">
+            <div class="time">{{item.recievedDate.toLocaleTimeString()}}</div>
+            <div class="timeAgo">{{timeSince[i]}}</div>
+          </div>
+      </div>
+      <hr class="notification-breaker" [style.border-top-color]="color.launchbarMenuText+'1c'">
+  </div>
+</div>
+
+<div class="widget-area"
+     [style.min-width]="areaSize"
+     [style.background]="color.launchbarColor"
+     [style.border-radius]="borderRadius"
+     id="ZAP_DesktopHome_WidgetArea">
+  <div class="clock two-row" *ngIf="clockTwoRow" [style.font-size]="fontSize" [style.padding-top]="clockOffset" id="ZAP_DesktopHome_LaunchbarClock">
+    <span id="ZAP_DesktopHome_TimeLabel">{{date | date:'shortTime'}}</span>
+    <br>
+    <span id="ZAP_DesktopHome_DateLabel">{{date | date:'shortDate'}}</span>
+  </div>
+  <div class="clock" *ngIf="!clockTwoRow" [style.font-size]="fontSize" [style.padding-top]="clockOffset">
+    <span>{{date | date:'shortDate'}} {{date | date:'shortTime'}}</span>
+  </div>
+  <div #notificationicon class="launchbar-tray-icon notification"
+       [style.margin-top]="widgetOffset"
+       [style.background-size]="widgetSize+' '+widgetSize"
+       [style.height]="widgetSize"
+       [style.width]="widgetSize"
+       (click)="toggleNotifications()"
+       id="ZAP_DesktopHome_NotificationsIcon">
+      <div 
+        [hidden]="notifications.length == 0"
+        class="launchbar-tray-indicator"
+        [style.height]="notifCountSize"
+        [style.width]="notifCountSize"
+        [style.margin-top]="notifTopOffset"
+        [style.margin-left]="notifLeftOffset">
+          {{notifications.length}}
+      </div>
+  </div>
+  <div #settingsicon class="launchbar-tray-icon settings"
+       [style.margin-top]="widgetOffset"
+       [style.background-size]="widgetSize+' '+widgetSize"
+       [style.height]="widgetSize"
+       [style.width]="widgetSize"
+       (click)="togglePersonalizationPanel()"
+       id="ZAP_DesktopHome_SettingsIcon"></div>
+  <div #usericon class="launchbar-tray-icon user"
+       [style.margin-top]="widgetOffset"
+       [style.height]="widgetSize"
+       [style.width]="widgetSize"
+       [style.background-size]="widgetSize+' '+widgetSize"
+       (click)="togglePopup()"
+       id="ZAP_DesktopHome_UserIcon"></div>
+</div>
+
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->
+

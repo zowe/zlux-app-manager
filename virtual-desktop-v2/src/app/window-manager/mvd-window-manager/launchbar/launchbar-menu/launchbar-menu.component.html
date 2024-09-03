@@ -1,0 +1,78 @@
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+
+<div class="launch-widget"
+     [style.background]="color.launchbarColor"
+     [style.border-radius]="borderRadius">
+  <div class="mvd-launchbar-icon mvd-launchbar-icon-large launchbar-menu-icon"
+       [style.width]="menuIconSize"
+       [style.height]="menuIconSize"
+       (click)="activeToggle()"
+       id="ZAP_DesktopHome_ZoweStart"></div>
+</div>
+
+<ng-template [ngIf]="isActive">
+  <div class="launch-widget-popup"
+       [style.background]="color.launchbarMenuColor"
+       [style.color]="color.launchbarMenuText"
+       [style.width]="menuWidth"
+       [style.bottom]="menuBottom"
+       (click)="setSearchFocus();">
+    <div style="cursor: pointer" 
+      class="refresh-plugins" 
+      (click)="refresh()"
+      id="ZAP_DesktopHome_RefreshApplications">
+      {{translation.translate("Refresh Applications")}}
+      <em style="padding: 5px" class="fa fa-refresh" (click)="refresh()"></em>
+    </div>
+    <div style="margin: 20px"></div>
+    <div #menudiv class="launch-menu-scroller"
+         [style.background]="color.launchbarMenuColor"
+         [style.width]="menuWidthInner"
+         [style.color]="color.launchbarMenuText">
+      <div class="launch-widget-row" 
+        *ngFor="let item of displayItems | sortBy: 'label'; let i = index;" 
+        (click)="clicked(item)" 
+        [title]="item.tooltip" 
+        (contextmenu)="onRightClick($event, item)"
+        [class.active]="i==this.activeIndex" 
+        (mouseover)="this.activeIndex=i">
+          <div class="icon"
+              [style.width]="appIconSize"
+              [style.height]="appIconSize"
+              [style.background-image]="'url('+item.image+')'"></div>
+          <div class="app-label"
+              [style.padding-top]="appLabelPadding"
+              [style.font-size]="menuText">{{item.label}}</div>
+      </div>
+    </div>
+    <div class="launch-menu-search">
+      <em class="launch-menu-search-icon fa fa-search"></em>
+      <input #searchapp class="launch-menu-search-input" type="text" 
+        placeholder="{{translation.translate('Search')}}"
+        [style.font-size]="menuText"
+        [style.color]="color.launchbarMenuText"
+        [(ngModel)]="appFilter"
+        (input)="filterMenuItems()"
+        id="ZAP_DesktopHome_SearchApplications">
+    </div>
+  </div>
+</ng-template>
+
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+

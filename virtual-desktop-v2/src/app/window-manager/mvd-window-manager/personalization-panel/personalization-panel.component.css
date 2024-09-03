@@ -1,0 +1,80 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+.personalization-panel {
+  width: 100%;
+  height: 100%;
+  background: black; /* Alpha transparency colors do not work in MS Edge, so opacity must be set */
+  opacity: 0.85;
+  z-index: 5000; /* Set to 5000 so panel stacks on top of windows, 
+  but does not take precendence over launchbar UI (6000+ z-index) */
+  position: relative;
+  float: right;
+}
+
+.personalization-panel-item {
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  border: none;
+  padding: 70px;
+  -webkit-filter: drop-shadow( 0px 0px 5px #00000063 );
+  filter: drop-shadow( 0px 0px 5px #00000063 );
+}
+
+.panel-item-foreign_language{
+  background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/language_icon.png');
+}
+
+.panel-item-personalization{
+  background-image: url('../../../../../../system-apps/system-settings-preferences/webClient/src/assets/personalization.png');
+}
+
+.panel-item-password{
+  background-image: url('../../../../assets/images/login/password-reset.png');
+  background-size: contain;
+}
+
+.personalization-panel-ul {
+  height: 100%;
+  width: 100%;
+  padding: 2%;
+  overflow: auto;
+  display: flow-root;
+  text-align: center;
+}
+
+.personalization-panel-li {
+  display: inline-block;
+  padding: 2%;
+}
+
+.personalization-panel-span {
+  color: white;
+  font-size: x-large;
+  font-family: inherit;
+  display: block;
+  filter: drop-shadow( 0px 0px 5px #000000);
+  -webkit-filter: drop-shadow( 0px 0px 5px #000000);
+}
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+ 

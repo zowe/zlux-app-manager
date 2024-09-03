@@ -1,0 +1,45 @@
+
+
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+
+<div class="degenerate-container">
+  <h1 style="text-align:center" *ngIf="error.length > 0">
+    {{error}}
+  </h1>
+  <ng-container *ngIf="contextMenuDef != null">
+    <com-rs-mvd-context-menu [xPos]="contextMenuDef.xPos" [yPos]="contextMenuDef.yPos" [menuItems]="contextMenuDef.items" (complete)="closeContextMenu()"></com-rs-mvd-context-menu>
+  </ng-container>
+
+  <rs-com-login *ngIf="error.length == 0 && showLogin">
+    <com-rs-mvd-viewport [viewportId]="viewportId">
+      <!-- Loading display -->
+      <div class="full-center">
+        <em class="fa fa-spinner fa-spin fa-3x"></em>
+      </div>
+    </com-rs-mvd-viewport>
+  </rs-com-login>
+  <com-rs-mvd-viewport *ngIf="error.length == 0 && !showLogin" [viewportId]="viewportId">
+    <!-- Loading display -->
+    <div class="full-center">
+      <em class="fa fa-spinner fa-spin fa-3x"></em>
+    </div>
+  </com-rs-mvd-viewport>
+</div>
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+

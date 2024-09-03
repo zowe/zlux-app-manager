@@ -1,0 +1,313 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+.caption.handle {
+  user-select: none;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+.caption.handle:active {
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
+.heading.inactive {
+  opacity: .6;
+}
+
+.window {
+  position: absolute;
+  box-sizing: content-box;
+  margin: 0;
+  padding: 0;
+  background-color: #d4d4d6;
+  z-index: 1;
+  min-width: 180px;
+  min-height: 90px;
+  -webkit-box-shadow: 0;
+  -moz-box-shadow:    0;
+  box-shadow:         0;
+  border-color: #d4d4d6;
+  border-width: 3px;
+  border-style: solid;
+  border-radius: 6px 6px 0px 0px;
+}
+
+.window.maximized {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-width: 0;
+}
+
+.window.maximized .heading {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+.window.minimized {
+  display: none;
+}
+
+.title {
+  text-align: center;
+}
+
+.window .heading {
+  display: block;
+  box-sizing: border-box;
+  padding: 10px 15px;
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  position: absolute;
+  width: 100%;
+  height: 45px;
+  color: #333;
+  background-repeat: repeat-x;
+  font-size: 14px;
+}
+
+.window.active .heading {
+  background: #659ff9;
+  border-bottom: 1px solid transparent;
+}
+
+.window.active {
+  -webkit-box-shadow: rgb(51,51,51) 1px 1px 8px 0px;
+  -moz-box-shadow:    rgb(51,51,51) 1px 1px 8px 0px;
+  box-shadow:         rgb(51,51,51) 1px 1px 8px 0px;
+  border-color: #659ff9;
+  background-color: #659ff9;
+}
+
+.window .caption {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  cursor: default;
+  position: absolute;
+  padding-left:100px;
+  padding-right:80px;
+  padding-top: 10px;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  height: 100%;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #171616;
+}
+
+.window .body {
+  position: absolute;
+  width: 100%;
+  top: 45px;
+  bottom: 0px;
+  background-color: #FFFFFF;
+  overflow: auto;
+}
+
+.window .border-box-sizing {
+  box-sizing: border-box;
+}
+
+.minimize-button, .maximize-button, .close-button, .link-button {
+  margin: 0;
+  padding:0;
+  box-sizing: border-box;
+  position: absolute;
+  top: 12px;
+  width: 19px;
+  height: 19px;
+  background-color: transparent;
+  background-repeat: no-repeat;
+}
+
+.maximize-button {
+  left: 73px;
+  background-image: url(../../../../assets/images/window/expand-inactive.png);
+}
+
+.maximize-button.maximized {
+  left: 73px;
+  background-image: url(../../../../assets/images/window/expanded-inactive.png);
+}
+
+.minimize-button {
+  left: 42px;
+  background-image: url(../../../../assets/images/window/minimize-inactive.png);
+}
+
+.close-button {
+  left: 12px;
+  background-image: url(../../../../assets/images/window/close-inactive.png);
+}
+
+.maximize-button.active:hover {
+  background-image: url(../../../../assets/images/window/expand-hover-active.png);
+}
+
+.maximize-button.maximized.active:hover {
+  background-image: url(../../../../assets/images/window/expanded-hover-active.png);
+}
+
+.minimize-button.active:hover {
+  background-image: url(../../../../assets/images/window/minimize-hover-active.png);
+}
+
+.close-button.active:hover {
+  background-image: url(../../../../assets/images/window/close-hover-active.png);
+}
+
+.maximize-button.active {
+  background-image: url(../../../../assets/images/window/expand-active.png);
+}
+
+.maximize-button.maximized.active {
+  background-image: url(../../../../assets/images/window/expanded-active.png);
+}
+
+.minimize-button.active {
+  background-image: url(../../../../assets/images/window/minimize-active.png);
+}
+
+.close-button.active {
+  background-image: url(../../../../assets/images/window/close-active.png);
+}
+
+.close-button.active:active {
+  background-image: url(../../../../assets/images/window/close-pressed.png);
+}
+
+.maximize-button.active:active {
+  background-image: url(../../../../assets/images/window/expand-pressed.png);
+}
+
+.maximize-button.maximized.active:active {
+  background-image: url(../../../../assets/images/window/expanded-pressed.png);
+}
+
+.minimize-button.active:active {
+  background-image: url(../../../../assets/images/window/minimize-pressed.png);
+}
+
+.close-button.active:active {
+  background-image: url(../../../../assets/images/window/close-pressed.png);
+}
+
+.grip-n, .grip-w, .grip-s, .grip-e, .grip-nw, .grip-ne, .grip-sw, .grip-se {
+  display: block;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  position: absolute;
+  z-index: 1;
+  -moz-user-select: -moz-none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  background: transparent;
+}
+
+.grip-n {
+  cursor: n-resize;
+  width: 100%;
+  top: 0;
+  left: 0;
+  margin-top: -14px;
+}
+
+.grip-e {
+  cursor: w-resize;
+  height: 100%;
+  right: 0;
+  top: 0;
+  margin-right: -14px;
+}
+
+.grip-s {
+  cursor: s-resize;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  margin-bottom: -14px;
+}
+
+.grip-w {
+  cursor: e-resize;
+  height: 100%;
+  left: 0;
+  top: 0;
+  margin-left: -14px;
+}
+
+.grip-ne {
+  cursor: ne-resize;
+  width: 14px;
+  height: 14px;
+  top: 0;
+  right: 0;
+  margin-top: -7px;
+  margin-right: -7px;
+}
+
+.grip-nw {
+  cursor: nw-resize;
+  width: 14px;
+  height: 14px;
+  top: 0;
+  left: 0;
+  margin-top: -7px;
+  margin-left: -7px;
+}
+
+.grip-se {
+  cursor: se-resize;
+  width: 14px;
+  height: 14px;
+  bottom: 0;
+  right: 0;
+  margin-bottom: -7px;
+  margin-right: -7px;
+}
+
+.grip-sw {
+  cursor: sw-resize;
+  width: 14px;
+  height: 14px;
+  bottom: 0;
+  left: 0;
+  margin-bottom: -7px;
+  margin-left: -7px;
+}
+
+.full-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+

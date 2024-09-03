@@ -1,0 +1,69 @@
+{
+  "compileOnSave": false,
+  "include": [
+    "./src/**/*.ts",
+    "../../zlux-platform/interface/src/index.d.ts",
+    "../../zlux-platform/interface/src/mvd-hosting.d.ts",
+    "../../zlux-platform/interface/src/mvd-window-management.d.ts",
+    "../../zlux-platform/interface/src/server-framework.d.ts"
+  ],
+  "compilerOptions": {
+    "outDir": "./dist/out-tsc",
+    "baseUrl": "src",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "paths": {
+      "bootstrap/*": [
+        "../../bootstrap/dts/*"
+      ],
+      "app/*": [
+        "./app/*"
+      ],
+      "pluginlib/*": [
+        "./pluginlib/*"
+      ],
+      "virtual-desktop-logger": [
+        "./app/shared/logger.ts"
+      ],
+      "zlux-base/*": [
+        "../../../zlux-platform/base/src/*"
+      ],
+      "zlux-interface/*": [
+        "../../../zlux-platform/interface/src/*"
+      ],
+      "core-js/es7/reflect": [
+        "../node_modules/core-js/proposals/reflect-metadata"
+      ],
+      "core-js/es6/reflect": [
+        "../node_modules/core-js/proposals/reflect-metadata"
+      ],
+      "rxjs": [
+        "../node_modules/rxjs"
+      ],
+      "rxjs/operators": [
+        "../node_modules/rxjs/operators"
+      ]
+    },
+    "target": "es5",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "lib": [
+      "es5",
+      "es2016",
+      "es6",
+      "dom"
+    ]
+  }
+
+}

@@ -1,0 +1,173 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+.personalization-label {
+  font-size: larger;
+  padding: 5px;
+  width: 100%;
+  color:#f3f4f4;
+  padding-top: 15px;
+}
+
+.personalization-label.small {
+  font-size: small;
+}
+
+.personalization-label.top {
+  padding-top: 0px;
+}
+
+.personalization-label.small.reset-button {
+  float: right;
+  position: absolute;
+  margin-left: -105px;
+  margin-top: -5px;
+  cursor: pointer;
+}
+
+.personalization-label.small.back-button {
+  margin-top: -6px;
+  margin-left: -15px;
+  cursor: pointer;
+}
+
+.personalization-text {
+  text-align: center;
+  color: white;
+  padding-bottom: 5px;
+}
+
+.personalization-submit {
+  margin-top: 10px;
+}
+
+.personalization-upload {
+  color: #f3f4f4
+}
+
+.personalization-preview-item {
+  background-repeat: round;
+  cursor: pointer;
+  border: none;
+  padding: 62px;
+  margin-right: 6px;
+}
+
+.personalization-preview-item.selected {
+  border: 2px solid white;
+}
+
+.personalization-preview-item.preview-small{
+  background-image: url('../../../../../assets/images/personalization/preview-1.png');
+}
+
+.personalization-preview-item.preview-medium{
+  background-image: url('../../../../../assets/images/personalization/preview-2.png');
+}
+
+.personalization-preview-item.preview-large{
+  background-image: url('../../../../../assets/images/personalization/preview-3.png');
+  margin-right: 0px;
+}
+
+.personalization-main-window {
+  height: 100%;
+  width: 100%;
+  padding: 15px;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.personalization-color-1 {
+  padding-left: 15px;
+}
+
+.personalization-color-2 {
+  padding-bottom: 30px;
+}
+
+.personalization-color-3 {
+  padding-right: 30px;
+  width: 420px;
+  display: grid;
+}
+
+.personalization-file-drop-content {
+  display: flex !important; 
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100px !important;
+  color: #f3f4f4 !important;
+}
+
+.personalization-file-drop-border {
+  height: 100px !important;
+  margin: auto !important;
+  border: 2px dotted #f3f4f4 !important;
+  border-radius: 15px !important;
+}
+
+.personalization-circle {
+  padding: 2px;
+}
+
+.personalization-circle.selected{
+  border: 2px solid white;
+  border-radius: 30px;
+  width: 44px;
+  height: 44px;
+}
+
+.personalization-swatch {
+  width: 77px;
+  height: 14px;
+}
+
+.personalization-swatch.selected{
+  border: 2px solid white;
+  height: 16px;
+}
+
+#swatch1 {
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+
+#swatch2 {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+
+#swatch3 {
+  grid-column-start: 3;
+  grid-column-end: 4;
+}
+
+#swatch4 {
+  grid-column-start: 4;
+  grid-column-end: 5;
+}
+
+#swatch5 {
+  grid-column-start: 5;
+  grid-column-end: 6;
+}
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+

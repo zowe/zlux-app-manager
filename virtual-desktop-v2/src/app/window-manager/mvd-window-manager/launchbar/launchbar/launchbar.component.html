@@ -1,0 +1,46 @@
+
+
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+
+<div class="launchbar-container launchbar-large" 
+  id="container"
+  [style.height]="barSize"
+  (mouseup)="onMouseUpContainer($event)" 
+  [class.active]="isActive"
+  [style.display]="displayAppBar">
+  <rs-com-launchbar-menu [menuItems]="allItems" [theme]="_theme" (itemClicked)="menuItemClicked($event)"  (refreshClicked)="getNewItems()"></rs-com-launchbar-menu>
+  
+  <div class="applist row" 
+    [style.margin]="applistMargin"
+    [style.background]="_theme.color.launchbarColor"
+    [style.padding-left]="applistPadding"
+    [style.border-radius]="applistPadding"
+    id="ZAP_DesktopHome_Launchbar">
+    <rs-com-launchbar-icon *ngFor="let item of pinnedItems" [launchbarItem]="item" [theme]="_theme" (contextmenu)="onRightClick($event, item)"
+    (mousedown)="onMouseDown($event, item)" (mousemove)="onMouseMove($event, item)">
+    </rs-com-launchbar-icon>
+    <rs-com-launchbar-icon *ngFor="let item of runningItems" [launchbarItem]="item" [theme]="_theme" (contextmenu)="onRightClick($event, item)"
+    (mousedown)="onMouseDown($event, item)">
+    </rs-com-launchbar-icon>
+  </div>
+  <rs-com-launchbar-widget [menuItems]="allItems" [theme]="_theme" (popupStateChanged)="onStateChanged($event)"></rs-com-launchbar-widget>
+</div>
+
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+

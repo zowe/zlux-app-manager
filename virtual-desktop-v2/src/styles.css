@@ -1,0 +1,121 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+/* 
+ * This file loads external, non-component style sheets needed for the desktop.
+ * 
+ * If a stylesheet is being loaded from an npm module, preface the URL with a
+ * tilde (~) to inform the css-loader. 
+ */
+
+@import url('~typeface-roboto/index.css');
+@import url('~bootstrap/dist/css/bootstrap.min.css');
+@import url('~font-awesome/css/font-awesome.min.css');
+@import url('./assets/css/desktop.css');
+
+.cdk-visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  outline: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none
+}
+
+.cdk-global-overlay-wrapper,
+.cdk-overlay-container {
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%
+}
+
+.cdk-overlay-container {
+  position: fixed;
+  z-index: 1000
+}
+
+.cdk-overlay-container:empty {
+  display: none
+}
+
+.cdk-global-overlay-wrapper {
+  display: flex;
+  position: absolute;
+  z-index: 1000
+}
+
+.cdk-overlay-pane {
+  position: absolute;
+  pointer-events: auto;
+  box-sizing: border-box;
+  z-index: 1000
+}
+
+.cdk-overlay-backdrop {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity .4s cubic-bezier(.25, .8, .25, 1);
+  opacity: 0
+}
+
+.cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  opacity: 1
+}
+
+.cdk-overlay-dark-backdrop {
+  background: rgba(0, 0, 0, .288)
+}
+
+.cdk-overlay-transparent-backdrop,
+.cdk-overlay-transparent-backdrop.cdk-overlay-backdrop-showing {
+  opacity: 0
+}
+
+.cdk-global-scrollblock {
+  position: fixed;
+  width: 100%;
+  overflow-y: scroll
+}
+
+::selection { /* WebKit/Blink Browsers */
+  background: grey;
+  color: white;
+}
+
+::-moz-selection { /* Gecko Browsers */
+  background: grey;
+  color: white;
+}
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+

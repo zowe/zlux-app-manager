@@ -1,0 +1,111 @@
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+
+<!-- TODO: This page needs internationalization support -->
+<div class="personalization-main-window">
+  <label class="personalization-label small back-button top" (click)="goBack()" id="ZAP_Personalization_BackButton">
+    <em class="fa fa-chevron-left" style="padding: 5px; font-size: large; padding-right: 7px; margin-top: 2px;"></em>{{Back}}
+  </label>
+
+  <label class="personalization-label small reset-button top" (click)="resetAllDefault()" id="ZAP_Personalization_ResetButton">{{ResetToDefault}}
+    <em class="fa fa-trash" style="padding: 5px; font-size: large;"></em>
+  </label>
+
+  <label class="personalization-label" style="padding-top: 10px;">{{Background}}</label>
+  <div class="personalization-text" style="margin-left: -15px;">{{DragWallpaperHereOr}}</div>
+  <ngx-file-drop 
+    id="ZAP_Personalization_FileDrop"
+    (onFileDrop)="fileDrop($event)" 
+    multiple="false"
+    style="color: white !important;"
+    [showBrowseBtn]="true"
+    browseBtnLabel="{{Upload}}">
+  </ngx-file-drop>
+
+  <label class="personalization-label">{{Color}}</label>
+  <div class="personalization-color-1" id="ZAP_Personalization_ColorCircleGroup"> <!-- Color circle group -->
+    <div class="personalization-text" style="margin-left: -15px;">{{SelectColor}}</div>
+    <canvas #circle1 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 1,
+      'personalization-circle': true}" (click)="clickCircle(1)"></canvas>
+    <canvas #circle2 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 2,
+      'personalization-circle': true}" (click)="clickCircle(2)"></canvas>
+    <canvas #circle3 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 3,
+      'personalization-circle': true}" (click)="clickCircle(3)"></canvas>
+    <canvas #circle4 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 4,
+      'personalization-circle': true}" (click)="clickCircle(4)"></canvas>
+    <canvas #circle5 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 5,
+      'personalization-circle': true}" (click)="clickCircle(5)"></canvas>
+    <canvas #circle6 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 6,
+      'personalization-circle': true}" (click)="clickCircle(6)"></canvas>
+    <canvas #circle7 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 7,
+      'personalization-circle': true}" (click)="clickCircle(7)"></canvas>
+    <canvas #circle8 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 8,
+      'personalization-circle': true}" (click)="clickCircle(8)"></canvas>
+    <canvas #circle9 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 9,
+      'personalization-circle': true}" (click)="clickCircle(9)"></canvas>
+    <canvas #circle10 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 10,
+      'personalization-circle': true}" (click)="clickCircle(10)"></canvas>
+    <canvas #circle11 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 11,
+      'personalization-circle': true}" (click)="clickCircle(11)"></canvas>
+    <canvas #circle12 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 12,
+      'personalization-circle': true}" (click)="clickCircle(12)"></canvas>
+    <canvas #circle13 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 13,
+      'personalization-circle': true}" (click)="clickCircle(13)"></canvas>
+    <canvas #circle14 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 14,
+      'personalization-circle': true}" (click)="clickCircle(14)"></canvas>
+    <canvas #circle15 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 15,
+      'personalization-circle': true}" (click)="clickCircle(15)"></canvas>
+    <canvas #circle16 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 16,
+      'personalization-circle': true}" (click)="clickCircle(16)"></canvas>
+    <canvas #circle17 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 17,
+      'personalization-circle': true}" (click)="clickCircle(17)"></canvas>
+    <canvas #circle18 width="40" height="40" [ngClass]="{ 'personalization-circle selected': selectedCircle == 18,
+      'personalization-circle': true}" (click)="clickCircle(18)"></canvas>
+  </div>
+  <div class="personalization-color-2" id="ZAP_Personalization_HueSlider"> <!-- Hue slider -->
+    <div class="personalization-text">{{OrHue}}</div>
+    <canvas #slider1 width="389" height="14" (click)="clickSlider($event)"></canvas>
+  </div>
+  <div class="personalization-text">{{SelectLightness}}</div>
+  <div class="personalization-color-3" id="ZAP_Personalization_LightnessBar"> <!-- Lightness swatches bar -->
+    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .8,
+      'personalization-swatch': true}" id="swatch1" (click)=clickLightness(0.8) [ngStyle]="swatch1Style"></div>
+    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .65,
+      'personalization-swatch': true}" id="swatch2" (click)=clickLightness(0.65) [ngStyle]="swatch2Style"></div>
+    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .5,
+      'personalization-swatch': true}" id="swatch3" (click)=clickLightness(0.5) [ngStyle]="swatch3Style"></div>
+    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .35,
+      'personalization-swatch': true}" id="swatch4" (click)=clickLightness(0.35) [ngStyle]="swatch4Style"></div>
+    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .2,
+      'personalization-swatch': true}" id="swatch5" (click)=clickLightness(0.2) [ngStyle]="swatch5Style"></div>
+  </div>
+  <label class="personalization-label">{{Size}}</label>
+
+  <!-- Ideally, this would say something like alt="Select Size small" but alt attribute adds a weird artifact -->
+  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 1,
+    'personalization-preview-item preview-small': true}" (click)="sizeSelected('small')" alt="" id="ZAP_Personalization_SelectSmall">
+  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 2,
+    'personalization-preview-item preview-medium': true}" (click)="sizeSelected('medium')" alt="" id="ZAP_Personalization_SelectMedium">
+  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 3,
+    'personalization-preview-item preview-large': true}" (click)="sizeSelected('large')" alt="" id="ZAP_Personalization_SelectLarge">
+
+    <!-- TODO: Add text re-sizing functionality -->
+  <!-- <label class="personalization-label">Text Size</label> -->
+</div>
+
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
