@@ -1,0 +1,165 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+li.disabled {
+  pointer-events: none;
+}
+
+.menuitem-content.disabled {
+  opacity: 0.3;
+}
+
+.context-menu .menuitem-content.disabled {
+  color: #9b9ea4;
+}
+
+.context-menu {
+  position: absolute;
+  z-index: 20000;
+  min-width: 180px;
+  width: auto;
+  -webkit-box-shadow: 3px 3px 2px 1px #0000004a;
+  -moz-box-shadow: 3px 3px 2px 1px #0000004a;
+  box-shadow: 3px 3px 2px 1px #0000004a;
+}
+
+.context-menu .menu-item.active {
+  background-color: #55585c;
+  border-color: #f3f4f4;
+}
+
+.context-menu .menu-item.top {
+  border-top-width: 1px;
+  border-radius: 4px 4px 0 0;
+}
+
+.context-menu .menu-item.bottom {
+  border-bottom-width: 1px;
+  border-radius: 0 0 4px 4px;
+}
+
+.context-menu>ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.context-menu .menu-item {
+  background-color: #1f242d; /* Blue-shifted version of Cool Gray 90 */
+  width: 100%;
+  height: auto;
+  padding:3px;
+  font-family: 'Helvetica', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  white-space:nowrap;
+  color: #f3f4f4;
+  border-style: solid;
+  border-width: 1px 1px 1px 1px;
+  border-color: #3d3f42;
+  cursor: pointer;
+  position:relative;
+}
+
+.context-menu .multi-menu-item .menu-expand-caret {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  right: 5px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid #666;
+}
+
+.context-menu .multi-menu-item.propagateChildLeft {
+  left: 5px;
+  margin: auto;
+  margin-left: 0;
+  margin-right: 0;
+  border-left: none;
+  border-right: 5px solid #666;
+}
+
+.context-menu .multi-menu-item.active>.menu-expand-caret {
+  border-left: 5px solid #fff;
+}
+
+.context-menu .multi-menu-item.active>.submenu {
+  display: block;
+}
+
+.context-menu .multi-menu-item>.submenu {
+  right: 0px;
+  top: 0;
+  position: absolute;
+  display: none;
+  z-index: 1;
+}
+
+.context-menu .multi-menu-item>.submenu.propagateChildLeft {
+  left: 0px;
+}
+
+.context-menu .multi-menu-item>.submenu>.mvd-context-menu>.context-menu {
+  left: 0;
+  top: 0;
+}
+
+.context-menu .multi-menu-item>.submenu>.mvd-context-menu>.context-menu.propagateChildLeft>ul {
+  position: absolute;
+  right: 100%;
+}
+
+.menuitem-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.menuitem-content-left {
+  display: flex;
+  margin-right: 15px;
+}
+
+.icon {
+  width: 19px;
+  height: 19px;
+  margin-right: 5px;
+  background-size: contain;
+}
+
+.icon.propagateChildLeft {
+  margin-left: 25px;
+}
+
+.shortcut {
+  margin-left: 15px;
+  right: 5px;
+  font-weight: bold;
+}
+
+.hide-icon {
+  display: none;
+}
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+

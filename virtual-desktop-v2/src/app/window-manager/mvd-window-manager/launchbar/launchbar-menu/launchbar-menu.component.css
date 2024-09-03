@@ -1,0 +1,159 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+.launchbar-menu-icon {
+  margin-top: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 0;
+  background-image: url("../../../../../assets/images/launchbar/menu-zowe-icon.png");
+}
+
+.app-label {
+    display: inherit;
+}
+
+.launch-menu-search {
+  position:absolute;
+  bottom: 5px;
+  left: 10px;
+  width: 100%;
+}
+
+.launch-menu-search-input {
+  width: calc(100% - 10px);
+  border-color: transparent;
+  background-color: #ffffff55;
+  border-radius: 0px 0px 7px 7px;
+  padding-left: 30px;
+  margin-left: -5px;
+}
+
+.launch-menu-search-input::placeholder {
+  color: white;
+}
+
+.launch-menu-search-icon {
+  padding: 5px;
+  float: left;
+  position: absolute;
+  background-color: transparent;
+}
+
+.launch-menu-scroller {
+  overflow-y: scroll;
+  width: 315px;
+  height: 295px;
+  bottom: 35px;
+  position: absolute;
+  background: #dde8f1;
+}
+
+.launch-menu-scroller::-webkit-scrollbar:enabled {
+    background: #ffffff55;
+}
+
+.refresh-plugins {
+  float:right;  
+}
+
+.launch-widget {
+  height: 100%;
+  text-align: center;
+  display: inline-block;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 7;
+}
+
+.icon {
+  box-sizing: border-box;
+  margin: 5px 10px 5px 0px;
+  padding: 0;
+  background: transparent;
+  background-size: 100%;
+}
+
+.launch-widget-row-settings p {
+  margin-left: 60px;
+  line-height: 50px;
+}
+
+
+.launch-widget-row {
+  list-style: none;
+  margin: 0px 5px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+}
+
+.launch-widget-row .icon {
+  width: 50px;
+  height: 50px;
+}
+
+.launch-widget-row p {
+  margin-left: 60px;
+  line-height: 50px;
+}
+
+.launch-widget-popup {
+  user-select: none;    
+  width: 335px;
+  height: 365px;
+  position: absolute;
+  bottom: 90px;
+  left: 5px;
+  border-radius: 10px;
+  background: #dde8f1;
+  padding: 5px 10px 0px 5px;
+}
+
+.caret-up {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+
+  border-bottom: 20px solid #dde8f1;
+}
+
+.caret-down {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+
+  border-top: 20px solid #dde8f1;
+}
+
+.launch-widget-caret {
+  position: absolute;
+  bottom: 70px;
+  left: 45px;
+}
+
+.launch-widget-row.active {
+  background-color: #ffffff61;
+}
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+

@@ -1,0 +1,118 @@
+
+
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+
+<div
+  [class.minimized]="isMinimized()"
+  [class.maximized]="isMaximized()"
+  [class.active]="hasFocus()"
+
+  [ngStyle]="positionStyle()"
+
+  rs-com-draggable
+  [rs-com-draggable-window]="desktopWindow"
+  [rs-com-draggable-handle]="dragHandle" 
+  [rs-com-draggable-enabled]="isNormal()"
+
+  rs-com-sizeable
+  [rs-com-sizeable-window]="desktopWindow"
+  [rs-com-sizeable-min-width]="MIN_WIDTH"
+  [rs-com-sizeable-min-height]="MIN_HEIGHT"
+  [rs-com-sizeable-w]="w"
+  [rs-com-sizeable-s]="s"
+  [rs-com-sizeable-e]="e"
+  [rs-com-sizeable-n]="n"
+  [rs-com-sizeable-ne]="ne"
+  [rs-com-sizeable-nw]="nw"
+  [rs-com-sizeable-se]="se"
+  [rs-com-sizeable-sw]="sw"
+  [rs-com-sizeable-enabled]="isNormal()"
+
+  [style.background-color]="hasFocus() ? color.windowColorActive : color.windowColorInactive"
+  [style.border-color]="hasFocus() ? color.windowColorActive : color.windowColorInactive"
+  [style.border-width]="isMaximized() ? '0px' : borderSize"
+  class="window">
+
+  <div class="border-box-sizing">
+
+  <!-- Window control bar -->
+  <div [class.inactive]="!hasFocus()" class="heading"
+    [style.background]="hasFocus() ? color.windowColorActive : color.windowColorInactive"
+    [style.height]="headerSize+'px'" (mousedown)="requestFocus()">
+    <div class="caption handle"
+      [style.font-size]="textSize"
+      [style.color]="hasFocus() ? color.windowTextActive : color.windowTextInactive"
+      [style.padding-top]="textPad"
+      #dragHandle>{{getTitle()}}</div>
+    <!-- For some reason style.filter doesn't work here, so we use ngStyle -->
+    <div class="close-button" 
+      [style.top]="buttonTop"
+      [class.active]="hasFocus()"
+      [style.left]="closeLeft"
+      [style.background-size]="buttonSize" 
+      [ngStyle]="hasFocus() ? {'filter': buttonFilter} : {}"
+      (click)="close()"></div>
+    <div class="minimize-button" 
+      [style.top]="buttonTop"
+      [class.active]="hasFocus()"
+      [style.background-size]="buttonSize"
+      [style.left]="minimizeLeft"
+      [ngStyle]="hasFocus() ? {'filter': buttonFilter} : {}"
+      (click)="minimizeToggle()"
+      *ngIf="displayMinimize"></div>
+    <div class="maximize-button" 
+      [style.top]="buttonTop"
+      [class.active]="hasFocus()"
+      [style.left]="maximizeLeft"
+      [style.background-size]="buttonSize"
+      [ngStyle]="hasFocus() ? {'filter': buttonFilter} : {}"
+      (click)="maximizeToggle()" 
+      [class.maximized]="isMaximized()"></div>
+  </div>
+
+  <!-- Window body -->
+  <div class="body"
+    [style.top]="headerSize+'px'"
+    (mousedown)="requestFocus()" #windowBody>
+    <com-rs-mvd-viewport [viewportId]="desktopWindow.viewportId" [attr.rs-com-viewport-id]="desktopWindow.viewportId">
+      <!-- Loading display -->
+      <div class="full-center">
+        <em class="fa fa-spinner fa-spin fa-3x"></em>
+      </div>
+    </com-rs-mvd-viewport>
+  </div>
+
+  <!-- Window resize grips -->
+  <div class="draggable-grips" (mousedown)="requestFocus()">
+    <div class="grip-w" #w></div>
+    <div class="grip-s" #s></div>
+    <div class="grip-e" #e></div>
+    <div class="grip-n" #n></div>
+    <div class="grip-ne" #ne></div>
+    <div class="grip-nw" #nw></div>
+    <div class="grip-se" #se></div>
+    <div class="grip-sw" #sw></div>
+  </div>
+
+  </div>
+</div>
+
+
+<!-- 
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+-->
+

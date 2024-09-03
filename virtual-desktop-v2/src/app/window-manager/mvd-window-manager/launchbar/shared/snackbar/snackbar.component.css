@@ -1,0 +1,91 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/
+
+.snackbar-icon {
+    display: inline-block;
+    margin: 5px;
+    width: 40px;
+    height: 40px;
+}
+
+.snackbar-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.snackbar-data {
+    word-break: break-word;
+    font-size: small;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.snackbar-container {
+    width: 315px;
+    display: inline-block;
+}
+
+.outer-snackbar-container {
+    overflow: hidden;
+}
+
+.snackbar-info {
+    width: 200px;
+    display: inline-block;
+    vertical-align: top;
+    margin: 5px;
+}
+
+.snackbar-dismiss {
+    display: inline-block;
+    border-left-style: solid; 
+    vertical-align: top;
+    position: absolute;
+    height: 100%;
+    top:0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    border-width: 1px;
+    border-color: #8080808f;
+}
+
+.snackbar-dismiss-button {
+    width: 100%;
+    height: 100%;
+    background-color: Transparent;
+    background-repeat:no-repeat;
+    overflow: hidden;
+    outline:none;
+    border: none;
+    transition: 0.3s;
+    padding: 5px;
+    color: inherit;
+}
+
+.snackbar-dismiss-button:hover {
+    background-color: #B1BAC1;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/

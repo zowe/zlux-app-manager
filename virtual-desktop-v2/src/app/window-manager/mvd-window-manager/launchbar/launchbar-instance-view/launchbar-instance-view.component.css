@@ -1,0 +1,71 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+.instance-item {
+    width: 200px;
+    height: 140px;
+    margin: 3px;
+}
+
+.instance-viewer {
+    position: fixed;
+    height: 156px;
+    padding: 5px 5px 5px 5px;
+    background-color: rgb(51,75,107, 0.7);
+    z-index: 0;
+    border-radius: 10px;
+}
+
+.all-instances-box {
+    display: flex;
+    flex-direction: row;
+    height: 150px;
+}
+
+.caption {
+    color: white;
+    font-size: 8pt;
+    display: inline-block;
+}
+
+.label-caption {
+    margin-top: 0px;
+}
+
+.instance-preview {
+    opacity: 1;
+    transition: .5s ease;
+    backface-visibility: hidden;
+    width: 200px;
+    height: 120px;
+    margin-top: -10px;
+}
+
+.instance-preview-caption {
+    font-size: large; 
+    padding-top: 1rem;
+}
+
+.instance-snapshot:hover .instance-preview {
+    opacity: 0.5;
+}
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/

@@ -1,0 +1,68 @@
+{
+  "identifier": "org.zowe.zlux.ng2desktop",
+  "apiVersion": "2.0.0",
+  "pluginVersion": "0.0.0-zlux.version.replacement",
+  "pluginType": "desktop",
+  "license": "EPL-2.0",
+  "homepage": "zowe.org",
+  "webContent": {
+    "framework": "angular"
+  },
+  "configurationData": {
+    "resources": {
+      "recognizers": {
+        "aggregationPolicy": "none"
+      },
+      "actions": {
+        "aggregationPolicy": "none"
+      },
+      "ui": {
+        "subResources":{
+          "launchbar": {
+            "subResources": {
+              "plugins": {
+                "aggregationPolicy": "override",
+                "variable": false
+              }
+            }
+          },
+          "themebin": {
+            "binary": true
+          },
+          "theme": {
+            "aggregationPolicy": "none"
+          }
+        }
+      },
+      "session": {
+        "subResources": {
+          "security": {
+            "aggregationPolicy": "none"
+          }
+        }
+      },
+      "pluginData": {
+        "aggregationPolicy": "override",
+        "subResources": {
+          "app": {
+            "aggregationPolicy": "override"
+          },
+          "singleApp": {
+            "aggregationPolicy": "override"
+          }
+        }
+      }
+    }
+  },
+  "dataServices": [
+    {
+      "type": "router",
+      "name": "browser-preferences",
+      "filename": "browserPreferences.js",
+      "routerFactory": "browserPreferencesRouter",
+      "dependenciesIncluded": true,
+      "initializerLookupMethod": "external",
+      "version": "1.0.0"
+    }    
+  ]
+}

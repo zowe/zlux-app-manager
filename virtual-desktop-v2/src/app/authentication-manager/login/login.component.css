@@ -1,0 +1,225 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+.desktop-cover {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  transition: 0.5s filter ease-out;
+}
+
+.login-overlay {
+  width: 450px;
+  position: fixed;
+  top: 0; bottom: 0;
+  left: 0; right: 0;
+  margin: 0 auto;
+
+  text-align: center;
+  background: white;
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-overlay > div {
+  background: white;
+  overflow-x: hidden;
+  max-height: fit-content;
+  padding: 20px 50px 100px;
+  min-height: 500px;
+  overflow: auto;
+}
+
+.login-panel {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: url(../../../assets/images/background.jpg) no-repeat center/cover;
+}
+
+.login-panel.hidden {
+  display: none;
+}
+
+.login-form {
+  margin-top: 20%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+.login-form-expired {
+  margin-top: 0% !important;
+}
+
+.password-login-form {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+.password-login-form input {
+  width: 100%;
+  height: 30px;
+  padding-left: 10px;
+  margin-bottom: 10px;
+  border: 1px #777 solid;
+}
+
+.login-form input {
+  width: 100%;
+  height: 30px;
+  padding-left: 10px;
+  margin-bottom: 10px;
+  border: 1px #777 solid;
+}
+
+.login-form .userid {
+  font-family: 'Roboto', sans-serif;
+  color: #353535;
+}
+
+.login-form .password {
+  font-family: 'Roboto', sans-serif;
+  text-transform: uppercase;
+}
+
+.login-form label {
+  font-family: 'Roboto', sans-serif;
+  color: #474747;
+  margin-bottom: 0;
+}
+
+.login-button {
+  text-align: center;
+  background-color: rgba(0, 51, 161, 1);
+  width: 350px;
+  height: 40px;
+  border: none;
+  border-radius: 7px;
+  color: white;
+}
+
+.login-button-icon {
+  display: inline-block;
+  width: 76px;
+  height: 76px;
+  background-image: url('../../../assets/images/login/login-btn-normal.png');
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.login-button > .login-button-icon:hover {
+  background-image: url('../../../assets/images/login/login-btn-hover.png');
+}
+
+.login-button > .login-button-icon:active {
+  background-image: url('../../../assets/images/login/login-btn-pressed.png');
+}
+
+.login-button:disabled {
+  opacity: 0.3;
+  filter: grayscale(100%); 
+}
+
+.login-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  color: #474747;
+}
+
+.login-plugin-version {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  color: #47474785;
+}
+
+.login-click-blocker {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 3;
+}
+
+.login-error {
+  color: #f44336;
+  font-size: 12pt;
+}
+
+.login-error-details {
+  width: 350px;
+  height: 50px;
+  color: #f44336;
+  font-size: 9pt;
+  border-color: Transparent;
+  border: none;
+  text-align: center;
+  outline: none;
+  overflow: auto;
+  resize: none;
+}
+
+.error-details-wrapper {
+  padding-bottom: 20px;
+}
+
+.login-message {
+  text-align: center;
+  background-color: lightgoldenrodyellow;
+  border-radius: 5px;
+}
+
+.logo-img {
+  width: 90%;
+  margin: 1em;
+}
+
+.password-logo-img {
+  width: 60%;
+  margin-top: -50px;
+}
+
+.back-button {
+  font-family: 'Roboto-Medium', 'Roboto Medium', 'Roboto', sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 15px;
+  color: #4B8EFF;
+  border: none;
+  background: none;
+  width: 10%;
+  margin-left: 25px;
+  margin-top: 10px;
+}
+
+.back-button:hover {
+  color:black;
+}
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+

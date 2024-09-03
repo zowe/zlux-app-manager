@@ -1,0 +1,35 @@
+{
+  "compileOnSave": false,
+  "files": [
+    "../../../zlux-platform/interface/src/index.d.ts",
+    "../../../zlux-platform/interface/src/mvd-hosting.d.ts",
+    "../../../zlux-platform/interface/src/mvd-window-management.d.ts"
+  ],
+  "compilerOptions": {
+    "baseUrl": "..",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es5",
+    "typeRoots": [
+      "../node_modules/@types"
+    ],
+    "lib": [
+      "es2016",
+      "dom"
+    ],
+    "paths": {
+      "pluginlib/*": [
+        "./src/pluginlib/*"
+      ],
+      "bootstrap/*": [
+        "../bootstrap/dts/*"
+      ],
+      "zlux-base/*": [
+        "../../../zlux-platform/base/src/*"
+      ]
+    }
+  }
+}

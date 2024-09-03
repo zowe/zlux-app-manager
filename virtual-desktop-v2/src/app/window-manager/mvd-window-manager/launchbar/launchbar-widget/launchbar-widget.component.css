@@ -1,0 +1,250 @@
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
+.clock {
+  float: right;
+  user-select: none;
+}
+
+.two-row {
+  line-height: 1.25;
+}
+
+.widget-area {
+  float: right;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: fit-content;
+  min-width: 175px; /* fit-content seems to fail at times with Safari, min-width here as a safety */
+  height: 100%;
+  z-index: 7;
+  color: #eee;
+  padding-left: 5px;
+  padding-right: 10px;
+  text-align: right;
+  display: block;
+}
+
+.launchbar-tray-icon {
+  float: left;
+  width: 32px;
+  height: 32px;
+  margin-right: 7px;
+  background-size: 32px 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+}
+
+.launchbar-tray-icon.user {
+  background-image: url('../../../../../assets/images/launchbar/person.png');
+  margin-right: 12px;
+}
+
+.launchbar-tray-icon.settings {
+  background-image: url('../../../../../assets/images/launchbar/settings.png');
+}
+
+.launchbar-tray-icon.notification {
+  background-image: url('../../../../../assets/images/launchbar/notifications/notification.png');
+}
+
+.launchbar-user:hover {
+  opacity: 0.9;
+}
+
+.launchbar-user-popup {
+  width: 155px;
+  min-height: 120px;
+  position: absolute;
+  bottom: 70px;
+  border-radius: 10px;
+  right: 5px;
+  background: #dde8f1;
+  padding: 10px 15px;
+  z-index: 7;
+}
+
+.launchbar-user-popup.hidden {
+  display: none;
+}
+
+.launchbar-plugin-version {
+  font-size: smaller;
+  margin-top: 5px;
+  color: #3333337d;
+}
+
+.btn.btn-primary.launchbar-button{
+  width: 100%;
+  margin: 5px 0px 5px 0px;
+}
+
+.launch-user-caret {
+  position: absolute;
+  bottom: 70px;
+  right: 10px;
+}
+
+.launchbar-username {
+  text-align: center;
+}
+
+.notifications {
+  width: 335px;
+  height: 350px;
+  border-radius: 10px;
+  background: #dde8f1;
+  overflow-y: auto;
+  position: absolute;
+  right: 5px;
+  bottom: 46px;
+}
+
+.caret-up {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+
+  border-bottom: 20px solid #dde8f1;
+}
+
+.caret-down {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 20px solid #dde8f1;
+  float: right;
+  margin-right: 140px;
+  margin-top: -90px;
+}
+
+.outer-container {
+  padding: 10px;
+}
+
+.notification-item {
+  transition: 0.3s;
+}
+
+.notification-item:after:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.notification-icon-container {
+  width: 55px;
+  height: 40px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+
+.notification-icon {
+  max-width: 40px;
+  margin-left: 2px;
+  margin-top: 2px;
+}
+
+.notification-content {
+  display: inline-block;
+  width: 210px;
+}
+
+.notification-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.notification-message {
+  word-break: break-word;
+}
+
+.delete-notification {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  color: black;
+  vertical-align: top;
+  float: right;
+  opacity: .5;
+  transition: 0.3s;
+
+}
+
+.delete-notification:hover {
+  opacity: 1;
+}
+
+.time {
+  font-size: 12px;
+  float: left;
+}
+
+.timeAgo {
+  font-size: 12px;
+  float: right;
+}
+
+.time-container {
+  display: inline-block;
+  margin-left: 55px;
+  width: 240px;
+  margin-top: 5px;
+}
+
+.launchbar-tray-indicator {
+  float: left;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: red;
+  margin-top: -13px;
+  margin-left: 17px;
+  background-size: 32px 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 22px; 
+}
+
+.notification-breaker {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+::ng-deep .org_zowe_zlux_ng2desktop_snackbar {
+  background-color: #dde8f1 !important;
+  color: black !important;
+  padding: 5px !important;
+}
+
+.no-notifications {
+  font-size: x-large;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 13;
+}
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+  
+  SPDX-License-Identifier: EPL-2.0
+  
+  Copyright Contributors to the Zowe Project.
+*/
+
