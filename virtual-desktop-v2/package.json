@@ -9,11 +9,14 @@
   "scripts": {
     "build:externals": "webpack --progress --config webpack.externals.js",
     "start": "webpack --watch --progress",
-    "build": "webpack --progress && webpack --progress --config webpack.externals.js",
+    "build": "webpack --progress && webpack --progress --config webpack.externals.js && npm run copy",
     "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json",
-    "lint": "tslint -c tslint.json \"src/**/*.ts\""
+    "lint": "tslint -c tslint.json \"src/**/*.ts\"",
+    "copy": "cpx node_modules/requirejs/require.js web/"
   },
-  "dependencies": {},
+  "dependencies": {
+    "cpx": "^1.5.0"
+  },
   "devDependencies": {
     "@angular/animations": "~12.0.0",
     "@angular/cdk": "~12.0.0",
