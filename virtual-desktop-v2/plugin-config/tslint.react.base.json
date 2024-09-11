@@ -1,3 +1,0 @@
-{
-  "extends": ["./tslint.base.lenient.json", "tslint:latest", "tslint-react"]
-}
