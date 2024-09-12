@@ -9,6 +9,7 @@ import { Component, ViewEncapsulation } from "@angular/core";
     "../../../node_modules/bootstrap/dist/css/bootstrap.min.css",
     "../../../node_modules/font-awesome/css/font-awesome.css",
     "../../assets/css/desktop.css",
+    "../../assets/css/animate.css",
     "../../styles.css"
   ],
   encapsulation: ViewEncapsulation.None

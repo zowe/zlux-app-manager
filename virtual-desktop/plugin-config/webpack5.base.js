@@ -14,7 +14,6 @@ const path = require('path');
 const desktopDir = path.resolve(__dirname, '..');
 
 const config = {
-  devtool: 'source-map',
   mode: 'production',
   output: {
     libraryTarget: 'umd',
