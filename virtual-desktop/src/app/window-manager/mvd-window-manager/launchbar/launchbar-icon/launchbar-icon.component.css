@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -14,9 +12,7 @@
   display: inline-block;
   box-sizing: border-box;
   position: relative;
-  margin-top: 5px;
-  margin-left: 5px;
-  margin-right: 5px;
+  margin: 5px 5px 0px 5px;
   padding: 0;
   user-select: none;
   -ms-user-select: none;
@@ -24,6 +20,10 @@
   -webkit-user-select: none;
   z-index: 7;
   text-align: center;
+}
+
+.launchbar-icon-image {
+  margin-bottom: 3px;
 }
 
 .launchbar-icon-image.active {
@@ -110,4 +110,3 @@
   
   Copyright Contributors to the Zowe Project.
 */
-

@@ -40,9 +40,6 @@ import { I18nModule } from '../i18n/i18n.module';
   ],
   exports: [
     ViewportComponent
-  ],
-  entryComponents: [
-    ViewportComponent
   ]
 })
 export class ApplicationManagerModule {

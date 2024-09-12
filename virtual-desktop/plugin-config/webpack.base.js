@@ -108,4 +108,3 @@ module.exports = config;
 
   Copyright Contributors to the Zowe Project.
 */
-

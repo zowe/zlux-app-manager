@@ -8,7 +8,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-const baseLoggerIdentifier = 'org.zowe.zlux.ng2desktop' //the one hardcoded place
+const baseLoggerIdentifier = 'org.zowe.zlux.ivydesktop' //the one hardcoded place
 export var BaseLogger: any = ZoweZLUX.logger.makeComponentLogger(baseLoggerIdentifier);
 
 let lang = ZoweZLUX.globalization.getLanguage();

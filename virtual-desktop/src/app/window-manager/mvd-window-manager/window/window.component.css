@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -37,8 +35,8 @@
   min-width: 180px;
   min-height: 90px;
   -webkit-box-shadow: 0;
-  -moz-box-shadow:    0;
-  box-shadow:         0;
+  -moz-box-shadow: 0;
+  box-shadow: 0;
   border-color: #d4d4d6;
   border-width: 3px;
   border-style: solid;
@@ -85,9 +83,9 @@
 }
 
 .window.active {
-  -webkit-box-shadow: rgb(51,51,51) 1px 1px 8px 0px;
-  -moz-box-shadow:    rgb(51,51,51) 1px 1px 8px 0px;
-  box-shadow:         rgb(51,51,51) 1px 1px 8px 0px;
+  -webkit-box-shadow: rgb(51, 51, 51) 1px 1px 8px 0px;
+  -moz-box-shadow: rgb(51, 51, 51) 1px 1px 8px 0px;
+  box-shadow: rgb(51, 51, 51) 1px 1px 8px 0px;
   border-color: #659ff9;
   background-color: #659ff9;
 }
@@ -98,8 +96,8 @@
   font-size: 20px;
   cursor: default;
   position: absolute;
-  padding-left:100px;
-  padding-right:80px;
+  padding-left: 100px;
+  padding-right: 80px;
   padding-top: 10px;
   top: 0px;
   left: 0px;
@@ -125,9 +123,12 @@
   box-sizing: border-box;
 }
 
-.minimize-button, .maximize-button, .close-button, .link-button {
+.minimize-button,
+.maximize-button,
+.close-button,
+.link-button {
   margin: 0;
-  padding:0;
+  padding: 0;
   box-sizing: border-box;
   position: absolute;
   top: 12px;
@@ -139,77 +140,84 @@
 
 .maximize-button {
   left: 73px;
-  background-image: url(../../../../assets/images/window/expand-inactive.png);
+  background-image: url("assets/images/window/expand-inactive.png");
 }
 
 .maximize-button.maximized {
   left: 73px;
-  background-image: url(../../../../assets/images/window/expanded-inactive.png);
+  background-image: url("assets/images/window/expanded-inactive.png");
 }
 
 .minimize-button {
   left: 42px;
-  background-image: url(../../../../assets/images/window/minimize-inactive.png);
+  background-image: url("assets/images/window/minimize-inactive.png");
 }
 
 .close-button {
   left: 12px;
-  background-image: url(../../../../assets/images/window/close-inactive.png);
+  background-image: url("assets/images/window/close-inactive.png");
 }
 
 .maximize-button.active:hover {
-  background-image: url(../../../../assets/images/window/expand-hover-active.png);
+  background-image: url("assets/images/window/expand-hover-active.png");
 }
 
 .maximize-button.maximized.active:hover {
-  background-image: url(../../../../assets/images/window/expanded-hover-active.png);
+  background-image: url("assets/images/window/expanded-hover-active.png");
 }
 
 .minimize-button.active:hover {
-  background-image: url(../../../../assets/images/window/minimize-hover-active.png);
+  background-image: url("assets/images/window/minimize-hover-active.png");
 }
 
 .close-button.active:hover {
-  background-image: url(../../../../assets/images/window/close-hover-active.png);
+  background-image: url("assets/images/window/close-hover-active.png");
 }
 
 .maximize-button.active {
-  background-image: url(../../../../assets/images/window/expand-active.png);
+  background-image: url("assets/images/window/expand-active.png");
 }
 
 .maximize-button.maximized.active {
-  background-image: url(../../../../assets/images/window/expanded-active.png);
+  background-image: url("assets/images/window/expanded-active.png");
 }
 
 .minimize-button.active {
-  background-image: url(../../../../assets/images/window/minimize-active.png);
+  background-image: url("assets/images/window/minimize-active.png");
 }
 
 .close-button.active {
-  background-image: url(../../../../assets/images/window/close-active.png);
+  background-image: url("assets/images/window/close-active.png");
 }
 
 .close-button.active:active {
-  background-image: url(../../../../assets/images/window/close-pressed.png);
+  background-image: url("assets/images/window/close-pressed.png");
 }
 
 .maximize-button.active:active {
-  background-image: url(../../../../assets/images/window/expand-pressed.png);
+  background-image: url("assets/images/window/expand-pressed.png");
 }
 
 .maximize-button.maximized.active:active {
-  background-image: url(../../../../assets/images/window/expanded-pressed.png);
+  background-image: url("assets/images/window/expanded-pressed.png");
 }
 
 .minimize-button.active:active {
-  background-image: url(../../../../assets/images/window/minimize-pressed.png);
+  background-image: url("assets/images/window/minimize-pressed.png");
 }
 
 .close-button.active:active {
-  background-image: url(../../../../assets/images/window/close-pressed.png);
+  background-image: url("assets/images/window/close-pressed.png");
 }
 
-.grip-n, .grip-w, .grip-s, .grip-e, .grip-nw, .grip-ne, .grip-sw, .grip-se {
+.grip-n,
+.grip-w,
+.grip-s,
+.grip-e,
+.grip-nw,
+.grip-ne,
+.grip-sw,
+.grip-se {
   display: block;
   width: 14px;
   height: 14px;
@@ -310,4 +318,3 @@
   
   Copyright Contributors to the Zowe Project.
 */
-

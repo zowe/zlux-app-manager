@@ -1,7 +1,7 @@
 {
   "identifier": "org.zowe.zlux.ng2desktop.admin-notification",
   "apiVersion": "2.0.0",
-  "pluginVersion": "2.0.0",
+  "pluginVersion": "3.0.0",
   "pluginType": "application",
   "license": "EPL-2.0",
   "author": "Zowe",
@@ -12,7 +12,11 @@
     "launchDefinition": {
       "pluginShortNameKey": "Admin Notification",
       "pluginShortNameDefault": "Admin Desktop Notification",
-      "imageSrc": "assets/icon.png"
+      "imageSrc": "assets/v3/icon.png"
+    },
+    "entryPoint": {
+      "2.0": "main.js",
+      "3.0": "v3/main.js"
     },
     "descriptionKey": "notificationDescription",
     "descriptionDefault": "Send admin notifications to users of the Desktop",

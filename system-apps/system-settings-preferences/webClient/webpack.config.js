@@ -22,22 +22,24 @@ var config = {
   'entry': [
     path.resolve(__dirname, './src/plugin.ts')
   ],
-  'output': {
-    'path': path.resolve(__dirname, '../web'),
-    'filename': 'main.js',
+  output: {
+    path: path.resolve(__dirname, '../web/v3'),
+    filename: 'main.js',
   },
   'plugins': [
-    new CopyWebpackPlugin([
-      {
-        from: path.resolve(__dirname, './src/assets'),
-        to: path.resolve('../web/assets')
-      }
-    ])
-  ]
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, './src/assets'),
+          to: path.resolve(__dirname, '../web/v3/assets')
+        },
+      ],
+    }),
+  ],
 };
 
 module.exports = new webpackConfig.Config()
-  .extend(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack.base.js'))
+  .extend(path.resolve(process.env.MVD_DESKTOP_DIR, 'plugin-config/webpack5.base.js'))
   .merge(config);
 
 

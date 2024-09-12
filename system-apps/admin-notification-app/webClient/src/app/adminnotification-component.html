@@ -14,22 +14,26 @@
   </div>
   <div class="outer-input">
     <div class="recipient-input-container">
-      <input ibmText class="recipient-input" type="text" placeholder="Enter User" [hidden]="displayText" [(ngModel)]="recipient">
+      <input class="recipient-input" type="text" placeholder="Enter User" [hidden]="displayText" [(ngModel)]="recipient">
     </div>
     <div class="recipient">
-      <ibm-dropdown class="recipient-dropdown" placeholder="All Active Users" (selected)="selected($event)">
-        <ibm-dropdown-list [items]="items"></ibm-dropdown-list>
-      </ibm-dropdown>  
+      <mat-form-field>
+      <mat-select class="recipient-dropdown" placeholder="All Active Users" [(ngModel)]="selected($event)">
+        @for (item of items; track item) {
+          <mat-option [value]="item">{{item}}</mat-option>
+        }
+      </mat-select>
+      </mat-form-field>
     </div>
   </div>
   <div>
     <div class="notification-info">
       <div class="notification-label">Notification: </div>
       <div class="notification-info">
-        <input ibmText #titleElem class="notification-title" type="text" placeholder="Title">
+        <input #titleElem class="notification-title" type="text" placeholder="Title">
       </div>
       <div class="message">
-        <textarea #messageElem ibmTextArea rows="5" class="notification-message" id="message" type="text" placeholder="Message"></textarea>
+        <textarea #messageElem rows="5" class="notification-message" id="message" type="text" placeholder="Message"></textarea>
       </div>
       <div class="send-notification">
         <button class="send-notification-button" (click)="sendRest(titleElem.value, messageElem.value)">Send</button>
