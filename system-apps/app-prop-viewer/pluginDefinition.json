@@ -9,6 +9,9 @@
   "isSystemPlugin":true,
   "webContent": {
     "framework": "angular",
+    "entryPoint": {
+      "3.0": "main.js"
+    },
     "launchDefinition": {
       "pluginShortNameKey": "Zowe Viewer",
       "pluginShortNameDefault": "Zowe Viewer",
