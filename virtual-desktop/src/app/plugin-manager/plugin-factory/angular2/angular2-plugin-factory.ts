@@ -81,7 +81,7 @@ export class Angular2PluginFactory extends PluginFactory {
     let pluginDefBase = pluginDefinition.getBasePlugin();
     let pluginDefAny:any = (pluginDefBase as any);
     let entryPoint = 'main.js';
-    if (pluginDefAny.getWebEntryPoint) {
+    if (pluginDefAny.getWebEntryPoint()) {
       entryPoint = pluginDefAny.getWebEntryPoint() || 'main.js';
     }
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefBase, entryPoint);
