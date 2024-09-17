@@ -1,7 +1,7 @@
 {
   "identifier": "org.zowe.zlux.appmanager.app.propview",
   "apiVersion": "2.0.0",
-  "pluginVersion": "2.0.0",
+  "pluginVersion": "3.0.0",
   "pluginType": "application",
   "license": "EPL-2.0",
   "author": "Zowe",
@@ -9,10 +9,14 @@
   "isSystemPlugin":true,
   "webContent": {
     "framework": "angular",
+    "entryPoint": {
+      "2.0": "main.js",
+      "3.0": "v3/main.js"
+    },
     "launchDefinition": {
       "pluginShortNameKey": "Zowe Viewer",
       "pluginShortNameDefault": "Zowe Viewer",
-      "imageSrc": "assets/icon.png"
+      "imageSrc": "assets/v3/icon.png"
     },
     "descriptionKey": "Zowe Viewer",
     "descriptionDefault": "Zowe Viewer",

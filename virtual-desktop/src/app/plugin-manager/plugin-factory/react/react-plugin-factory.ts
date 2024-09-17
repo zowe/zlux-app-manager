@@ -30,8 +30,8 @@ export class ReactPluginFactory extends PluginFactory {
     let pluginDefBase = pluginDefinition.getBasePlugin();
     let pluginDefAny:any = (pluginDefBase as any);
     let entryPoint = 'main.js';
-    if (pluginDefAny.getWebEntryPoint) {
-      entryPoint = pluginDefAny.getWebEntryPoint() || 'main.js';
+    if (pluginDefAny.getWebEntrypoint) {
+      entryPoint = pluginDefAny.getWebEntrypoint() || 'main.js';
     }
     return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefBase, entryPoint);
   }
