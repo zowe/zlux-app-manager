@@ -1,6 +1,6 @@
 {
   "name": "org.zowe.zlux.appmanager.app.propview.webclient",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "scripts": {
     "start": "webpack --progress --watch",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --progress",
