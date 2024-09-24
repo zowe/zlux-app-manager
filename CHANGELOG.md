@@ -4,8 +4,9 @@ All notable changes to the Zlux App Manager will be documented in this file.
 
 ## `3.0.0`
 
-- Enhancement: Updated all webpack configurations across supported zlux-app-manager apps (virtual-desktop, bootstrap, app-prop-viewer,
-web-browser-app, system-settings-preferences) from 4 --> 5. This includes all associated loaders, modules, and dependencies with removal of deprecated ones. Old Webpack 4 base configuration has been left for app's backwards compatibility. For more information, visit https://www.zowe.org/vnext (#550)
+- Enhancement: Updated the Desktop Angular version from 12 to 18. This makes V2 Angular apps incompatible with V3. Iframe and React is unaffected.
+- Enhancement: Added ability for the Desktop load the compatibility Desktop mode (V2 Desktop) via the ?use-v2-desktop=true parameter
+- Enhancement: Updated all webpack configurations across supported zlux-app-manager apps (virtual-desktop, bootstrap, app-prop-viewer, web-browser-app, system-settings-preferences) from 4 --> 5. This includes all associated loaders, modules, and dependencies with removal of deprecated ones. Old Webpack 4 base configuration has been left for app's backwards compatibility. For more information, visit https://www.zowe.org/vnext (#550)
 
 ## `2.10.0`
  
