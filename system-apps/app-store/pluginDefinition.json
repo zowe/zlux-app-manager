@@ -1,0 +1,33 @@
+{
+    "identifier": "org.zowe.zlux.appstore",
+    "apiVersion": "1.0.0",
+    "pluginVersion": "1.0.0",
+    "pluginType": "application",
+    "webContent": {
+      "framework": "react",
+      "launchDefinition": {
+        "pluginShortNameKey": "appstore",
+        "pluginShortNameDefault": "App Store",
+        "imageSrc": "assets/icon.png"
+      },
+      "descriptionKey": "appstore.description",
+      "descriptionDefault": "Zowe App Store",
+      "isSingleWindowApp": true,
+      "defaultWindowStyle": {
+        "width": 850,
+        "height": 450
+      }
+    },
+    "configurationData": {
+      "resources": {
+        "requests": {
+          "aggregationPolicy": "override",
+          "subResources": {
+            "app": {
+              "aggregationPolicy": "override"
+            }
+          }
+        }
+      }
+    }
+  }

@@ -20,6 +20,7 @@ import { ThemeEmitterService } from '../services/theme-emitter.service';
 const CHANGE_PASSWORD = "Change Password"
 const LANGUAGES = "Languages"
 const PERSONALIZATION = "Personalization"
+const APP_STORE = "App Store"
 
 @Component({
   selector: 'rs-com-personalization-panel',
@@ -36,6 +37,7 @@ export class PersonalizationPanelComponent {
     }
   }
   private settingsWindowPluginDef: DesktopPluginDefinitionImpl;
+  private appStoreWindowPluginDef: DesktopPluginDefinitionImpl;
   private pluginManager: MVDHosting.PluginManagerInterface;
   public applicationManager: MVDHosting.ApplicationManagerInterface;
   public authenticationManager: MVDHosting.AuthenticationManagerInterface;
@@ -57,6 +59,10 @@ export class PersonalizationPanelComponent {
                             "title":this.translation.translate(PERSONALIZATION),
                             "imgSrc":"personalization",
                            },
+                           {
+                            "title": this.translation.translate(APP_STORE),
+                            "imgSrc": "app_store"
+                           }
   ];
   private panelMouseHover: boolean;
   public showPanel: boolean;
@@ -81,6 +87,10 @@ export class PersonalizationPanelComponent {
     this.pluginManager.findPluginDefinition("org.zowe.zlux.ng2desktop.settings").then(personalizationsPlugin => {
       const pluginImpl:DesktopPluginDefinitionImpl = personalizationsPlugin as DesktopPluginDefinitionImpl;
       this.settingsWindowPluginDef=pluginImpl;
+    })
+    this.pluginManager.findPluginDefinition("org.zowe.zlux.appstore").then(appStorePlugin => {
+      const pluginImpl:DesktopPluginDefinitionImpl = appStorePlugin as DesktopPluginDefinitionImpl;
+      this.appStoreWindowPluginDef=pluginImpl;
     })
     this.themeService.onGoBack
       .subscribe(() => {
@@ -107,6 +117,17 @@ export class PersonalizationPanelComponent {
         this.goToPersonalization();
         break; 
       } 
+      case this.translation.translate(APP_STORE): {
+        let appStoreWindowID = this.windowManager.getWindow(this.appStoreWindowPluginDef);
+        if (appStoreWindowID == null) {
+          this.desktopComponent.hidePersonalizationPanel();
+          this.applicationManager.spawnApplication(this.appStoreWindowPluginDef, this.getAppPropertyInformation(tool.title));
+        }
+        else {
+          this.windowManager.showWindow(appStoreWindowID);
+        }
+        break;
+      }
       default: { 
         let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
         if (propertyWindowID == null) {

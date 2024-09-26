@@ -1,0 +1,18 @@
+---
+name: appstore
+id: org.zowe.zlux.appstore
+# Without the v
+version: 1.0.0
+# Human readable component name
+title: App Store
+# Human readable component description
+description: 'Zowe App Store'
+homepage: https://zowe.org
+keywords:
+  - zlux
+  - appfw
+  - app
+license: EPL-2.0
+# we do not specify encoding here because its already tagged ascii
+appfwPlugins:
+  - path: .
