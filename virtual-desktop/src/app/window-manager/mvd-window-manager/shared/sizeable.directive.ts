@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { ChangeDetectorRef, Directive, HostListener, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Directive, HostListener, Input, OnInit, AfterViewInit } from '@angular/core';
 
 import { DesktopWindow } from './desktop-window';
 import { DraggableDirective } from './draggable.directive';
@@ -23,7 +23,7 @@ const enum Compass {
 @Directive({
   selector: '[rs-com-sizeable]'
 })
-export class SizeableDirective implements OnInit {
+export class SizeableDirective implements OnInit, AfterViewInit {
   @Input('rs-com-sizeable-window') desktopWindow: DesktopWindow;
   @Input('rs-com-sizeable-min-width') minWidth: number;
   @Input('rs-com-sizeable-min-height') minHeight: number;
@@ -43,6 +43,8 @@ export class SizeableDirective implements OnInit {
   overshootHeight: number;
   handle: HTMLElement | null;
   handles: Array<HTMLElement>;
+  
+  private lastChange: number = 0;
 
   constructor(private ref: ChangeDetectorRef) {
     this.top = 0;
@@ -51,8 +53,9 @@ export class SizeableDirective implements OnInit {
     this.overshootHeight = 0;
     this.handle = null;
     this.handles = new Array<HTMLElement>(Compass.size);
-    ref.detach(); // deactivate change detection
-    setInterval(() => {
+    this.ref.detach(); // deactivate change detection
+    setTimeout(()=> {
+      this.lastChange = Date.now();
       this.ref.detectChanges(); // manually trigger change detection
     }, 17);
   }
@@ -70,6 +73,14 @@ export class SizeableDirective implements OnInit {
     handles[Compass.sw] = handle_sw;
   }
 
+  ngAfterViewInit(): void {
+    setTimeout(()=> {
+      this.lastChange = Date.now();
+      this.ref.detectChanges(); // manually trigger change detection
+    }, 17);
+  }
+
+  
   get mouseDown(): boolean {
     return this.handle != null;
   }
@@ -165,6 +176,11 @@ export class SizeableDirective implements OnInit {
         this.resizeCompass(Compass.s, topDelta, leftDelta);
         break;
     }
+  
+    if ((Date.now() - this.lastChange) > 17) {
+      this.lastChange = Date.now();
+      this.ref.detectChanges(); // manually trigger change detection
+    }
   }
 
   resizeCompass(compass: Compass, topDelta: number, leftDelta: number): void {
@@ -230,6 +246,11 @@ export class SizeableDirective implements OnInit {
 
     [this.top, this.left] = [top, left];
     [this.overshootWidth, this.overshootHeight] = [0, 0];
+
+    if ((Date.now() - this.lastChange) > 17) {
+      this.lastChange = Date.now();
+      this.ref.detectChanges(); // manually trigger change detection
+    }
   }
 }
 

@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Injector, ElementRef, ViewChild, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, ElementRef, ViewChild, Input } from '@angular/core';
 import { DesktopWindow } from '../shared/desktop-window';
 import { DesktopTheme } from "../desktop/desktop.component";
 import { DesktopWindowStateType } from '../shared/desktop-window-state';
@@ -50,6 +50,22 @@ export class WindowComponent {
   private desktopWidth: number;
   private zIndex: number;
   private launchbarHeight: number;
+
+  private lastTime: number = 0;
+
+  @Input() set refresh(timestamp: number) {
+    if (this.desktopWindow) {
+      if (this.isMinimized()) {
+        return;
+      }
+      if (this.hasFocus()) {
+        this.ref.detectChanges();
+      } else if ((timestamp - this.lastTime) > 33) {
+        this.ref.detectChanges();
+      }
+      this.lastTime = timestamp;
+    }
+  }
   
   @Input() set theme(newTheme: DesktopTheme) {
     this.logger.debug('Window theme set=',newTheme);
@@ -126,13 +142,14 @@ export class WindowComponent {
   @Input() desktopWindow: DesktopWindow;
   applicationManager: MVDHosting.ApplicationManagerInterface;
 
-
   constructor(
     public windowManager: WindowManagerService,
     private injector: Injector,
+    private ref: ChangeDetectorRef
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.ref.detach(); // deactivate change detection
   }
 
   isMinimized(): boolean {
