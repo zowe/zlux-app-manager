@@ -41,6 +41,7 @@
     "ZWED5041I":"ectxt=",
     "ZWED5042I":"dispatcher.invokeAction on context %s",
     "ZWED5043I":"RESERVED: MVD standalone container requested with pluginId %s",
+    "ZWED5324I":"RESERVED: The requested Desktop version (%s) is in maintenance mode. To use the newest Desktop version instead, remove the query parameter 'use-v2-desktop'.",
 
     "ZWED5000W":"RESERVED: Desktop attempted to change instanceId for iframe instance=%s, message=%s",
     "ZWED5001W":"pluginWSUri not implemented yet!",

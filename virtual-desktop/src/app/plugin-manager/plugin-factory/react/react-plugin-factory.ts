@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Compiler, Injectable, NgModule } from '@angular/core';
+import { Injectable, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { PluginFactory } from '../plugin-factory';
@@ -27,8 +27,13 @@ interface MvdNativeReactPluginComponentDefinition {
 export class ReactPluginFactory extends PluginFactory {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private static getReactModuleURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
-    // TODO: clean this up with .d.ts file
-    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefinition.getBasePlugin(), 'main.js');
+    let pluginDefBase = pluginDefinition.getBasePlugin();
+    let pluginDefAny:any = (pluginDefBase as any);
+    let entryPoint = 'main.js';
+    if (pluginDefAny.getWebEntrypoint) {
+      entryPoint = pluginDefAny.getWebEntrypoint() || 'main.js';
+    }
+    return ZoweZLUX.uriBroker.pluginResourceUri(pluginDefBase, entryPoint);
   }
 
   private static getReactComponentsURL(pluginDefinition: MVDHosting.DesktopPluginDefinition): string {
@@ -36,7 +41,6 @@ export class ReactPluginFactory extends PluginFactory {
   }
 
   constructor(
-    private compiler: Compiler
   ) {
     super();
   }
@@ -50,7 +54,7 @@ export class ReactPluginFactory extends PluginFactory {
 
     return new Promise((resolve, reject) => {
       if (pluginDefinition.hasComponents()) {
-        (window as any).require([scriptUrl], 
+        (window as any).require([scriptUrl],
           (components: MvdNativeReactPluginComponentDefinition) => {
             components.registerComponentFactories();
           },
@@ -58,9 +62,9 @@ export class ReactPluginFactory extends PluginFactory {
             this.logger.warn("ZWED5173W", pluginDefinition.getIdentifier()); //this.logger.warn(`No component definition for plugin ${pluginDefinition.getIdentifier()}`);
             resolve();
           });
-        } else {
-          resolve();
-        }
+      } else {
+        resolve();
+      }
     });
   }
 
@@ -69,11 +73,9 @@ export class ReactPluginFactory extends PluginFactory {
     return new Promise((resolve, reject) => {
       (window as any).require([scriptUrl],
         (reactHook: any) => {
-          class ReactPluginComponentPrime extends ReactPluginComponent {}
           @NgModule({
             imports: [CommonModule],
-            declarations: [ReactPluginComponentPrime],
-            entryComponents: [ReactPluginComponentPrime],
+            declarations: [ReactPluginComponent],
             providers: [
               {
                 provide: ReactEntryHook,
@@ -81,10 +83,9 @@ export class ReactPluginFactory extends PluginFactory {
               }
             ]
           })
-          class ReactPluginModule {}
-          resolve(this.compiler.compileModuleAsync(ReactPluginModule).then(factory =>
-            new CompiledPlugin(ReactPluginComponentPrime, factory)
-          ));
+          class ReactPluginModule { }
+
+          resolve(new CompiledPlugin(ReactPluginComponent, ReactPluginModule));
         },
         (failure: any) =>
           reject(failure)
@@ -94,13 +95,13 @@ export class ReactPluginFactory extends PluginFactory {
 }
 
 
-/*
-  This program and the accompanying materials are
-  made available under the terms of the Eclipse Public License v2.0 which accompanies
-  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+// /*
+//   This program and the accompanying materials are
+//   made available under the terms of the Eclipse Public License v2.0 which accompanies
+//   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
   
-  SPDX-License-Identifier: EPL-2.0
+//   SPDX-License-Identifier: EPL-2.0
   
-  Copyright Contributors to the Zowe Project.
-*/
+//   Copyright Contributors to the Zowe Project.
+// */
 

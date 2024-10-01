@@ -12,7 +12,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { SharedModule } from 'app/shared/shared.module';
 import { ApplicationManagerModule } from 'app/application-manager/application-manager.module';
 import { ContextMenuModule } from '../../context-menu/context-menu.module';
@@ -30,7 +30,8 @@ import { KeybindingService } from './shared/keybinding.service';
 import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization/personalization.component';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { ThemeEmitterService } from './services/theme-emitter.service';
-import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { IncludeExternalCssComponent } from 'app/shared/include-external-css.component';
 
 
 @NgModule({
@@ -41,10 +42,9 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     CommonModule,
     SharedModule,
     LaunchbarModule,
-    HttpClientModule,
-    ContextMenuModule,
     NgxFileDropModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    IncludeExternalCssComponent
   ],
   declarations: [
     DesktopComponent,
@@ -62,6 +62,7 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
   providers: [
     WindowManagerService,
     ThemeEmitterService,
+    provideHttpClient(),
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
     { provide: MVDHosting.Tokens.ThemeEmitterToken, useExisting: ThemeEmitterService },
@@ -82,4 +83,3 @@ export class WindowManagerModule {
 
   Copyright Contributors to the Zowe Project.
 */
-

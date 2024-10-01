@@ -10,7 +10,6 @@
   Copyright Contributors to the Zowe Project.
 */
 
-//import { DesktopPluginDefinition } from '../shared/desktop-plugin-definition';
 import { CompiledPlugin } from '../shared/compiled-plugin';
 
 export abstract class PluginFactory {

@@ -17,12 +17,8 @@ import { PluginLoader } from './shared/plugin-loader';
 import { Angular2PluginFactory } from './plugin-factory/angular2/angular2-plugin-factory';
 import { IFramePluginFactory } from './plugin-factory/iframe/iframe-plugin-factory';
 import { ReactPluginFactory } from './plugin-factory/react/react-plugin-factory';
-import { ReactPluginComponent } from './plugin-factory/react/react-plugin.component';
 
-@NgModule({
-  declarations: [
-    ReactPluginComponent
-  ],
+@NgModule({ 
   providers: [
     Angular2PluginFactory,
     IFramePluginFactory,
@@ -47,4 +43,3 @@ export class PluginManagerModule {
 
   Copyright Contributors to the Zowe Project.
 */
-

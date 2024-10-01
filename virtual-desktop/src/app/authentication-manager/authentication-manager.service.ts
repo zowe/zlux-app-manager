@@ -12,14 +12,11 @@
 
 import { Injectable, Injector, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, Subscription, map } from 'rxjs';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
 import { StorageService } from './storage.service';
-import { Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
-
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
   onLogout(username: string | null): boolean {

@@ -38,7 +38,7 @@ export class InjectionManager {
   // generateModuleInjector make root injector augmented with addition providers
 
   generateModuleInjector(pluginDefinition: MVDHosting.DesktopPluginDefinition, launchMetadata: any,
-                         instanceId: MVDHosting.InstanceId, messages?: any): Injector {
+                         instanceId: MVDHosting.InstanceId, messages?: any, providers?: any[]): Injector {
     let identifier = pluginDefinition.getIdentifier();
     const plugin = pluginDefinition.getBasePlugin();
 
@@ -47,7 +47,8 @@ export class InjectionManager {
       logger = ZoweZLUX.logger.makeComponentLogger(identifier, messages);
       ComponentLoggerContainer.set(identifier,logger);
     }
-    return Injector.create([
+    
+    const providersArray = [
       {
         provide: Angular2InjectionTokens.LOGGER,
         useValue: logger
@@ -82,7 +83,17 @@ export class InjectionManager {
         provide: Angular2InjectionTokens.INSTANCE_ID,
         useValue: instanceId
       }
-    ], this.injector.get(NgModuleRef).injector);  // gets root injector of virtualDesktop tree
+    ];
+    
+    if (providers?.length) {
+      providersArray.push(...providers)
+    }
+
+    const injectorOptions = {
+      providers: providersArray,
+      parent: this.injector.get(NgModuleRef).injector
+    }
+    return Injector.create(injectorOptions);  // gets root injector of virtualDesktop tree
   }
 
   generateComponentInjector(viewport: Viewport, parent: Injector): Injector {
@@ -93,7 +104,7 @@ export class InjectionManager {
         useValue: value
       });
     });
-    return Injector.create(mappings, parent);
+    return Injector.create({ providers: mappings, parent });
   }
 
   generateFailurePluginInjector(errors: any[]): Injector {
@@ -102,7 +113,7 @@ export class InjectionManager {
       useValue: errors
     };
 
-    return Injector.create([errorProvider], this.injector);
+    return Injector.create({ providers: [errorProvider], parent: this.injector });
   }
 }
 
@@ -116,4 +127,3 @@ export class InjectionManager {
 
   Copyright Contributors to the Zowe Project.
 */
-
