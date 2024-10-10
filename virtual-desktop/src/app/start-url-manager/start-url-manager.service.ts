@@ -12,7 +12,7 @@ import { Injectable } from '@angular/core';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { App2AppArgs } from './app2app-args';
 import { App2AppArgsParser } from './app2app-args-parser.service';
-import { ZluxPopupManagerService, ZluxErrorSeverity } from 'zlux-widgets';
+import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
 import { L10nTranslationService } from 'angular-l10n';
 
 const ZOWE_URL_ARGS = [
