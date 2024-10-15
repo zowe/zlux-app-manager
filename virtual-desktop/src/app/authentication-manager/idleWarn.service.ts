@@ -11,14 +11,14 @@ export class IdleWarnService {
 
   private report: any;
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
-  
+
   constructor(
     private popupManager: ZluxPopupManagerService,
     public translation: L10nTranslationService,
-    private storageService: StorageService  
-    ) {
+    private storageService: StorageService
+  ) {
   }
-  
+
   public createRetryErrorReport(renewSession: any, isIdle: any) {
     this.removeErrorReport();
     this.report = this.popupManager.createErrorReport(
@@ -32,17 +32,17 @@ export class IdleWarnService {
     );
 
     this.report.subscription = new Subscription();
-    this.onUserActionSubscribe(renewSession,'Retry');
+    this.onUserActionSubscribe(renewSession, 'Retry');
     this.onActivitySubscribe(renewSession, isIdle);
   }
-  
+
   onUserActionSubscribe(renewSession: any, action: string) {
-    if(this.report) {
-      this.report.subscription.add(this.report.subject.subscribe((buttonName:any)=> {
+    if (this.report) {
+      this.report.subscription.add(this.report.subject.subscribe((buttonName: any) => {
         if (buttonName == this.translation.translate(action)) {
           renewSession();
         }
-      }));  
+      }));
     }
   }
 
@@ -97,8 +97,8 @@ export class IdleWarnService {
 
 
   onActivitySubscribe(renewSession: any, isIdle: any) {
-    if(this.report) {
-      this.report.subscription.add(this.storageService.lastActive.subscribe(()=> {
+    if (this.report) {
+      this.report.subscription.add(this.storageService.lastActive.subscribe(() => {
         if (!isIdle()) {
           this.logger.info('ZWED5047I', 'renew on activity'); /*this.logger.info('Near session expiration, but renewing session due to activity');*/
           renewSession();
