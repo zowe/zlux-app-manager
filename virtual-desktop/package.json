@@ -27,6 +27,7 @@
     "@angular/platform-browser-dynamic": "~18.0.0",
     "@angular/router": "~18.0.0",
     "@popperjs/core": "^2.11.8",
+    "@zlux/widgets": "github:wadkarsatish/zlux-widgets-angular18#widgets-Angular-Library",
     "angular-l10n": "^16.0.0",
     "bootstrap": "~5.3.2",
     "core-js": "~3.38.1",
@@ -35,9 +36,14 @@
     "ngx-file-drop": "^16.0.0",
     "ngx-i18nsupport": "~0.17.1",
     "popper.js": "~1.14.7",
-    "requirejs": "~2.3.6",
-    "rxjs": "~7.8.1",
-    "tslib": "^2.6.3",
+    "requirejs": "~2.3.7",
+    "rxjs": "~6.6.0",
+    "source-map-loader": "~3.0.0",
+    "style-loader": "~3.3.1",
+    "ts-loader": "~8.3.0",
+    "tslib": "~2.3.0",
+    "tslint": "~6.1.0",
+    "tslint-react": "~5.0.0",
     "typeface-roboto": "~1.1.13",
     "zone.js": "~0.14.4"
   },
@@ -53,5 +59,5 @@
     "tslint": "~6.1.0",
     "tslint-react": "~5.0.0",
     "typescript": "~5.4.5"
-}
+  }
 }
