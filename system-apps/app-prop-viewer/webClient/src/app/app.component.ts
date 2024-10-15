@@ -12,7 +12,7 @@ import { Component ,Inject} from '@angular/core';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 
 @Component({
-  selector: 'app-root',
+  selector: 'app-prop',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })

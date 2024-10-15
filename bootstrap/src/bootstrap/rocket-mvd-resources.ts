@@ -18,7 +18,6 @@ import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry'
 import { ZoweNotificationManager } from 'zlux-base/notification-manager/notification-manager'
 import { SimpleGlobalization } from '../i18n/simple-globalization'
-// import { VirtualDesktopAdapter } from '../abstract-virtual-desktop/virtual-desktop-adapter'
 
 // This is the core logger
 let logger = new Logger();
