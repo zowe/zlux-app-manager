@@ -144,7 +144,8 @@ export class Angular2PluginFactory extends PluginFactory {
         (plugin: MvdNativeAngularPlugin) => {
           this.translationLoaderService.getTranslationProviders(pluginDefinition.getBasePlugin()).then(providers => {
             resolve(new CompiledPlugin(plugin.pluginComponent, plugin.pluginModule, providers));
-          });
+          },
+        (failure: any) => reject(failure));
         });
     });
   }
