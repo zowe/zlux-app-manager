@@ -18,7 +18,7 @@ import { L10nTranslationService } from 'angular-l10n';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
 
 const CHANGE_PASSWORD = "Change Password"
-const LANGUAGES = "Languages"
+// const LANGUAGES = "Languages"
 const PERSONALIZATION = "Personalization"
 
 @Component({
@@ -41,10 +41,10 @@ export class PersonalizationPanelComponent {
   public authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public personalizationTools = [ /* The following code is commented out, as these host the prototype for future modules
                             of the Settings & Personalization app. */
-                           {
-                            "title":this.translation.translate(LANGUAGES),
-                            "imgSrc":"foreign_language",
-                           },
+                          //  {
+                          //   "title":this.translation.translate(LANGUAGES),
+                          //   "imgSrc":"foreign_language",
+                          //  },
                            {
                             "title":this.translation.translate(CHANGE_PASSWORD),
                             "imgSrc":"password"
@@ -53,10 +53,10 @@ export class PersonalizationPanelComponent {
                             "title":"User Profile",
                             "imgSrc":"management",
                            }, */
-                           {
-                            "title":this.translation.translate(PERSONALIZATION),
-                            "imgSrc":"personalization",
-                           },
+                          //  {
+                          //   "title":this.translation.translate(PERSONALIZATION),
+                          //   "imgSrc":"personalization",
+                          //  },
   ];
   private panelMouseHover: boolean;
   public showPanel: boolean;
