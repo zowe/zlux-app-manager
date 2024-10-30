@@ -37,7 +37,7 @@
     "tslint": "~5.10.0",
     "typescript": "~5.4.5",
     "url-loader": "~3.0.0",
-    "webpack": "^5.91.0",
+    "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4",
     "webpack-config": "~7.5.0",
     "zone.js": "~0.14.0"
