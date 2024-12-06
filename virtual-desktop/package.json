@@ -34,7 +34,6 @@
     "font-awesome": "~4.7.0",
     "moment": "~2.29.4",
     "ngx-file-drop": "^16.0.0",
-    "ngx-i18nsupport": "~0.17.1",
     "popper.js": "~1.14.7",
     "requirejs": "~2.3.7",
     "rxjs": "~7.8.1",
@@ -51,6 +50,7 @@
     "@types/xmldom": "0.1.29",
     "codelyzer": "~6.0.2",
     "cpx": "^1.5.0",
+    "ngx-i18nsupport": "^0.17.1",
     "tslint": "~6.1.0",
     "tslint-react": "~5.0.0",
     "typescript": "~5.4.5"
