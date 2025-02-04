@@ -82,6 +82,7 @@ script.onload = () => {
       '@angular/platform-browser/animations': require('@angular/platform-browser/animations'),
       '@angular/platform-browser-dynamic': require('@angular/platform-browser-dynamic'),
       '@angular/cdk/portal': require('@angular/cdk/portal'),
+      '@angular/cdk/clipboard': require('@angular/cdk/clipboard'),
       '@angular/material/snack-bar': require('@angular/material/snack-bar'),
       '@angular/material/dialog': require('@angular/material/dialog'),
       '@angular/material/icon': require('@angular/material/icon'),
