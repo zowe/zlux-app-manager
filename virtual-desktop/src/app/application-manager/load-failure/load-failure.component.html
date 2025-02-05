@@ -16,7 +16,7 @@
 <div class="contents">
   <ul>
     <li *ngFor="let error of errors" class="error-value">
-      <span class="error-name">{{error.name}}</span>: {{error.message}}
+      <span class="error-name">{{error?.name}}</span>: {{error?.message}}
     </li>
   </ul>
 </div>
