@@ -45,6 +45,19 @@ var config = {
           'sass-loader', // Compiles Sass to CSS
         ],
       },
+      {
+        test: /\.ts$/,
+        use: ['ts-loader', 'angular2-template-loader']
+      },
+      {
+        test: /\.html$/,
+        use: [
+          {
+            loader: 'html-loader',
+            options: { esModule: false }
+          }
+        ]
+      },
     ]
   },
   plugins: [
