@@ -24,6 +24,23 @@ var config = {
     'path': path.resolve(__dirname, '../web/v3'),
     'filename': 'main.js',
   },
+  'module':{
+    'rules': [
+      {
+        test: /\.ts$/,
+        use: ['ts-loader', 'angular2-template-loader']
+      },
+      {
+        test: /\.html$/,
+        use: [
+          {
+            loader: 'html-loader',
+            options: { esModule: false }
+          }
+        ]
+      },
+    ]
+  },
   'plugins': [
     new CopyWebpackPlugin({
       patterns: [
