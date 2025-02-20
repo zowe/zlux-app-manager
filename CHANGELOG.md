@@ -2,6 +2,10 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `3.2.1`
+
+- Enhacement: Updates to the Webpack Configuration. (#661)
+
 ## `3.2.0`
 
 - Enhacement: Zowe v3 Desktop assets are now compressed so that the Desktop can load faster on slow internet. (#658)
