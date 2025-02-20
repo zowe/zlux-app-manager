@@ -29,10 +29,6 @@ const config = {
   },
   module: {
     rules: [
-      // {
-      //   test: /\.ts$/,
-      //   use: ['ts-loader', 'angular2-template-loader']
-      // },
       {
         /* Javascript source map loader */
         enforce: 'pre',
@@ -42,16 +38,6 @@ const config = {
           /\/node_modules\//
         ]
       },
-      // {
-      //   /* HTML URL resolution loader */
-      //   test: /\.html$/,
-      //   use: [
-      //     {
-      //       loader: 'html-loader',
-      //       options: { esModule: false }
-      //     }
-      //   ]
-      // },
       {
         test: /\.eot$/,
         type: 'asset/resource',
