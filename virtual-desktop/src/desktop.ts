@@ -108,7 +108,10 @@ script.onload = () => {
       '@angular/material/progress-bar': require('@angular/material/progress-bar'),
       'angular-l10n': require('angular-l10n'),
       'rxjs': require('rxjs'),
-      'rxjs/operators': require('rxjs/operators')
+      'rxjs/operators': require('rxjs/operators'),
+      '@angular/material/core': require('@angular/material/core'),
+      '@angular/cdk/text-field': require('@angular/cdk/text-field'),
+      '@angular/material/progress-bar': require('@angular/material/progress-bar')
     };
 
     /* Expose modules to requirejs */
