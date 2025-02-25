@@ -13,37 +13,39 @@
 var path = require('path');
 var webpackConfig = require('webpack-config');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+const { AngularWebpackPlugin } = require('@ngtools/webpack');
+const AotPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
 
 if (process.env.MVD_DESKTOP_DIR == null) {
   throw new Error('You must specify MVD_DESKTOP_DIR in your environment');
 }
 
 var config = {
-  'entry': [
+  entry: [
     path.resolve(__dirname, './src/plugin.ts')
   ],
-  'output': {
-    'path': path.resolve(__dirname, '../web/v3'),
-    'filename': 'main.js'
+  output: {
+    path: path.resolve(__dirname, '../web/v3'),
+    filename: 'main.js'
   },
-  'module':{
-    'rules': [
+  module:{
+    rules: [
       {
-        test: /\.ts$/,
-        use: ['ts-loader', 'angular2-template-loader']
+        test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
+        use: ['@ngtools/webpack']
       },
-      {
-        test: /\.html$/,
-        use: [
-          {
-            loader: 'html-loader',
-            options: { esModule: false }
-          }
-        ]
-      },
+      // {
+      //   test: /\.html$/,
+      //   use: [
+      //     {
+      //       loader: 'html-loader',
+      //       options: { esModule: false }
+      //     }
+      //   ]
+      // },
     ]
   },
-  'plugins': [
+  plugins: [
     new CopyWebpackPlugin({
       patterns: [
         {
@@ -52,6 +54,10 @@ var config = {
         },
       ],
     }),
+    new AotPlugin({
+      tsConfigPath: './tsconfig.json',
+      entryModule: './src/app/adminnotification.module#AdminNotificationModule'
+    })
   ],
 
 };
