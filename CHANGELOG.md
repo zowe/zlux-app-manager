@@ -3,9 +3,14 @@
 All notable changes to the Zlux App Manager will be documented in this file.
 
 
+## `3.3.0`
+
+- Enhancement: Refactored Webpack configuration for system-apps to use @ngtools/webpack.
+- Enhancement: Removed unnecessary loaders (ts-loader, angular2-template-loader) & eliminated explicit Webpack rules for loading HTML templates as they are now handled by @ngtools/webpack.
+- Enhancement: Added necessary library references to desktop.ts for plugin support. (#661)
+
 ## `3.2.0`
 
-- Enhacement: Updates to the Webpack Configurations. (#661)
 - Enhacement: Zowe v3 Desktop assets are now compressed so that the Desktop can load faster on slow internet. (#658)
 
 ## `3.0.0`
