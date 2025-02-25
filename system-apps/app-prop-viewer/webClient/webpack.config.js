@@ -37,7 +37,7 @@ var config = {
     }),
     new AotPlugin({
       tsConfigPath: './tsconfig.json',
-      entryModule: './src/app/app.module.ts#AdminNotificationModule'
+      entryModule: './src/app/app.module.ts#AppModule'
     })
   ],
 };
