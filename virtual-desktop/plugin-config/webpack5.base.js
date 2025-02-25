@@ -28,7 +28,11 @@ const config = {
     }
   },
   module: {
-    rules: [      
+    rules: [
+      {
+        test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
+        use: ['@ngtools/webpack']
+      },
       {
         /* Javascript source map loader */
         enforce: 'pre',
@@ -37,7 +41,7 @@ const config = {
         exclude: [
           /\/node_modules\//
         ]
-      },      
+      },
       {
         test: /\.eot$/,
         type: 'asset/resource',
