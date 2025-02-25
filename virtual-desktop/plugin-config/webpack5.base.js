@@ -30,6 +30,10 @@ const config = {
   module: {
     rules: [
       {
+        test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
+        use: ['@ngtools/webpack']
+      },
+      {
         /* Javascript source map loader */
         enforce: 'pre',
         test: /\.js$/,
