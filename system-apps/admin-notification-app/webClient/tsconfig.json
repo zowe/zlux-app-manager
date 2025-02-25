@@ -5,8 +5,5 @@
   ],
   "exclude": [
     "src/**/*.spec.ts"
-  ],
-  "angularCompilerOptions": {
-    "enableIvy": true,
-  }
+  ]
 }

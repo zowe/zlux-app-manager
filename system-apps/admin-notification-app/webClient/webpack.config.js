@@ -28,24 +28,7 @@ var config = {
     path: path.resolve(__dirname, '../web/v3'),
     filename: 'main.js'
   },
-  module:{
-    rules: [
-      {
-        test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
-        use: ['@ngtools/webpack']
-      },
-      // {
-      //   test: /\.html$/,
-      //   use: [
-      //     {
-      //       loader: 'html-loader',
-      //       options: { esModule: false }
-      //     }
-      //   ]
-      // },
-    ]
-  },
-  plugins: [
+  'plugins': [
     new CopyWebpackPlugin({
       patterns: [
         {

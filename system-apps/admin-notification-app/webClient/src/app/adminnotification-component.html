@@ -18,7 +18,7 @@
     </div>
     <div class="recipient">
       <mat-form-field>
-      <mat-select class="recipient-dropdown" placeholder="All Active Users" [(ngModel)]="selected($event)">
+      <mat-select class="recipient-dropdown" placeholder="All Active Users" [ngModel]="recipient" (selectionChange)="selected($event)">
         @for (item of items; track item) {
           <mat-option [value]="item">{{item}}</mat-option>
         }
