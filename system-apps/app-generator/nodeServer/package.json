@@ -9,8 +9,8 @@
   "author": "",
   "license": "EPL-2.0",
   "dependencies": {
-    "body-parser": "^1.20.0",
-    "express": "^4.19.2",
+    "body-parser": "^1.20.3",
+    "express": "^4.20.0",
     "fs-extra": "^8.0.1",
     "q": "^1.5.1"
   },
