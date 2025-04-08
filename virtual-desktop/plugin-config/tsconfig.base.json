@@ -30,6 +30,10 @@
       "zlux-base/*": [
         "../../../zlux-platform/base/src/*"
       ]
-    }
+    },
+    "skipLibCheck": true
+  },
+  "angularCompilerOptions": {
+    "enableIvy": true,
   }
 }

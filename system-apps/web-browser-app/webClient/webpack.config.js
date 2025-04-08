@@ -13,6 +13,8 @@
 var path = require('path');
 var webpackConfig = require('webpack-config');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+const { AngularWebpackPlugin } = require('@ngtools/webpack');
+const AotPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
 
 if (process.env.MVD_DESKTOP_DIR == null) {
   throw new Error('You must specify MVD_DESKTOP_DIR in your environment');
@@ -29,20 +31,12 @@ var config = {
   },
   module: {
     rules: [
-      // SCSS handling
       {
         test: /\.scss$/,
         use: [
-          // For development, inject styles into the DOM using 'style-loader'
-          // For production, consider using MiniCssExtractPlugin.loader for separate CSS files
-          'style-loader', 
-          {
-            loader: 'css-loader',
-            options: {
-              sourceMap: true, // Set to false if you don't want source maps for CSS
-            },
-          },
-          'sass-loader', // Compiles Sass to CSS
+          'to-string-loader',
+          'css-loader',
+          'sass-loader'
         ],
       },
     ]
@@ -56,6 +50,10 @@ var config = {
         },
       ],
     }),
+    new AotPlugin({
+      tsConfigPath: './tsconfig.json',
+      entryModule: './src/app/app.module.ts#AppModule'
+    })
   ]
 };
 

@@ -23,10 +23,10 @@ const ALL_ACTIVE_USERS = "All Active Users"
 })
 
 export class AdminNotificationComponent {
-  private response: string;
-  private items: any;
-  private recipient: string;
-  private displayText: boolean;
+  response: string;
+  items: any;
+  recipient: string;
+  displayText: boolean;
   @ViewChild('responseElem') responseElem: ElementRef;
   @ViewChild('titleElem') titleElem: ElementRef;
   @ViewChild('messageElem') messageElem: ElementRef;

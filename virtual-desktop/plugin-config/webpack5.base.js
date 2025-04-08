@@ -30,8 +30,8 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
-        use: ['ts-loader', 'angular2-template-loader']
+        test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
+        use: ['@ngtools/webpack']
       },
       {
         /* Javascript source map loader */
@@ -40,16 +40,6 @@ const config = {
         use: ['source-map-loader'],
         exclude: [
           /\/node_modules\//
-        ]
-      },
-      {
-        /* HTML URL resolution loader */
-        test: /\.html$/,
-        use: [
-          {
-            loader: 'html-loader',
-            options: { esModule: false }
-          }
         ]
       },
       {
