@@ -13,18 +13,20 @@
 var path = require('path');
 var webpackConfig = require('webpack-config');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+const { AngularWebpackPlugin } = require('@ngtools/webpack');
+const AotPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
 
 if (process.env.MVD_DESKTOP_DIR == null) {
   throw new Error('You must specify MVD_DESKTOP_DIR in your environment');
 }
 
 var config = {
-  'entry': [
+  entry: [
     path.resolve(__dirname, './src/plugin.ts')
   ],
-  'output': {
-    'path': path.resolve(__dirname, '../web/v3'),
-    'filename': 'main.js'
+  output: {
+    path: path.resolve(__dirname, '../web/v3'),
+    filename: 'main.js'
   },
   'plugins': [
     new CopyWebpackPlugin({
@@ -35,6 +37,10 @@ var config = {
         },
       ],
     }),
+    new AotPlugin({
+      tsConfigPath: './tsconfig.json',
+      entryModule: './src/app/adminnotification.module.ts#AdminNotificationModule'
+    })
   ],
 
 };
