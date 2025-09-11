@@ -87,7 +87,7 @@ export class PersonalizationPanelComponent {
         this.goToPanel();
       });
 
-    ZoweZLUX.environment.getChangePasswordEnableFlag().then(flag: boolean => {
+    ZoweZLUX.environment.getChangePasswordEnableFlag().then((flag: boolean) => {
       if (!flag) {
         this.personalizationTools = this.personalizationTools.filter(item => item.title !== "Change Password");
       }
