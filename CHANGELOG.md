@@ -2,6 +2,8 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `3.4.0`
+- Enhancement:  Flow added to fetch `enablePasswordChange` from zowe.yaml.
 
 ## `3.3.0`
 
