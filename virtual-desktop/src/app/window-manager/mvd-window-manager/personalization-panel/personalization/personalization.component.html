@@ -1,10 +1,10 @@
-<!-- 
+<!--
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 -->
 
@@ -20,9 +20,9 @@
 
   <label class="personalization-label" style="padding-top: 10px;">{{Background}}</label>
   <div class="personalization-text" style="margin-left: -15px;">{{DragWallpaperHereOr}}</div>
-  <ngx-file-drop 
+  <ngx-file-drop
     id="ZAP_Personalization_FileDrop"
-    (onFileDrop)="fileDrop($event)" 
+    (onFileDrop)="fileDrop($event)"
     multiple="false"
     style="color: white !important;"
     [showBrowseBtn]="true"
@@ -89,23 +89,23 @@
   <label class="personalization-label">{{Size}}</label>
 
   <!-- Ideally, this would say something like alt="Select Size small" but alt attribute adds a weird artifact -->
-  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 1,
-    'personalization-preview-item preview-small': true}" (click)="sizeSelected('small')" alt="" id="ZAP_Personalization_SelectSmall">
-  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 2,
-    'personalization-preview-item preview-medium': true}" (click)="sizeSelected('medium')" alt="" id="ZAP_Personalization_SelectMedium">
-  <img [ngClass]="{ 'personalization-preview-item selected': selectedSize == 3,
-    'personalization-preview-item preview-large': true}" (click)="sizeSelected('large')" alt="" id="ZAP_Personalization_SelectLarge">
+  <img [ngClass]="{ 'personalization-preview-item': true, 'selected': selectedSize == 1,
+    'preview-small': true }" (click)="sizeSelected('small')" alt="" id="ZAP_Personalization_SelectSmall">
+  <img [ngClass]="{ 'personalization-preview-item': true, 'selected': selectedSize == 2,
+    'preview-medium': true}" (click)="sizeSelected('medium')" alt="" id="ZAP_Personalization_SelectMedium">
+  <img [ngClass]="{ 'personalization-preview-item': true, 'selected': selectedSize == 3,
+    'preview-large': true}" (click)="sizeSelected('large')" alt="" id="ZAP_Personalization_SelectLarge">
 
     <!-- TODO: Add text re-sizing functionality -->
   <!-- <label class="personalization-label">Text Size</label> -->
 </div>
 
-<!-- 
+<!--
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
   this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
-  
+
   SPDX-License-Identifier: EPL-2.0
-  
+
   Copyright Contributors to the Zowe Project.
 -->
