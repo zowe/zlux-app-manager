@@ -47,8 +47,8 @@ jobs:
           args: >
             -Dsonar.projectKey=zowe_zlux-app-manager
             -Dsonar.organization=zowe
-            -Dsonar.sources=virtual-desktop
-            -Dsonar.tests=virtual-desktop/src/app
+            -Dsonar.sources=virtual-desktop,bootstrap,system-apps
+            -Dsonar.tests=virtual-desktop/src/app,bootstrap/,system-apps/
             -Dsonar.test.inclusions=**/*.(spec|test).ts,**/*.(spec|test).tsx,**/*.(spec|test).js,**/*.(spec|test).jsx
             -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/*.d.ts
             -Dsonar.javascript.lcov.reportPaths=virtual-desktop/coverage/lcov.info
