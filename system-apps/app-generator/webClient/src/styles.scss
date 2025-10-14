@@ -1,14 +1,10 @@
-@import "~carbon-components/scss/globals/scss/feature-flags";
-
-
-$feature-flags: (ui-shell: true);
-@import "~carbon-components/scss/globals/scss/styles";
+// Import Carbon styles (simplified approach)
+// @import "~carbon-components/scss/globals/scss/styles";
 
 .carbon--theme--white {
   font-family: Arial, Helvetica, sans-serif;
-	$css--body: false;
-	color: $text-01;
-	background-color: $ui-background;
+	color: #161616;
+	background-color: #ffffff;
 
 	p {
 		max-width: 800px;

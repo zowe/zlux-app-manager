@@ -9,8 +9,8 @@
   Copyright Contributors to the Zowe Project.
 -->
 <div #container style="padding: 0rem 0 0 16rem !important;" class="container carbon--theme--white">
-	<ibm-sidenav title=Applications expanded=true>
-		<ibm-sidenav-header class="side-header" title='Applications'></ibm-sidenav-header>
+	<ibm-sidenav ariaLabel="Applications" [expanded]="true">
+		<div class="side-header" style="padding: 1rem; border-bottom: 1px solid #e0e0e0; font-weight: 600; color: #161616;">Applications</div>
 		<ibm-sidenav-item style="background-color:grey !important" class="not-app" routerLink="/create">➕<b> New App</b></ibm-sidenav-item>
 		<ibm-sidenav-item *ngFor="let app of appList" [routerLink]="['/edit',app.identifier]">{{app.webContent.descriptionDefault}}</ibm-sidenav-item>
 	</ibm-sidenav>

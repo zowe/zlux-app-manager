@@ -14,7 +14,7 @@ import { Routes, RouterModule } from "@angular/router";
 const routes: Routes = [
 	{
 		path: "",
-		loadChildren: "app/pages/pages.module#PagesModule"
+		loadChildren: () => import("./pages/pages.module").then(m => m.PagesModule)
 	},
 	{
 		path: "",

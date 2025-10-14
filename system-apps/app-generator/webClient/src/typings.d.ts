@@ -9,9 +9,9 @@
   Copyright Contributors to the Zowe Project.
 */
 /* SystemJS module definition */
-declare var module: {
+declare interface SystemJSModule {
 	id: string;
-};
+}
 
 declare var ZoweZLUX: any;
 

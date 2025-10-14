@@ -27,15 +27,15 @@ export class AppComponent implements AfterViewInit {
 
   createCallback() {
     var t = this;
-    return function(plugin) {
+    return function(plugin: any) {
       t.appList.push(plugin);
     }
   }
 
 	ngAfterViewInit() {
     const MY_PLUGIN_ID = ZoweZLUX.iframe.pluginDef.basePlugin.identifier;
-    ZoweZLUX.pluginManager.getPlugin(MY_PLUGIN_ID).then(plugin => {
-      ZoweZLUX.uriBroker.pluginRESTUri(plugin,'gen','project/get').then(uri => {
+    ZoweZLUX.pluginManager.getPlugin(MY_PLUGIN_ID).then((plugin: any) => {
+      ZoweZLUX.uriBroker.pluginRESTUri(plugin,'gen','project/get').then((uri: any) => {
         this.http.get(uri)
           .subscribe((res:any)=> {
             this.appList = res;
