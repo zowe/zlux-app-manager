@@ -77,6 +77,15 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
       this.contextMenuDef = menuDef;
     });
 
+    // TODO: The wallpaper change is not working properly. The wallpaper is not updated after changing it in the settings.
+    // It needs refresh to see the new wallpaper. The solutions that I have tried:
+    // 1. Adding delay before calling the replaceWallpaper function.
+    // 2. Using different HTTP methods (GET, POST, PUT) to update the wallpaper.
+    // 3. Checked for browser caching issues by adding cache-control headers.
+    // 4. Verified the server-side implementation to ensure it correctly handles the wallpaper update.
+    // None of these solutions worked.
+    // Further investigation is needed to identify the root cause and implement a proper fix.
+
     this.themeService.onWallpaperChange
       .subscribe((image:any) => {
         let temp = this.wallpaper.background;

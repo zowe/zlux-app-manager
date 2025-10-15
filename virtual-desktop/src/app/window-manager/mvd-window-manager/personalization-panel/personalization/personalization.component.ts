@@ -70,6 +70,7 @@ export class PersonalizationComponent implements AfterViewInit {
   public ResetToDefault: string;
   public Background: string;
   public DragWallpaperHereOr: string;
+  public MayRequireReload: string;
   public Color: string;
   public SelectColor: string;
   public OrHue: string;
@@ -315,6 +316,7 @@ export class PersonalizationComponent implements AfterViewInit {
     this.ResetToDefault = this.translation.translate('Reset to default', null);
     this.Background = this.translation.translate('Wallpaper', null);
     this.DragWallpaperHereOr = this.translation.translate('Drag wallpaper here or', null); // TODO: Needs updated translations
+    this.MayRequireReload = this.translation.translate('May require Desktop refresh for changes to take effect.', null);
     this.Color = this.translation.translate('Color', null);
     this.SelectColor = this.translation.translate('Select color', null);
     this.OrHue = this.translation.translate('or hue.', null);
