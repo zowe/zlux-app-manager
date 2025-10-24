@@ -2,6 +2,10 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `2.18.3`
+
+- Enhancement: Upgraded dependency `sass` to version `1.93.2` to avoid some security risks.
+
 ## `2.10.0`
  
 - Bugfix: Fixed a timing issue with the iframe-adapter for Firefox (#532)
