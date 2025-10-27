@@ -4,7 +4,8 @@ All notable changes to the Zlux App Manager will be documented in this file.
 
 
 ## `3.4.0`
-- Enhancement:  'Change Password' component's visibility now depends upon `enablePasswordChange` flag from zowe.yaml.
+
+- 'Change Password' component's visibility now depends upon `enablePasswordChange` flag from zowe.yaml. (#672)[https://github.com/zowe/zlux-app-manager/pull/672]
 - Enhancement: Enabled Personalization Component, with fixes.
 
 ## `3.3.0`
@@ -16,6 +17,7 @@ All notable changes to the Zlux App Manager will be documented in this file.
 ## `3.2.0`
 
 - Enhacement: Zowe v3 Desktop assets are now compressed so that the Desktop can load faster on slow internet. (#658)
+
 
 ## `3.0.0`
 
