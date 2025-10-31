@@ -76,16 +76,16 @@
   </div>
   <div class="personalization-text">{{SelectLightness}}</div>
   <div class="personalization-color-3" id="ZAP_Personalization_LightnessBar"> <!-- Lightness swatches bar -->
-    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .8,
-      'personalization-swatch': true}" id="swatch1" (click)=clickLightness(0.8) [ngStyle]="swatch1Style"></div>
-    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .65,
-      'personalization-swatch': true}" id="swatch2" (click)=clickLightness(0.65) [ngStyle]="swatch2Style"></div>
-    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .5,
-      'personalization-swatch': true}" id="swatch3" (click)=clickLightness(0.5) [ngStyle]="swatch3Style"></div>
-    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .35,
-      'personalization-swatch': true}" id="swatch4" (click)=clickLightness(0.35) [ngStyle]="swatch4Style"></div>
-    <div [ngClass]="{ 'personalization-swatch selected': selectedLightness == .2,
-      'personalization-swatch': true}" id="swatch5" (click)=clickLightness(0.2) [ngStyle]="swatch5Style"></div>
+    <div [ngClass]="{ 'personalization-swatch': true, 'selected': selectedLightness == .8 }"
+         id="swatch1" (click)=clickLightness(0.8) [ngStyle]="swatch1Style"></div>
+    <div [ngClass]="{ 'personalization-swatch': true, 'selected': selectedLightness == .65 }"
+         id="swatch2" (click)=clickLightness(0.65) [ngStyle]="swatch2Style"></div>
+    <div [ngClass]="{ 'personalization-swatch': true, 'selected': selectedLightness == .5 }"
+         id="swatch3" (click)=clickLightness(0.5) [ngStyle]="swatch3Style"></div>
+    <div [ngClass]="{ 'personalization-swatch': true, 'selected': selectedLightness == .35 }"
+         id="swatch4" (click)=clickLightness(0.35) [ngStyle]="swatch4Style"></div>
+    <div [ngClass]="{ 'personalization-swatch': true, 'selected': selectedLightness == 0.2 }"
+         id="swatch5" (click)=clickLightness(0.2) [ngStyle]="swatch5Style"></div>
   </div>
   <label class="personalization-label">{{Size}}</label>
 
