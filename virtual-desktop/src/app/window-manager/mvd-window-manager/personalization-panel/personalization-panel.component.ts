@@ -53,10 +53,10 @@ export class PersonalizationPanelComponent {
                             "title":"User Profile",
                             "imgSrc":"management",
                            }, */
-                          //  {
-                          //   "title":this.translation.translate(PERSONALIZATION),
-                          //   "imgSrc":"personalization",
-                          //  },
+                           {
+                            "title":this.translation.translate(PERSONALIZATION),
+                            "imgSrc":"personalization",
+                           },
   ];
   private panelMouseHover: boolean;
   public showPanel: boolean;
