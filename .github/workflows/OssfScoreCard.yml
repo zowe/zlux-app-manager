@@ -1,0 +1,38 @@
+name: OSSF Scorecard Using Actions
+on:
+  schedule:
+    - cron: '0 6 1 * *'  # Runs at 06:00 UTC on the 1st day of every month
+  pull_request:
+    branches: 
+      - 'v*.x/staging'
+      - 'v*.x/rc'
+      - 'v*.x/master'        
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+jobs:
+  scorecard:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: zowe/zlux-build/.github/actions/ossf-scorecard-sarif-action@ScoreCardFC
+        with:
+          results_file: results.sarif
+            
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scorecard-sarif
+          path: results.sarif
+          retention-days: 7
+ 
+      - name: Create GitHub Issue for Scorecard Findings
+        uses: peter-evans/create-issue-from-file@v4
+        with:
+          token: ${{ secrets.GHA_CREATE_ISSUE }}
+          repository: zowe/zlux
+          title: "OSSF Scorecard Results - ${{ github.run_id }}"
+          content-filepath: scorecard-summary.md
