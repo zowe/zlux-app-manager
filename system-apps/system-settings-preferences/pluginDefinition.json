@@ -19,6 +19,10 @@
     "defaultWindowStyle": {
       "width": 500,
       "height": 500
+    },
+    "entryPoint": {
+      "2.0": "main.js",
+      "3.0": "v3/main.js"
     }
   }
 }

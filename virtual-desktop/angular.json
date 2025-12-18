@@ -21,7 +21,7 @@
             "browser": "src/desktop.ts",
             "polyfills": [
               "zone.js"
-            ], 
+            ],
             "baseHref": "./",
             "tsConfig": "tsconfig.json",
             "assets": [
@@ -32,7 +32,8 @@
               }
             ],
             "styles": [],
-            "scripts": []
+            "scripts": [],
+            "sourceMap": { "scripts": true, "styles": true, "vendor": true }
           },
           "configurations": {
             "production": {
@@ -48,12 +49,13 @@
                   "maximumError": "500kB"
                 }
               ],
+              "sourceMap": { "scripts": true, "styles": true, "vendor": true },
               "outputHashing": "none"
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": { "scripts": true, "styles": true, "vendor": true }
             }
           },
           "defaultConfiguration": "production"
