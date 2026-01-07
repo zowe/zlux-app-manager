@@ -53,10 +53,10 @@ export class PersonalizationPanelComponent {
                             "title":"User Profile",
                             "imgSrc":"management",
                            }, */
-                          //  {
-                          //   "title":this.translation.translate(PERSONALIZATION),
-                          //   "imgSrc":"personalization",
-                          //  },
+                           {
+                            "title":this.translation.translate(PERSONALIZATION),
+                            "imgSrc":"personalization",
+                           },
   ];
   private panelMouseHover: boolean;
   public showPanel: boolean;
@@ -76,7 +76,7 @@ export class PersonalizationPanelComponent {
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.goToPanel();
    }
-  
+
   ngOnInit(): void {
     this.pluginManager.findPluginDefinition("org.zowe.zlux.ng2desktop.settings").then(personalizationsPlugin => {
       const pluginImpl:DesktopPluginDefinitionImpl = personalizationsPlugin as DesktopPluginDefinitionImpl;
@@ -86,6 +86,12 @@ export class PersonalizationPanelComponent {
       .subscribe(() => {
         this.goToPanel();
       });
+
+    ZoweZLUX.environment.getChangePasswordEnableFlag().then((flag: boolean) => {
+      if (!flag) {
+        this.personalizationTools = this.personalizationTools.filter(item => item.title !== "Change Password");
+      }
+    });
   }
 
   getAppPropertyInformation(toolName: string):any{
@@ -98,25 +104,25 @@ export class PersonalizationPanelComponent {
   }
 
   openTool(tool: any): void {
-    switch(tool.title) { 
-      case this.translation.translate(CHANGE_PASSWORD): { 
-        this.authenticationManager.requestPasswordChangeScreen(); 
-        break; 
-      } 
-      case this.translation.translate(PERSONALIZATION): { 
+    switch(tool.title) {
+      case this.translation.translate(CHANGE_PASSWORD): {
+        this.authenticationManager.requestPasswordChangeScreen();
+        break;
+      }
+      case this.translation.translate(PERSONALIZATION): {
         this.goToPersonalization();
-        break; 
-      } 
-      default: { 
+        break;
+      }
+      default: {
         let propertyWindowID = this.windowManager.getWindow(this.settingsWindowPluginDef);
         if (propertyWindowID == null) {
           this.desktopComponent.hidePersonalizationPanel();
           this.applicationManager.spawnApplication(this.settingsWindowPluginDef, this.getAppPropertyInformation(tool.title));
         } else {
           this.windowManager.showWindow(propertyWindowID);
-        } 
-        break; 
-      } 
+        }
+        break;
+      }
     }
   }
 
