@@ -1,6 +1,10 @@
 {
   "name": "org.zowe.zlux.ng2desktop.settings",
   "version": "2.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zowe/zlux-app-manager.git"
+  },
   "scripts": {
     "start": "webpack --progress --watch",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --progress",
