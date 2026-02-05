@@ -83,7 +83,11 @@ function openStandalone(item: LaunchbarItem): void {
       window.open(`${location.origin}${ZoweZLUX.uriBroker.pluginResourceUri(item.plugin.getBasePlugin(), pluginWebContent.startingPage)}`);
     }
   } else {
-    window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}&showLogin=true`);
+    if (location.href.indexOf('?') != -1) {
+      window.open(`${location.href}&pluginId=${item.plugin.basePlugin.getIdentifier()}&showLogin=true`);
+    } else {
+      window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}&showLogin=true`);
+    }
   }
 }
 
