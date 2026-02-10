@@ -80,7 +80,11 @@ function openStandalone(item: LaunchbarItem): void {
       window.open(`${location.origin}${ZoweZLUX.uriBroker.pluginResourceUri(item.plugin.getBasePlugin(), pluginWebContent.startingPage)}`);
     }
   } else {
-    window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}&showLogin=true`);
+    let concatChar = '?';
+    if (location.href.indexOf('?') != -1) {
+      concatChar = '&';
+    }
+    window.open(`${location.href}${concatChar}pluginId=${item.plugin.basePlugin.getIdentifier()}&showLogin=true`);
   }
 }
 
