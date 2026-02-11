@@ -9,8 +9,8 @@
 */
 
 import { Injectable } from '@angular/core';
-import { from, Observable } from 'rxjs';
-// import { mergeMap } from 'rxjs/operators';
+import {from, Observable, throwError} from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 import { BaseLogger } from '../shared/logger';
 import { Globalization } from './globalization';
 
@@ -72,22 +72,21 @@ export class LanguageLocaleService {
    * @param requestedValue
    */
   private setLanguageOrLocale(preferenceName: string, requestedValue: string): Observable<any> {
-    // if (requestedValue == null) {
-    //   // clear the preference, other code will revert to using the browser-specified lang/locale
-    //   return from(this.globalization.setPreference(preferenceName, requestedValue));
-    // } else {
-    //   return this.checkForLocaleFile(requestedValue).pipe(
-    //     mergeMap((value: any) => {
-    //     if (value) {
-    //       return from(this.globalization.setPreference(preferenceName, requestedValue));
-    //     } else {
-    //       const message: string = `ZWED5169W - no locale data found for locale id ${value}`;
-    //       this.logger.warn(message)
-    //       return throwError(message);
-    //     }
-    //   }));
-    // }
-    return from(this.globalization.setPreference(preferenceName, requestedValue));
+    if (requestedValue == null) {
+      // clear the preference, other code will revert to using the browser-specified lang/locale
+      return from(this.globalization.setPreference(preferenceName, requestedValue));
+    } else {
+      return this.checkForLocaleFile(requestedValue).pipe(
+        mergeMap((value: any) => {
+        if (value) {
+          return from(this.globalization.setPreference(preferenceName, requestedValue));
+        } else {
+          const message: string = `ZWED5169W - no locale data found for locale id ${value}`;
+          this.logger.warn(message)
+          return throwError(message);
+        }
+      }));
+    }
   }
 
   setLanguage(language: string): Observable<any> {
