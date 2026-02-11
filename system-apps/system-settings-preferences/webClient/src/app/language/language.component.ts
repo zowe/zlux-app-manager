@@ -53,8 +53,6 @@ export class LanguageComponent {
   }
 
   applyLanguage(): void {
-    this.logger.debug('hello')
-    console.log('Applying language:', this.idLanguage);
     this.languageLocaleService.setLanguage(this.idLanguage).subscribe(
       arg => {
         this.logger.debug('ZWED5323I', arg); // this.logger.debug(`setLanguage, arg=`,arg);
@@ -82,43 +80,35 @@ export class LanguageComponent {
 
   selectEnglish(): void {
     this.selectedLanguage = 'English';
-    // this.selectedLanguage = "English";
     this.idLanguage = 'en';
   }
 
   selectFrench(): void {
     this.selectedLanguage = 'French';
-    // this.selectedLanguage = 'English';
     this.idLanguage = 'fr';
   }
 
   selectRussian(): void {
     this.selectedLanguage = 'Russian';
-    // this.selectedLanguage = 'English';
     this.idLanguage = 'ru';
   }
 
   selectChinese(): void {
     this.selectedLanguage = 'Chinese';
-    // this.selectedLanguage = 'English';
     this.idLanguage = 'zh';
   }
 
   selectJapanese(): void {
     this.selectedLanguage = 'Japanese';
-    // this.selectedLanguage = 'English';
     this.idLanguage = 'ja';
   }
 
   selectGerman(): void {
     this.selectedLanguage = 'German';
-    // this.selectedLanguage = 'English';
     this.idLanguage = 'de';
   }
 
   updateLanguageSelection(): void {
-    // this.idLanguage = 'en';
-
     switch (this.idLanguage) {
       case 'en': {
         this.selectEnglish();
