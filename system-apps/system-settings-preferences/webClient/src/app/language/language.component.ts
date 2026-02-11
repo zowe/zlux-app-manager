@@ -39,6 +39,15 @@ export class LanguageComponent {
   public LanguageChanges: string;
   public Select: string;
 
+  private languageMap: { [key: string]: string } = {
+    en: 'English',
+    fr: 'French',
+    ru: 'Russian',
+    zh: 'Chinese',
+    ja: 'Japanese',
+    de: 'German'
+  };
+
   constructor(
     private languageLocaleService: LanguageLocaleService,
     private translation: L10nTranslationService,
@@ -78,67 +87,13 @@ export class LanguageComponent {
   // language in real-time (contrary to restarting the desktop) but this doesn't work yet as this.translation
   // only loads translations for the currently loaded language (that of which data is coming from a cookie)
 
-  selectEnglish(): void {
-    this.selectedLanguage = 'English';
-    this.idLanguage = 'en';
-  }
-
-  selectFrench(): void {
-    this.selectedLanguage = 'French';
-    this.idLanguage = 'fr';
-  }
-
-  selectRussian(): void {
-    this.selectedLanguage = 'Russian';
-    this.idLanguage = 'ru';
-  }
-
-  selectChinese(): void {
-    this.selectedLanguage = 'Chinese';
-    this.idLanguage = 'zh';
-  }
-
-  selectJapanese(): void {
-    this.selectedLanguage = 'Japanese';
-    this.idLanguage = 'ja';
-  }
-
-  selectGerman(): void {
-    this.selectedLanguage = 'German';
-    this.idLanguage = 'de';
+  selectLanguage(langCode: string): void {
+    this.selectedLanguage = this.languageMap[langCode] || 'English';
+    this.idLanguage = langCode in this.languageMap ? langCode : 'en';
   }
 
   updateLanguageSelection(): void {
-    switch (this.idLanguage) {
-      case 'en': {
-        this.selectEnglish();
-        break;
-      }
-      case 'fr': {
-        this.selectFrench();
-        break;
-      }
-      case 'ja': {
-        this.selectJapanese();
-        break;
-      }
-      case 'ru': {
-        this.selectRussian();
-        break;
-      }
-      case 'zh': {
-        this.selectChinese();
-        break;
-      }
-      case 'de': {
-        this.selectGerman();
-        break;
-      }
-      default: {
-        this.selectEnglish();
-        break;
-      }
-    }
+    this.selectLanguage(this.idLanguage);
   }
 
   updateLanguageStrings(): void {
@@ -152,7 +107,6 @@ export class LanguageComponent {
     this.RestartLater = this.translation?.translate('Restart Later', null, this.idLanguage);
     this.RestartNow = this.translation?.translate('Restart Now', null, this.idLanguage);
     this.Select = this.translation?.translate('Select', null, this.idLanguage);
-
   }
 
 }
