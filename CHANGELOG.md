@@ -2,12 +2,14 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `3.5.0`
+- Enhancement: i18n functionality from the Zowe v2 Desktop has been added to v3. ([#684](https://github.com/zowe/zlux-app-manager/pull/684))
+
 
 ## `3.4.0`
 - Enhancement: 'Change Password' component's visibility now depends upon `enablePasswordChange` flag from zowe.yaml. (#672)[https://github.com/zowe/zlux-app-manager/pull/672]
 - Enhancement: Enabled Personalization Component, with fixes.
 - Enhancement: Upgraded some old dependencies to the newest-acceptable versions. (#679)[https://github.com/zowe/zlux-app-manager/pull/679]
-- Enhancement: Enabled i18n, with fixes.
 
 ## `3.3.0`
 
