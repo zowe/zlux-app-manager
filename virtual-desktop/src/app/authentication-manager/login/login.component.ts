@@ -54,9 +54,6 @@ export class LoginComponent implements OnInit {
   errorDetails: string;
   loginMessage: string;
   expiredPassword: boolean;
-  revealPassword: boolean;
-  revealNewPassword: boolean;
-  revealConfirmPassword: boolean;
   private passwordServices: Set<string>;
   private themeManager: any;
   public showLogin: boolean;
@@ -82,9 +79,6 @@ export class LoginComponent implements OnInit {
     this.confirmNewPassword = '';
     this.errorMessage = '';
     this.expiredPassword = false;
-    this.revealPassword = false;
-    this.revealNewPassword = false;
-    this.revealConfirmPassword = false;
     this.passwordServices = new Set<string>();
     this.enableExpirationPrompt = true;
     this.renewSession = this.renewSession.bind(this);
@@ -159,9 +153,11 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    ZoweZLUX.serverMetadata.getZoweVersion()
-      .then((version: string) => {
-        this.zoweVersion = version ? version : null;
+    // Fetch Zowe version from /server/environment
+    fetch('/server/environment')
+      .then(res => res.json())
+      .then(env => {
+        this.zoweVersion = env.zoweVersion ? env.zoweVersion : null;
       })
       .catch(() => {
         this.zoweVersion = null;
@@ -359,11 +355,9 @@ export class LoginComponent implements OnInit {
   }
 
   getPluginVersion(): string | null {
-    return "v. " + this.plugin.version;
-  }
-
-  getZoweVersion(): string | null {
-    return this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : null;
+    const desktopVersion = this.plugin.version ? 'v. ' + this.plugin.version : '';
+    const zoweVersion = this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : '';
+    return desktopVersion + zoweVersion;
   }
 
   backButton(): void {

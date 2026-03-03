@@ -150,14 +150,15 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   ngOnInit(): void {
     this.date = new Date();
-    ZoweZLUX.serverMetadata.getZoweVersion()
-      .then((version: string) => {
-        this.zoweVersion = version ? version : null;
+    // Fetch Zowe version from /server/environment
+    fetch('/server/environment')
+      .then(res => res.json())
+      .then(env => {
+        this.zoweVersion = env.zoweVersion ? env.zoweVersion : null;
       })
       .catch(() => {
         this.zoweVersion = null;
       });
-
     interval(1000).subscribe(() => this.date = new Date());
   }
 
@@ -166,11 +167,9 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   }
 
   getPluginVersion(): string | null {
-    return "v. " + this.plugin.version;
-  }
-
-  getZoweVersion(): string | null {
-    return this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : null;
+    const desktopVersion = this.plugin.version ? 'v. ' + this.plugin.version : '';
+    const zoweVersion = this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : '';
+    return desktopVersion + zoweVersion;
   }
 
   logout(): void {
