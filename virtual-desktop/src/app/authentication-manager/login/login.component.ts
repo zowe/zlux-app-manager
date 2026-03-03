@@ -58,6 +58,7 @@ export class LoginComponent implements OnInit {
   private themeManager: any;
   public showLogin: boolean;
   public enableExpirationPrompt: boolean;
+  public zoweVersion: string | null = null;
 
   constructor(
     private authenticationService: AuthenticationManager,
@@ -152,6 +153,15 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Fetch Zowe version from /server/environment
+    fetch('/server/environment')
+      .then(res => res.json())
+      .then(env => {
+        this.zoweVersion = env.zoweVersion ? env.zoweVersion : null;
+      })
+      .catch(() => {
+        this.zoweVersion = null;
+      });
     this.passwordServices.clear();
     const storedUsername = this.authenticationService.defaultUsername();
     if (storedUsername != null) {
@@ -345,7 +355,9 @@ export class LoginComponent implements OnInit {
   }
 
   getPluginVersion(): string | null {
-    return "v. " + this.plugin.version;
+    const desktopVersion = this.plugin.version ? 'v. ' + this.plugin.version : '';
+    const zoweVersion = this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : '';
+    return desktopVersion + zoweVersion;
   }
 
   backButton(): void {

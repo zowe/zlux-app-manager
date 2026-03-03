@@ -62,6 +62,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   private info: any[];
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   public notifications: any[];
+  public zoweVersion: string | null = null;
 
   /* I18n strings */
 
@@ -149,7 +150,15 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   ngOnInit(): void {
     this.date = new Date();
-
+    // Fetch Zowe version from /server/environment
+    fetch('/server/environment')
+      .then(res => res.json())
+      .then(env => {
+        this.zoweVersion = env.zoweVersion ? env.zoweVersion : null;
+      })
+      .catch(() => {
+        this.zoweVersion = null;
+      });
     interval(1000).subscribe(() => this.date = new Date());
   }
 
@@ -158,7 +167,9 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   }
 
   getPluginVersion(): string | null {
-    return "v. " + this.plugin.version;
+    const desktopVersion = this.plugin.version ? 'v. ' + this.plugin.version : '';
+    const zoweVersion = this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : '';
+    return desktopVersion + zoweVersion;
   }
 
   logout(): void {
