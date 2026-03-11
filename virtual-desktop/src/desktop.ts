@@ -75,6 +75,7 @@ script.onload = () => {
     // Any additional RequireJS configuration or loading should go here
     console.log('RequireJS loaded and configured successfully.');
     const libs: { [index: string]: { library: any } } = {
+      '@angular/compiler': require('@angular/compiler'),
       '@angular/core': require('@angular/core'),
       '@angular/common': require('@angular/common'),
       '@angular/common/http': require('@angular/common/http'),
