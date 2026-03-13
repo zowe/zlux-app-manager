@@ -15,7 +15,7 @@
     *ngFor="let shortcut of shortcuts"
     [shortcut]="shortcut"
     [plugin]="getPluginForShortcut(shortcut)"
-    [isHighlighted]="highlightedIconId === shortcut.pluginId"
+    [isHighlighted]="highlightedIconId === getShortcutKey(shortcut)"
     [allShortcuts]="shortcuts"
     (iconSelected)="onIconSelected($event)"
     (iconLaunched)="onIconLaunched($event)"

@@ -13,10 +13,35 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { BaseLogger } from 'virtual-desktop-logger';
 
+export interface DesktopShortcutAction {
+  /** Unique ID for the action (e.g. 'org.zowe.terminal.tn3270.open-session') */
+  id: string;
+  /** Human-readable action name */
+  name: string;
+  /** Target plugin identifier */
+  targetPluginId: string;
+  /** ActionTargetMode: 'PluginCreate' | 'PluginFindAnyOrCreate' | 'PluginFindUniqueOrCreate' */
+  targetMode: string;
+  /** ActionType: 'Launch' | 'Message' | 'Route' | 'Focus' */
+  type: string;
+  /** Template for the primaryArgument passed to dispatcher.makeAction */
+  primaryArgument?: any;
+  /** The event context data passed to dispatcher.invokeAction */
+  launchMetadata?: any;
+}
+
 export interface DesktopShortcut {
+  /** Plugin to launch (always required — identifies the app for icon/label fallback) */
   pluginId: string;
+  /** Grid position */
   gridRow: number;
   gridCol: number;
+  /** Optional custom label (overrides the plugin's default label) */
+  displayLabel?: string;
+  /** Optional custom icon URL (overrides the plugin's default icon) */
+  displayIcon?: string;
+  /** Optional action to invoke instead of a plain launch */
+  action?: DesktopShortcutAction;
 }
 
 @Injectable()
@@ -57,41 +82,86 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     );
   }
 
+  /** Add a simple app-launch shortcut */
   addShortcut(pluginId: string): void {
     const current = this.shortcuts$.value;
-    const alreadyExists = current.some(s => s.pluginId === pluginId);
+    const alreadyExists = current.some(s => s.pluginId === pluginId && !s.action);
     if (alreadyExists) {
       return;
     }
     const position = this.findNextAvailablePosition(current);
-    const updated = [...current, { pluginId, gridRow: position.row, gridCol: position.col }];
+    const updated: DesktopShortcut[] = [...current, { pluginId, gridRow: position.row, gridCol: position.col }];
     this.saveShortcuts(updated);
   }
 
-  removeShortcut(pluginId: string): void {
-    const updated = this.shortcuts$.value.filter(s => s.pluginId !== pluginId);
-    this.saveShortcuts(updated);
-  }
-
-  moveShortcut(pluginId: string, newRow: number, newCol: number): void {
+  /** Add an app-to-app action shortcut with full dispatcher action details */
+  addActionShortcut(shortcut: Omit<DesktopShortcut, 'gridRow' | 'gridCol'>): void {
     const current = this.shortcuts$.value;
-    const occupied = current.some(s => s.pluginId !== pluginId && s.gridRow === newRow && s.gridCol === newCol);
+    const position = this.findNextAvailablePosition(current);
+    const updated: DesktopShortcut[] = [...current, {
+      ...shortcut,
+      gridRow: position.row,
+      gridCol: position.col
+    }];
+    this.saveShortcuts(updated);
+  }
+
+  removeShortcut(pluginId: string, actionId?: string): void {
+    const updated = this.shortcuts$.value.filter(s => {
+      if (actionId) {
+        return !(s.pluginId === pluginId && s.action?.id === actionId);
+      }
+      return !(s.pluginId === pluginId && !s.action);
+    });
+    this.saveShortcuts(updated);
+  }
+
+  removeShortcutAtPosition(row: number, col: number): void {
+    const updated = this.shortcuts$.value.filter(s => !(s.gridRow === row && s.gridCol === col));
+    this.saveShortcuts(updated);
+  }
+
+  moveShortcut(pluginId: string, newRow: number, newCol: number, actionId?: string): void {
+    const current = this.shortcuts$.value;
+    const occupied = current.some(s => s.gridRow === newRow && s.gridCol === newCol);
     if (occupied) {
       return;
     }
-    const updated = current.map(s =>
-      s.pluginId === pluginId ? { ...s, gridRow: newRow, gridCol: newCol } : s
-    );
+    const updated = current.map(s => {
+      const isMatch = actionId
+        ? (s.pluginId === pluginId && s.action?.id === actionId)
+        : (s.pluginId === pluginId && !s.action);
+      return isMatch ? { ...s, gridRow: newRow, gridCol: newCol } : s;
+    });
     this.saveShortcuts(updated);
   }
 
   hasShortcut(pluginId: string): boolean {
-    return this.shortcuts$.value.some(s => s.pluginId === pluginId);
+    return this.shortcuts$.value.some(s => s.pluginId === pluginId && !s.action);
+  }
+
+  /** Invoke a shortcut — either a plain launch or a dispatcher action */
+  invokeShortcut(shortcut: DesktopShortcut, applicationManager: MVDHosting.ApplicationManagerInterface, pluginDef?: any): void {
+    if (shortcut.action) {
+      const actionDef = shortcut.action;
+      const targetMode = (ZoweZLUX.dispatcher.constants.ActionTargetMode as any)[actionDef.targetMode];
+      const actionType = (ZoweZLUX.dispatcher.constants.ActionType as any)[actionDef.type];
+      const action = ZoweZLUX.dispatcher.makeAction(
+        actionDef.id,
+        actionDef.name,
+        targetMode,
+        actionType,
+        actionDef.targetPluginId,
+        actionDef.primaryArgument || null
+      );
+      ZoweZLUX.dispatcher.invokeAction(action, actionDef.launchMetadata || {});
+    } else if (pluginDef) {
+      applicationManager.spawnApplication(pluginDef, null);
+    }
   }
 
   private findNextAvailablePosition(shortcuts: DesktopShortcut[]): { row: number; col: number } {
     const occupied = new Set(shortcuts.map(s => `${s.gridRow},${s.gridCol}`));
-    // Fill column-first (top to bottom, then next column) to match typical desktop icon layout
     const maxRows = 20;
     const maxCols = 20;
     for (let col = 0; col < maxCols; col++) {

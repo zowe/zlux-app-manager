@@ -102,26 +102,29 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     return this.pluginMap.get(shortcut.pluginId);
   }
 
-  onIconSelected(pluginId: string): void {
-    this.highlightedIconId = pluginId;
+  onIconSelected(shortcut: DesktopShortcut): void {
+    this.highlightedIconId = shortcut.pluginId + (shortcut.action?.id || '');
   }
 
-  onIconLaunched(pluginId: string): void {
-    const plugin = this.pluginMap.get(pluginId);
-    if (plugin) {
-      this.applicationManager.spawnApplication(plugin, null);
-    }
+  getShortcutKey(shortcut: DesktopShortcut): string {
+    return shortcut.pluginId + (shortcut.action?.id || '');
   }
 
-  onIconContextMenu(event: { event: MouseEvent; pluginId: string }): void {
+  onIconLaunched(shortcut: DesktopShortcut): void {
+    const plugin = this.pluginMap.get(shortcut.pluginId);
+    this.shortcutsService.invokeShortcut(shortcut, this.applicationManager, plugin);
+  }
+
+  onIconContextMenu(event: { event: MouseEvent; shortcut: DesktopShortcut }): void {
+    const shortcut = event.shortcut;
     const menuItems: ContextMenuItem[] = [
       {
         text: 'Open',
-        action: () => this.onIconLaunched(event.pluginId)
+        action: () => this.onIconLaunched(shortcut)
       },
       {
         text: 'Remove From Desktop',
-        action: () => this.shortcutsService.removeShortcut(event.pluginId)
+        action: () => this.shortcutsService.removeShortcutAtPosition(shortcut.gridRow, shortcut.gridCol)
       }
     ];
     this.windowManager.contextMenuRequested.next({
@@ -131,8 +134,8 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     });
   }
 
-  onIconMoved(event: { pluginId: string; newRow: number; newCol: number }): void {
-    this.shortcutsService.moveShortcut(event.pluginId, event.newRow, event.newCol);
+  onIconMoved(event: { shortcut: DesktopShortcut; newRow: number; newCol: number }): void {
+    this.shortcutsService.moveShortcut(event.shortcut.pluginId, event.newRow, event.newCol, event.shortcut.action?.id);
   }
 
   onDesktopClick(): void {

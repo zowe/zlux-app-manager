@@ -27,10 +27,10 @@ export class DesktopIconComponent {
   @Input() plugin: DesktopPluginDefinitionImpl;
   @Input() isHighlighted: boolean = false;
   @Input() allShortcuts: DesktopShortcut[] = [];
-  @Output() iconSelected = new EventEmitter<string>();
-  @Output() iconLaunched = new EventEmitter<string>();
-  @Output() iconContextMenu = new EventEmitter<{ event: MouseEvent; pluginId: string }>();
-  @Output() iconMoved = new EventEmitter<{ pluginId: string; newRow: number; newCol: number }>();
+  @Output() iconSelected = new EventEmitter<DesktopShortcut>();
+  @Output() iconLaunched = new EventEmitter<DesktopShortcut>();
+  @Output() iconContextMenu = new EventEmitter<{ event: MouseEvent; shortcut: DesktopShortcut }>();
+  @Output() iconMoved = new EventEmitter<{ shortcut: DesktopShortcut; newRow: number; newCol: number }>();
 
   isDragging = false;
   dragOffsetX = 0;
@@ -49,11 +49,11 @@ export class DesktopIconComponent {
   }
 
   get iconUrl(): string | null {
-    return this.plugin?.image || null;
+    return this.shortcut?.displayIcon || this.plugin?.image || null;
   }
 
   get label(): string {
-    return this.plugin?.label || '';
+    return this.shortcut?.displayLabel || this.plugin?.label || '';
   }
 
   get positionStyle(): { [key: string]: string } {
@@ -80,19 +80,19 @@ export class DesktopIconComponent {
   onClick(event: MouseEvent): void {
     event.stopPropagation();
     if (!this.dragStarted) {
-      this.iconSelected.emit(this.shortcut.pluginId);
+      this.iconSelected.emit(this.shortcut);
     }
   }
 
   onDblClick(event: MouseEvent): void {
     event.stopPropagation();
-    this.iconLaunched.emit(this.shortcut.pluginId);
+    this.iconLaunched.emit(this.shortcut);
   }
 
   onRightClick(event: MouseEvent): boolean {
     event.preventDefault();
     event.stopPropagation();
-    this.iconContextMenu.emit({ event, pluginId: this.shortcut.pluginId });
+    this.iconContextMenu.emit({ event, shortcut: this.shortcut });
     return false;
   }
 
@@ -137,7 +137,7 @@ export class DesktopIconComponent {
       );
 
       if (!occupied && (newRow !== this.shortcut.gridRow || newCol !== this.shortcut.gridCol)) {
-        this.iconMoved.emit({ pluginId: this.shortcut.pluginId, newRow, newCol });
+        this.iconMoved.emit({ shortcut: this.shortcut, newRow, newCol });
       }
 
       this.isDragging = false;
