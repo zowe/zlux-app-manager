@@ -12,9 +12,6 @@ import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@
 import { DesktopShortcut } from '../services/desktop-shortcuts.service';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 
-const ICON_CELL_WIDTH = 90;
-const ICON_CELL_HEIGHT = 90;
-const GRID_PADDING = 10;
 const DRAG_THRESHOLD = 5;
 
 @Component({
@@ -29,6 +26,12 @@ export class DesktopIconComponent {
   @Input() allShortcuts: DesktopShortcut[] = [];
   @Input() maxGridRows: number = 20;
   @Input() maxGridCols: number = 20;
+  @Input() iconCellWidth: number = 90;
+  @Input() iconCellHeight: number = 90;
+  @Input() iconImageSize: number = 48;
+  @Input() iconFontSize: number = 11;
+  @Input() iconLetterSize: number = 22;
+  @Input() gridPadding: number = 10;
   @Input() set shouldRename(value: boolean) {
     if (value && !this.isRenaming) {
       this.startRename();
@@ -92,19 +95,19 @@ export class DesktopIconComponent {
       return {
         left: this.dragLeft + 'px',
         top: this.dragTop + 'px',
-        width: ICON_CELL_WIDTH + 'px',
-        height: ICON_CELL_HEIGHT + 'px',
+        width: this.iconCellWidth + 'px',
+        height: this.iconCellHeight + 'px',
         'z-index': '10000',
         opacity: '0.8'
       };
     }
-    const left = GRID_PADDING + this.shortcut.gridCol * ICON_CELL_WIDTH;
-    const top = GRID_PADDING + this.shortcut.gridRow * ICON_CELL_HEIGHT;
+    const left = this.gridPadding + this.shortcut.gridCol * this.iconCellWidth;
+    const top = this.gridPadding + this.shortcut.gridRow * this.iconCellHeight;
     return {
       left: left + 'px',
       top: top + 'px',
-      width: ICON_CELL_WIDTH + 'px',
-      height: ICON_CELL_HEIGHT + 'px'
+      width: this.iconCellWidth + 'px',
+      height: this.iconCellHeight + 'px'
     };
   }
 
@@ -181,8 +184,8 @@ export class DesktopIconComponent {
     this.mouseDownY = event.clientY;
     this.dragStarted = false;
 
-    const gridLeft = GRID_PADDING + this.shortcut.gridCol * ICON_CELL_WIDTH;
-    const gridTop = GRID_PADDING + this.shortcut.gridRow * ICON_CELL_HEIGHT;
+    const gridLeft = this.gridPadding + this.shortcut.gridCol * this.iconCellWidth;
+    const gridTop = this.gridPadding + this.shortcut.gridRow * this.iconCellHeight;
     this.dragOffsetX = event.clientX - gridLeft;
     this.dragOffsetY = event.clientY - gridTop;
 
@@ -208,8 +211,8 @@ export class DesktopIconComponent {
     window.removeEventListener('mouseup', this.boundOnMouseUp);
 
     if (this.isDragging) {
-      const newCol = Math.min(this.maxGridCols - 1, Math.max(0, Math.round((this.dragLeft - GRID_PADDING) / ICON_CELL_WIDTH)));
-      const newRow = Math.min(this.maxGridRows - 1, Math.max(0, Math.round((this.dragTop - GRID_PADDING) / ICON_CELL_HEIGHT)));
+      const newCol = Math.min(this.maxGridCols - 1, Math.max(0, Math.round((this.dragLeft - this.gridPadding) / this.iconCellWidth)));
+      const newRow = Math.min(this.maxGridRows - 1, Math.max(0, Math.round((this.dragTop - this.gridPadding) / this.iconCellHeight)));
 
       const occupied = this.allShortcuts.some(s =>
         s.pluginId !== this.shortcut.pluginId && s.gridRow === newRow && s.gridCol === newCol

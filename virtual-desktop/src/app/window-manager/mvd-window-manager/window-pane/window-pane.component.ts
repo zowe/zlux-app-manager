@@ -40,7 +40,14 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
 
-  @Input() theme: DesktopTheme;
+  @Input() set theme(newTheme: DesktopTheme) {
+    this._theme = newTheme;
+    if (newTheme?.size?.window) {
+      this.applyIconSize(newTheme.size.window);
+    }
+  }
+  get theme(): DesktopTheme { return this._theme; }
+  private _theme: DesktopTheme;
 
   shortcuts: DesktopShortcut[] = [];
   pluginMap: Map<string, DesktopPluginDefinitionImpl> = new Map();
@@ -48,9 +55,12 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   renameTargetKey: string | null = null;
   maxGridRows: number = 8;
   maxGridCols: number = 20;
-  private readonly ICON_CELL_WIDTH = 90;
-  private readonly ICON_CELL_HEIGHT = 90;
-  private readonly GRID_PADDING = 10;
+  iconCellWidth: number = 90;
+  iconCellHeight: number = 90;
+  iconImageSize: number = 48;
+  iconFontSize: number = 11;
+  iconLetterSize: number = 22;
+  gridPadding: number = 10;
   private resizeTimer: any = null;
 
   constructor(
@@ -86,6 +96,11 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     // Listen for external shortcut changes (e.g. from ZFM plugin)
     window.addEventListener('desktop-shortcuts-changed', () => {
       this.shortcutsService.loadShortcuts();
+    });
+
+    // Subscribe to UI size changes from personalization panel
+    this.themeService.onSizeChange.subscribe((size: any) => {
+      this.applyIconSize(size.windowSize || 2);
     });
   }
 
@@ -273,9 +288,39 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }
   }
 
+  private applyIconSize(sizeValue: number): void {
+    switch (sizeValue) {
+      case 1: // small
+        this.iconCellWidth = 70;
+        this.iconCellHeight = 70;
+        this.iconImageSize = 32;
+        this.iconFontSize = 10;
+        this.iconLetterSize = 16;
+        this.gridPadding = 8;
+        break;
+      case 3: // large
+        this.iconCellWidth = 120;
+        this.iconCellHeight = 120;
+        this.iconImageSize = 64;
+        this.iconFontSize = 13;
+        this.iconLetterSize = 28;
+        this.gridPadding = 12;
+        break;
+      default: // medium (2)
+        this.iconCellWidth = 90;
+        this.iconCellHeight = 90;
+        this.iconImageSize = 48;
+        this.iconFontSize = 11;
+        this.iconLetterSize = 22;
+        this.gridPadding = 10;
+    }
+    this.updateGridDimensions();
+    this.reflowOutOfBoundsIcons();
+  }
+
   private updateGridDimensions(): void {
-    this.maxGridCols = Math.max(1, Math.floor((window.innerWidth - this.GRID_PADDING) / this.ICON_CELL_WIDTH));
-    this.maxGridRows = Math.max(1, Math.floor((window.innerHeight - this.GRID_PADDING) / this.ICON_CELL_HEIGHT));
+    this.maxGridCols = Math.max(1, Math.floor((window.innerWidth - this.gridPadding) / this.iconCellWidth));
+    this.maxGridRows = Math.max(1, Math.floor((window.innerHeight - this.gridPadding) / this.iconCellHeight));
   }
 
   private reflowOutOfBoundsIcons(): void {
