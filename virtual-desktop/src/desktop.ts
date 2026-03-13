@@ -136,9 +136,10 @@ function performBootstrap(): void {
       || MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent), {providers: providers}));
 }
 
-// set baseurl 
+// set baseurl
 const baseUrl = document.createElement('base');
-baseUrl.setAttribute("href", ZoweZLUX?.uriBroker.desktopRootUri());
+//baseUrl.setAttribute("href", ZoweZLUX?.uriBroker.desktopRootUri());
+//remove set href
 
 if (document.head) {
   document.head.appendChild(baseUrl);
