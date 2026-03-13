@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -30,6 +28,7 @@ import { SnackbarComponent } from '../shared/snackbar/snackbar.component';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { L10nTranslationService } from 'angular-l10n';
+import { Environment } from 'zlux-platform/base/src/environment/environment';
 
 @Component({
   selector: 'rs-com-launchbar-widget',
@@ -129,6 +128,8 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   // @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;
   // @ViewChild('localebutton') localeButton: ElementRef;
 
+  private environment: Environment = new Environment();
+
   constructor(
     private injector: Injector,
     private languageLocaleService: LanguageLocaleService,
@@ -150,11 +151,10 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   ngOnInit(): void {
     this.date = new Date();
-    // Fetch Zowe version from /server/environment
-    fetch('/server/environment')
-      .then(res => res.json())
-      .then(env => {
-        this.zoweVersion = env.zoweVersion ? env.zoweVersion : null;
+    // Use shared Environment class to fetch Zowe version
+    this.environment.getZoweVersion()
+      .then(version => {
+        this.zoweVersion = version ? version : null;
       })
       .catch(() => {
         this.zoweVersion = null;
