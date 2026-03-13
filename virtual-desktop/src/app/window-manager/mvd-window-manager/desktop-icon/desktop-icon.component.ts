@@ -53,7 +53,26 @@ export class DesktopIconComponent {
   }
 
   get label(): string {
-    return this.shortcut?.displayLabel || this.plugin?.label || '';
+    const baseLabel = this.shortcut?.displayLabel || this.plugin?.label || '';
+    if (!baseLabel || !this.allShortcuts || this.allShortcuts.length <= 1) {
+      return baseLabel;
+    }
+    // Find all shortcuts with the same base label
+    const duplicates = this.allShortcuts.filter(s => {
+      const sLabel = s.displayLabel || '';
+      const thisLabel = this.shortcut?.displayLabel || '';
+      // For simple shortcuts (no displayLabel), use plugin label — these won't collide
+      // For action shortcuts with displayLabel, check for duplicates
+      if (!thisLabel) return false;
+      return sLabel === thisLabel;
+    });
+    if (duplicates.length <= 1) {
+      return baseLabel;
+    }
+    const idx = duplicates.findIndex(s =>
+      s.gridRow === this.shortcut.gridRow && s.gridCol === this.shortcut.gridCol
+    );
+    return idx > 0 ? baseLabel + ' (' + (idx + 1) + ')' : baseLabel;
   }
 
   get positionStyle(): { [key: string]: string } {
