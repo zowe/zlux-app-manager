@@ -20,6 +20,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
 import { StorageService } from '../storage.service';
 import { StorageKey } from '../storage-enum';
 import { IdleWarnService } from '../idleWarn.service';
+import { Environment } from 'zlux-platform/base/src/environment/environment';
 
 let ACTIVITY_IDLE_TIMEOUT_MS = 300000; //5 minutes
 const HTTP_STATUS_PRECONDITION_REQUIRED = 428;
@@ -59,6 +60,7 @@ export class LoginComponent implements OnInit {
   public showLogin: boolean;
   public enableExpirationPrompt: boolean;
   public zoweVersion: string | null = null;
+  private environment: Environment = new Environment();
 
   constructor(
     private authenticationService: AuthenticationManager,
@@ -153,11 +155,10 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Fetch Zowe version from /server/environment
-    fetch('/server/environment')
-      .then(res => res.json())
-      .then(env => {
-        this.zoweVersion = env.zoweVersion ? env.zoweVersion : null;
+    // Use shared Environment class to fetch Zowe version
+    this.environment.getZoweVersion()
+      .then(version => {
+        this.zoweVersion = version ? version : null;
       })
       .catch(() => {
         this.zoweVersion = null;
