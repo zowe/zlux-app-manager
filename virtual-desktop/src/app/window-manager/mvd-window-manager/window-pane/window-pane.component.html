@@ -11,6 +11,9 @@
 -->
 
 <div class="window-pane" [ngStyle]="wallpaper" id="ZAP_DesktopHome_Wallpaper">
+  <div class="link-grid">
+    <org-zowe-zlux-link *ngFor="let link of links" [link]="link" [theme]="theme" (contextmenu)="onLinkContext($event,link)" #links></org-zowe-zlux-link>
+  </div>
   <div *ngFor="let window of windows">
     <rs-com-mvd-window [desktopWindow]="window" [theme]="theme"></rs-com-mvd-window>
   </div>

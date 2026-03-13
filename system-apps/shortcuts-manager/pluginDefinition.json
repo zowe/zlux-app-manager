@@ -1,0 +1,21 @@
+{
+  "identifier": "org.zowe.zlux.appmanager.shortcuts",
+  "apiVersion": "1.0.0",
+  "pluginVersion": "1.0.0",
+  "pluginType": "application",
+  "isSystemPlugin":true,
+  "webContent": {
+    "framework": "angular2",
+    "launchDefinition": {
+      "pluginShortNameKey": "Shortcuts Manager",
+      "pluginShortNameDefault": "Shortcuts Manager",
+      "imageSrc": "assets/icon.png"
+    },
+    "descriptionKey": "Shortcuts Manager",
+    "descriptionDefault": "Modify Shortcuts",
+    "defaultWindowStyle": {
+      "width": 450,
+      "height": 350
+    }
+  }
+}

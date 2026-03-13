@@ -1,0 +1,11 @@
+{
+  "name": "org.zowe.zlux.shortcuts.zosmf.nodeserver",
+  "version": "1.0.0",
+  "description": "Discovers valid links within z/OSMF website",
+  "scripts": {
+    "build": "rm -rf ../lib; mkdir ../lib; cp -r *.js node_modules ../lib/"
+  },
+  "dependencies": {
+    "axios": "^0.23.0"
+  }
+}

@@ -29,9 +29,7 @@ module.exports = {
       "pluginlib": path.resolve(__dirname, "src/pluginlib"),
       "virtual-desktop-logger": path.resolve(__dirname, "src/app/shared/logger.ts"),
       "zlux-base": path.resolve(__dirname, "../../zlux-platform/base/src"),
-      "zlux-interface": path.resolve(__dirname, "../../zlux-platform/interface/src"),
-      "core-js/es7/reflect": path.resolve(__dirname, "node_modules/core-js/proposals/reflect-metadata"),
-      "core-js/es6/reflect": path.resolve(__dirname, "node_modules/core-js/proposals/reflect-metadata")
+      "zlux-interface": path.resolve(__dirname, "../../zlux-platform/interface/src")
     }
   },
   "resolveLoader": {
@@ -50,78 +48,47 @@ module.exports = {
   },
   "module": {
     "rules": [
-     {
-       "enforce": "pre",
-       "test": /\.js$/,
-       "use": [{
-         'loader': "source-map-loader",
-         'options': {
-          filterSourceMappingUrl: (url, _resourcePath) => {
-            return !/html2canvas/.test(url); // html2canvas source map has issues, skip it
-          }
-        }
-       }],
-       "exclude": [
-         /\/node_modules\//
-       ],
-
-     },
       {
-        "test": /\.ts$/,
-        use: [
-          'ts-loader',
-          'angular2-template-loader'
+        "enforce": "pre",
+        "test": /\.js$/,
+        "loader": "source-map-loader",
+        "exclude": [
+          /\/node_modules\//
         ]
       },
       {
+        "test": /\.json$/,
+        "loader": "json-loader"
+      },
+      {
         "test": /\.html$/,
-        "use": [{
-          loader: 'html-loader',
-          options: { esModule: false }
-        }]
+        "loader": "raw-loader"
       },
       {
         "test": /\.(eot|svg)$/,
-        type: 'asset/resource',
-        generator: {
-          filename: '[name].[hash:20].[ext]'
-        }
+        "loader": "file-loader?name=[name].[hash:20].[ext]"
       },
       {
         "test": /\.(jpg|png|gif|otf|ttf|woff|woff2|cur|ani)$/,
-        type: 'asset',
-        generator: {
-          filename: '[name].[hash:20].[ext]'
-        },
-        parser: {
-          dataUrlCondition: {
-            maxSize: 10000
-          }
-        }
+        "loader": "url-loader?name=[name].[hash:20].[ext]&limit=10000"
       },
       {
         "test": /\.css$/,
-        include: [path.resolve(__dirname, './src/app')],
-        use: [{
-          loader: 'css-loader',
-          options: {
-            exportType: 'string',
-            esModule: false,
-            sourceMap: false
-          }
-        }]
-      },
-      {
-        "test": /\.css$/,
-        exclude: [path.resolve(__dirname, './src/app')],
-        use: [
-          'style-loader',
+        "use": [
+          "exports-loader?module.exports.toString()",
           {
-            loader: 'css-loader',
-            options: {
-              sourceMap: false
+            "loader": "css-loader",
+            "options": {
+              "sourceMap": false
             }
           }
+        ]
+      },
+      {
+        "test": /\.ts$/,
+        loaders: [
+          'ts-loader',
+          'angular2-template-loader'
         ]
       },
       {
@@ -133,18 +100,20 @@ module.exports = {
     ]
   },
   'plugins': [
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: path.resolve(__dirname, './node_modules/@angular/common/locales'),
-          to: path.resolve('./web/locales')
-        },
-        {
-          from: path.resolve(__dirname, './src/assets/i18n'),
-          to: path.resolve('./web/assets/i18n')
-        }
-      ]
-    }),
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, './node_modules/@angular/common/locales'),
+        to: path.resolve('./web/locales')
+      },
+      {
+        from: path.resolve(__dirname, './src/assets/i18n'),
+        to: path.resolve('./web/assets/i18n')
+      },
+      {
+        from: path.resolve(__dirname, './src/assets/images'),
+        to: path.resolve('./web/assets/images')
+      }
+    ]),
     new CompressionPlugin({
       threshold: 100000,
       minRatio: 0.8
@@ -152,8 +121,8 @@ module.exports = {
   ],
   mode: 'production',
   "externals": [
-    function({context, request}, callback) {
-      if (/(@angular)|(angular\-l10n)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs(\/operators)?$)/.test(request)){
+    function(context, request, callback) {
+      if (/(@angular)|(angular\-l10n)|(^bootstrap$)|(^popper.js$)|(^jquery$)|(^rxjs\/Rx$)/.test(request)){
         return callback(null, {
           commonjs: request,
           commonjs2: request,

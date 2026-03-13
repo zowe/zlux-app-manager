@@ -21,15 +21,15 @@ import {
   ViewChild,
   Input
   } from '@angular/core';
-import { interval } from 'rxjs';
+import { Observable } from 'rxjs/Rx';
 import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
 import { LanguageLocaleService } from '../../../../i18n/language-locale.service';
 import { BaseLogger } from '../../../../shared/logger';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackbarComponent } from '../shared/snackbar/snackbar.component';
+import { MatSnackBar} from '@angular/material';
+import {SnackbarComponent} from '../shared/snackbar/snackbar.component';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { WindowManagerService } from '../../shared/window-manager.service';
-import { L10nTranslationService } from 'angular-l10n';
+import { TranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'rs-com-launchbar-widget',
@@ -68,7 +68,6 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   public NoNotifications: string;
 
   @Input() set theme (newTheme: DesktopTheme) {
-    this.info;
     this.color = newTheme.color;
     
     switch (newTheme.size.launchbar) {
@@ -134,7 +133,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
     private desktopComponent: DesktopComponent,
     private snackBar: MatSnackBar,
     public windowManager: WindowManagerService,
-    public translation: L10nTranslationService,
+    public translation: TranslationService,
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
@@ -150,7 +149,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   ngOnInit(): void {
     this.date = new Date();
 
-    interval(1000).subscribe(() => this.date = new Date());
+    Observable.interval(1000).subscribe(() => this.date = new Date());
   }
 
   getUsername(): string | null {

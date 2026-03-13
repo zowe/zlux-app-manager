@@ -16,7 +16,7 @@ import { PluginFactory } from '../plugin-factory';
 import { CompiledPlugin } from '../../shared/compiled-plugin';
 import { Compiler, CompilerOptions, ApplicationRef, Injector } from '@angular/core';
 import { DomPortalOutlet, ComponentPortal } from '@angular/cdk/portal';
-import { from, Observable } from 'rxjs';
+import { Observable } from 'rxjs/Rx';
 
 import { ComponentFactory } from 'zlux-base/registry/registry';
 import { TranslationLoaderService } from '../../../i18n/translation-loader.service';
@@ -77,7 +77,7 @@ class SimpleAngularComponentFactory extends ComponentFactory {
         });
     });
 
-    return from(promise);
+    return Observable.fromPromise(promise);
   }
 }
 

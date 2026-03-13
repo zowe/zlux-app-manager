@@ -9,24 +9,38 @@ Copyright Contributors to the Zowe Project.
 */
 
 import { Injectable } from '@angular/core';
-import { L10nLocale, L10nStorage } from 'angular-l10n';
-import { mapTo } from 'rxjs/operators';
+import { LocaleStorage } from 'angular-l10n';
 import { LanguageLocaleService } from './language-locale.service';
 
 @Injectable()
-export class L10nStorageService implements L10nStorage {
+export class L10nStorageService implements LocaleStorage {
 
   constructor(private localeService: LanguageLocaleService) {
 
   }
 
-  public async read(): Promise<L10nLocale | null> {
-    const language = this.localeService.getLanguage();
-    return Promise.resolve({ language });
+  /**
+   * This method must contain the logic to read the storage.
+   * @param name 'defaultLocale', 'currency' or 'timezone'
+   * @return A promise with the value of the given name
+   */
+  public async read(name: string): Promise<string | null> {
+    if (name === 'defaultLocale') {
+      return Promise.resolve(this.localeService.getLanguage());
+    }
+    return Promise.resolve(null);
   }
 
-  public async write(l11Locale: L10nLocale): Promise<void> {
-    return this.localeService.setLanguage(l11Locale.language).pipe(mapTo(void (0))).toPromise();
+  /**
+   * This method must contain the logic to write the storage.
+   * @param name 'defaultLocale', 'currency' or 'timezone'
+   * @param value The value for the given name
+   */
+  public async write(name: string, value: string): Promise<void> {
+    if (name === 'defaultLocale') {
+      return this.localeService.setLanguage(value).toPromise();
+    }
+    return Promise.resolve();
   }
 
 }

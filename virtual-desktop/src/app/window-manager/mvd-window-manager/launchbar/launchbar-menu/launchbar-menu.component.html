@@ -39,11 +39,23 @@
          [style.color]="color.launchbarMenuText">
       <div class="launch-widget-row" 
         *ngFor="let item of displayItems | sortBy: 'label'; let i = index;" 
+        [ngClass]="{'launch-widget-row' : true,
+                    'launch-widget-child' : item.parentLaunchbarItem}"
         (click)="clicked(item)" 
         [title]="item.tooltip" 
         (contextmenu)="onRightClick($event, item)"
         [class.active]="i==this.activeIndex" 
         (mouseover)="this.activeIndex=i">
+        <i *ngIf="item.isExpanded" class="fa fa-caret-up" title="Collapse view" style="font-size: larger;
+          margin-left: 90%;
+          padding-top: 10px;
+          position: absolute;
+          cursor: pointer;"></i>
+        <i *ngIf="item.isExpanded == false" class="fa fa-caret-down" title="Expand view" style="font-size: larger;
+          margin-left: 90%;
+          padding-top: 10px;
+          position: absolute;
+          cursor: pointer;"></i>
           <div class="icon"
               [style.width]="appIconSize"
               [style.height]="appIconSize"

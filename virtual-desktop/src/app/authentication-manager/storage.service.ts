@@ -53,7 +53,7 @@ export class StorageService {
         }
         break;
         case StorageKey.SESSION_EVENT: {
-          this.emitSessionEvent(newValue || undefined);
+          this.emitSessionEvent(newValue);
         }
         break;
         default: break;
@@ -74,7 +74,7 @@ export class StorageService {
     StorageService.setItem(StorageKey.SESSION_EVENT, reason.toString()+','+Date.now().toString());
   }
 
-  private emitSessionEvent(newValue?: string | null) { 
+  private emitSessionEvent(newValue?: string) { 
     this.logger.debug('ZWED5063I', newValue);
     let reason;
     if(newValue && newValue.indexOf(',')>0) {

@@ -12,16 +12,25 @@ import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-p
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
-import { L10nTranslationService } from 'angular-l10n';
+import { TranslationService } from 'angular-l10n';
 
 const PROPERTIES_APP = 'org.zowe.zlux.appmanager.app.propview';
+const SHORTCUTS_APP = 'org.zowe.zlux.appmanager.shortcuts';
+
 const PROPERTIES_ARGUMENT_FORMATTER = {data: {op:'deref',source:'event',path:['data']}};
-const UPDATE_PROPERTIES_ACTION = ZoweZLUX.dispatcher.makeAction(PROPERTIES_APP+'.update',
-                                                                'Update Properties View',
-                                                                ZoweZLUX.dispatcher.constants.ActionTargetMode.PluginFindAnyOrCreate,
-                                                                ZoweZLUX.dispatcher.constants.ActionType.Message,
-                                                                PROPERTIES_APP,
-                                                                PROPERTIES_ARGUMENT_FORMATTER);
+export const UPDATE_PROPERTIES_ACTION = ZoweZLUX.dispatcher.makeAction(PROPERTIES_APP+'.update',
+  'Update Properties View',
+  ZoweZLUX.dispatcher.constants.ActionTargetMode.PluginFindAnyOrCreate,
+  ZoweZLUX.dispatcher.constants.ActionType.Message,
+  PROPERTIES_APP,
+  PROPERTIES_ARGUMENT_FORMATTER);
+
+const UPDATE_SHORTCUTS_ACTION = ZoweZLUX.dispatcher.makeAction(SHORTCUTS_APP+'.update',
+  'Create a Shortcut',
+  ZoweZLUX.dispatcher.constants.ActionTargetMode.PluginFindAnyOrCreate,
+  ZoweZLUX.dispatcher.constants.ActionType.Message,
+  SHORTCUTS_APP,
+  PROPERTIES_ARGUMENT_FORMATTER);
 
 function closeAllWindows(item: LaunchbarItem, windowManager: WindowManagerService): void {
   let windowIds = windowManager.getWindowIDs(item.plugin);
@@ -39,7 +48,7 @@ function bringItemFront(item: LaunchbarItem, windowManager: WindowManagerService
   }
 }
 
-function getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
+export function getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
   const pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
   const basePlugin = pluginImpl.getBasePlugin();
   return {data:{"isPropertyWindow":true,
@@ -52,6 +61,19 @@ function getAppPropertyInformation(plugin: DesktopPluginDefinitionImpl):any{
          }};    
 }
 
+// TODO: Super messy, don't need all these attributes
+function getAppShortcutInformation(plugin: DesktopPluginDefinitionImpl):any{
+  const pluginImpl:DesktopPluginDefinitionImpl = plugin as DesktopPluginDefinitionImpl;
+  const basePlugin = pluginImpl.getBasePlugin();
+  return {data:{"isPropertyWindow":true, // TODO: Some of these can be added dynamically based on requested plugin i.e. web browser shortcut could have "appAction": "bookmark"
+          "appName":pluginImpl.defaultWindowTitle,
+          "appId":pluginImpl.getIdentifier(),
+          "appType":basePlugin.getType(),
+          "image":plugin.image,
+          "plugin": plugin
+         }};    
+}
+
 
 function launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl, windowManager: WindowManagerService){
   let propertyPluginDef = ZoweZLUX.pluginManager.getPlugin(PROPERTIES_APP);
@@ -61,6 +83,16 @@ function launchPluginPropertyWindow(plugin: DesktopPluginDefinitionImpl, windowM
   }
   const info = getAppPropertyInformation(plugin);
   ZoweZLUX.dispatcher.invokeAction(UPDATE_PROPERTIES_ACTION, info);
+}
+
+function launchCreateShortcutWindow(plugin: DesktopPluginDefinitionImpl, windowManager: WindowManagerService){
+  let propertyPluginDef = ZoweZLUX.pluginManager.getPlugin(SHORTCUTS_APP);
+  let propertyWindowID = windowManager.getWindow(propertyPluginDef);
+  if (propertyWindowID!=null){
+    windowManager.requestWindowFocus(propertyWindowID);
+  }
+  const info = getAppShortcutInformation(plugin);
+  ZoweZLUX.dispatcher.invokeAction(UPDATE_SHORTCUTS_ACTION, info);
 }
 
 function openWindow(item: LaunchbarItem, applicationManager: MVDHosting.ApplicationManagerInterface): void {
@@ -86,7 +118,7 @@ function openStandalone(item: LaunchbarItem): void {
 
 export function generateInstanceActions(item: LaunchbarItem,
                                         pluginsDataService: PluginsDataService,
-                                        translationService: L10nTranslationService,
+                                        translationService: TranslationService,
                                         applicationManager: MVDHosting.ApplicationManagerInterface,
                                         windowManager: WindowManagerService): ContextMenuItem[] {
   let menuItems: ContextMenuItem[];
@@ -96,6 +128,7 @@ export function generateInstanceActions(item: LaunchbarItem,
       { "text" : translationService.translate("Open in New Browser Tab"), "action": () => openStandalone(item)},
       { "text": translationService.translate('BringToFront'), "action": () => bringItemFront(item, windowManager) },
       pluginsDataService.pinContext(item),
+      { "text": translationService.translate('Create Shortcut...'), "action": () => launchCreateShortcutWindow(item.plugin, windowManager) },
       { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
       { "text": translationService.translate("Close All"), "action": ()=> closeAllWindows(item, windowManager)},
     ];
@@ -104,6 +137,7 @@ export function generateInstanceActions(item: LaunchbarItem,
       { "text": translationService.translate("Open New"), "action": ()=> openWindow(item, applicationManager)},
       { "text" : translationService.translate("Open in New Browser Tab"), "action": () => openStandalone(item)},
       pluginsDataService.pinContext(item),
+      { "text": translationService.translate('Create Shortcut...'), "action": () => launchCreateShortcutWindow(item.plugin, windowManager) },
       { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
       { "text": translationService.translate("Close All"), "action": ()=> closeAllWindows(item, windowManager)}
     ];
@@ -113,6 +147,7 @@ export function generateInstanceActions(item: LaunchbarItem,
       { "text": translationService.translate('Open'), "action": () => openWindow(item, applicationManager) },
       { "text" : translationService.translate("Open in New Browser Tab"), "action": () => openStandalone(item)},
       pluginsDataService.pinContext(item),
+      { "text": translationService.translate('Create Shortcut...'), "action": () => launchCreateShortcutWindow(item.plugin, windowManager) },
       { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
     ]
   }

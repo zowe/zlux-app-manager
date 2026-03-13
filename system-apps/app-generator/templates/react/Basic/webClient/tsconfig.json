@@ -1,0 +1,6 @@
+{
+  "extends": "${MVD_DESKTOP_DIR}/plugin-config/tsconfig.react.base.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  }
+}

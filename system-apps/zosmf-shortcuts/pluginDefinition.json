@@ -1,0 +1,17 @@
+{
+  "identifier": "org.zowe.zlux.shortcuts.zosmf",
+  "apiVersion": "1.0.0",
+  "pluginVersion": "1.1.1",
+  "pluginType": "application",
+  "dataServices": [
+    {
+      "type": "router",
+      "name": "discovery",
+      "filename": "discovery.js",
+      "routerFactory": "discoveryRouter",
+      "dependenciesIncluded": true,
+      "initializerLookupMethod": "external",
+      "version": "1.0.0"
+    }
+  ]
+}

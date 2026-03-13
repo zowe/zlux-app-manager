@@ -11,7 +11,7 @@
 */
 
 import { ViewContainerRef } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject } from 'rxjs/Subject';
 
 export type InstanceId = any;
 export type ViewportId = any;
@@ -26,6 +26,7 @@ export const Angular2InjectionTokens = {
   LOGGER: 'virtualdesktop-ng2.0-0-0.logger',
   PLUGIN_DEFINITION: 'virtualdesktop-ng2.0-0-0.plugin-definition',
   LAUNCH_METADATA: 'virtualdesktop-ng2.0-0-0.launch-metadata',
+  L10N_CONFIG: 'virtualdesktop-ng2.0-0-0.l10n-config',
   INSTANCE_ID: 'virtualdesktop-ng2.0-0-0.instance-id',
 
   /* Component Level Resources */
@@ -103,6 +104,10 @@ export interface ContextMenuItem {
   preventCloseMenu?: boolean;
 }
 
+export interface Angular2L10nConfig {
+  readonly defaultLocale: { languageCode: string; countryCode?: string; };
+  readonly providers: any[];
+}
 
 /*
   This program and the accompanying materials are

@@ -21,6 +21,7 @@ import { DesktopComponent } from './desktop/desktop.component';
 import { WindowPaneComponent } from './window-pane/window-pane.component';
 import { WindowComponent } from './window/window.component';
 import { WindowManagerService } from './shared/window-manager.service';
+import { LinkComponent } from './link/link.component';
 import { DraggableDirective } from './shared/draggable.directive';
 import { SizeableDirective } from './shared/sizeable.directive';
 import { MvdComponent } from './mvd.component';
@@ -28,10 +29,9 @@ import { AuthenticationModule } from '../../authentication-manager/authenticatio
 import { PersonalizationPanelComponent } from '../mvd-window-manager/personalization-panel/personalization-panel.component';
 import { KeybindingService } from './shared/keybinding.service';
 import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization/personalization.component';
-import { NgxFileDropModule } from 'ngx-file-drop';
+import { FileDropModule } from 'ngx-file-drop';
 import { ThemeEmitterService } from './services/theme-emitter.service';
-import {MatSnackBarModule} from '@angular/material/snack-bar';
-
+import { ZosmfModule } from '../../zosmf';
 
 @NgModule({
   imports: [
@@ -43,13 +43,14 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     LaunchbarModule,
     HttpClientModule,
     ContextMenuModule,
-    NgxFileDropModule,
-    MatSnackBarModule
+    FileDropModule,
+    ZosmfModule
   ],
   declarations: [
     DesktopComponent,
     WindowPaneComponent,
     WindowComponent,
+    LinkComponent,
     DraggableDirective,
     SizeableDirective,
     MvdComponent,

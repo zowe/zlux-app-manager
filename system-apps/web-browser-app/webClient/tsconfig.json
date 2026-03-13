@@ -1,6 +1,3 @@
 {
-  "extends": "../../../virtual-desktop/plugin-config/tsconfig.strict.json",
-  "include": [
-    "./src"
-  ]
+  "extends": "../../../virtual-desktop/plugin-config/tsconfig.strict.json"
 }

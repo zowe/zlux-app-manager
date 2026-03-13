@@ -8,12 +8,13 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, Optional, Inject } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 import { NavigationService, ProxyService } from '../services';
 import { SettingsService } from '../services/settings.service';
+import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
 
 @Component({
   selector: 'app-address-bar',
@@ -30,6 +31,7 @@ export class AddressBarComponent implements OnInit, OnDestroy {
   private urlSubscription: Subscription;
 
   constructor(
+    @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
     public navigation: NavigationService,
     private proxy: ProxyService,
     private settings: SettingsService,
@@ -52,9 +54,12 @@ export class AddressBarComponent implements OnInit, OnDestroy {
 
   navigate(): void {
     if (this.urlControl.value) {
-      this.navigation.navigate(
-        this.addSchemeIfNeeded(this.urlControl.value)
-      );
+      let url = this.addSchemeIfNeeded(this.urlControl.value)
+      if (this.windowActions) {
+        this.windowActions.setTitle(url.substring(0,url.indexOf('/',8))+' - Web Browser');
+      }
+      
+      this.navigation.navigate(url);
     }
   }
 

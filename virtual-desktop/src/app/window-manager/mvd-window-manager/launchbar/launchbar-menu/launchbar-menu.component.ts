@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -11,19 +9,27 @@
 */
 
 import { Component, ElementRef, HostListener, Input, Output, EventEmitter, Injector, ViewChild } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject } from 'rxjs/Subject';
 import { PluginsDataService } from '../../services/plugins-data.service';
-import { LaunchbarItem } from '../shared/launchbar-item';
+import { LaunchbarItem, launchBarItemFromJson, LaunchbarItemJson, launchBarItemToJson } from '../shared/launchbar-item';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
-import { L10nTranslationService } from 'angular-l10n';
+import { TranslationService } from 'angular-l10n';
 import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-plugin-definition";
 import { generateInstanceActions } from '../shared/context-utils';
 import { KeybindingService } from '../../shared/keybinding.service';
 import { KeyCode } from '../../shared/keycode-enum';
+import { HttpClient } from '@angular/common/http';
+import { of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { ZosmfDiscoveryService, ZosmfItem } from '../../../../zosmf';
 
 const FONT_SIZE=12;
+const DESKTOP_PLUGIN = ZoweZLUX.pluginManager.getDesktopPlugin();
+const LAUNCHBAR_GROUPS_URI = ZoweZLUX.uriBroker.pluginConfigUri(DESKTOP_PLUGIN,'ui/launchbar/pluginGroups', 'groupedPlugins.json');
+// TODO: Currently assets get loaded from Web browser for convenience sake (not using CSS for now) but this can be cleaned up
+const WEB_BROWSER_NAME = "org.zowe.zlux.ng2desktop.webbrowser";
 
 @Component({
   selector: 'rs-com-launchbar-menu',
@@ -33,6 +39,7 @@ const FONT_SIZE=12;
 export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public displayItems:LaunchbarItem[];
   private _menuItems:LaunchbarItem[];
+  private _organizedItems:LaunchbarItem[];
   public color: any = {};
   public menuIconSize: string;
   public appIconSize: string;
@@ -57,10 +64,11 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public appFilter:string="";
   public activeIndex:number;  
   private isContextMenuPresent:boolean;
+  private webBrowserPluginDef: DesktopPluginDefinitionImpl;
 
   @Input() set menuItems(items: LaunchbarItem[]) {
-    this._menuItems = items;
     this.displayItems = items;
+    this._organizedItems = items;
     this.filterMenuItems();
   }
  
@@ -117,9 +125,11 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     public windowManager: WindowManagerService,
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
-    private translation: L10nTranslationService,
+    private translation: TranslationService,
     private desktopComponent: DesktopComponent,
     private appKeyboard: KeybindingService,
+    private http: HttpClient,
+    private zosmfDiscovery: ZosmfDiscoveryService,
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -132,21 +142,180 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     
     this.activeIndex = 0;
     this.isContextMenuPresent = false;
+    this.webBrowserPluginDef = new DesktopPluginDefinitionImpl(ZoweZLUX.pluginManager.getPlugin('org.zowe.zlux.ng2desktop.webbrowser'))
   }
 
   onLogin(plugins:any): boolean {
-    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.app.propview", false).then(viewerPlugin => {
+    this.pluginManager.findPluginDefinition("org.zowe.zlux.appmanager.shortcuts", false).then(viewerPlugin => {
       const pluginImpl:DesktopPluginDefinitionImpl = viewerPlugin as DesktopPluginDefinitionImpl;
       this.propertyWindowPluginDef=pluginImpl;
     })
+    this.loadGroups();
     return true;
+  }
+
+  loadGroups(): void {  
+    this.http.get<any>(LAUNCHBAR_GROUPS_URI, {observe: 'response'}).pipe(
+      map(res => res),
+      catchError(err => of(err)),
+    ).subscribe((data) => {
+      console.log("load app groups result:", data)
+      if (data.status < 300 && data.status > 199 && data.status != 204) {
+        const groups = data.body.contents.groups as LaunchbarItemJson[];
+        const itemGroups = groups.map(group => launchBarItemFromJson(group));
+        this.addGroups(itemGroups);
+      } else if (data.status == 204) {
+        this._initializeGroups().then(groups => {this.addGroups(groups);});
+      }
+    });
+  }
+
+  _flattenItemList(items: LaunchbarItem[], flatList: LaunchbarItem[]) {
+    items.forEach((item:LaunchbarItem) => {
+      if (item.plugin) {
+        let found = false;
+        for (let i = 0; i < flatList.length; i++) {
+          if ((item.plugin.basePlugin as any).identifier == (flatList[i].plugin.basePlugin as any).identifier) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          flatList.push(item);
+        }
+      } else if (item.childrenLaunchbarItems) {
+        flatList = this._flattenItemList(item.childrenLaunchbarItems, flatList);
+      }
+    });
+    return flatList;
+  }
+
+  addGroups(groups:LaunchbarItem[]) {
+    this._menuItems = this._flattenItemList(this._organizedItems,[]);
+    
+    groups.forEach((entry:any)=> {
+      if ((typeof entry == 'object') && entry.label) {
+        console.log('entry label=',entry.label);
+        if (entry.childrenIds) {
+          entry.childrenLaunchbarItems = entry.childrenLaunchbarItems || [];
+          entry.isExpanded = false;
+          entry.childrenIds.forEach((id:string)=> {
+            console.log('process id=',id);
+            //substitute and remove
+            for (let i = 0; i < this._menuItems.length; i++) {
+              let item = this._menuItems[i];
+              console.log('check item=',item);
+              if (item.plugin && ((item.plugin.basePlugin as any).identifier == id)) {
+                entry.childrenLaunchbarItems.push(item);
+                item.parentLaunchbarItem = entry;
+                for (let j = 0; j < this._organizedItems.length; j++) {
+                  if ((this._organizedItems[j].plugin.basePlugin as any).identifier == id) {
+                    console.log('removing item from root',id);
+                    this._organizedItems.splice(j,1);
+                    break;
+                  }
+                }
+                //TODO can a plugin exist in multiple folders?
+                //For now, no.
+                break;
+              }
+            }
+          });
+        }
+        //add to list
+        console.log('group extracted as',entry);
+        delete entry.childrenIds;
+        //TODO what if another entry has the same label?
+        this._organizedItems.push(entry);
+        this._menuItems.push(entry);
+      }
+    });
+    console.log('end addgroups, start filtering');
+    this.resetMenu();
+  }
+
+  //This should init the config service file if its missing.
+  _initializeGroups(): Promise<LaunchbarItem[]> {
+    return new Promise((resolve, reject)=> {
+      // TODO: Launchbar group generation code goes here (i.e. z/OSMF links)
+      let zosmfItem = <LaunchbarItem>{
+        label: "z/OSMF rs28",
+        tooltip: "Houses your z/OSMF apps",
+        image: "/ZLUX/plugins/"+WEB_BROWSER_NAME+"/web/assets/generic-folder.png",
+        showIconLabel: true,
+        childrenLaunchbarItems: undefined,
+        isExpanded: false
+      };
+
+      this.zosmfDiscovery.zosmfUrl$.pipe(
+        switchMap(zosmfUrl => {
+          if (zosmfUrl) {
+            console.log(`zosmf configured using URL %s`, zosmfUrl);
+            return this.zosmfDiscovery.loadZosmfShortcuts().pipe(
+              map(items => items.map(item => this.convertZosmfItemToLaunchbarItem(item, zosmfItem, zosmfUrl)))
+            );
+          } else {
+            console.log(`zosmf not configured`);
+            return of([]);
+          }
+        })
+      ).subscribe(items => {
+        console.log(`zosmf apps`, items);
+        zosmfItem.childrenLaunchbarItems = items;
+
+        const launchbarGroups = {
+          "groups":<LaunchbarItem[]>[
+            { label: 'Sample apps',
+              tooltip: 'Education apps for developers',
+              image: "/ZLUX/plugins/"+WEB_BROWSER_NAME+"/web/assets/generic-folder.png",
+              showIconLabel: true,
+              childrenIds: [
+                "org.zowe.zlux.sample.angular", 
+                "org.zowe.zlux.sample.react", 
+                "org.zowe.zlux.sample.iframe"
+              ]
+            }
+          ]
+        }
+        if (zosmfItem.childrenLaunchbarItems && zosmfItem.childrenLaunchbarItems.length > 0) {
+          launchbarGroups.groups.push(zosmfItem);
+          const groupsToSave = launchbarGroups.groups.map(launchBarItemToJson);
+          this.http.put(LAUNCHBAR_GROUPS_URI, {groups: groupsToSave}).subscribe((res) => {
+            console.log('Plugin groups initialized');
+          }, (err)=> {
+            console.log('Plugin group init error=',err);
+          });
+        }
+        console.log("Init groups to=",launchbarGroups.groups);
+        resolve(launchbarGroups.groups);        
+      });
+    });
+  }
+
+  private convertZosmfItemToLaunchbarItem(item: ZosmfItem, parent:LaunchbarItem, zosmfUrl: string): LaunchbarItem {
+    return <LaunchbarItem>{
+      label: item.displayName,
+      tooltip: item.displayName,
+      image: "/ZLUX/plugins/"+(DESKTOP_PLUGIN as any).identifier+"/web/assets/images/launchbar/generic-zosmf-link.png",
+      showIconLabel: true,
+      launchMetadata: {
+        data: {
+          enableProxy: true,
+          url: `${zosmfUrl}/fakeiframe${item.actionInfo}`,
+          hideControls: true,
+          title: item.displayName
+        }
+      },
+      plugin: this.webBrowserPluginDef,
+      parentLaunchbarItem: parent
+    }
   }
 
   ngOnInit(): void {
     this.appKeyboard.keyUpEvent
       .subscribe((event:KeyboardEvent) => {
         // TODO: Disable bottom app bar once mvd-window-manager single app mode is functional. Variable subject to change.
-        if (event.which === KeyCode.KEY_M && !window['GIZA_PLUGIN_TO_BE_LOADED']) {
+        if (event.which === KeyCode.KEY_M && !window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
           this.activeToggle();
         }
     });
@@ -173,6 +342,10 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   }
   
   activeToggle(): void {
+    this._menuItems.filter(item => item.isExpanded).forEach((item:LaunchbarItem)=> {
+      item.isExpanded = false;
+      this.collapseItemFolder(item);
+    });
     this.isActive = !this.isActive;
     // gain focus and clear on toggle when active
     if(this.isActive) {
@@ -194,32 +367,83 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
 
   resetMenu(): void {
     this.appFilter = '';
-    this.displayItems = this._menuItems;
+    if (this._menuItems) {
+      this._menuItems.filter(item => item.isExpanded).forEach((item:LaunchbarItem)=> {
+        item.isExpanded = false;
+      });
+    }
+    this.displayItems = this._organizedItems;
   }
 
+  //TODO filter should be able to find plugins within a group folder by doing a recursive check.
   filterMenuItems(): void {
     this.activeIndex = 0;
-    if (this.appFilter) {
+    this.displayItems = this._organizedItems;
+    if (this.appFilter) {     
       let filter = this.appFilter.toLowerCase();
-      this.displayItems = this._menuItems.filter((item)=> {
+      //TODO doesnt recurse but should
+      this.displayItems = this._organizedItems.filter((item)=> {
         return ((item.tooltip.toLowerCase() as any).includes(filter)
         || (item.label.toLowerCase() as any).includes(filter));
       });
     } else {
-      this.displayItems = this._menuItems;
+      if (this._menuItems) {
+        this._menuItems.filter(item => item.isExpanded).forEach((item:LaunchbarItem)=> {
+          item.isExpanded = false;
+        });
+      }
     }
   }
 
   clicked(item: LaunchbarItem): void {
-    this.itemClicked.emit(item);
-    this.isActive = false;
-    this.emitState();
+    if (item.childrenLaunchbarItems) {
+      this.isActive = true;
+      if (item.isExpanded) {
+        item.isExpanded = false;
+        this.collapseItemFolder(item);
+      } else {
+        item.isExpanded = true;
+        this.expandItemFolder(item);
+      }
+    } else {
+      this.itemClicked.emit(item);
+      this.emitState();
+      this.isActive = false;
+    }
   }
 
   closeApplication(item: LaunchbarItem): void {
     let windowId = this.windowManager.getWindow(item.plugin);
     if (windowId != null) {
       this.windowManager.closeWindow(windowId);
+    }
+  }
+
+  expandItemFolder(item: LaunchbarItem): void { 
+    if (item.childrenLaunchbarItems) {
+      for (let i = 0; i < this.displayItems.length; i++) {
+        if (item.label == this.displayItems[i].label) {
+          for (let j = 0; j < item.childrenLaunchbarItems.length; j++) {
+            this.displayItems.splice(i+1, 0, item.childrenLaunchbarItems[j]);
+            i++;
+          }
+          console.log("this.childrenLaunchbarItems ", item.childrenLaunchbarItems);
+          // this.displayItems.splice(i+1, 0, newItem);
+          console.log("this.displayItems ", this.displayItems);
+        }
+      }
+    }
+  }
+
+  collapseItemFolder(item: LaunchbarItem): void { 
+    if (item.childrenLaunchbarItems) {
+      for (let j = 0; j < item.childrenLaunchbarItems.length; j++) {
+        for (let i = 0; i < this.displayItems.length; i++) {
+          if (this.displayItems[i].label == item.childrenLaunchbarItems[j].label) {
+            this.displayItems.splice(i, 1);
+          }
+        }
+      }
     }
   }
 

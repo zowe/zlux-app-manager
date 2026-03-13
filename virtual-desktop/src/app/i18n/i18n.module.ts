@@ -8,40 +8,46 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { NgModule, APP_INITIALIZER, LOCALE_ID } from '@angular/core';
+import { NgModule, APP_INITIALIZER, LOCALE_ID, Inject } from '@angular/core';
 import { LanguageLocaleService } from './language-locale.service';
 import { localeInitializer, localeIdFactory } from './locale-initializer.provider';
 import { HttpClientModule } from '@angular/common/http';
-import { L10nConfig, L10nIntlModule, L10nTranslationModule, L10nTranslationService } from 'angular-l10n';
+import {
+  HttpTranslationProvider,
+  ISOCode,
+  L10nLoader,
+  LOCALE_CONFIG,
+  LocaleConfig,
+  TRANSLATION_CONFIG,
+  TranslationConfig,
+  TranslationModule
+} from 'angular-l10n';
 import { L10nStorageService } from './l10n-storage.service';
 import { L10nConfigService } from './l10n-config.service';
-import { L10nTranslationLoaderService } from './l10n-translation-loader.service';
+import { L10nCustomTranslationProvider } from './l10n-custom-translation.provider';
 
-export const l10nConfig: L10nConfig = {
-  format: 'language-region',
-  providers: [
-    { name: 'app', asset: null, options: {plugin:  ZoweZLUX.pluginManager.getDesktopPlugin()} },
-  ],
-  cache: true,
-  keySeparator: '.',
-  defaultLocale: { language: 'en-US' },
-  schema: [],
-};
 @NgModule({
   imports: [
     HttpClientModule,
-    L10nTranslationModule.forRoot(
-       l10nConfig,
-       {
-         translationLoader: L10nTranslationLoaderService,
-         storage: L10nStorageService,
-       }
-     ),
-    L10nIntlModule
+    TranslationModule.forRoot({
+      locale: {},
+      translation: {
+        providers: [],
+        composedLanguage: [ISOCode.Language, ISOCode.Country],
+        caching: true
+      }},
+      {
+        localeStorage: L10nStorageService,
+        translationProvider: L10nCustomTranslationProvider
+      }
+    )
   ],
   providers: [
     L10nConfigService,
-    { provide: LOCALE_ID, useFactory: localeIdFactory, deps: [LanguageLocaleService] },
+    L10nStorageService,
+    HttpTranslationProvider,
+    L10nCustomTranslationProvider,
+    { provide: LOCALE_ID, useFactory: localeIdFactory, deps: [LanguageLocaleService]},
     {
       provide: APP_INITIALIZER,
       multi: true,
@@ -51,8 +57,16 @@ export const l10nConfig: L10nConfig = {
   ]
 })
 export class I18nModule {
-  constructor(private translation: L10nTranslationService) {
-    this.translation.init();
+  constructor(
+    private l10nLoader: L10nLoader,
+    @Inject(LOCALE_CONFIG) private localeConfig: LocaleConfig,
+    @Inject(TRANSLATION_CONFIG) private translationConfig: TranslationConfig,
+    private l10nConfigService: L10nConfigService,
+  ) {
+    const desktopPlugin = ZoweZLUX.pluginManager.getDesktopPlugin();
+    this.localeConfig.defaultLocale = this.l10nConfigService.getDefaultLocale();
+    this.translationConfig.providers = this.l10nConfigService.getTranslationProviders(desktopPlugin);
+    this.l10nLoader.load();
   }
 
 }

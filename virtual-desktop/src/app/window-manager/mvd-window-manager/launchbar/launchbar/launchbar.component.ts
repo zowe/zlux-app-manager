@@ -18,7 +18,7 @@ import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-p
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
-import { L10nTranslationService } from 'angular-l10n';
+import { TranslationService } from 'angular-l10n';
 import { generateInstanceActions } from '../shared/context-utils';
 import { DesktopTheme } from '../../desktop/desktop.component';
 import { BaseLogger } from 'virtual-desktop-logger';
@@ -77,7 +77,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
     }
 
     // TODO: Disable bottom app bar once mvd-window-manager single app mode is functional. Variable subject to change.
-    if (window['GIZA_PLUGIN_TO_BE_LOADED']) {
+    if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
       this.displayAppBar = "none";
     } else {
       this.displayAppBar = "inherit";
@@ -107,7 +107,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
     private pluginsDataService: PluginsDataService,
     private injector: Injector,
     public windowManager: WindowManagerService,
-    private translation: L10nTranslationService
+    private translation: TranslationService
   ) {
      // Workaround for AoT problem with namespaces (see angular/angular#15613)
      this.size = 2;
@@ -238,7 +238,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
     return openItems;
   }
   menuItemClicked(item: LaunchbarItem): void {
-    this.applicationManager.spawnApplication(item.plugin, null)
+    this.applicationManager.spawnApplication(item.plugin, item.launchMetadata);
   }
 
   launchbarItemClicked(event: MouseEvent, item: LaunchbarItem): void {

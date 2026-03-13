@@ -2,28 +2,6 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
-## `2.18.4`
-
-- Enhancement: Upgraded dependency `sass` to version `1.93.2` to avoid some security risks. ([#677](https://github.com/zowe/zlux-app-manager/pull/677))
-- Enhancement: Exclude development-only npm packages from production builds. ([#678](https://github.com/zowe/zlux-app-manager/pull/678))
-
-## `2.10.0`
- 
-- Bugfix: Fixed a timing issue with the iframe-adapter for Firefox (#532)
-
-## `2.8.0`
-
-- Bugfix: Fixed the iframe-adapter not properly recognizing standalone mode
-- Bugfix: Fixed Iframes from unintentionally loading their sources multiple times during refocus & multi-app situations
-- Enhancement: Added new isSingleAppModeSimple() to iframe-adapter to differentiate between standalone mode and simple standalone mode
-- Enhancement: Replace existing snapshot preview with lighter UI to magnitudes increase multi-app Desktop performance
-
-## `2.0.0`
-
-- Enhancement: New desktop library versions: Angular 6->12, Corejs 2->3, Typescript 2->4 etc. For more information, visit https://www.zowe.org/vnext
-- Breaking change: Due to new library versions, native apps such as Angular and React apps written for Zowe v1 may not work in Zowe v2. Rebuilding the apps with the same versions and the latest webpack build scripts is recommended.
-- Enhancement: The web-browser and admin-desktop-notification apps now contains a manifest file so that it can be installed with `zwe components install`
-
 ## `1.25.0`
 
 - Fixed a bug where using app2app with incorrectly formatted data would not honor launch/message request

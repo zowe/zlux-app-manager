@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { ChangeDetectorRef, Directive, ElementRef, HostListener, Input, OnInit } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input, OnInit } from '@angular/core';
 
 import { DesktopWindow } from './desktop-window';
 //import { BaseLogger } from 'virtual-desktop-logger';
@@ -42,15 +42,11 @@ export class DraggableDirective implements OnInit {
   }
 
   constructor(
-    public element: ElementRef, private ref: ChangeDetectorRef
+    public element: ElementRef
   ) {
     this.topOffset = 0;
     this.leftOffset = 0;
     this.mouseDown = false;
-    ref.detach(); // deactivate change detection
-    setInterval(() => {
-      this.ref.detectChanges(); // manually trigger change detection
-    }, 17);
   }
 
   // TODO: This is a bit of a mess
@@ -91,7 +87,6 @@ export class DraggableDirective implements OnInit {
   onMouseMove(event: MouseEvent): void {
     if (this.mouseDown) {
       this.move(event);
-      event.stopPropagation();
     }
   }
 
@@ -100,7 +95,6 @@ export class DraggableDirective implements OnInit {
     this.onMouseMove(event);
   }
 
-  // Touch events are used for mobile/touch devices, similar to ones above
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: Event): void {
     this.mouseDown = true;
@@ -135,6 +129,7 @@ export class DraggableDirective implements OnInit {
 
     const nTop = (top - this.topOffset);
     const nLeft = (left - this.leftOffset);
+
     this.desktopWindow.windowState.position = { top: nTop, left: nLeft, width: width, height: height};
   }
 }

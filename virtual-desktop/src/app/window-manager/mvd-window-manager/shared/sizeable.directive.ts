@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { ChangeDetectorRef, Directive, HostListener, Input, OnInit } from '@angular/core';
+import { Directive, HostListener, Input, OnInit } from '@angular/core';
 
 import { DesktopWindow } from './desktop-window';
 import { DraggableDirective } from './draggable.directive';
@@ -44,17 +44,13 @@ export class SizeableDirective implements OnInit {
   handle: HTMLElement | null;
   handles: Array<HTMLElement>;
 
-  constructor(private ref: ChangeDetectorRef) {
+  constructor() {
     this.top = 0;
     this.left = 0;
     this.overshootWidth = 0;
     this.overshootHeight = 0;
     this.handle = null;
     this.handles = new Array<HTMLElement>(Compass.size);
-    ref.detach(); // deactivate change detection
-    setInterval(() => {
-      this.ref.detectChanges(); // manually trigger change detection
-    }, 17);
   }
 
   ngOnInit(): void {
@@ -92,7 +88,6 @@ export class SizeableDirective implements OnInit {
   onMouseMove(event: MouseEvent): void {
     if (this.mouseDown) {
       this.resize(event);
-      event.stopPropagation();
     }
   }
 
@@ -101,7 +96,6 @@ export class SizeableDirective implements OnInit {
     this.onMouseUp(null);
   }
 
-  // Touch events are used for mobile/touch devices, similar to ones above
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: Event): void {
     this.testDownTarget(event.target!, event as TouchEvent);

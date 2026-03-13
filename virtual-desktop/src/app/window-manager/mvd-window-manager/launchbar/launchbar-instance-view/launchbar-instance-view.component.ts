@@ -67,10 +67,6 @@ export class LaunchbarInstanceViewComponent {
     return title;
   }
 
-  isWindowFocused(windowId: MVDWindowManagement.WindowId): boolean {
-    return this.windowManager.windowHasFocus(windowId);
-  }
-
   clicked(windowId: MVDWindowManagement.WindowId, item: LaunchbarItem): void {
     this.windowManager.requestWindowFocus(windowId);
   }

@@ -9,9 +9,13 @@
 */
 
 import { Injectable /*, Inject */ } from '@angular/core';
-import { from, Observable, throwError } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/mergeMap';
+import { fromPromise } from 'rxjs/observable/fromPromise';
 import { BaseLogger } from '../shared/logger';
+import { _throw } from 'rxjs/observable/throw';
+
 import { Globalization } from './globalization';
 
 @Injectable()
@@ -24,9 +28,7 @@ export class LanguageLocaleService {
   constructor(
   ) {
     const lang = this.getLanguage();
-    if (document.documentElement) {
-      document.documentElement.lang = lang;
-    }
+    document.documentElement.lang = lang;
   }
 
   getLanguage(): string {
@@ -56,7 +58,7 @@ export class LanguageLocaleService {
     const uri = `${this.makeLocaleURI(localeId)}.js`;
     // From lchudinov: This code is called before Angular's Http API is initialized,
     // hence the call to window.fetch.
-    return from(window.fetch(uri).then(res => {
+    return fromPromise(window.fetch(uri).then(res => {
       if (res.ok) {
         return res.text();
       }
@@ -74,18 +76,18 @@ export class LanguageLocaleService {
   private setLanguageOrLocale(preferenceName: string, requestedValue: string): Observable<any> {
     if (requestedValue == null) {
       // clear the preference, other code will revert to using the browser-specified lang/locale
-      return from(this.globalization.setPreference(preferenceName, requestedValue));
+      return fromPromise(this.globalization.setPreference(preferenceName, requestedValue));
     } else {
-      return this.checkForLocaleFile(requestedValue).pipe(
-        mergeMap((value: any) => {
+      return this.checkForLocaleFile(requestedValue).mergeMap((value: any) => {
         if (value) {
-          return from(this.globalization.setPreference(preferenceName, requestedValue));
+          return fromPromise(this.globalization.setPreference(preferenceName, requestedValue));
         } else {
           const message: string = `ZWED5169W - no locale data found for locale id ${value}`;
           this.logger.warn(message)
-          return throwError(message);
+          //return Observable.throwError(message);
+          return _throw(message);
         }
-      }));
+      });
     }
   }
 

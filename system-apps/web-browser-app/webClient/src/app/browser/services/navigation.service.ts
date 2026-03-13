@@ -17,7 +17,7 @@ import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
 
 @Injectable()
 export class NavigationService {
-  readonly startURL: string = 'https://zowe.org';
+  readonly startURL: string = 'https://rs28.rocketsoftware.com:11443/zosmf/';
   private rawURLSubject = new ReplaySubject<string>(1);
   rawURL$ = this.rawURLSubject.asObservable();
   iframeURL$: Observable<string>;
@@ -27,12 +27,13 @@ export class NavigationService {
   private forwardStack: string[] = [];
 
   constructor(
-    @Optional() @Inject(Angular2InjectionTokens.LAUNCH_METADATA)
-    launchMetadata: any,
+    @Optional() @Inject(Angular2InjectionTokens.LAUNCH_METADATA) launchMetadata: any,
     private proxy: ProxyService
   ) {
-    if (isLaunchMetadata(launchMetadata) && typeof launchMetadata.data.url === 'string') {
-      this.startURL = launchMetadata.data.url;
+    if (isLaunchMetadata(launchMetadata)) {
+      if (typeof launchMetadata.data.url === 'string') {
+        this.startURL = launchMetadata.data.url;
+      }
     }
     this.iframeURL$ = this.rawURLSubject.pipe(switchMap(url => this.proxy.process(url)));
     this.navigateInternal(this.startURL);

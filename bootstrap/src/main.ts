@@ -36,6 +36,7 @@ function processApp2AppArgs(url?: string): void {
     switch (key) {
       case "pluginId":
         window['GIZA_PLUGIN_TO_BE_LOADED'] = value;
+        window['GIZA_SIMPLE_CONTAINER_REQUESTED'] = true;
         window['GIZA_ENVIRONMENT'] = 'MVD';
         pluginId = value;
         break;
@@ -48,17 +49,16 @@ function processApp2AppArgs(url?: string): void {
         break;
       case "windowManager":
         windowManager = value;
-        if (!windowManager || windowManager.toUpperCase() !== 'MVD') {
-          window['GIZA_SIMPLE_CONTAINER_REQUESTED'] = true;
-        }
         break;
     }
   });
 
   if (window['GIZA_SIMPLE_CONTAINER_REQUESTED']) {
-    console.log(`ZWED5003I - Simple container requested with pluginId ${pluginId}`);
-  } else {
-    console.log(`ZWED5043I - MVD standalone container requested with pluginId ${pluginId}`);
+    if (windowManager && windowManager.toUpperCase() === 'MVD') {
+      console.log(`ZWED5043I - MVD standalone container requested with pluginId ${pluginId}`);
+    } else {
+      console.log(`ZWED5003I - Simple container requested with pluginId ${pluginId}`);
+    }
   }
 }
 

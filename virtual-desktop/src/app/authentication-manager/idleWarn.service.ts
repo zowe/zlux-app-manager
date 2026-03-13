@@ -1,9 +1,9 @@
-import moment from 'moment';
+import * as moment from 'moment';
 import { Injectable } from '@angular/core';
 import { ZluxPopupManagerService, ZluxErrorSeverity } from '@zlux/widgets';
-import { L10nTranslationService } from 'angular-l10n';
+import { TranslationService } from 'angular-l10n';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { Subscription } from 'rxjs';
+import { Subscription } from 'rxjs/Subscription';
 import { StorageService } from './storage.service';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class IdleWarnService {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   
   constructor(private popupManager: ZluxPopupManagerService,
-    public translation: L10nTranslationService,
+    public translation: TranslationService,
     private storageService: StorageService  
     ) {
   }

@@ -14,6 +14,7 @@ import express from 'express';
 import http from "http";
 import https from "https";
 import fs from 'fs';
+import urlLib from 'url';
 import { CONTENT_SECURITY_POLICY, CSP } from "./csp";
 const Promise = require('bluebird');
 
@@ -46,9 +47,9 @@ interface Context {
   };
   storage: any;
   logger: {
-    info: (message: string) => void;
-    error: (message: string) => void;
-    debug: (message: string) => void;
+    info: (...loggableItems:any[]) => void;
+    error: (...loggableItems:any[]) => void;
+    debug: (...loggableItems:any[]) => void;
   };
   wsRouterPatcher: any;
   addBodyParseMiddleware: (router: Router) => void;
@@ -75,6 +76,7 @@ class ProxyDataService {
   private readonly keysAndCerts: KeysAndCerts;
   private readonly portRangeDefault = { start: 8551, end: 8580 };
   private readonly proxyServerByPort = new Map<number, Proxy>();
+  private readonly proxyServerByOrigin = new Map<string, any>();
   private portRangeSource: string = 'default';
 
   constructor(context: Context) {
@@ -104,21 +106,41 @@ class ProxyDataService {
     const url = req.body.url;
     this.context.logger.info(`proxy got post request for url=${url}`);
     const hostname = req.hostname;
-    this.checkURL(url).then((redirectResult: CheckURLResult) => {
-      let newURL = url;
-      if (redirectResult.redirect) {
-        newURL = redirectResult.location;
-      }
-      const port = this.findFreePort();
-      if (!port) {
-        res.status(503).json();
-        return;
-      }
-      const proxyServer = this.startProxyServer(newURL, hostname, port);
-      this.proxyServerByPort.set(port, { proxy: proxyServer, target: newURL });
-      this.context.logger.info(`created proxy for ${url} (${newURL}) on port ${port}`);
+    let proxyServer = this.proxyServerByOrigin.get(url);
+    let port;
+    if (!proxyServer) {
+      this.checkURL(url).then((redirectResult: CheckURLResult) => {
+        this.context.logger.debug(`CheckURL returned=`,redirectResult);
+        let newURL = url;
+        if (redirectResult.redirect) {
+          newURL = redirectResult.location;
+        }
+        port = this.findFreePort();
+        if (!port) {
+          res.status(503).json();
+          return;
+        }
+        this.context.logger.info(`About to proxy in a moment`);
+        let origin = req.headers['Origin'] ? (req.headers['Origin'] as string) : (req.headers['referer'] as string);
+        if (origin) {
+          let index = origin.indexOf('/', 9); //next slash after here is path territory
+          if (index != -1) {
+            origin = origin.substring(0,index);
+          }
+        }
+        proxyServer = this.startProxyServer(newURL, hostname, port, origin);
+        this.proxyServerByPort.set(port, { proxy: proxyServer, target: newURL});
+        this.proxyServerByOrigin.set(url, { proxy: proxyServer, port: port });
+        this.context.logger.info(`created proxy for ${url} (${newURL}) on port ${port}`);
+
+        res.status(200).json({ port, ...metadata });
+      });
+    } else {
+      port = proxyServer.port;
+      this.context.logger.info(`reused proxy for ${url}`);
+
       res.status(200).json({ port, ...metadata });
-    });
+    }
   }
 
   private findFreePort(): number | undefined {
@@ -166,9 +188,12 @@ class ProxyDataService {
   }
 
   private makeProxyOptions(url: string, hostname: string, proxyPort: number): httpProxy.ServerOptions {
+    const referer = url;
+    const origin = url;
     const baseOptions: httpProxy.ServerOptions = {
       target: 'dummy target',
-      secure: false,
+      secure: process.env['VERIFY_CERTIFICATES'] == 'true' ? true : false,
+      preserveHeaderKeyCase: true,
       changeOrigin: true,
       autoRewrite: true,
       followRedirects: true,
@@ -182,28 +207,59 @@ class ProxyDataService {
     return <httpProxy.ServerOptions>{
       ...baseOptions,
       target: url,
+      headers: {
+        referer,
+        origin,
+      }
     };
   }
 
-  private startProxyServer(url: string, hostname: string, port: number): httpProxy {
+  private startProxyServer(url: string, hostname: string, port: number, origin?: string): httpProxy {
     this.context.logger.info(`about to create proxy for ${url}`);
     const proxyOptions = this.makeProxyOptions(url, hostname, port);
+    this.context.logger.info(`Proxy to ${hostname}:${port} will do cert verification? ${proxyOptions.secure}`);
     const proxy = httpProxy.createProxyServer(proxyOptions);
-    proxy.on('proxyRes', (proxyRes: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) => this.handleProxyRes(proxyRes, req, res));
+    proxy.on('proxyRes', (proxyRes: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) => this.handleProxyRes(proxyRes, req, res, origin));
     proxy.on('error', (err: Error, req: http.IncomingMessage, res: http.ServerResponse) => this.handleProxyError(err, req, res));
     proxy.on('econnreset', (err: Error, req: http.IncomingMessage, res: http.ServerResponse) => this.handleProxyEconnreset(err, req, res));
     return proxy.listen(port);
   }
 
-  private handleProxyRes(proxyRes: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) {
+  private handleProxyRes(proxyRes: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse, origin?: string) {
     if (proxyRes.headers[X_FRAME_OPTIONS]) {
+      //TODO some browsers dont recognize this value
       proxyRes.headers[X_FRAME_OPTIONS] = 'allowall';
     }
     if (proxyRes.headers[CONTENT_SECURITY_POLICY]) {
       const cspHeaders = proxyRes.headers[CONTENT_SECURITY_POLICY];
       proxyRes.headers[CONTENT_SECURITY_POLICY] = this.fixContentSecurityPolicyHeaders(cspHeaders);
     }
-    this.context.logger.debug(`Modified Response headers from target ${JSON.stringify(proxyRes.headers, null, 2)}`);
+    if (req.headers['Origin']) {
+      proxyRes.headers['Access-Control-Allow-Origin'] = req.headers['Origin'];
+    } else if (origin) {
+      //HACK: use initial referer to hope this is the right origin
+      proxyRes.headers['Access-Control-Allow-Origin'] = origin;
+    }
+
+    const hackRoute = '/fakeiframe';   
+    if (req.url.startsWith(hackRoute)) {
+      let hostname = 'localhost';
+      let referer = req.headers['Origin'] || req.headers['referer'] || req.headers['referrer'];
+      if (referer) {
+        const urlObj = urlLib.parse((referer as string));
+        hostname = urlObj.hostname;
+      }
+      const route = req.url.substring(hackRoute.length);
+      console.log('route=',route);
+      const html = `<html><body>
+        <iframe width="100%" height="100%" src="https://${hostname}:8551/${route}"></iframe>
+      </body></html>`;
+      res.writeHead(200, {
+        'Content-Type': 'text/html'
+      });
+      res.end(html);
+    }
+    //this.context.logger.info(`Modified Response headers from target ${JSON.stringify(proxyRes.headers, null, 2)}`);
   }
 
   private fixContentSecurityPolicyHeaders(cspHeaders: string | string[]): string | string[] {
@@ -226,20 +282,29 @@ class ProxyDataService {
   }
 
   private handleProxyError(err: Error, req: http.IncomingMessage, res: http.ServerResponse) {
-    res.writeHead(500, { 'Content-Type': 'text/plain' });
-    res.end(`Something went wrong: ${JSON.stringify(err, null, 2)}`);
+    res.writeHead(502, { 'Content-Type': 'text/plain' });
+    res.end(`Proxy error: ${err.message}`);
   }
 
   private handleProxyEconnreset(err: Error, req: http.IncomingMessage, res: http.ServerResponse): void {
-    res.writeHead(500, { 'Content-Type': 'text/plain' });
-    res.end(`Connection reset: ${JSON.stringify(err, null, 2)}`);
+    res.writeHead(502, { 'Content-Type': 'text/plain' });
+    res.end(`Proxy connection reset: ${err.message}`);
   }
 
   private checkURL(url: string) {
     return new Promise((resolve, reject) => {
       const isTLS = url.startsWith('https://');
       if (isTLS) {
-        https.get(url, (res: http.IncomingMessage) => this.processCheckRequest(resolve, reject, res));
+        const urlObj = urlLib.parse(url);
+        const options = {
+          https: true,
+          path: urlObj.path,
+          hostname: urlObj.hostname,
+          port: urlObj.port,
+          rejectUnauthorized: process.env['VERIFY_CERTIFICATES'] == 'true' ? true : false
+        }
+        this.context.logger.debug(`CheckURL with options=`,options);
+        https.get(options, (res: http.IncomingMessage) => this.processCheckRequest(resolve, reject, res));
       } else {
         http.get(url, (res: http.IncomingMessage) => this.processCheckRequest(resolve, reject, res));
       }

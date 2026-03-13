@@ -16,6 +16,7 @@ export interface WebBrowserLaunchMetadata {
   url: string;
   hideControls: boolean;
   enableProxy: boolean;
+  title: string;
 }
 
 export function isLaunchMetadata(data: any): data is LaunchMetadata {

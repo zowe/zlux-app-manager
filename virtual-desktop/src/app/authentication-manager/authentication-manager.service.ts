@@ -11,14 +11,14 @@
 */
 
 import { Injectable, Injector, EventEmitter } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Http, Response } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { PluginManager } from 'app/plugin-manager/shared/plugin-manager';
 import { StartURLManager } from '../start-url-manager';
 import { StorageService } from './storage.service';
-import { Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Subscription } from 'rxjs/Subscription';
 
 
 class ClearZoweZLUX implements MVDHosting.LogoutActionInterface {
@@ -63,7 +63,7 @@ export class AuthenticationManager {
 
   constructor(
     private storageService: StorageService,
-    public http: HttpClient,
+    public http: Http,
     private injector: Injector,
     private pluginManager: PluginManager,
     private startURLManager: StartURLManager
@@ -75,6 +75,7 @@ export class AuthenticationManager {
     this.registerPreLogoutAction(this.pluginManager)
     this.registerPostLoginAction(new initializeNotificationManager());
     this.registerPostLoginAction(this.startURLManager);
+    this.registerPostLoginAction(this.pluginManager);
     this.loginScreenVisibilityChanged = new EventEmitter();
     this.loginExpirationIdleCheck = new EventEmitter();
     this.log = BaseLogger.makeSublogger("auth");
@@ -112,9 +113,9 @@ export class AuthenticationManager {
   }
 
   checkSessionValidity(): Observable<any> {
-    return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh')).pipe(
-      map(result => {
-        let jsonMessage = (result as any);
+    return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh'))
+      .map(result => {
+        let jsonMessage = result.json();
         if (jsonMessage && jsonMessage.categories) {
           let failedTypes = [];
           let keys = Object.keys(jsonMessage.categories);
@@ -139,7 +140,7 @@ export class AuthenticationManager {
             (ZoweZLUX.logger as any)._setBrowserUsername(this.username);
           }
           if (failedTypes.length > 0) {
-            return throwError('');//no need for a message here, just standard login prompt.
+            throw ErrorObservable.create('');//no need for a message here, just standard login prompt.
           }
           this.setSessionTimeoutWatcher(jsonMessage.categories);
           this.performPostLoginActions().subscribe(
@@ -150,9 +151,9 @@ export class AuthenticationManager {
           );
           return result;
         } else {
-          return throwError((result as any).text());
+          throw ErrorObservable.create(result.text());
         }
-      }));//or throw err to subscriber
+      });//or throw err to subscriber
   }
   
   //requestLogin() used to exist here but it was counter-intuitive in behavior to requestLogout.
@@ -298,27 +299,30 @@ export class AuthenticationManager {
     window.localStorage.setItem("ZoweZLUX.expirationTime",this.nearestExpiration.toString())
   }
 
-  performSessionRenewal(): Observable<Object> {
+  performSessionRenewal(): Observable<Response> {
     this.log.info('ZWED5045I');/*this.log.info('Renewing session');*/
-    return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh')).pipe(map(result=> {
-      let jsonMessage = (result as any);
+    return this.http.get(ZoweZLUX.uriBroker.serverRootUri('auth-refresh')).map(result=> {
+      let jsonMessage = result.json();
       if (jsonMessage && jsonMessage.success === true) {
         this.log.info('ZWED5046I');/*this.log.info('Session renewal successful');*/
         this.setSessionTimeoutWatcher(jsonMessage.categories);
         return result;
       } else {
         this.log.warn("ZWED5163W"); //this.log.warn('Session renewal unsuccessful');
-        return throwError(result);
+        throw Observable.throw(result);
       }
-    }));
+    });
   }
 
-  performPasswordReset(username: string, password: string, newPassword: string, serviceHandler: string): Observable<Object> {
+  performPasswordReset(username: string, password: string, newPassword: string, serviceHandler: string): Observable<Response> {
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-password'),
-                          {username: username, password: password, newPassword: newPassword, serviceHandler: serviceHandler});
+                          {username: username, password: password, newPassword: newPassword, serviceHandler: serviceHandler})
+    .map(result => {
+      return result
+    })
   }
 
-  performLogin(username: string, password: string): Observable<Object> {
+  performLogin(username: string, password: string): Observable<Response> {
     if (this.username != null && (username != this.username)) {
       const windowManager: MVDWindowManagement.WindowManagerServiceInterface =
         this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
@@ -328,8 +332,8 @@ export class AuthenticationManager {
         this.injector.get(MVDWindowManagement.Tokens.WindowManagerToken);
     windowManager.autoSaveFileAllowDelete = true;
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth'), { username: username, password: password })
-    .pipe(map(result => {
-      let jsonMessage = (result as any);
+    .map(result => {
+      let jsonMessage = result.json();
       if (jsonMessage && jsonMessage.success === true) {
         this.setSessionTimeoutWatcher(jsonMessage.categories);
         window.localStorage.setItem('username', username);
@@ -342,12 +346,12 @@ export class AuthenticationManager {
           });
         return result;
       } else {
-        return throwError(result);
+        throw Observable.throw(result);
       }
-    }));
+    });
   }
 
-  private performLogout(): Observable<Object> {
+  private performLogout(): Observable<Response> {
     this.performPreLogoutActions();
     return this.http.post(ZoweZLUX.uriBroker.serverRootUri('auth-logout'), {});
   }

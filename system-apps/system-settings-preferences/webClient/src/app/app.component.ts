@@ -10,7 +10,7 @@
 */
 import { Component, Inject } from '@angular/core';
 import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
-import { L10nTranslationService } from 'angular-l10n';
+import { TranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'app-root',
@@ -20,13 +20,14 @@ import { L10nTranslationService } from 'angular-l10n';
 
 export class AppComponent {
   
-  isLanguagesComponentActive: boolean;
+  activeComponent: string;
 
   constructor(
     @Inject(Angular2InjectionTokens.LAUNCH_METADATA) private launchMetadata: any,
-    private translation: L10nTranslationService,
+    private translation: TranslationService,
   ) {
-    this.isLanguagesComponentActive = (this.launchMetadata.settingsToolName === this.translation.translate('Languages'));
+      this.translation; // to prevent compile error
+      this.activeComponent = this.launchMetadata.settingsToolName;
   }
 }
 /*

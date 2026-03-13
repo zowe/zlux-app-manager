@@ -102,10 +102,10 @@ export class DesktopWindow {
     return new Promise((resolve, reject)=> {
       viewportManager.destroyViewport(this.viewportId).then(()=> {
         if (this.childViewports.length == 0) {
-          resolve(null);
+          resolve();
         } else {
           this.closeViewportLoop(0, viewportManager, ()=> {
-            resolve(null);
+            resolve();
           }, (reason:any)=> {
             reject({viewport:this.viewportId, reason:reason});    
           });

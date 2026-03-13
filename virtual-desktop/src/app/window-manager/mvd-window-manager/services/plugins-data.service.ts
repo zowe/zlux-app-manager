@@ -9,13 +9,14 @@
 */
 
 import { Injectable, Injector } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs';
+import 'rxjs/add/operator/catch';
 import { LaunchbarItem } from '../launchbar/shared/launchbar-item';
 import { PluginLaunchbarItem } from '../launchbar/shared/launchbar-items/plugin-launchbar-item';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
-import { L10nTranslationService } from 'angular-l10n';
+import { TranslationService } from 'angular-l10n';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 
@@ -33,8 +34,8 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
 
   constructor(
     private injector: Injector,
-    private http: HttpClient,
-    private translation: L10nTranslationService,
+    private http: Http,
+    private translation: TranslationService,
     private windowManager: WindowManagerService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
@@ -55,10 +56,10 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
     this.pinnedPlugins = [];
     this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res =>{
-        res.body.contents.plugins.forEach((p: string) => {
+        res.json().contents.plugins.forEach((p: string) => {
           let found = false;
           for (let i = 0; i < accessiblePlugins.length; i++) {
-            if (accessiblePlugins[i].plugin.getIdentifier() == p) {
+            if (accessiblePlugins[i].plugin && accessiblePlugins[i].plugin.getIdentifier() == p) {
               this.pinnedPlugins.push(new PluginLaunchbarItem(accessiblePlugins[i].plugin, this.windowManager));
               found = true;
               break;
@@ -71,10 +72,11 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
       })
     }
 
-  public getResource(scope: string, resourcePath: string, fileName: string): Observable<HttpResponse<any>>{
+  public getResource(scope: string, resourcePath: string, fileName: string): Observable<any>{
     let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
-    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.get(uri, { headers: headers, observe: 'response' });
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+    return this.http.get(uri, options);
   }
 
   public saveResource(plugins: string[], scope: string, resourcePath: string, fileName: string): void{
@@ -126,7 +128,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
         if (res.status === 204) {
           plugins = [];
         } else {
-          plugins = res.body.contents.plugins;
+          plugins = res.json().contents.plugins;
         }
         let exists = false;
         let id = item.plugin.getBasePlugin().getIdentifier();
@@ -146,8 +148,8 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
   public removeFromConfigServer(item: LaunchbarItem): void {
     this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res=>{
-        let index = res.body.contents.plugins.indexOf(item.plugin.getBasePlugin().getIdentifier());
-        let plugins = res.body.contents.plugins;
+        let index = res.json().contents.plugins.indexOf(item.plugin.getBasePlugin().getIdentifier());
+        let plugins = res.json().contents.plugins;
         if (index != -1) {
           plugins.splice(index, 1);
           this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);

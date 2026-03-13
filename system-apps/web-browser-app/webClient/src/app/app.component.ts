@@ -8,8 +8,8 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Inject, OnInit } from '@angular/core';
-import { Angular2InjectionTokens } from 'pluginlib/inject-resources';
+import { Component, Inject, OnInit, Optional } from '@angular/core';
+import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
 import { WebBrowserLaunchMetadata, isLaunchMetadata } from './browser/shared';
 import { NavigationService, ProxyService, SettingsService } from './browser/services';
 
@@ -21,11 +21,22 @@ import { NavigationService, ProxyService, SettingsService } from './browser/serv
 export class AppComponent implements OnInit {
 
   constructor(
-    @Inject(Angular2InjectionTokens.LOGGER) public log: ZLUX.ComponentLogger,
     private navigation: NavigationService,
     private proxy: ProxyService,
     private settings: SettingsService,
+    @Inject(Angular2InjectionTokens.LOGGER) public log: ZLUX.ComponentLogger,
+    @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
+    @Optional() @Inject(Angular2InjectionTokens.LAUNCH_METADATA) launchMetadata: any
   ) {
+    if (launchMetadata && launchMetadata.data) {
+      const title = launchMetadata.data.title;
+      if (typeof title === 'string' && this.windowActions) {
+        console.log('settitle');
+        this.windowActions.setTitle(title);
+      } else {
+        console.log('dontsettitle');
+      }
+    }
   }
 
   ngOnInit(): void {
@@ -47,7 +58,7 @@ export class AppComponent implements OnInit {
   }
 
   private handleLaunchMetadata(launchMetaData: Partial<WebBrowserLaunchMetadata>): void {
-    const { enableProxy, hideControls, url } = launchMetaData;
+    const { enableProxy, hideControls, url, title } = launchMetaData;
     if (typeof enableProxy === 'boolean' && this.proxy.isEnabled() !== enableProxy) {
       this.proxy.toggle();
     }
@@ -56,6 +67,12 @@ export class AppComponent implements OnInit {
     }
     if (typeof url === 'string') {
       this.navigation.navigate(url);
+    }
+    if (typeof title === 'string' && this.windowActions) {
+      console.log('settitle');
+      this.windowActions.setTitle(title);
+    } else {
+      console.log('dontsettitle');
     }
   }
 

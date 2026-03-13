@@ -13,7 +13,7 @@
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { LaunchbarItem } from '../launchbar-item';
 import { WindowManagerService } from '../../../shared/window-manager.service';
-import html2canvas from 'html2canvas';
+import * as html2canvas from 'html2canvas';
 
 export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.PluginWatcher {
   public instanceIds: Array<MVDHosting.InstanceId>;
@@ -38,8 +38,7 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
       }
       let index = this.instanceIds.indexOf(window.windowId);
       if (index != -1) {
-        // TODO: Generate snapshot code needs optimization due to incredible desktop performance slowdown
-        // this.generateSnapshot(index);
+        this.generateSnapshot(index);
       }
     });
   }
@@ -93,20 +92,18 @@ export class PluginLaunchbarItem extends LaunchbarItem{// implements ZLUX.Plugin
   }
 
   instanceAdded(instanceId: MVDHosting.InstanceId, isEmbedded: boolean|undefined) {
-    //var self = this;
+    var self = this;
     if (!isEmbedded) {
       this.instanceIds.push(instanceId);
-      //let index = this.instanceIds.length-1;
+      let index = this.instanceIds.length-1;
       if (this.instanceIds.length != 1) {
         //skip first for performance
         setTimeout(function() {
-          // TODO: Generate snapshot code needs optimization due to incredible desktop performance slowdown
-          //self.generateSnapshot(index);
+          self.generateSnapshot(index);
         }, 3000);
       } if (this.instanceIds.length == 2) {
         //go back and init first. slightly worse for performance
-        // TODO: Generate snapshot code needs optimization due to incredible desktop performance slowdown
-        //self.generateSnapshot(0);
+        self.generateSnapshot(0);
       }
     }
   }

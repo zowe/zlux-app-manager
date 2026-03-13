@@ -11,11 +11,25 @@
 */
 
 import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
+import { NgModule, Inject } from '@angular/core';
 
-import { L10nTranslationModule, L10nCache, L10nTranslationService } from 'angular-l10n';
+import {
+  TranslationModule, L10nConfig, ISOCode, L10nLoader, LOCALE_CONFIG,
+  TRANSLATION_CONFIG, LocaleConfig, TranslationConfig
+} from 'angular-l10n';
+import { Angular2L10nConfig, Angular2InjectionTokens } from 'pluginlib/inject-resources';
 import { AppComponent } from './app.component';
 import { BrowserModule } from './browser/browser.module';
+
+const l10nConfig: L10nConfig = {
+  translation: {
+    providers: [],
+    composedLanguage: [ISOCode.Language, ISOCode.Country],
+    caching: true,
+    missingValue: 'No key'
+  }
+};
+
 
 @NgModule({
   declarations: [
@@ -24,17 +38,21 @@ import { BrowserModule } from './browser/browser.module';
   imports: [
     CommonModule,
     BrowserModule,
-    {
-      ngModule: L10nTranslationModule,
-      providers: [ L10nCache, L10nTranslationService ] // New Cache and Translation Service
-    }  ],
+    TranslationModule.forRoot(l10nConfig)
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
   constructor(
-    private translation: L10nTranslationService,
+    private l10nLoader: L10nLoader,
+    @Inject(Angular2InjectionTokens.L10N_CONFIG) private l10nConfig: Angular2L10nConfig,
+    @Inject(LOCALE_CONFIG) private localeConfig: LocaleConfig,
+    @Inject(TRANSLATION_CONFIG) private translationConfig: TranslationConfig,
+
   ) {
-    this.translation.init();
+    this.localeConfig.defaultLocale = this.l10nConfig.defaultLocale;
+    this.translationConfig.providers = this.l10nConfig.providers;
+    this.l10nLoader.load();
   }
 }
 

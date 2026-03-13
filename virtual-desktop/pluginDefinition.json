@@ -1,6 +1,6 @@
 {
   "identifier": "org.zowe.zlux.ng2desktop",
-  "apiVersion": "2.0.0",
+  "apiVersion": "1.1.0",
   "pluginVersion": "0.0.0-zlux.version.replacement",
   "pluginType": "desktop",
   "license": "EPL-2.0",
@@ -16,6 +16,9 @@
       "actions": {
         "aggregationPolicy": "none"
       },
+      "links": {
+        "aggregationPolicy": "override"
+      },
       "ui": {
         "subResources":{
           "launchbar": {
@@ -23,6 +26,9 @@
               "plugins": {
                 "aggregationPolicy": "override",
                 "variable": false
+              },
+              "pluginGroups": {
+                "aggregationPolicy": "override"
               }
             }
           },

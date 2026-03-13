@@ -16,7 +16,7 @@ import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { AuthenticationManager } from '../../../authentication-manager/authentication-manager.service';
-import { L10nTranslationService } from 'angular-l10n';
+import { TranslationService } from 'angular-l10n';
 import { Colors } from '../shared/colors';
 
 const ACCOUNT_PASSWORD = "Account Password";
@@ -57,7 +57,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     private authenticationService: AuthenticationManager,
     private http: HttpClient,
     private injector: Injector,
-    private translation: L10nTranslationService
+    private translation: TranslationService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);

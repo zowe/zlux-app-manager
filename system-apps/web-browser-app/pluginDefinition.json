@@ -1,13 +1,10 @@
 {
   "identifier": "org.zowe.zlux.ng2desktop.webbrowser",
-  "apiVersion": "2.0.0",
-  "pluginVersion": "2.0.0",
+  "apiVersion": "1.0.0",
+  "pluginVersion": "1.1.1",
   "pluginType": "application",
-  "license": "EPL-2.0",
-  "author": "Zowe",
-  "homepage": "https://github.com/zowe/zlux-app-manager",
   "webContent": {
-    "framework": "angular",
+    "framework": "angular2",
     "launchDefinition": {
       "pluginShortNameKey": "webbrowser",
       "pluginShortNameDefault": "Web Browser",
@@ -15,6 +12,7 @@
     },
     "descriptionKey": "webbrowserdescription",
     "descriptionDefault": "Web Browser Application",
+    "isSingleWindowApp": true,
     "defaultWindowStyle": {
       "width": 850,
       "height": 450
