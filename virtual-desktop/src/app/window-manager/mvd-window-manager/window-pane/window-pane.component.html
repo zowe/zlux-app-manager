@@ -17,10 +17,12 @@
     [plugin]="getPluginForShortcut(shortcut)"
     [isHighlighted]="highlightedIconId === getShortcutKey(shortcut)"
     [allShortcuts]="shortcuts"
+    [shouldRename]="renameTargetKey === getShortcutKey(shortcut)"
     (iconSelected)="onIconSelected($event)"
     (iconLaunched)="onIconLaunched($event)"
     (iconContextMenu)="onIconContextMenu($event)"
-    (iconMoved)="onIconMoved($event)">
+    (iconMoved)="onIconMoved($event)"
+    (iconRenamed)="onIconRenamed($event)">
   </rs-com-desktop-icon>
   <div *ngFor="let window of windows">
     <rs-com-mvd-window [desktopWindow]="window" [theme]="theme"></rs-com-mvd-window>

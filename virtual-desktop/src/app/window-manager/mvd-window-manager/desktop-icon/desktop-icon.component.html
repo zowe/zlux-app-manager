@@ -19,7 +19,17 @@
   <div class="desktop-icon-image desktop-icon-placeholder" *ngIf="!iconUrl">
     <span class="desktop-icon-letter">{{ label?.charAt(0) }}</span>
   </div>
-  <span class="desktop-icon-label">{{ label }}</span>
+  <span class="desktop-icon-label" *ngIf="!isRenaming">{{ label }}</span>
+  <input *ngIf="isRenaming" #renameInput
+    class="desktop-icon-rename-input"
+    [class.rename-error]="renameError"
+    [value]="renameValue"
+    (input)="renameValue = $any($event.target).value"
+    (blur)="confirmRename()"
+    (keydown)="onRenameKeydown($event)"
+    (click)="$event.stopPropagation()"
+    (dblclick)="$event.stopPropagation()"
+    (mousedown)="$event.stopPropagation()" />
 </div>
 
 <!--

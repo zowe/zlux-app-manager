@@ -45,6 +45,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
   shortcuts: DesktopShortcut[] = [];
   pluginMap: Map<string, DesktopPluginDefinitionImpl> = new Map();
   highlightedIconId: string | null = null;
+  renameTargetKey: string | null = null;
   
   constructor(
     public windowManager: WindowManagerService,
@@ -122,10 +123,19 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
 
   onIconContextMenu(event: { event: MouseEvent; shortcut: DesktopShortcut }): void {
     const shortcut = event.shortcut;
+    const plugin = this.pluginMap.get(shortcut.pluginId);
     const menuItems: ContextMenuItem[] = [
       {
         text: 'Open',
         action: () => this.onIconLaunched(shortcut)
+      },
+      {
+        text: 'Open in New Browser Tab',
+        action: () => this.openShortcutInNewTab(shortcut, plugin)
+      },
+      {
+        text: 'Rename',
+        action: () => this.startIconRename(shortcut)
       },
       {
         text: 'Remove From Desktop',
@@ -143,8 +153,38 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     this.shortcutsService.moveShortcut(event.shortcut.pluginId, event.newRow, event.newCol, event.shortcut.action?.id);
   }
 
+  onIconRenamed(event: { shortcut: DesktopShortcut; newLabel: string }): void {
+    this.renameTargetKey = null;
+    this.shortcutsService.renameShortcut(event.shortcut.gridRow, event.shortcut.gridCol, event.newLabel);
+  }
+
+  private startIconRename(shortcut: DesktopShortcut): void {
+    this.renameTargetKey = this.getShortcutKey(shortcut);
+  }
+
+  private openShortcutInNewTab(shortcut: DesktopShortcut, plugin?: DesktopPluginDefinitionImpl): void {
+    const targetPluginId = shortcut.action?.targetPluginId || shortcut.pluginId;
+    const targetPlugin = this.pluginMap.get(targetPluginId);
+    if (targetPlugin) {
+      const pluginType = targetPlugin.getFramework();
+      if (pluginType === 'iframe' && !(targetPlugin as any).standaloneUseFramework) {
+        const webContent = targetPlugin.getBasePlugin().getWebContent();
+        if (webContent.destination > '') {
+          window.open(`${location.origin}${ZoweZLUX.uriBroker.pluginIframeUri(targetPlugin.getBasePlugin(), '')}`);
+        } else {
+          window.open(`${location.origin}${ZoweZLUX.uriBroker.pluginResourceUri(targetPlugin.getBasePlugin(), webContent.startingPage)}`);
+        }
+      } else {
+        window.open(`${location.href}?pluginId=${targetPluginId}&showLogin=true`);
+      }
+    } else {
+      window.open(`${location.href}?pluginId=${targetPluginId}&showLogin=true`);
+    }
+  }
+
   onDesktopClick(): void {
     this.highlightedIconId = null;
+    this.renameTargetKey = null;
   }
 
   ngOnInit(): void {

@@ -74,6 +74,24 @@
   line-height: 1.2;
 }
 
+.desktop-icon-rename-input {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(100, 150, 255, 0.6);
+  border-radius: 2px;
+  text-align: center;
+  outline: none;
+  width: calc(100% - 4px);
+  padding: 1px 2px;
+  box-sizing: border-box;
+}
+
+.desktop-icon-rename-input.rename-error {
+  border-color: #ff4444;
+}
+
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies

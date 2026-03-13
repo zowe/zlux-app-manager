@@ -52,6 +52,35 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   private fileName: string = 'shortcuts.json';
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
 
+  static readonly ACTION_ID_PREFIX = 'org.zowe.ivydesktop.shortcutaction';
+
+  /**
+   * Generate a structured, desktop-reserved action ID for a shortcut.
+   * Format: org.zowe.ivydesktop.shortcutaction.<plugin_short_name_underscored>.<hash>
+   */
+  static generateActionId(targetPluginId: string, actionData: any): string {
+    let shortName = targetPluginId;
+    try {
+      const targetPlugin = ZoweZLUX.pluginManager.getPlugin(targetPluginId);
+      if (targetPlugin) {
+        const webContent = targetPlugin.getWebContent();
+        if (webContent?.launchDefinition?.pluginShortNameDefault) {
+          shortName = webContent.launchDefinition.pluginShortNameDefault;
+        }
+      }
+    } catch (e) {
+      // fallback to raw plugin id
+    }
+    const underscored = shortName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const str = JSON.stringify(actionData);
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+    }
+    const hex = (hash >>> 0).toString(16);
+    return `${DesktopShortcutsService.ACTION_ID_PREFIX}.${underscored}.${hex}`;
+  }
+
   shortcuts$ = new BehaviorSubject<DesktopShortcut[]>([]);
 
   constructor(
@@ -140,8 +169,31 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     return this.shortcuts$.value.some(s => s.pluginId === pluginId && !s.action);
   }
 
+  renameShortcut(row: number, col: number, newLabel: string): boolean {
+    const current = this.shortcuts$.value;
+    const isDuplicate = current.some(s =>
+      !(s.gridRow === row && s.gridCol === col) && s.displayLabel === newLabel
+    );
+    if (isDuplicate) {
+      return false;
+    }
+    const updated = current.map(s =>
+      (s.gridRow === row && s.gridCol === col) ? { ...s, displayLabel: newLabel } : s
+    );
+    this.saveShortcuts(updated);
+    return true;
+  }
+
   /** Invoke a shortcut — either a plain launch or a dispatcher action */
   invokeShortcut(shortcut: DesktopShortcut, applicationManager: MVDHosting.ApplicationManagerInterface, pluginDef?: any): void {
+    const targetId = shortcut.action?.targetPluginId || shortcut.pluginId;
+    if (!ZoweZLUX.pluginManager.getPlugin(targetId)) {
+      this.logger.warn(`Cannot launch shortcut: plugin '${targetId}' is not installed`);
+      ZoweZLUX.notificationManager.notify(
+        ZoweZLUX.notificationManager.createNotification('Desktop Shortcut', `Cannot open shortcut: the required application '${targetId}' is not installed.`, 1, 'org.zowe.zlux.ng2desktop')
+      );
+      return;
+    }
     if (shortcut.action) {
       const actionDef = shortcut.action;
       const targetMode = (ZoweZLUX.dispatcher.constants.ActionTargetMode as any)[actionDef.targetMode];

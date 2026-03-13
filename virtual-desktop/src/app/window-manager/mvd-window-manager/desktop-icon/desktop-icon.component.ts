@@ -8,7 +8,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { DesktopShortcut } from '../services/desktop-shortcuts.service';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 
@@ -27,11 +27,21 @@ export class DesktopIconComponent {
   @Input() plugin: DesktopPluginDefinitionImpl;
   @Input() isHighlighted: boolean = false;
   @Input() allShortcuts: DesktopShortcut[] = [];
+  @Input() set shouldRename(value: boolean) {
+    if (value && !this.isRenaming) {
+      this.startRename();
+    }
+  }
   @Output() iconSelected = new EventEmitter<DesktopShortcut>();
   @Output() iconLaunched = new EventEmitter<DesktopShortcut>();
   @Output() iconContextMenu = new EventEmitter<{ event: MouseEvent; shortcut: DesktopShortcut }>();
   @Output() iconMoved = new EventEmitter<{ shortcut: DesktopShortcut; newRow: number; newCol: number }>();
+  @Output() iconRenamed = new EventEmitter<{ shortcut: DesktopShortcut; newLabel: string }>();
 
+  @ViewChild('renameInput') renameInputRef: ElementRef<HTMLInputElement>;
+  isRenaming = false;
+  renameValue = '';
+  renameError = false;
   isDragging = false;
   dragOffsetX = 0;
   dragOffsetY = 0;
@@ -111,8 +121,56 @@ export class DesktopIconComponent {
   onRightClick(event: MouseEvent): boolean {
     event.preventDefault();
     event.stopPropagation();
+    if (this.isRenaming) {
+      this.cancelRename();
+    }
     this.iconContextMenu.emit({ event, shortcut: this.shortcut });
     return false;
+  }
+
+  startRename(): void {
+    this.renameValue = this.shortcut?.displayLabel || this.plugin?.label || '';
+    this.renameError = false;
+    this.isRenaming = true;
+    setTimeout(() => {
+      if (this.renameInputRef) {
+        this.renameInputRef.nativeElement.focus();
+        this.renameInputRef.nativeElement.select();
+      }
+    });
+  }
+
+  confirmRename(): void {
+    const trimmed = this.renameValue.trim();
+    if (!trimmed) {
+      this.renameError = true;
+      return;
+    }
+    const isDuplicate = this.allShortcuts.some(s =>
+      !(s.gridRow === this.shortcut.gridRow && s.gridCol === this.shortcut.gridCol)
+      && (s.displayLabel || '') === trimmed
+    );
+    if (isDuplicate) {
+      this.renameError = true;
+      return;
+    }
+    this.isRenaming = false;
+    this.renameError = false;
+    this.iconRenamed.emit({ shortcut: this.shortcut, newLabel: trimmed });
+  }
+
+  cancelRename(): void {
+    this.isRenaming = false;
+    this.renameError = false;
+  }
+
+  onRenameKeydown(event: KeyboardEvent): void {
+    event.stopPropagation();
+    if (event.key === 'Enter') {
+      this.confirmRename();
+    } else if (event.key === 'Escape') {
+      this.cancelRename();
+    }
   }
 
   onMouseDown(event: MouseEvent): void {
