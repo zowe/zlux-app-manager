@@ -214,6 +214,11 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     return { row: 0, col: 0 };
   }
 
+  /** Save shortcuts directly (e.g. after reflowing out-of-bounds icons on resize) */
+  saveShortcutsDirect(shortcuts: DesktopShortcut[]): void {
+    this.saveShortcuts(shortcuts);
+  }
+
   private saveShortcuts(shortcuts: DesktopShortcut[]): void {
     const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
       ZoweZLUX.pluginManager.getDesktopPlugin(), this.scope, this.resourcePath, this.fileName

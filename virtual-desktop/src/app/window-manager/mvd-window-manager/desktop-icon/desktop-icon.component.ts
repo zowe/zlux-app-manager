@@ -27,6 +27,8 @@ export class DesktopIconComponent {
   @Input() plugin: DesktopPluginDefinitionImpl;
   @Input() isHighlighted: boolean = false;
   @Input() allShortcuts: DesktopShortcut[] = [];
+  @Input() maxGridRows: number = 20;
+  @Input() maxGridCols: number = 20;
   @Input() set shouldRename(value: boolean) {
     if (value && !this.isRenaming) {
       this.startRename();
@@ -206,8 +208,8 @@ export class DesktopIconComponent {
     window.removeEventListener('mouseup', this.boundOnMouseUp);
 
     if (this.isDragging) {
-      const newCol = Math.max(0, Math.round((this.dragLeft - GRID_PADDING) / ICON_CELL_WIDTH));
-      const newRow = Math.max(0, Math.round((this.dragTop - GRID_PADDING) / ICON_CELL_HEIGHT));
+      const newCol = Math.min(this.maxGridCols - 1, Math.max(0, Math.round((this.dragLeft - GRID_PADDING) / ICON_CELL_WIDTH)));
+      const newRow = Math.min(this.maxGridRows - 1, Math.max(0, Math.round((this.dragTop - GRID_PADDING) / ICON_CELL_HEIGHT)));
 
       const occupied = this.allShortcuts.some(s =>
         s.pluginId !== this.shortcut.pluginId && s.gridRow === newRow && s.gridCol === newCol

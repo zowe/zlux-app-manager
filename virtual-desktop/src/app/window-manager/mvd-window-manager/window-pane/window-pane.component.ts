@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, Injector, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Injector, Input, HostListener } from '@angular/core';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { DesktopTheme } from "../desktop/desktop.component";
 import { HttpClient, HttpResponse } from '@angular/common/http';
@@ -32,7 +32,7 @@ const DESKTOP_WALLPAPER_MAX_SIZE = 3;
   templateUrl: 'window-pane.component.html',
   styleUrls: ['window-pane.component.css']
 })
-export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterface, MVDHosting.LogoutActionInterface {
+export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginActionInterface, MVDHosting.LogoutActionInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   public contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
   public wallpaper: any = { };
@@ -46,7 +46,13 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
   pluginMap: Map<string, DesktopPluginDefinitionImpl> = new Map();
   highlightedIconId: string | null = null;
   renameTargetKey: string | null = null;
-  
+  maxGridRows: number = 8;
+  maxGridCols: number = 20;
+  private readonly ICON_CELL_WIDTH = 90;
+  private readonly ICON_CELL_HEIGHT = 90;
+  private readonly GRID_PADDING = 10;
+  private resizeTimer: any = null;
+
   constructor(
     public windowManager: WindowManagerService,
     private injector: Injector,
@@ -188,6 +194,7 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
   }
 
   ngOnInit(): void {
+    this.updateGridDimensions();
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
@@ -247,6 +254,73 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
 
   get windows(): DesktopWindow[] {
     return this.windowManager.getAllWindows();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    if (this.resizeTimer) {
+      clearTimeout(this.resizeTimer);
+    }
+    this.resizeTimer = setTimeout(() => {
+      this.updateGridDimensions();
+      this.reflowOutOfBoundsIcons();
+    }, 200);
+  }
+
+  ngOnDestroy(): void {
+    if (this.resizeTimer) {
+      clearTimeout(this.resizeTimer);
+    }
+  }
+
+  private updateGridDimensions(): void {
+    this.maxGridCols = Math.max(1, Math.floor((window.innerWidth - this.GRID_PADDING) / this.ICON_CELL_WIDTH));
+    this.maxGridRows = Math.max(1, Math.floor((window.innerHeight - this.GRID_PADDING) / this.ICON_CELL_HEIGHT));
+  }
+
+  private reflowOutOfBoundsIcons(): void {
+    const current = this.shortcuts;
+    if (!current || current.length === 0) return;
+    let needsSave = false;
+    const updated = [...current];
+    const occupied = new Set(updated.map(s => `${s.gridRow},${s.gridCol}`));
+    for (let i = 0; i < updated.length; i++) {
+      const s = updated[i];
+      if (s.gridRow >= this.maxGridRows || s.gridCol >= this.maxGridCols) {
+        occupied.delete(`${s.gridRow},${s.gridCol}`);
+        const pos = this.findNearestAvailablePosition(s.gridRow, s.gridCol, occupied);
+        updated[i] = { ...s, gridRow: pos.row, gridCol: pos.col };
+        occupied.add(`${pos.row},${pos.col}`);
+        needsSave = true;
+      }
+    }
+    if (needsSave) {
+      this.shortcutsService.saveShortcutsDirect(updated);
+    }
+  }
+
+  /** Find the closest in-bounds unoccupied cell to the given position using Manhattan distance */
+  private findNearestAvailablePosition(fromRow: number, fromCol: number, occupied: Set<string>): { row: number; col: number } {
+    const clampedRow = Math.min(fromRow, this.maxGridRows - 1);
+    const clampedCol = Math.min(fromCol, this.maxGridCols - 1);
+    if (!occupied.has(`${clampedRow},${clampedCol}`)) {
+      return { row: clampedRow, col: clampedCol };
+    }
+    // Spiral outward from clamped position by increasing Manhattan distance
+    const maxDist = this.maxGridRows + this.maxGridCols;
+    for (let dist = 1; dist <= maxDist; dist++) {
+      for (let dRow = -dist; dRow <= dist; dRow++) {
+        const dCol = dist - Math.abs(dRow);
+        for (const dc of (dCol === 0 ? [0] : [-dCol, dCol])) {
+          const r = clampedRow + dRow;
+          const c = clampedCol + dc;
+          if (r >= 0 && r < this.maxGridRows && c >= 0 && c < this.maxGridCols && !occupied.has(`${r},${c}`)) {
+            return { row: r, col: c };
+          }
+        }
+      }
+    }
+    return { row: 0, col: 0 };
   }
 }
 

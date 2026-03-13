@@ -17,6 +17,8 @@
     [plugin]="getPluginForShortcut(shortcut)"
     [isHighlighted]="highlightedIconId === getShortcutKey(shortcut)"
     [allShortcuts]="shortcuts"
+    [maxGridRows]="maxGridRows"
+    [maxGridCols]="maxGridCols"
     [shouldRename]="renameTargetKey === getShortcutKey(shortcut)"
     (iconSelected)="onIconSelected($event)"
     (iconLaunched)="onIconLaunched($event)"
