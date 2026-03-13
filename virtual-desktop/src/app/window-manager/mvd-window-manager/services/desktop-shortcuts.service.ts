@@ -56,22 +56,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /**
    * Generate a structured, desktop-reserved action ID for a shortcut.
-   * Format: org.zowe.ivydesktop.shortcutaction.<plugin_short_name_underscored>.<hash>
+   * Format: org.zowe.ivydesktop.shortcutaction.<plugin_id_underscored>.<hash>
    */
   static generateActionId(targetPluginId: string, actionData: any): string {
-    let shortName = targetPluginId;
-    try {
-      const targetPlugin = ZoweZLUX.pluginManager.getPlugin(targetPluginId);
-      if (targetPlugin) {
-        const webContent = targetPlugin.getWebContent();
-        if (webContent?.launchDefinition?.pluginShortNameDefault) {
-          shortName = webContent.launchDefinition.pluginShortNameDefault;
-        }
-      }
-    } catch (e) {
-      // fallback to raw plugin id
-    }
-    const underscored = shortName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const underscored = targetPluginId.replace(/\./g, '_');
     const str = JSON.stringify(actionData);
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
