@@ -75,6 +75,11 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     this.shortcutsService.shortcuts$.subscribe(shortcuts => {
       this.shortcuts = shortcuts;
     });
+
+    // Listen for external shortcut changes (e.g. from ZFM plugin)
+    window.addEventListener('desktop-shortcuts-changed', () => {
+      this.shortcutsService.loadShortcuts();
+    });
   }
 
   private replaceWallpaper(url:string) {
