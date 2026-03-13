@@ -26,6 +26,14 @@
               }
             }
           },
+          "desktop": {
+            "subResources": {
+              "shortcuts": {
+                "aggregationPolicy": "override",
+                "variable": false
+              }
+            }
+          },
           "themebin": {
             "binary": true
           },

@@ -10,7 +10,18 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="window-pane" [ngStyle]="wallpaper" id="ZAP_DesktopHome_Wallpaper">
+<div class="window-pane" [ngStyle]="wallpaper" id="ZAP_DesktopHome_Wallpaper" (click)="onDesktopClick()">
+  <rs-com-desktop-icon
+    *ngFor="let shortcut of shortcuts"
+    [shortcut]="shortcut"
+    [plugin]="getPluginForShortcut(shortcut)"
+    [isHighlighted]="highlightedIconId === shortcut.pluginId"
+    [allShortcuts]="shortcuts"
+    (iconSelected)="onIconSelected($event)"
+    (iconLaunched)="onIconLaunched($event)"
+    (iconContextMenu)="onIconContextMenu($event)"
+    (iconMoved)="onIconMoved($event)">
+  </rs-com-desktop-icon>
   <div *ngFor="let window of windows">
     <rs-com-mvd-window [desktopWindow]="window" [theme]="theme"></rs-com-mvd-window>
   </div>

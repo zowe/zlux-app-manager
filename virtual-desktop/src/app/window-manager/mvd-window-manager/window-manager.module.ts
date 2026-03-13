@@ -30,6 +30,8 @@ import { KeybindingService } from './shared/keybinding.service';
 import { PersonalizationComponent } from '../mvd-window-manager/personalization-panel/personalization/personalization.component';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { ThemeEmitterService } from './services/theme-emitter.service';
+import { DesktopShortcutsService } from './services/desktop-shortcuts.service';
+import { DesktopIconComponent } from './desktop-icon/desktop-icon.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { IncludeExternalCssComponent } from 'app/shared/include-external-css.component';
 
@@ -54,7 +56,8 @@ import { IncludeExternalCssComponent } from 'app/shared/include-external-css.com
     SizeableDirective,
     MvdComponent,
     PersonalizationPanelComponent,
-    PersonalizationComponent
+    PersonalizationComponent,
+    DesktopIconComponent
   ],
   exports: [
     DesktopComponent
@@ -62,6 +65,7 @@ import { IncludeExternalCssComponent } from 'app/shared/include-external-css.com
   providers: [
     WindowManagerService,
     ThemeEmitterService,
+    DesktopShortcutsService,
     provideHttpClient(),
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },

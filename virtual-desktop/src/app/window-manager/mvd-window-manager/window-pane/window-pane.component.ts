@@ -18,6 +18,8 @@ import { DesktopWindow } from '../shared/desktop-window';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
+import { DesktopShortcut, DesktopShortcutsService } from '../services/desktop-shortcuts.service';
+import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { L10nTranslationService } from 'angular-l10n';
 import { delay } from 'rxjs/operators';
 
@@ -35,8 +37,14 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
   public contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
   public wallpaper: any = { };
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+  private applicationManager: MVDHosting.ApplicationManagerInterface;
+  private pluginManager: MVDHosting.PluginManagerInterface;
 
   @Input() theme: DesktopTheme;
+
+  shortcuts: DesktopShortcut[] = [];
+  pluginMap: Map<string, DesktopPluginDefinitionImpl> = new Map();
+  highlightedIconId: string | null = null;
   
   constructor(
     public windowManager: WindowManagerService,
@@ -44,12 +52,29 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
     private http: HttpClient,
     private themeService: ThemeEmitterService,
     private translation: L10nTranslationService,
+    public shortcutsService: DesktopShortcutsService
   ) {
     this.logger.debug("ZWED5320I", windowManager); //this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
+    this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
+    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.authenticationManager.registerPostLoginAction(this);
     this.authenticationManager.registerPreLogoutAction(this);
+
+    // Subscribe to pluginsAdded to build the plugin map with DesktopPluginDefinitionImpl wrappers
+    this.pluginManager.pluginsAdded.subscribe((plugins: any[]) => {
+      plugins.forEach((p: any) => {
+        const baseDef = p.getBasePlugin?.()?.getBasePlugin?.();
+        if (baseDef && baseDef.identifier) {
+          this.pluginMap.set(baseDef.identifier, p);
+        }
+      });
+    });
+
+    this.shortcutsService.shortcuts$.subscribe(shortcuts => {
+      this.shortcuts = shortcuts;
+    });
   }
 
   private replaceWallpaper(url:string) {
@@ -69,7 +94,49 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
 
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
     this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
+    this.shortcutsService.loadShortcuts();
     return true;
+  }
+
+  getPluginForShortcut(shortcut: DesktopShortcut): DesktopPluginDefinitionImpl | undefined {
+    return this.pluginMap.get(shortcut.pluginId);
+  }
+
+  onIconSelected(pluginId: string): void {
+    this.highlightedIconId = pluginId;
+  }
+
+  onIconLaunched(pluginId: string): void {
+    const plugin = this.pluginMap.get(pluginId);
+    if (plugin) {
+      this.applicationManager.spawnApplication(plugin, null);
+    }
+  }
+
+  onIconContextMenu(event: { event: MouseEvent; pluginId: string }): void {
+    const menuItems: ContextMenuItem[] = [
+      {
+        text: 'Open',
+        action: () => this.onIconLaunched(event.pluginId)
+      },
+      {
+        text: 'Remove From Desktop',
+        action: () => this.shortcutsService.removeShortcut(event.pluginId)
+      }
+    ];
+    this.windowManager.contextMenuRequested.next({
+      xPos: event.event.clientX,
+      yPos: event.event.clientY,
+      items: menuItems
+    });
+  }
+
+  onIconMoved(event: { pluginId: string; newRow: number; newCol: number }): void {
+    this.shortcutsService.moveShortcut(event.pluginId, event.newRow, event.newCol);
+  }
+
+  onDesktopClick(): void {
+    this.highlightedIconId = null;
   }
 
   ngOnInit(): void {

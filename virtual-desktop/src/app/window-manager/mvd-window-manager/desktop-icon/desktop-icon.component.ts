@@ -1,0 +1,156 @@
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/
+
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { DesktopShortcut } from '../services/desktop-shortcuts.service';
+import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
+
+const ICON_CELL_WIDTH = 90;
+const ICON_CELL_HEIGHT = 90;
+const GRID_PADDING = 10;
+const DRAG_THRESHOLD = 5;
+
+@Component({
+  selector: 'rs-com-desktop-icon',
+  templateUrl: './desktop-icon.component.html',
+  styleUrls: ['./desktop-icon.component.css']
+})
+export class DesktopIconComponent {
+  @Input() shortcut: DesktopShortcut;
+  @Input() plugin: DesktopPluginDefinitionImpl;
+  @Input() isHighlighted: boolean = false;
+  @Input() allShortcuts: DesktopShortcut[] = [];
+  @Output() iconSelected = new EventEmitter<string>();
+  @Output() iconLaunched = new EventEmitter<string>();
+  @Output() iconContextMenu = new EventEmitter<{ event: MouseEvent; pluginId: string }>();
+  @Output() iconMoved = new EventEmitter<{ pluginId: string; newRow: number; newCol: number }>();
+
+  isDragging = false;
+  dragOffsetX = 0;
+  dragOffsetY = 0;
+  dragLeft = 0;
+  dragTop = 0;
+  private mouseDownX = 0;
+  private mouseDownY = 0;
+  private dragStarted = false;
+  private boundOnMouseMove: (e: MouseEvent) => void;
+  private boundOnMouseUp: (e: MouseEvent) => void;
+
+  constructor() {
+    this.boundOnMouseMove = this.onMouseMove.bind(this);
+    this.boundOnMouseUp = this.onMouseUp.bind(this);
+  }
+
+  get iconUrl(): string | null {
+    return this.plugin?.image || null;
+  }
+
+  get label(): string {
+    return this.plugin?.label || '';
+  }
+
+  get positionStyle(): { [key: string]: string } {
+    if (this.isDragging) {
+      return {
+        left: this.dragLeft + 'px',
+        top: this.dragTop + 'px',
+        width: ICON_CELL_WIDTH + 'px',
+        height: ICON_CELL_HEIGHT + 'px',
+        'z-index': '10000',
+        opacity: '0.8'
+      };
+    }
+    const left = GRID_PADDING + this.shortcut.gridCol * ICON_CELL_WIDTH;
+    const top = GRID_PADDING + this.shortcut.gridRow * ICON_CELL_HEIGHT;
+    return {
+      left: left + 'px',
+      top: top + 'px',
+      width: ICON_CELL_WIDTH + 'px',
+      height: ICON_CELL_HEIGHT + 'px'
+    };
+  }
+
+  onClick(event: MouseEvent): void {
+    event.stopPropagation();
+    if (!this.dragStarted) {
+      this.iconSelected.emit(this.shortcut.pluginId);
+    }
+  }
+
+  onDblClick(event: MouseEvent): void {
+    event.stopPropagation();
+    this.iconLaunched.emit(this.shortcut.pluginId);
+  }
+
+  onRightClick(event: MouseEvent): boolean {
+    event.preventDefault();
+    event.stopPropagation();
+    this.iconContextMenu.emit({ event, pluginId: this.shortcut.pluginId });
+    return false;
+  }
+
+  onMouseDown(event: MouseEvent): void {
+    if (event.button !== 0) return;
+    this.mouseDownX = event.clientX;
+    this.mouseDownY = event.clientY;
+    this.dragStarted = false;
+
+    const gridLeft = GRID_PADDING + this.shortcut.gridCol * ICON_CELL_WIDTH;
+    const gridTop = GRID_PADDING + this.shortcut.gridRow * ICON_CELL_HEIGHT;
+    this.dragOffsetX = event.clientX - gridLeft;
+    this.dragOffsetY = event.clientY - gridTop;
+
+    window.addEventListener('mousemove', this.boundOnMouseMove);
+    window.addEventListener('mouseup', this.boundOnMouseUp);
+  }
+
+  private onMouseMove(event: MouseEvent): void {
+    const dx = event.clientX - this.mouseDownX;
+    const dy = event.clientY - this.mouseDownY;
+    if (!this.isDragging && (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD)) {
+      this.isDragging = true;
+      this.dragStarted = true;
+    }
+    if (this.isDragging) {
+      this.dragLeft = event.clientX - this.dragOffsetX;
+      this.dragTop = event.clientY - this.dragOffsetY;
+    }
+  }
+
+  private onMouseUp(event: MouseEvent): void {
+    window.removeEventListener('mousemove', this.boundOnMouseMove);
+    window.removeEventListener('mouseup', this.boundOnMouseUp);
+
+    if (this.isDragging) {
+      const newCol = Math.max(0, Math.round((this.dragLeft - GRID_PADDING) / ICON_CELL_WIDTH));
+      const newRow = Math.max(0, Math.round((this.dragTop - GRID_PADDING) / ICON_CELL_HEIGHT));
+
+      const occupied = this.allShortcuts.some(s =>
+        s.pluginId !== this.shortcut.pluginId && s.gridRow === newRow && s.gridCol === newCol
+      );
+
+      if (!occupied && (newRow !== this.shortcut.gridRow || newCol !== this.shortcut.gridCol)) {
+        this.iconMoved.emit({ pluginId: this.shortcut.pluginId, newRow, newCol });
+      }
+
+      this.isDragging = false;
+    }
+  }
+}
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/

@@ -11,6 +11,7 @@ import { LaunchbarItem } from './launchbar-item';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { PluginsDataService } from '../../services/plugins-data.service';
+import { DesktopShortcutsService } from '../../services/desktop-shortcuts.service';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { L10nTranslationService } from 'angular-l10n';
 
@@ -91,8 +92,10 @@ export function generateInstanceActions(item: LaunchbarItem,
                                         pluginsDataService: PluginsDataService,
                                         translationService: L10nTranslationService,
                                         applicationManager: MVDHosting.ApplicationManagerInterface,
-                                        windowManager: WindowManagerService): ContextMenuItem[] {
+                                        windowManager: WindowManagerService,
+                                        shortcutsService?: DesktopShortcutsService): ContextMenuItem[] {
   let menuItems: ContextMenuItem[];
+  const desktopShortcutItem: ContextMenuItem | null = shortcutsService ? getDesktopShortcutContext(item, shortcutsService, translationService) : null;
   if (item.instanceIds.length == 1) {
     menuItems = [
       { "text": translationService.translate("Open New"), "action": ()=> openWindow(item, applicationManager)},
@@ -119,5 +122,26 @@ export function generateInstanceActions(item: LaunchbarItem,
       { "text": translationService.translate('Properties'), "action": () => launchPluginPropertyWindow(item.plugin, windowManager) },
     ]
   }
+  if (desktopShortcutItem) {
+    // Insert before the last item (Properties or Close All)
+    menuItems.splice(menuItems.length - 1, 0, desktopShortcutItem);
+  }
   return menuItems;
+}
+
+function getDesktopShortcutContext(item: LaunchbarItem, shortcutsService: DesktopShortcutsService, translationService: L10nTranslationService): ContextMenuItem {
+  const pluginId = item.plugin.getBasePlugin().getIdentifier();
+  const hasShortcut = shortcutsService.hasShortcut(pluginId);
+  return {
+    text: hasShortcut
+      ? 'Remove From Desktop'
+      : 'Add Shortcut To Desktop',
+    action: () => {
+      if (hasShortcut) {
+        shortcutsService.removeShortcut(pluginId);
+      } else {
+        shortcutsService.addShortcut(pluginId);
+      }
+    }
+  };
 }
