@@ -157,7 +157,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     return this.shortcuts$.value.some(s => s.pluginId === pluginId && !s.action);
   }
 
-  renameShortcut(row: number, col: number, newLabel: string): boolean {
+  renameShortcut(row: number, col: number, newLabel: string, updateActionName?: boolean): boolean {
     const current = this.shortcuts$.value;
     const isDuplicate = current.some(s =>
       !(s.gridRow === row && s.gridCol === col) && s.displayLabel === newLabel
@@ -165,11 +165,72 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     if (isDuplicate) {
       return false;
     }
-    const updated = current.map(s =>
-      (s.gridRow === row && s.gridCol === col) ? { ...s, displayLabel: newLabel } : s
-    );
+    const updated = current.map(s => {
+      if (s.gridRow === row && s.gridCol === col) {
+        const renamed = { ...s, displayLabel: newLabel };
+        if (updateActionName && renamed.action?.launchMetadata?.data) {
+          renamed.action = {
+            ...renamed.action,
+            launchMetadata: {
+              ...renamed.action.launchMetadata,
+              data: { ...renamed.action.launchMetadata.data, name: newLabel }
+            }
+          };
+        }
+        return renamed;
+      }
+      return s;
+    });
     this.saveShortcuts(updated);
     return true;
+  }
+
+  /** Update the launchMetadata.data.name inside a shortcut's action to match the new label */
+  updateShortcutActionName(row: number, col: number, newName: string): void {
+    const current = this.shortcuts$.value;
+    const updated = current.map(s => {
+      if (s.gridRow === row && s.gridCol === col && s.action?.launchMetadata?.data) {
+        return {
+          ...s,
+          action: {
+            ...s.action,
+            launchMetadata: {
+              ...s.action.launchMetadata,
+              data: { ...s.action.launchMetadata.data, name: newName }
+            }
+          }
+        };
+      }
+      return s;
+    });
+    this.saveShortcuts(updated);
+  }
+
+  /** Convert a newFile shortcut to an openFile shortcut after the file has been saved */
+  convertNewFileShortcut(originalName: string, filePath: string): void {
+    const current = this.shortcuts$.value;
+    const match = current.find(s =>
+      s.action?.launchMetadata?.data?.type === 'newFile' &&
+      (s.action.launchMetadata.data.name === originalName || s.displayLabel === originalName)
+    );
+    if (!match) return;
+    const fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
+    const updated = current.map(s => {
+      if (s === match) {
+        return {
+          ...s,
+          displayLabel: fileName,
+          action: {
+            ...s.action!,
+            id: DesktopShortcutsService.generateActionId('org.zowe.editor', { targetPluginId: 'org.zowe.editor', type: 'openFile', name: filePath }),
+            name: 'Open ' + fileName + ' in Editor',
+            launchMetadata: { data: { type: 'openFile', name: filePath } }
+          }
+        };
+      }
+      return s;
+    });
+    this.saveShortcuts(updated);
   }
 
   /** Invoke a shortcut — either a plain launch or a dispatcher action */

@@ -42,6 +42,7 @@ export class DesktopIconComponent {
   @Output() iconContextMenu = new EventEmitter<{ event: MouseEvent; shortcut: DesktopShortcut }>();
   @Output() iconMoved = new EventEmitter<{ shortcut: DesktopShortcut; newRow: number; newCol: number }>();
   @Output() iconRenamed = new EventEmitter<{ shortcut: DesktopShortcut; newLabel: string }>();
+  @Output() iconRenameCancelled = new EventEmitter<DesktopShortcut>();
 
   @ViewChild('renameInput') renameInputRef: ElementRef<HTMLInputElement>;
   isRenaming = false;
@@ -167,6 +168,7 @@ export class DesktopIconComponent {
   cancelRename(): void {
     this.isRenaming = false;
     this.renameError = false;
+    this.iconRenameCancelled.emit(this.shortcut);
   }
 
   onRenameKeydown(event: KeyboardEvent): void {
