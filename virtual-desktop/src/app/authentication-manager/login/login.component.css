@@ -115,19 +115,20 @@
 .input-icon-wrapper {
   position: relative;
   width: 100%;
+  margin-bottom: 12px;
 }
 
 .input-icon-wrapper .icon-input {
   padding-left: 36px;
+  margin-bottom: 0;
 }
 
 .input-icon {
   position: absolute;
-  left: 10px;
-  top: calc(50% - 6px);
+  left: 12px;
+  top: 50%;
   transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
+  font-size: 16px;
   color: #888;
   pointer-events: none;
 }
