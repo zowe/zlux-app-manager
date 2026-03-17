@@ -28,7 +28,6 @@ import { SnackbarComponent } from '../shared/snackbar/snackbar.component';
 import { LaunchbarItem } from '../shared/launchbar-item';
 import { WindowManagerService } from '../../shared/window-manager.service';
 import { L10nTranslationService } from 'angular-l10n';
-import { Environment } from 'zlux-platform/base/src/environment/environment';
 
 @Component({
   selector: 'rs-com-launchbar-widget',
@@ -128,8 +127,6 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   // @ViewChild('clearlanguagebutton') clearLanguageButton: ElementRef;
   // @ViewChild('localebutton') localeButton: ElementRef;
 
-  private environment: Environment = new Environment();
-
   constructor(
     private injector: Injector,
     private languageLocaleService: LanguageLocaleService,
@@ -151,9 +148,8 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   ngOnInit(): void {
     this.date = new Date();
-    // Use shared Environment class to fetch Zowe version
-    this.environment.getZoweVersion()
-      .then(version => {
+    ZoweZLUX.environment.getZoweVersion()
+      .then((version: string) => {
         this.zoweVersion = version ? version : null;
       })
       .catch(() => {
