@@ -163,9 +163,11 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   }
 
   getPluginVersion(): string | null {
-    const desktopVersion = this.plugin.version ? 'v. ' + this.plugin.version : '';
-    const zoweVersion = this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : '';
-    return desktopVersion + zoweVersion;
+    return 'v. ' + this.plugin.version;
+  }
+
+  getZoweVersion(): string | null {
+    return this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : null;
   }
 
   logout(): void {
