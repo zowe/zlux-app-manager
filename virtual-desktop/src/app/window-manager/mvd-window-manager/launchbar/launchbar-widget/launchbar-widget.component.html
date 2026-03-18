@@ -16,7 +16,7 @@
   <button #logoutbutton class="btn btn-primary launchbar-button" (click)="logout()" id="ZAP_DesktopHome_LogoutButton"
     i18n="signout button|Title of Sign out button@@signout-button-title">Log out</button>
   <h6 class="launchbar-plugin-version" [style.color]="color.launchbarMenuText" id="ZAP_DesktopHome_VersionLabel">{{getPluginVersion()}}</h6>
-  <span *ngIf="zoweVersion" class="zowe-version-info">Zowe version: {{zoweVersion}}</span>
+  <h6 class="zowe-version-info"  [style.color]="color.launchbarMenuText"  id="ZAP_Zowe_VersionLabel">{{getZoweVersion()}}</h6>
 </div>
 
 <div #notificationarea [hidden]="!notificationsVisible" class='notifications'
