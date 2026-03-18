@@ -17,7 +17,8 @@ import {
   OnInit,
   Output,
   ViewChild,
-  Input
+  Input,
+  AfterViewInit
 } from '@angular/core';
 import { interval } from 'rxjs';
 import { DesktopComponent, DesktopTheme } from "../../desktop/desktop.component";
@@ -35,7 +36,7 @@ import { L10nTranslationService } from 'angular-l10n';
   styleUrls: ['launchbar-widget.component.css', '../shared/shared.css'],
   providers: [LanguageLocaleService],
 })
-export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatcher, OnInit {
+export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatcher, OnInit, AfterViewInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private readonly plugin: any = ZoweZLUX.pluginManager.getDesktopPlugin();
   public date: Date;
@@ -148,6 +149,10 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   ngOnInit(): void {
     this.date = new Date();
+    interval(1000).subscribe(() => this.date = new Date());
+  }
+
+  ngAfterViewInit(): void {
     ZoweZLUX.environment.getZoweVersion()
       .then((version: string) => {
         this.zoweVersion = version ? version : null;
@@ -155,7 +160,6 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
       .catch(() => {
         this.zoweVersion = null;
       });
-    interval(1000).subscribe(() => this.date = new Date());
   }
 
   getUsername(): string | null {
