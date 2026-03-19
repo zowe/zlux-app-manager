@@ -2,6 +2,10 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `2.18.5`
+
+- Enhancement: Upgraded dependency `@rocketsoftware/carbon-components-angular` to version `0.0.8` to avoid some security risks. ([#699](https://github.com/zowe/zlux-app-manager/pull/699))
+
 ## `2.18.4`
 
 - Enhancement: Upgraded dependency `sass` to version `1.93.2` to avoid some security risks. ([#677](https://github.com/zowe/zlux-app-manager/pull/677))

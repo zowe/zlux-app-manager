@@ -8,10 +8,10 @@
   },
   "private": false,
   "dependencies": {
-    "@rocketsoftware/carbon-components-angular": "0.0.6"
+    "@rocketsoftware/carbon-components-angular": "0.0.8"
   },
   "devDependencies": {
-    "@rocketsoftware/carbon-components": "0.0.5",
+    "@rocketsoftware/carbon-components": "0.0.8",
     "@rocketsoftware/icons-angular": "0.0.3",
     "sass": "~1.93.2",
     "sass-loader": "^8.0.0",
