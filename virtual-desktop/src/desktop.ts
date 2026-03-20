@@ -21,6 +21,7 @@
 import '@angular/compiler';
 import '@angular/localize/init';
 import { enableProdMode, Type } from '@angular/core';
+import { APP_BASE_HREF } from '@angular/common';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { MvdComponent } from 'app/window-manager/mvd-window-manager/mvd.component';
@@ -132,8 +133,15 @@ if (document.head) {
 
 function performBootstrap(): void {
   MvdModuleFactory.getTranslationProviders()
-    .then(providers => platformBrowserDynamic().bootstrapModule(mainModule
-      || MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent), {providers: providers}));
+    .then(providers => platformBrowserDynamic().bootstrapModule(
+      mainModule || MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent),
+      {
+        providers: [
+          ...providers,
+          { provide: APP_BASE_HREF, useValue: ZoweZLUX?.uriBroker.desktopRootUri() }
+        ]
+      }
+    ));
 }
 
 const element = document.createElement('rs-com-root');
