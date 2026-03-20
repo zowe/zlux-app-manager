@@ -10,9 +10,9 @@
 */
 import { Component, Inject, Optional } from '@angular/core';
 import { BaseLogger } from '../../../../../../virtual-desktop/src/app/shared/logger';
-// import { LanguageLocaleService } from '../../../../../../virtual-desktop/src/app/i18n/language-locale.service';
+import { LanguageLocaleService } from '../../../../../../virtual-desktop/src/app/i18n/language-locale.service';
 import { Angular2InjectionTokens, Angular2PluginWindowActions } from 'pluginlib/inject-resources';
-// import { L10nTranslationService } from 'angular-l10n';
+import { L10nTranslationService } from 'angular-l10n';
 
 @Component({
   selector: 'language-component',
@@ -39,9 +39,18 @@ export class LanguageComponent {
   public LanguageChanges: string;
   public Select: string;
 
+  private languageMap: { [key: string]: string } = {
+    en: 'English',
+    fr: 'French',
+    ru: 'Russian',
+    zh: 'Chinese',
+    ja: 'Japanese',
+    de: 'German'
+  };
+
   constructor(
-    // private languageLocaleService: LanguageLocaleService,
-    // private translation: L10nTranslationService,
+    private languageLocaleService: LanguageLocaleService,
+    private translation: L10nTranslationService,
     @Optional() @Inject(Angular2InjectionTokens.WINDOW_ACTIONS) private windowActions: Angular2PluginWindowActions,
 
   ) {
@@ -49,21 +58,20 @@ export class LanguageComponent {
     this.isVeilVisible = false;
     this.updateLanguageSelection();
     this.updateLanguageStrings();
-    if (this.windowActions) {this.windowActions.setTitle(this.Languages);}
+    if (this.windowActions) {this.windowActions.setTitle(this.Languages); }
   }
 
   applyLanguage(): void {
-    this.logger.debug("hello")
-    // this.languageLocaleService.setLanguage(this.idLanguage).subscribe(
-    //   arg => { 
-    //     this.logger.debug("ZWED5323I",arg); //this.logger.debug(`setLanguage, arg=`,arg);
-    //     this.isRestartWindowVisible = true;
-    //     this.isVeilVisible = true;
-    //    },
-    //   err => {
-    //     this.logger.warn("ZWED5192W",err); //this.logger.warn("setLanguage error=",err);
-    //   }
-    // )
+    this.languageLocaleService.setLanguage(this.idLanguage).subscribe(
+      arg => {
+        this.logger.debug('ZWED5323I', arg); // this.logger.debug(`setLanguage, arg=`,arg);
+        this.isRestartWindowVisible = true;
+        this.isVeilVisible = true;
+       },
+      err => {
+        this.logger.warn('ZWED5192W', err); // this.logger.warn("setLanguage error=",err);
+      }
+    )
   }
 
   closeRestartWindow(): void {
@@ -75,93 +83,30 @@ export class LanguageComponent {
     window.location.reload();
   }
 
-  //TODO: Ideally, when selecting a language in the panel we would adjust the language strings to the chosen
-  //language in real-time (contrary to restarting the desktop) but this doesn't work yet as this.translation
-  //only loads translations for the currently loaded language (that of which data is coming from a cookie)
+  // TODO: Ideally, when selecting a language in the panel we would adjust the language strings to the chosen
+  // language in real-time (contrary to restarting the desktop) but this doesn't work yet as this.translation
+  // only loads translations for the currently loaded language (that of which data is coming from a cookie)
 
-  selectEnglish(): void {
-    this.selectedLanguage = "English";
-    this.selectedLanguage = "English";
-    this.idLanguage = "en";
-  }
-
-  selectFrench(): void {
-    this.selectedLanguage = "French";
-    this.selectedLanguage = "English";
-    this.idLanguage = "fr";
-  }
-
-  selectRussian(): void {
-    this.selectedLanguage = "Russian";
-    this.selectedLanguage = "English";
-    this.idLanguage = "ru";
-  }
-
-  selectChinese(): void {
-    this.selectedLanguage = "Chinese";
-    this.selectedLanguage = "English";
-    this.idLanguage = "zh";
-  }
-
-  selectJapanese(): void {
-    this.selectedLanguage = "Japanese";
-    this.selectedLanguage = "English";
-    this.idLanguage = "ja";
-  }
-
-  selectGerman(): void {
-    this.selectedLanguage = "German";
-    this.selectedLanguage = "English";
-    this.idLanguage = "de";
+  selectLanguage(langCode: string): void {
+    this.selectedLanguage = this.languageMap[langCode] || 'English';
+    this.idLanguage = langCode in this.languageMap ? langCode : 'en';
   }
 
   updateLanguageSelection(): void {
-    this.idLanguage = "en";
-
-    switch(this.idLanguage) {
-      case "en": {
-        this.selectEnglish();
-        break;
-      }
-      case "fr": {
-        this.selectFrench();
-        break;
-      }
-      case "ja": {
-        this.selectJapanese();
-        break;
-      }
-      case "ru": {
-        this.selectRussian();
-        break;
-      }
-      case "zh": {
-        this.selectChinese();
-        break;
-      }
-      case "de": {
-        this.selectGerman();
-        break;
-      }
-      default: {
-        this.selectEnglish();
-        break;
-      }
-    }
+    this.selectLanguage(this.idLanguage);
   }
 
   updateLanguageStrings(): void {
-    // this.selectedLanguage = this.translation?.translate(this.selectedLanguage, null, this.idLanguage);
-    // this.Languages = this.translation?.translate('Languages', null, this.idLanguage);
-    // this.Apply = this.translation?.translate('Apply', null, this.idLanguage);
-    // this.LanguageChanges = this.translation?.translate('Language Changes', null, this.idLanguage);
-    // this.LanguageSelected = this.translation?.translate('Language Selected', null, this.idLanguage);
-    // this.RestartDescr1 = this.translation?.translate('For language changes to take effect, Zowe must be restarted.', null, this.idLanguage);
-    // this.RestartDescr2 = this.translation?.translate('Would you like to restart the desktop?', null, this.idLanguage);
-    // this.RestartLater = this.translation?.translate('Restart Later', null, this.idLanguage);
-    // this.RestartNow = this.translation?.translate('Restart Now', null, this.idLanguage);
-    // this.Select = this.translation?.translate('Select', null, this.idLanguage);
-
+    this.selectedLanguage = this.translation?.translate(this.selectedLanguage, null, this.idLanguage);
+    this.Languages = this.translation?.translate('Languages', null, this.idLanguage);
+    this.Apply = this.translation?.translate('Apply', null, this.idLanguage);
+    this.LanguageChanges = this.translation?.translate('Language Changes', null, this.idLanguage);
+    this.LanguageSelected = this.translation?.translate('Language Selected', null, this.idLanguage);
+    this.RestartDescr1 = this.translation?.translate('For language changes to take effect, Zowe must be restarted.', null, this.idLanguage);
+    this.RestartDescr2 = this.translation?.translate('Would you like to restart the desktop?', null, this.idLanguage);
+    this.RestartLater = this.translation?.translate('Restart Later', null, this.idLanguage);
+    this.RestartNow = this.translation?.translate('Restart Now', null, this.idLanguage);
+    this.Select = this.translation?.translate('Select', null, this.idLanguage);
   }
 
 }

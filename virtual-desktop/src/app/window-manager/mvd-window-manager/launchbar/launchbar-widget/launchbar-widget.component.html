@@ -53,9 +53,9 @@
      [style.border-radius]="borderRadius"
      id="ZAP_DesktopHome_WidgetArea">
   <div class="clock two-row" *ngIf="clockTwoRow" [style.font-size]="fontSize" [style.padding-top]="clockOffset" id="ZAP_DesktopHome_LaunchbarClock">
-    <span id="ZAP_DesktopHome_TimeLabel">{{date | date:'shortTime'}}</span>
+    <span id="ZAP_DesktopHome_TimeLabel">{{date | date:'shortTime':undefined:'en'}}</span>
     <br>
-    <span id="ZAP_DesktopHome_DateLabel">{{date | date:'shortDate'}}</span>
+    <span id="ZAP_DesktopHome_DateLabel">{{date | date:'shortDate':undefined:'en'}}</span>
   </div>
   <div class="clock" *ngIf="!clockTwoRow" [style.font-size]="fontSize" [style.padding-top]="clockOffset">
     <span>{{date | date:'shortDate'}} {{date | date:'shortTime'}}</span>
