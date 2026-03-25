@@ -153,7 +153,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    ZoweZLUX.environment.getZoweVersion()
+    ZoweZLUX.serverMetadata.getZoweVersion()
       .then((version: string) => {
         this.zoweVersion = version ? version : null;
       })

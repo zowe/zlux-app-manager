@@ -153,7 +153,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   }
 
   ngAfterViewInit(): void {
-    ZoweZLUX.environment.getZoweVersion()
+    ZoweZLUX.serverMetadata.getZoweVersion()
       .then((version: string) => {
         this.zoweVersion = version ? version : null;
       })
