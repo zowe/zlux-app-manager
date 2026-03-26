@@ -16,7 +16,7 @@
     "launchDefinition": {
       "pluginShortNameKey": "Zowe Viewer",
       "pluginShortNameDefault": "Zowe Viewer",
-      "imageSrc": "assets/v3/icon.png"
+      "imageSrc": "v3/assets/icon.png"
     },
     "descriptionKey": "Zowe Viewer",
     "descriptionDefault": "Zowe Viewer",

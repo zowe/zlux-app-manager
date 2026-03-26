@@ -12,7 +12,7 @@
     "launchDefinition": {
       "pluginShortNameKey": "Personalization",
       "pluginShortNameDefault": "Personalization",
-      "imageSrc": "assets/icon.png"
+      "imageSrc": "v3/assets/icon.png"
     },
     "descriptionKey": "Personalization",
     "descriptionDefault": "Personalization",

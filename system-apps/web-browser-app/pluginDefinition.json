@@ -11,7 +11,7 @@
     "launchDefinition": {
       "pluginShortNameKey": "webbrowser",
       "pluginShortNameDefault": "Web Browser",
-      "imageSrc": "assets/v3/icon.png"
+      "imageSrc": "v3/assets/icon.png"
     },
     "descriptionKey": "webbrowserdescription",
     "descriptionDefault": "Web Browser Application",
