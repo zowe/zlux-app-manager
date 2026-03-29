@@ -568,6 +568,15 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     return this.windowManager.getAllWindows();
   }
 
+  @HostListener('window:keydown.escape')
+  onEscapeKey(): void {
+    if (this.propertiesShortcut) {
+      this.propertiesShortcut = null;
+    } else if (this.openFolderId) {
+      this.openFolderId = null;
+    }
+  }
+
   @HostListener('window:resize')
   onWindowResize(): void {
     if (this.resizeTimer) {
