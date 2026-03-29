@@ -24,6 +24,7 @@ import { DesktopTheme } from '../../desktop/desktop.component';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { ThemeEmitterService } from '../../services/theme-emitter.service';
 import { DesktopShortcutsService } from '../../services/desktop-shortcuts.service';
+import { DesktopFolder, DesktopShortcut } from '../../services/desktop-shortcuts.service';
 import { Colors } from '../../shared/colors'
 
 /* Current default theme is dark grey, with light text */
@@ -102,6 +103,9 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
   private pluginManager: MVDHosting.PluginManagerInterface;
   public propertyWindowPluginDef: DesktopPluginDefinitionImpl;
   public size: number;
+  public pinnedFolders: DesktopFolder[] = [];
+  public allShortcuts: DesktopShortcut[] = [];
+  public pluginMap: Map<string, DesktopPluginDefinitionImpl> = new Map();
   
    constructor(
     private themeService: ThemeEmitterService,
@@ -131,10 +135,60 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
          } else if (!pluginDef.isSystemPlugin && pluginDef.webContent) {
            this.allItems.push(new PluginLaunchbarItem(p, this.windowManager));
          }
+         const baseDef = p.getBasePlugin?.()?.getBasePlugin?.();
+         if (baseDef && baseDef.identifier) {
+           this.pluginMap.set(baseDef.identifier, p);
+         }
        });
        this.pluginsDataService.refreshPinnedPlugins(this.allItems);
      });
+
+     // Subscribe to pinned folders
+     this.shortcutsService.shortcuts$.subscribe(shortcuts => {
+       this.allShortcuts = shortcuts;
+     });
+     this.shortcutsService.folders$.subscribe(folders => {
+       this.updatePinnedFolders(folders);
+     });
+     this.shortcutsService.pinnedFolderIds$.subscribe(() => {
+       this.updatePinnedFolders(this.shortcutsService.folders$.value);
+     });
    }
+
+  private updatePinnedFolders(allFolders: DesktopFolder[]): void {
+    const pinnedIds = this.shortcutsService.pinnedFolderIds$.value;
+    this.pinnedFolders = allFolders.filter(f => pinnedIds.includes(f.id));
+  }
+
+  getShortcutsInFolder(folderId: string): DesktopShortcut[] {
+    return this.allShortcuts.filter(s => s.folderId === folderId);
+  }
+
+  onPinnedFolderClick(folder: DesktopFolder): void {
+    // Dispatch an event so the window-pane can open the folder
+    window.dispatchEvent(new CustomEvent('desktop-open-folder', { detail: { folderId: folder.id } }));
+  }
+
+  onPinnedFolderRightClick(event: MouseEvent, folder: DesktopFolder): boolean {
+    event.preventDefault();
+    event.stopPropagation();
+    const menuItems: ContextMenuItem[] = [
+      {
+        text: 'Open Folder',
+        action: () => this.onPinnedFolderClick(folder)
+      },
+      {
+        text: 'Unpin from Taskbar',
+        action: () => this.shortcutsService.unpinFolder(folder.id)
+      }
+    ];
+    this.windowManager.contextMenuRequested.next({
+      xPos: event.clientX,
+      yPos: event.clientY,
+      items: menuItems
+    });
+    return false;
+  }
 
   ngOnInit() {
     this.themeService.onColorChange

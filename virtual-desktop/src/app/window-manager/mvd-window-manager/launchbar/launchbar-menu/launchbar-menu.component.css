@@ -147,6 +147,19 @@
   background-color: #ffffff61;
 }
 
+.launch-menu-folders-divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.15);
+  margin: 8px 12px;
+}
+
+.launch-menu-folder-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+}
+
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies

@@ -32,7 +32,7 @@
 }
 
 .desktop-icon.dragging {
-  pointer-events: none;
+  opacity: 0.8;
 }
 
 .desktop-icon-image {
@@ -86,6 +86,45 @@
 
 .desktop-icon-rename-input.rename-error {
   border-color: #ff4444;
+}
+
+/* ── Folder drop target / preview state ── */
+.desktop-icon.folder-drop-target {
+  background-color: rgba(100, 150, 255, 0.15);
+  border-color: rgba(100, 150, 255, 0.4);
+  border-radius: 8px;
+}
+
+.desktop-icon-folder-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 2px;
+  flex-shrink: 0;
+  overflow: hidden;
+  opacity: 0.7;
+}
+
+.desktop-icon-folder-preview-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.desktop-icon-folder-preview-mini {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 2px;
+}
+
+.desktop-icon-folder-preview-letter {
+  font-weight: bold;
+  color: #ffffff;
+  opacity: 0.7;
 }
 
 /*

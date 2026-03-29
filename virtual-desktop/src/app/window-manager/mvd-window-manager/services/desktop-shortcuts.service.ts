@@ -42,6 +42,26 @@ export interface DesktopShortcut {
   displayIcon?: string;
   /** Optional action to invoke instead of a plain launch */
   action?: DesktopShortcutAction;
+  /** If set, this shortcut belongs to a folder rather than the top-level desktop grid */
+  folderId?: string;
+}
+
+export interface DesktopFolder {
+  /** Unique identifier for this folder */
+  id: string;
+  /** User-visible name */
+  name: string;
+  /** Grid position on the desktop (or -1/-1 if only in taskbar/launch menu) */
+  gridRow: number;
+  gridCol: number;
+  /** Optional custom icon URL (overrides the auto-generated child icon grid) */
+  displayIcon?: string;
+  /** ISO-8601 timestamp of when the folder was created */
+  createdDate: string;
+  /** ISO-8601 timestamp of the last structural modification (add/remove/rename) */
+  modifiedDate: string;
+  /** ISO-8601 timestamp of the last time the folder was opened/expanded */
+  lastOpenedDate: string;
 }
 
 @Injectable()
@@ -70,6 +90,12 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   shortcuts$ = new BehaviorSubject<DesktopShortcut[]>([]);
+  folders$ = new BehaviorSubject<DesktopFolder[]>([]);
+  pinnedFolderIds$ = new BehaviorSubject<string[]>([]);
+
+  private static generateFolderId(): string {
+    return 'folder-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 8);
+  }
 
   constructor(
     private injector: Injector,
@@ -81,20 +107,28 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   onLogout(username: string): boolean {
     this.shortcuts$.next([]);
+    this.folders$.next([]);
+    this.pinnedFolderIds$.next([]);
     return true;
   }
 
   loadShortcuts(): void {
     this.getResource().subscribe(
       (res: HttpResponse<any>) => {
-        if (res.status === 204 || !res.body?.contents?.shortcuts) {
+        if (res.status === 204 || !res.body?.contents) {
           this.shortcuts$.next([]);
+          this.folders$.next([]);
+          this.pinnedFolderIds$.next([]);
         } else {
-          this.shortcuts$.next(res.body.contents.shortcuts as DesktopShortcut[]);
+          this.shortcuts$.next((res.body.contents.shortcuts || []) as DesktopShortcut[]);
+          this.folders$.next((res.body.contents.folders || []) as DesktopFolder[]);
+          this.pinnedFolderIds$.next((res.body.contents.pinnedFolderIds || []) as string[]);
         }
       },
       () => {
         this.shortcuts$.next([]);
+        this.folders$.next([]);
+        this.pinnedFolderIds$.next([]);
       }
     );
   }
@@ -262,7 +296,12 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   private findNextAvailablePosition(shortcuts: DesktopShortcut[]): { row: number; col: number } {
-    const occupied = new Set(shortcuts.map(s => `${s.gridRow},${s.gridCol}`));
+    const topLevelShortcuts = shortcuts.filter(s => !s.folderId);
+    const folders = this.folders$.value;
+    const occupied = new Set([
+      ...topLevelShortcuts.map(s => `${s.gridRow},${s.gridCol}`),
+      ...folders.map(f => `${f.gridRow},${f.gridCol}`)
+    ]);
     const maxRows = 20;
     const maxCols = 20;
     for (let col = 0; col < maxCols; col++) {
@@ -275,24 +314,253 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     return { row: 0, col: 0 };
   }
 
-  /** Save shortcuts directly (e.g. after reflowing out-of-bounds icons on resize) */
-  saveShortcutsDirect(shortcuts: DesktopShortcut[]): void {
-    this.saveShortcuts(shortcuts);
+  // ── Folder operations ──
+
+  /** Get shortcuts that belong to a specific folder */
+  getShortcutsInFolder(folderId: string): DesktopShortcut[] {
+    return this.shortcuts$.value.filter(s => s.folderId === folderId);
   }
 
-  private saveShortcuts(shortcuts: DesktopShortcut[]): void {
+  /** Create a new folder at the given grid position with the provided shortcuts moved into it */
+  createFolder(name: string, gridRow: number, gridCol: number, shortcutKeys: { row: number; col: number }[]): DesktopFolder {
+    const now = new Date().toISOString();
+    const folder: DesktopFolder = {
+      id: DesktopShortcutsService.generateFolderId(),
+      name,
+      gridRow,
+      gridCol,
+      createdDate: now,
+      modifiedDate: now,
+      lastOpenedDate: now
+    };
+    const updatedFolders = [...this.folders$.value, folder];
+    const updatedShortcuts = this.shortcuts$.value.map(s => {
+      const match = shortcutKeys.find(k => k.row === s.gridRow && k.col === s.gridCol && !s.folderId);
+      if (match) {
+        return { ...s, folderId: folder.id };
+      }
+      return s;
+    });
+    this.saveAll(updatedShortcuts, updatedFolders);
+    return folder;
+  }
+
+  /** Create a folder by merging two shortcuts (drag-to-create) */
+  createFolderFromShortcuts(targetShortcut: DesktopShortcut, droppedShortcut: DesktopShortcut): DesktopFolder {
+    return this.createFolder('New Folder', targetShortcut.gridRow, targetShortcut.gridCol, [
+      { row: targetShortcut.gridRow, col: targetShortcut.gridCol },
+      { row: droppedShortcut.gridRow, col: droppedShortcut.gridCol }
+    ]);
+  }
+
+  /** Add an existing shortcut to a folder */
+  addShortcutToFolder(folderId: string, shortcutRow: number, shortcutCol: number): void {
+    const now = new Date().toISOString();
+    const target = this.shortcuts$.value.find(s => s.gridRow === shortcutRow && s.gridCol === shortcutCol && !s.folderId);
+    if (!target) return;
+    const others = this.shortcuts$.value.filter(s => s !== target);
+    const updatedShortcuts = [...others, { ...target, folderId }];
+    const updatedFolders = this.folders$.value.map(f =>
+      f.id === folderId ? { ...f, modifiedDate: now } : f
+    );
+    this.saveAll(updatedShortcuts, updatedFolders);
+  }
+
+  /** Remove a shortcut from its folder back to the desktop grid */
+  removeShortcutFromFolder(folderId: string, shortcutRow: number, shortcutCol: number): void {
+    const now = new Date().toISOString();
+    const position = this.findNextAvailablePosition(this.shortcuts$.value);
+    const updatedShortcuts = this.shortcuts$.value.map(s => {
+      if (s.gridRow === shortcutRow && s.gridCol === shortcutCol && s.folderId === folderId) {
+        const { folderId: _, ...rest } = s;
+        return { ...rest, gridRow: position.row, gridCol: position.col };
+      }
+      return s;
+    });
+    const remainingInFolder = updatedShortcuts.filter(s => s.folderId === folderId);
+    let updatedFolders;
+    if (remainingInFolder.length === 0) {
+      updatedFolders = this.folders$.value.filter(f => f.id !== folderId);
+    } else {
+      updatedFolders = this.folders$.value.map(f =>
+        f.id === folderId ? { ...f, modifiedDate: now } : f
+      );
+    }
+    this.saveAll(updatedShortcuts, updatedFolders);
+  }
+
+  /** Remove a shortcut from its folder and place it at a specific desktop grid position */
+  removeShortcutFromFolderToPosition(folderId: string, shortcutRow: number, shortcutCol: number, newRow: number, newCol: number): void {
+    const now = new Date().toISOString();
+    const topLevel = this.shortcuts$.value.filter(s => !s.folderId);
+    const folders = this.folders$.value;
+    const occupied = new Set([
+      ...topLevel.map(s => `${s.gridRow},${s.gridCol}`),
+      ...folders.map(f => `${f.gridRow},${f.gridCol}`)
+    ]);
+    let targetRow = newRow;
+    let targetCol = newCol;
+    if (occupied.has(`${targetRow},${targetCol}`)) {
+      const pos = this.findNextAvailablePosition(this.shortcuts$.value);
+      targetRow = pos.row;
+      targetCol = pos.col;
+    }
+    const updatedShortcuts = this.shortcuts$.value.map(s => {
+      if (s.gridRow === shortcutRow && s.gridCol === shortcutCol && s.folderId === folderId) {
+        const { folderId: _, ...rest } = s;
+        return { ...rest, gridRow: targetRow, gridCol: targetCol };
+      }
+      return s;
+    });
+    const remainingInFolder = updatedShortcuts.filter(s => s.folderId === folderId);
+    let updatedFolders;
+    if (remainingInFolder.length === 0) {
+      updatedFolders = folders.filter(f => f.id !== folderId);
+    } else {
+      updatedFolders = folders.map(f =>
+        f.id === folderId ? { ...f, modifiedDate: now } : f
+      );
+    }
+    this.saveAll(updatedShortcuts, updatedFolders);
+  }
+
+  /** Reorder the shortcuts within a folder. The newOrder array contains the shortcuts in the desired order. */
+  reorderShortcutsInFolder(folderId: string, newOrder: DesktopShortcut[]): void {
+    const now = new Date().toISOString();
+    const otherShortcuts = this.shortcuts$.value.filter(s => s.folderId !== folderId);
+    const reordered = newOrder.map(s => ({ ...s, folderId }));
+    const updatedShortcuts = [...otherShortcuts, ...reordered];
+    const updatedFolders = this.folders$.value.map(f =>
+      f.id === folderId ? { ...f, modifiedDate: now } : f
+    );
+    this.saveAll(updatedShortcuts, updatedFolders);
+  }
+
+  renameFolder(folderId: string, newName: string): boolean {
+    const current = this.folders$.value;
+    const isDuplicate = current.some(f => f.id !== folderId && f.name === newName);
+    if (isDuplicate) {
+      return false;
+    }
+    const now = new Date().toISOString();
+    const updated = current.map(f =>
+      f.id === folderId ? { ...f, name: newName, modifiedDate: now } : f
+    );
+    this.saveAll(this.shortcuts$.value, updated);
+    return true;
+  }
+
+  moveFolder(folderId: string, newRow: number, newCol: number): void {
+    const shortcuts = this.shortcuts$.value.filter(s => !s.folderId);
+    const folders = this.folders$.value;
+    const occupied = new Set([
+      ...shortcuts.map(s => `${s.gridRow},${s.gridCol}`),
+      ...folders.filter(f => f.id !== folderId).map(f => `${f.gridRow},${f.gridCol}`)
+    ]);
+    if (occupied.has(`${newRow},${newCol}`)) {
+      return;
+    }
+    const updated = folders.map(f =>
+      f.id === folderId ? { ...f, gridRow: newRow, gridCol: newCol } : f
+    );
+    this.saveAll(this.shortcuts$.value, updated);
+  }
+
+  deleteFolder(folderId: string): void {
+    const updatedFolders = this.folders$.value.filter(f => f.id !== folderId);
+    // Move contained shortcuts back to the desktop grid
+    let updatedShortcuts = [...this.shortcuts$.value];
+    const inFolder = updatedShortcuts.filter(s => s.folderId === folderId);
+    for (const s of inFolder) {
+      const position = this.findNextAvailablePosition(updatedShortcuts.filter(sc => !sc.folderId));
+      updatedShortcuts = updatedShortcuts.map(sc => {
+        if (sc === s) {
+          const { folderId: _, ...rest } = sc;
+          return { ...rest, gridRow: position.row, gridCol: position.col };
+        }
+        return sc;
+      });
+    }
+    this.saveAll(updatedShortcuts, updatedFolders);
+  }
+
+  /** Update the lastOpenedDate for a folder */
+  markFolderOpened(folderId: string): void {
+    const now = new Date().toISOString();
+    const updated = this.folders$.value.map(f =>
+      f.id === folderId ? { ...f, lastOpenedDate: now } : f
+    );
+    this.saveAll(this.shortcuts$.value, updated);
+  }
+
+  /** Update the display icon for a folder (architecture for future UX) */
+  setFolderIcon(folderId: string, iconUrl: string | undefined): void {
+    const now = new Date().toISOString();
+    const updated = this.folders$.value.map(f =>
+      f.id === folderId ? { ...f, displayIcon: iconUrl, modifiedDate: now } : f
+    );
+    this.saveAll(this.shortcuts$.value, updated);
+  }
+
+  // ── Taskbar pinning for folders ──
+
+  pinFolder(folderId: string): void {
+    const current = this.pinnedFolderIds$.value;
+    if (!current.includes(folderId)) {
+      const updated = [...current, folderId];
+      this.savePinnedFolderIds(updated);
+    }
+  }
+
+  unpinFolder(folderId: string): void {
+    const updated = this.pinnedFolderIds$.value.filter(id => id !== folderId);
+    this.savePinnedFolderIds(updated);
+  }
+
+  isFolderPinned(folderId: string): boolean {
+    return this.pinnedFolderIds$.value.includes(folderId);
+  }
+
+  private savePinnedFolderIds(ids: string[]): void {
     const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
       ZoweZLUX.pluginManager.getDesktopPlugin(), this.scope, this.resourcePath, this.fileName
     );
-    const params = { shortcuts };
+    const params = { shortcuts: this.shortcuts$.value, folders: this.folders$.value, pinnedFolderIds: ids };
+    this.http.put(uri, params).subscribe(
+      () => { this.pinnedFolderIds$.next(ids); },
+      (err) => { this.logger.warn('Could not save pinned folder IDs', err); }
+    );
+  }
+
+  /** Save shortcuts directly (e.g. after reflowing out-of-bounds icons on resize) */
+  saveShortcutsDirect(shortcuts: DesktopShortcut[]): void {
+    this.saveAll(shortcuts, this.folders$.value);
+  }
+
+  /** Save folders directly (e.g. after reflowing out-of-bounds folders on resize) */
+  saveFoldersDirect(folders: DesktopFolder[]): void {
+    this.saveAll(this.shortcuts$.value, folders);
+  }
+
+  private saveAll(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): void {
+    const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
+      ZoweZLUX.pluginManager.getDesktopPlugin(), this.scope, this.resourcePath, this.fileName
+    );
+    const params = { shortcuts, folders, pinnedFolderIds: this.pinnedFolderIds$.value };
     this.http.put(uri, params).subscribe(
       () => {
         this.shortcuts$.next(shortcuts);
+        this.folders$.next(folders);
       },
       (err) => {
         this.logger.warn('Could not save desktop shortcuts', err);
       }
     );
+  }
+
+  /** Save only shortcuts, preserving current folders */
+  private saveShortcuts(shortcuts: DesktopShortcut[]): void {
+    this.saveAll(shortcuts, this.folders$.value);
   }
 
   private getResource(): Observable<HttpResponse<any>> {

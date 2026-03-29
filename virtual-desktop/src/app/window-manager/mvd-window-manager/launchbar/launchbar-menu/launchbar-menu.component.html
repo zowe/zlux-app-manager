@@ -52,6 +52,22 @@
               [style.padding-top]="appLabelPadding"
               [style.font-size]="menuText">{{item.label}}</div>
       </div>
+      <!-- Folders section -->
+      <div *ngIf="folders.length > 0" class="launch-menu-folders-divider"></div>
+      <div class="launch-widget-row launch-widget-folder-row"
+        *ngFor="let folder of folders"
+        (click)="folderClicked(folder)"
+        (contextmenu)="onFolderRightClick($event, folder)"
+        [title]="folder.name">
+          <div class="icon launch-menu-folder-icon"
+              [style.width]="appIconSize"
+              [style.height]="appIconSize">
+            <em class="fa fa-folder" [style.font-size]="appIconSize"></em>
+          </div>
+          <div class="app-label"
+              [style.padding-top]="appLabelPadding"
+              [style.font-size]="menuText">{{folder.name}}</div>
+      </div>
     </div>
     <div class="launch-menu-search">
       <em class="launch-menu-search-icon fa fa-search"></em>
