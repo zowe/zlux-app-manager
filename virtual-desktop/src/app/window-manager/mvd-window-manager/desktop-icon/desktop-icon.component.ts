@@ -23,6 +23,8 @@ export class DesktopIconComponent {
   @Input() shortcut: DesktopShortcut;
   @Input() plugin: DesktopPluginDefinitionImpl;
   @Input() isHighlighted: boolean = false;
+  @Input() showFolderPreview: boolean = false;
+  @Input() folderPreviewIcons: { url: string | null; label: string }[] = [];
   @Input() allShortcuts: DesktopShortcut[] = [];
   @Input() maxGridRows: number = 20;
   @Input() maxGridCols: number = 20;
@@ -43,6 +45,8 @@ export class DesktopIconComponent {
   @Output() iconMoved = new EventEmitter<{ shortcut: DesktopShortcut; newRow: number; newCol: number }>();
   @Output() iconRenamed = new EventEmitter<{ shortcut: DesktopShortcut; newLabel: string }>();
   @Output() iconRenameCancelled = new EventEmitter<DesktopShortcut>();
+  @Output() iconDragMove = new EventEmitter<{ shortcut: DesktopShortcut; clientX: number; clientY: number }>();
+  @Output() iconDragEnd = new EventEmitter<{ shortcut: DesktopShortcut; clientX: number; clientY: number }>();
 
   @ViewChild('renameInput') renameInputRef: ElementRef<HTMLInputElement>;
   isRenaming = false;
@@ -66,6 +70,10 @@ export class DesktopIconComponent {
 
   get iconUrl(): string | null {
     return this.shortcut?.displayIcon || this.plugin?.image || null;
+  }
+
+  get miniIconSize(): number {
+    return Math.floor((this.iconImageSize - 4) / 2);
   }
 
   get label(): string {
@@ -121,7 +129,9 @@ export class DesktopIconComponent {
 
   onDblClick(event: MouseEvent): void {
     event.stopPropagation();
-    this.iconLaunched.emit(this.shortcut);
+    if (!this.isDragging) {
+      this.iconLaunched.emit(this.shortcut);
+    }
   }
 
   onRightClick(event: MouseEvent): boolean {
@@ -205,6 +215,7 @@ export class DesktopIconComponent {
     if (this.isDragging) {
       this.dragLeft = event.clientX - this.dragOffsetX;
       this.dragTop = event.clientY - this.dragOffsetY;
+      this.iconDragMove.emit({ shortcut: this.shortcut, clientX: event.clientX, clientY: event.clientY });
     }
   }
 
@@ -213,6 +224,8 @@ export class DesktopIconComponent {
     window.removeEventListener('mouseup', this.boundOnMouseUp);
 
     if (this.isDragging) {
+      this.iconDragEnd.emit({ shortcut: this.shortcut, clientX: event.clientX, clientY: event.clientY });
+
       const newCol = Math.min(this.maxGridCols - 1, Math.max(0, Math.round((this.dragLeft - this.gridPadding) / this.iconCellWidth)));
       const newRow = Math.min(this.maxGridRows - 1, Math.max(0, Math.round((this.dragTop - this.gridPadding) / this.iconCellHeight)));
 

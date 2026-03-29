@@ -1,0 +1,119 @@
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->
+<div class="desktop-folder"
+     [ngStyle]="positionStyle"
+     [class.highlighted]="isHighlighted"
+     [class.dragging]="isDragging"
+     [class.open]="isOpen"
+     (click)="onClick($event)"
+     (dblclick)="onDblClick($event)"
+     (contextmenu)="onRightClick($event)"
+     (mousedown)="onMouseDown($event)">
+
+  <!-- Custom icon (set via setFolderIcon) -->
+  <div class="desktop-folder-image" *ngIf="hasCustomIcon"
+       [style.background-image]="'url(' + folder.displayIcon + ')'"
+       [style.width.px]="iconImageSize" [style.height.px]="iconImageSize">
+  </div>
+
+  <!-- Auto-generated icon grid from children (iOS-style) -->
+  <div class="desktop-folder-grid" *ngIf="!hasCustomIcon"
+       [style.width.px]="iconImageSize" [style.height.px]="iconImageSize">
+    <ng-container *ngFor="let icon of previewIcons; let i = index; trackBy: trackByIndex">
+      <div class="desktop-folder-grid-cell"
+           [style.width.px]="miniIconSize" [style.height.px]="miniIconSize">
+        <div class="desktop-folder-mini-icon" *ngIf="icon.url"
+             [style.background-image]="'url(' + icon.url + ')'"
+             [style.width.px]="miniIconSize - 2" [style.height.px]="miniIconSize - 2">
+        </div>
+        <span class="desktop-folder-mini-letter" *ngIf="!icon.url"
+              [style.font-size.px]="miniIconSize * 0.5">{{ icon.label?.charAt(0) }}</span>
+      </div>
+    </ng-container>
+    <!-- Fill remaining cells to maintain grid shape -->
+    <ng-container *ngFor="let empty of emptyGridCells">
+      <div class="desktop-folder-grid-cell desktop-folder-grid-empty"
+           [style.width.px]="miniIconSize" [style.height.px]="miniIconSize">
+      </div>
+    </ng-container>
+  </div>
+
+  <span class="desktop-folder-label" *ngIf="!isRenaming" [style.font-size.px]="iconFontSize">{{ label }}</span>
+  <input *ngIf="isRenaming" #renameInput
+    class="desktop-folder-rename-input"
+    [class.rename-error]="renameError"
+    [style.font-size.px]="iconFontSize"
+    [value]="renameValue"
+    (input)="renameValue = $any($event.target).value"
+    (blur)="confirmRename()"
+    (keydown)="onRenameKeydown($event)"
+    (click)="$event.stopPropagation()"
+    (dblclick)="$event.stopPropagation()"
+    (mousedown)="$event.stopPropagation()" />
+</div>
+
+<!-- Expanded folder overlay (shown when folder is open) -->
+<div class="desktop-folder-overlay" *ngIf="isOpen" (click)="folderOpened.emit(folder)">
+  <div class="desktop-folder-expanded" #expandedPanel (click)="$event.stopPropagation()">
+    <div class="desktop-folder-expanded-header">
+      <span class="desktop-folder-expanded-title">{{ label }}</span>
+    </div>
+    <div class="desktop-folder-expanded-grid">
+      <div class="desktop-folder-expanded-item" *ngFor="let shortcut of childShortcuts; let i = index"
+           [class.dragging-source]="expandedDragShortcut === shortcut"
+           [class.drop-before]="isExpandedDragging && expandedDropIndex === i && expandedDragShortcut !== shortcut && childShortcuts.indexOf(expandedDragShortcut) > i"
+           [class.drop-after]="isExpandedDragging && expandedDropIndex === i && expandedDragShortcut !== shortcut && childShortcuts.indexOf(expandedDragShortcut) < i"
+           (dblclick)="shortcutLaunched.emit(shortcut)"
+           (mousedown)="onExpandedItemMouseDown($event, shortcut)">
+        <div class="desktop-folder-expanded-icon" *ngIf="getShortcutIcon(shortcut)"
+             [style.background-image]="'url(' + getShortcutIcon(shortcut) + ')'"
+             [style.width.px]="iconImageSize" [style.height.px]="iconImageSize">
+        </div>
+        <div class="desktop-folder-expanded-icon desktop-folder-expanded-placeholder" *ngIf="!getShortcutIcon(shortcut)"
+             [style.width.px]="iconImageSize" [style.height.px]="iconImageSize">
+          <span class="desktop-folder-expanded-letter" [style.font-size.px]="iconLetterSize">
+            {{ getShortcutLabel(shortcut)?.charAt(0) }}
+          </span>
+        </div>
+        <span class="desktop-folder-expanded-label" [style.font-size.px]="iconFontSize">
+          {{ getShortcutLabel(shortcut) }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Floating drag preview when dragging an item out of the expanded folder -->
+<div class="desktop-folder-expanded-drag-preview" *ngIf="isExpandedDragging && expandedDragShortcut"
+     [style.left.px]="expandedDragLeft" [style.top.px]="expandedDragTop">
+  <div class="desktop-folder-expanded-icon" *ngIf="getShortcutIcon(expandedDragShortcut)"
+       [style.background-image]="'url(' + getShortcutIcon(expandedDragShortcut) + ')'"
+       [style.width.px]="iconImageSize" [style.height.px]="iconImageSize">
+  </div>
+  <div class="desktop-folder-expanded-icon desktop-folder-expanded-placeholder" *ngIf="!getShortcutIcon(expandedDragShortcut)"
+       [style.width.px]="iconImageSize" [style.height.px]="iconImageSize">
+    <span class="desktop-folder-expanded-letter" [style.font-size.px]="iconLetterSize">
+      {{ getShortcutLabel(expandedDragShortcut)?.charAt(0) }}
+    </span>
+  </div>
+  <span class="desktop-folder-expanded-label" [style.font-size.px]="iconFontSize">
+    {{ getShortcutLabel(expandedDragShortcut) }}
+  </span>
+</div>
+
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->

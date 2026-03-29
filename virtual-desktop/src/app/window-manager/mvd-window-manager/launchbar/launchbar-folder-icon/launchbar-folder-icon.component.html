@@ -1,0 +1,50 @@
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->
+<div class="launchbar-folder-icon-container"
+     (click)="onClick($event)"
+     (contextmenu)="onRightClick($event)">
+  <p class="launchbar-folder-tooltip truncate"
+     [style.bottom]="hoverBottom"
+     [style.left]="hoverOffset">{{ label }}</p>
+
+  <!-- Custom folder icon -->
+  <div class="launchbar-folder-icon-image" *ngIf="hasCustomIcon"
+       [style.width]="iconSize" [style.height]="iconSize"
+       [style.background-image]="'url(' + folder.displayIcon + ')'"
+       [title]="label">
+  </div>
+
+  <!-- Auto-generated grid from children -->
+  <div class="launchbar-folder-icon-grid" *ngIf="!hasCustomIcon"
+       [style.width]="iconSize" [style.height]="iconSize"
+       [title]="label">
+    <ng-container *ngFor="let icon of previewIcons; trackBy: trackByIndex">
+      <div class="launchbar-folder-mini-cell"
+           [style.width.px]="miniIconSize" [style.height.px]="miniIconSize">
+        <div class="launchbar-folder-mini-icon" *ngIf="icon.url"
+             [style.background-image]="'url(' + icon.url + ')'"
+             [style.width.px]="miniIconSize - 1" [style.height.px]="miniIconSize - 1">
+        </div>
+        <span class="launchbar-folder-mini-letter" *ngIf="!icon.url"
+              [style.font-size.px]="miniIconSize * 0.5">{{ icon.label?.charAt(0) }}</span>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->

@@ -32,6 +32,8 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 import { ThemeEmitterService } from './services/theme-emitter.service';
 import { DesktopShortcutsService } from './services/desktop-shortcuts.service';
 import { DesktopIconComponent } from './desktop-icon/desktop-icon.component';
+import { DesktopFolderComponent } from './desktop-folder/desktop-folder.component';
+import { ShortcutPropertiesComponent } from './shortcut-properties/shortcut-properties.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { IncludeExternalCssComponent } from 'app/shared/include-external-css.component';
 
@@ -57,7 +59,9 @@ import { IncludeExternalCssComponent } from 'app/shared/include-external-css.com
     MvdComponent,
     PersonalizationPanelComponent,
     PersonalizationComponent,
-    DesktopIconComponent
+    DesktopIconComponent,
+    DesktopFolderComponent,
+    ShortcutPropertiesComponent
   ],
   exports: [
     DesktopComponent

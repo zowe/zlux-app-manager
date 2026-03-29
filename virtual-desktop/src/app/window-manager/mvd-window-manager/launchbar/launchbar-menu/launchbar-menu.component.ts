@@ -23,6 +23,7 @@ import { generateInstanceActions } from '../shared/context-utils';
 import { KeybindingService } from '../../shared/keybinding.service';
 import { KeyCode } from '../../shared/keycode-enum';
 import { DesktopShortcutsService } from '../../services/desktop-shortcuts.service';
+import { DesktopFolder } from '../../services/desktop-shortcuts.service';
 
 const FONT_SIZE=12;
 
@@ -58,6 +59,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public appFilter:string="";
   public activeIndex:number;  
   private isContextMenuPresent:boolean;
+  public folders: DesktopFolder[] = [];
 
   @Input() set menuItems(items: LaunchbarItem[]) {
     this._menuItems = items;
@@ -134,6 +136,10 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     
     this.activeIndex = 0;
     this.isContextMenuPresent = false;
+
+    this.shortcutsService.folders$.subscribe(folders => {
+      this.folders = folders;
+    });
   }
 
   onLogin(plugins:any): boolean {
@@ -331,7 +337,59 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
 
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     event.stopPropagation();
-    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager, this.shortcutsService);    
+    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager, this.shortcutsService);
+    // Add "Add to Folder" submenu items if folders exist
+    if (this.folders.length > 0) {
+      const addToFolderItems: ContextMenuItem[] = this.folders.map(folder => ({
+        text: folder.name,
+        action: () => {
+          this.shortcutsService.addShortcut(item.plugin.getBasePlugin().getIdentifier());
+          // After the shortcut is saved, add it to the folder
+          setTimeout(() => {
+            const shortcuts = this.shortcutsService.shortcuts$.value;
+            const target = shortcuts.find(s =>
+              s.pluginId === item.plugin.getBasePlugin().getIdentifier() && !s.folderId && !s.action
+            );
+            if (target) {
+              this.shortcutsService.addShortcutToFolder(folder.id, target.gridRow, target.gridCol);
+            }
+          }, 300);
+        }
+      }));
+      menuItems.splice(menuItems.length - 1, 0, {
+        text: 'Add to Folder',
+        children: addToFolderItems
+      });
+    }
+    this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
+    this.isContextMenuPresent = true;
+    return false;
+  }
+
+  folderClicked(folder: DesktopFolder): void {
+    window.dispatchEvent(new CustomEvent('desktop-open-folder', { detail: { folderId: folder.id } }));
+    this.isActive = false;
+    this.emitState();
+  }
+
+  onFolderRightClick(event: MouseEvent, folder: DesktopFolder): boolean {
+    event.preventDefault();
+    event.stopPropagation();
+    const isPinned = this.shortcutsService.isFolderPinned(folder.id);
+    const menuItems: ContextMenuItem[] = [
+      {
+        text: 'Open Folder',
+        action: () => this.folderClicked(folder)
+      },
+      {
+        text: isPinned ? 'Unpin from Taskbar' : 'Pin to Taskbar',
+        action: () => isPinned ? this.shortcutsService.unpinFolder(folder.id) : this.shortcutsService.pinFolder(folder.id)
+      },
+      {
+        text: 'Delete Folder',
+        action: () => this.shortcutsService.deleteFolder(folder.id)
+      }
+    ];
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     this.isContextMenuPresent = true;
     return false;

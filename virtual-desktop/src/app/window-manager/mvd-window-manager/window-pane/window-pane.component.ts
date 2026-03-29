@@ -18,7 +18,7 @@ import { DesktopWindow } from '../shared/desktop-window';
 import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
-import { DesktopShortcut, DesktopShortcutsService } from '../services/desktop-shortcuts.service';
+import { DesktopShortcut, DesktopFolder, DesktopShortcutsService } from '../services/desktop-shortcuts.service';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { L10nTranslationService } from 'angular-l10n';
 import { delay } from 'rxjs/operators';
@@ -53,6 +53,14 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   pluginMap: Map<string, DesktopPluginDefinitionImpl> = new Map();
   highlightedIconId: string | null = null;
   renameTargetKey: string | null = null;
+  folders: DesktopFolder[] = [];
+  highlightedFolderId: string | null = null;
+  openFolderId: string | null = null;
+  renameFolderTargetId: string | null = null;
+  folderPreviewTargetKey: string | null = null;
+  folderPreviewIcons: { url: string | null; label: string }[] = [];
+  private dragSourceShortcut: DesktopShortcut | null = null;
+  propertiesShortcut: DesktopShortcut | null = null;
   maxGridRows: number = 8;
   maxGridCols: number = 20;
   iconCellWidth: number = 90;
@@ -93,6 +101,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       this.shortcuts = shortcuts;
     });
 
+    this.shortcutsService.folders$.subscribe(folders => {
+      this.folders = folders;
+    });
+
     // Listen for external shortcut changes (e.g. from ZFM plugin)
     window.addEventListener('desktop-shortcuts-changed', () => {
       this.shortcutsService.loadShortcuts();
@@ -103,6 +115,17 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       const { originalName, filePath } = event.detail;
       if (originalName && filePath) {
         this.shortcutsService.convertNewFileShortcut(originalName, filePath);
+      }
+    }) as EventListener);
+
+    // Listen for folder open requests from the taskbar
+    window.addEventListener('desktop-open-folder', ((event: CustomEvent) => {
+      const { folderId } = event.detail;
+      if (folderId) {
+        const folder = this.folders.find(f => f.id === folderId);
+        if (folder) {
+          this.onFolderOpened(folder);
+        }
       }
     }) as EventListener);
 
@@ -169,6 +192,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       {
         text: 'Remove From Desktop',
         action: () => this.shortcutsService.removeShortcutAtPosition(shortcut.gridRow, shortcut.gridCol)
+      },
+      {
+        text: 'Properties',
+        action: () => { this.propertiesShortcut = shortcut; }
       }
     ];
     this.windowManager.contextMenuRequested.next({
@@ -179,6 +206,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onIconMoved(event: { shortcut: DesktopShortcut; newRow: number; newCol: number }): void {
+    if (this.dragConsumed) {
+      this.dragConsumed = false;
+      return;
+    }
     this.shortcutsService.moveShortcut(event.shortcut.pluginId, event.newRow, event.newCol, event.shortcut.action?.id);
   }
 
@@ -219,28 +250,216 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }
   }
 
+  /** Only shortcuts not inside a folder */
+  get topLevelShortcuts(): DesktopShortcut[] {
+    return this.shortcuts.filter(s => !s.folderId);
+  }
+
+  getShortcutsInFolder(folderId: string): DesktopShortcut[] {
+    return this.shortcuts.filter(s => s.folderId === folderId);
+  }
+
+  // ── Folder event handlers ──
+
+  onFolderSelected(folder: DesktopFolder): void {
+    this.highlightedFolderId = folder.id;
+    this.highlightedIconId = null;
+  }
+
+  onFolderOpened(folder: DesktopFolder): void {
+    if (this.openFolderId === folder.id) {
+      this.openFolderId = null;
+    } else {
+      this.openFolderId = folder.id;
+      this.shortcutsService.markFolderOpened(folder.id);
+    }
+  }
+
+  onFolderContextMenu(event: { event: MouseEvent; folder: DesktopFolder }): void {
+    const folder = event.folder;
+    const isPinned = this.shortcutsService.isFolderPinned(folder.id);
+    const menuItems: ContextMenuItem[] = [
+      {
+        text: 'Open Folder',
+        action: () => this.onFolderOpened(folder)
+      },
+      {
+        text: 'Rename',
+        action: () => { this.renameFolderTargetId = folder.id; }
+      },
+      {
+        text: isPinned ? 'Unpin from Taskbar' : 'Pin to Taskbar',
+        action: () => isPinned ? this.shortcutsService.unpinFolder(folder.id) : this.shortcutsService.pinFolder(folder.id)
+      },
+      {
+        text: 'Delete Folder',
+        action: () => this.shortcutsService.deleteFolder(folder.id)
+      }
+    ];
+    this.windowManager.contextMenuRequested.next({
+      xPos: event.event.clientX,
+      yPos: event.event.clientY,
+      items: menuItems
+    });
+  }
+
+  onFolderMoved(event: { folder: DesktopFolder; newRow: number; newCol: number }): void {
+    this.shortcutsService.moveFolder(event.folder.id, event.newRow, event.newCol);
+  }
+
+  onFolderRenamed(event: { folder: DesktopFolder; newName: string }): void {
+    this.renameFolderTargetId = null;
+    this.shortcutsService.renameFolder(event.folder.id, event.newName);
+  }
+
+  onFolderRenameCancelled(folder: DesktopFolder): void {
+    this.renameFolderTargetId = null;
+  }
+
+  onShortcutRemovedFromFolder(event: { folder: DesktopFolder; shortcut: DesktopShortcut }): void {
+    this.shortcutsService.removeShortcutFromFolder(event.folder.id, event.shortcut.gridRow, event.shortcut.gridCol);
+    if (!this.folders.some(f => f.id === event.folder.id)) {
+      this.openFolderId = null;
+    }
+  }
+
+  onShortcutDraggedOutOfFolder(event: { folder: DesktopFolder; shortcut: DesktopShortcut; clientX: number; clientY: number }): void {
+    const col = Math.min(this.maxGridCols - 1, Math.max(0, Math.floor((event.clientX - this.gridPadding) / this.iconCellWidth)));
+    const row = Math.min(this.maxGridRows - 1, Math.max(0, Math.floor((event.clientY - this.gridPadding) / this.iconCellHeight)));
+    this.shortcutsService.removeShortcutFromFolderToPosition(event.folder.id, event.shortcut.gridRow, event.shortcut.gridCol, row, col);
+    if (!this.folders.some(f => f.id === event.folder.id)) {
+      this.openFolderId = null;
+    }
+  }
+
+  onShortcutReordered(event: { folder: DesktopFolder; newOrder: DesktopShortcut[] }): void {
+    this.shortcutsService.reorderShortcutsInFolder(event.folder.id, event.newOrder);
+  }
+
+  // ── Drag-to-create-folder logic ──
+
+  private dragConsumed = false;
+
+  /** ID of folder being hovered over during a drag (for visual highlight) */
+  dragOverFolderId: string | null = null;
+
+  onIconDragMove(event: { shortcut: DesktopShortcut; clientX: number; clientY: number }): void {
+    this.dragSourceShortcut = event.shortcut;
+    const hoverCol = Math.floor((event.clientX - this.gridPadding) / this.iconCellWidth);
+    const hoverRow = Math.floor((event.clientY - this.gridPadding) / this.iconCellHeight);
+
+    // Check if hovering over an existing folder
+    const targetFolder = this.folders.find(f => f.gridRow === hoverRow && f.gridCol === hoverCol);
+    if (targetFolder) {
+      this.dragOverFolderId = targetFolder.id;
+      this.folderPreviewTargetKey = null;
+      this.folderPreviewIcons = [];
+      return;
+    }
+    this.dragOverFolderId = null;
+
+    // Check if hovering over another top-level shortcut
+    const target = this.topLevelShortcuts.find(s =>
+      s.gridRow === hoverRow && s.gridCol === hoverCol &&
+      !(s.gridRow === event.shortcut.gridRow && s.gridCol === event.shortcut.gridCol)
+    );
+
+    if (target) {
+      const targetKey = this.getShortcutKey(target);
+      if (this.folderPreviewTargetKey !== targetKey) {
+        this.folderPreviewTargetKey = targetKey;
+        // Build preview icons: the target icon + the dragged icon
+        const targetPlugin = this.pluginMap.get(target.pluginId);
+        const sourcePlugin = this.pluginMap.get(event.shortcut.pluginId);
+        this.folderPreviewIcons = [
+          { url: target.displayIcon || targetPlugin?.image || null, label: target.displayLabel || targetPlugin?.label || '' },
+          { url: event.shortcut.displayIcon || sourcePlugin?.image || null, label: event.shortcut.displayLabel || sourcePlugin?.label || '' }
+        ];
+      }
+    } else {
+      this.folderPreviewTargetKey = null;
+      this.folderPreviewIcons = [];
+    }
+  }
+
+  onIconDragEnd(event: { shortcut: DesktopShortcut; clientX: number; clientY: number }): void {
+    // Dropped on an existing folder — add the shortcut to it
+    if (this.dragOverFolderId && this.dragSourceShortcut) {
+      this.shortcutsService.addShortcutToFolder(
+        this.dragOverFolderId,
+        this.dragSourceShortcut.gridRow,
+        this.dragSourceShortcut.gridCol
+      );
+      this.dragConsumed = true;
+      this.dragOverFolderId = null;
+      this.folderPreviewTargetKey = null;
+      this.folderPreviewIcons = [];
+      this.dragSourceShortcut = null;
+      return;
+    }
+
+    // Dropped on another shortcut — create a new folder from both
+    if (this.folderPreviewTargetKey && this.dragSourceShortcut) {
+      const target = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.folderPreviewTargetKey);
+      if (target) {
+        const folder = this.shortcutsService.createFolderFromShortcuts(target, this.dragSourceShortcut);
+        // Auto-rename after creation
+        setTimeout(() => { this.renameFolderTargetId = folder.id; }, 200);
+      }
+      this.dragConsumed = true;
+    }
+    this.dragOverFolderId = null;
+    this.folderPreviewTargetKey = null;
+    this.folderPreviewIcons = [];
+    this.dragSourceShortcut = null;
+  }
+
   onDesktopClick(): void {
     this.highlightedIconId = null;
+    this.highlightedFolderId = null;
     this.renameTargetKey = null;
+    this.renameFolderTargetId = null;
+    this.openFolderId = null;
+  }
+
+  onPropertiesClosed(): void {
+    this.propertiesShortcut = null;
+  }
+
+  onPropertiesIconChanged(event: { shortcut: DesktopShortcut; iconUrl: string | undefined }): void {
+    this.shortcutsService.updateShortcutIcon(event.shortcut.gridRow, event.shortcut.gridCol, event.iconUrl);
+  }
+
+  onPropertiesLaunchMetadataChanged(event: { shortcut: DesktopShortcut; launchMetadata: any }): void {
+    this.shortcutsService.updateShortcutLaunchMetadata(event.shortcut.gridRow, event.shortcut.gridCol, event.launchMetadata);
   }
 
   onDesktopRightClick(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
     const menuItems: ContextMenuItem[] = [];
+    menuItems.push({
+      text: 'New Folder',
+      action: () => this.createDesktopFolder(event.clientX, event.clientY)
+    });
     if (this.pluginMap.has('org.zowe.editor')) {
       menuItems.push({
         text: 'Create New File',
         action: () => this.createNewFileShortcut()
       });
     }
-    if (menuItems.length > 0) {
-      this.windowManager.contextMenuRequested.next({
-        xPos: event.clientX,
-        yPos: event.clientY,
-        items: menuItems
-      });
-    }
+    this.windowManager.contextMenuRequested.next({
+      xPos: event.clientX,
+      yPos: event.clientY,
+      items: menuItems
+    });
+  }
+
+  private createDesktopFolder(clientX: number, clientY: number): void {
+    const col = Math.min(this.maxGridCols - 1, Math.max(0, Math.floor((clientX - this.gridPadding) / this.iconCellWidth)));
+    const row = Math.min(this.maxGridRows - 1, Math.max(0, Math.floor((clientY - this.gridPadding) / this.iconCellHeight)));
+    const folder = this.shortcutsService.createFolder('New Folder', row, col, []);
+    setTimeout(() => { this.renameFolderTargetId = folder.id; }, 200);
   }
 
   private createNewFileShortcut(): void {
@@ -349,6 +568,15 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     return this.windowManager.getAllWindows();
   }
 
+  @HostListener('window:keydown.escape')
+  onEscapeKey(): void {
+    if (this.propertiesShortcut) {
+      this.propertiesShortcut = null;
+    } else if (this.openFolderId) {
+      this.openFolderId = null;
+    }
+  }
+
   @HostListener('window:resize')
   onWindowResize(): void {
     if (this.resizeTimer) {
@@ -403,22 +631,50 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
   private reflowOutOfBoundsIcons(): void {
     const current = this.shortcuts;
-    if (!current || current.length === 0) return;
-    let needsSave = false;
-    const updated = [...current];
-    const occupied = new Set(updated.map(s => `${s.gridRow},${s.gridCol}`));
-    for (let i = 0; i < updated.length; i++) {
-      const s = updated[i];
-      if (s.gridRow >= this.maxGridRows || s.gridCol >= this.maxGridCols) {
-        occupied.delete(`${s.gridRow},${s.gridCol}`);
-        const pos = this.findNearestAvailablePosition(s.gridRow, s.gridCol, occupied);
-        updated[i] = { ...s, gridRow: pos.row, gridCol: pos.col };
-        occupied.add(`${pos.row},${pos.col}`);
-        needsSave = true;
+    let shortcutsNeedsSave = false;
+    if (current && current.length > 0) {
+      const updated = [...current];
+      const occupied = new Set([
+        ...updated.filter(s => !s.folderId).map(s => `${s.gridRow},${s.gridCol}`),
+        ...this.folders.map(f => `${f.gridRow},${f.gridCol}`)
+      ]);
+      for (let i = 0; i < updated.length; i++) {
+        const s = updated[i];
+        if (!s.folderId && (s.gridRow >= this.maxGridRows || s.gridCol >= this.maxGridCols)) {
+          occupied.delete(`${s.gridRow},${s.gridCol}`);
+          const pos = this.findNearestAvailablePosition(s.gridRow, s.gridCol, occupied);
+          updated[i] = { ...s, gridRow: pos.row, gridCol: pos.col };
+          occupied.add(`${pos.row},${pos.col}`);
+          shortcutsNeedsSave = true;
+        }
+      }
+      if (shortcutsNeedsSave) {
+        this.shortcutsService.saveShortcutsDirect(updated);
       }
     }
-    if (needsSave) {
-      this.shortcutsService.saveShortcutsDirect(updated);
+
+    // Also reflow folders
+    const currentFolders = this.folders;
+    if (currentFolders && currentFolders.length > 0) {
+      let foldersNeedsSave = false;
+      const updatedFolders = [...currentFolders];
+      const occupiedAfter = new Set([
+        ...this.topLevelShortcuts.map(s => `${s.gridRow},${s.gridCol}`),
+        ...updatedFolders.map(f => `${f.gridRow},${f.gridCol}`)
+      ]);
+      for (let i = 0; i < updatedFolders.length; i++) {
+        const f = updatedFolders[i];
+        if (f.gridRow >= this.maxGridRows || f.gridCol >= this.maxGridCols) {
+          occupiedAfter.delete(`${f.gridRow},${f.gridCol}`);
+          const pos = this.findNearestAvailablePosition(f.gridRow, f.gridCol, occupiedAfter);
+          updatedFolders[i] = { ...f, gridRow: pos.row, gridCol: pos.col };
+          occupiedAfter.add(`${pos.row},${pos.col}`);
+          foldersNeedsSave = true;
+        }
+      }
+      if (foldersNeedsSave) {
+        this.shortcutsService.saveFoldersDirect(updatedFolders);
+      }
     }
   }
 
