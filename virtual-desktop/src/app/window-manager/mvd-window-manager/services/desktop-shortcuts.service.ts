@@ -174,7 +174,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   moveShortcut(pluginId: string, newRow: number, newCol: number, actionId?: string): void {
     const current = this.shortcuts$.value;
-    const occupied = current.some(s => s.gridRow === newRow && s.gridCol === newCol);
+    const topLevel = current.filter(s => !s.folderId);
+    const folders = this.folders$.value;
+    const occupied = topLevel.some(s => s.gridRow === newRow && s.gridCol === newCol)
+      || folders.some(f => f.gridRow === newRow && f.gridCol === newCol);
     if (occupied) {
       return;
     }
@@ -359,7 +362,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     const target = this.shortcuts$.value.find(s => s.gridRow === shortcutRow && s.gridCol === shortcutCol && !s.folderId);
     if (!target) return;
     const others = this.shortcuts$.value.filter(s => s !== target);
-    const updatedShortcuts = [...others, { ...target, folderId }];
+    const updatedShortcuts = [...others, { ...target, folderId, gridRow: -1, gridCol: -1 }];
     const updatedFolders = this.folders$.value.map(f =>
       f.id === folderId ? { ...f, modifiedDate: now } : f
     );
