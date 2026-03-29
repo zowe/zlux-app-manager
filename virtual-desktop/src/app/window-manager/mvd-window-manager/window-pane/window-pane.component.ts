@@ -435,6 +435,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onDesktopRightClick(event: MouseEvent): void {
+    if (event.target !== event.currentTarget) return;
     event.preventDefault();
     event.stopPropagation();
     const menuItems: ContextMenuItem[] = [];
