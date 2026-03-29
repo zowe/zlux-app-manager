@@ -60,6 +60,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   folderPreviewTargetKey: string | null = null;
   folderPreviewIcons: { url: string | null; label: string }[] = [];
   private dragSourceShortcut: DesktopShortcut | null = null;
+  propertiesShortcut: DesktopShortcut | null = null;
   maxGridRows: number = 8;
   maxGridCols: number = 20;
   iconCellWidth: number = 90;
@@ -191,6 +192,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       {
         text: 'Remove From Desktop',
         action: () => this.shortcutsService.removeShortcutAtPosition(shortcut.gridRow, shortcut.gridCol)
+      },
+      {
+        text: 'Properties',
+        action: () => { this.propertiesShortcut = shortcut; }
       }
     ];
     this.windowManager.contextMenuRequested.next({
@@ -415,6 +420,18 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.renameTargetKey = null;
     this.renameFolderTargetId = null;
     this.openFolderId = null;
+  }
+
+  onPropertiesClosed(): void {
+    this.propertiesShortcut = null;
+  }
+
+  onPropertiesIconChanged(event: { shortcut: DesktopShortcut; iconUrl: string | undefined }): void {
+    this.shortcutsService.updateShortcutIcon(event.shortcut.gridRow, event.shortcut.gridCol, event.iconUrl);
+  }
+
+  onPropertiesLaunchMetadataChanged(event: { shortcut: DesktopShortcut; launchMetadata: any }): void {
+    this.shortcutsService.updateShortcutLaunchMetadata(event.shortcut.gridRow, event.shortcut.gridCol, event.launchMetadata);
   }
 
   onDesktopRightClick(event: MouseEvent): void {

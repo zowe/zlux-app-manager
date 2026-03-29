@@ -44,6 +44,12 @@ export interface DesktopShortcut {
   action?: DesktopShortcutAction;
   /** If set, this shortcut belongs to a folder rather than the top-level desktop grid */
   folderId?: string;
+  /** ISO-8601 timestamp of when the shortcut was created */
+  createdDate?: string;
+  /** ISO-8601 timestamp of the last modification (rename, move, icon change, metadata edit) */
+  modifiedDate?: string;
+  /** ISO-8601 timestamp of the last time the shortcut was launched */
+  lastOpenedDate?: string;
 }
 
 export interface DesktopFolder {
@@ -140,19 +146,23 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     if (alreadyExists) {
       return;
     }
+    const now = new Date().toISOString();
     const position = this.findNextAvailablePosition(current);
-    const updated: DesktopShortcut[] = [...current, { pluginId, gridRow: position.row, gridCol: position.col }];
+    const updated: DesktopShortcut[] = [...current, { pluginId, gridRow: position.row, gridCol: position.col, createdDate: now, modifiedDate: now }];
     this.saveShortcuts(updated);
   }
 
   /** Add an app-to-app action shortcut with full dispatcher action details */
   addActionShortcut(shortcut: Omit<DesktopShortcut, 'gridRow' | 'gridCol'>): void {
     const current = this.shortcuts$.value;
+    const now = new Date().toISOString();
     const position = this.findNextAvailablePosition(current);
     const updated: DesktopShortcut[] = [...current, {
       ...shortcut,
       gridRow: position.row,
-      gridCol: position.col
+      gridCol: position.col,
+      createdDate: now,
+      modifiedDate: now
     }];
     this.saveShortcuts(updated);
   }
@@ -185,7 +195,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       const isMatch = actionId
         ? (s.pluginId === pluginId && s.action?.id === actionId)
         : (s.pluginId === pluginId && !s.action);
-      return isMatch ? { ...s, gridRow: newRow, gridCol: newCol } : s;
+      return isMatch ? { ...s, gridRow: newRow, gridCol: newCol, modifiedDate: new Date().toISOString() } : s;
     });
     this.saveShortcuts(updated);
   }
@@ -204,7 +214,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     }
     const updated = current.map(s => {
       if (s.gridRow === row && s.gridCol === col) {
-        const renamed = { ...s, displayLabel: newLabel };
+        const renamed = { ...s, displayLabel: newLabel, modifiedDate: new Date().toISOString() };
         if (updateActionName && renamed.action?.launchMetadata?.data) {
           renamed.action = {
             ...renamed.action,
@@ -296,6 +306,42 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     } else if (pluginDef) {
       applicationManager.spawnApplication(pluginDef, null);
     }
+    this.markShortcutOpened(shortcut);
+  }
+
+  private markShortcutOpened(shortcut: DesktopShortcut): void {
+    const now = new Date().toISOString();
+    const updated = this.shortcuts$.value.map(s => {
+      if (s.gridRow === shortcut.gridRow && s.gridCol === shortcut.gridCol && s.pluginId === shortcut.pluginId) {
+        return { ...s, lastOpenedDate: now };
+      }
+      return s;
+    });
+    this.saveShortcuts(updated);
+  }
+
+  /** Update the icon URL of a shortcut */
+  updateShortcutIcon(row: number, col: number, iconUrl: string | undefined): void {
+    const now = new Date().toISOString();
+    const updated = this.shortcuts$.value.map(s => {
+      if (s.gridRow === row && s.gridCol === col) {
+        return { ...s, displayIcon: iconUrl, modifiedDate: now };
+      }
+      return s;
+    });
+    this.saveShortcuts(updated);
+  }
+
+  /** Update the launchMetadata of an action shortcut */
+  updateShortcutLaunchMetadata(row: number, col: number, launchMetadata: any): void {
+    const now = new Date().toISOString();
+    const updated = this.shortcuts$.value.map(s => {
+      if (s.gridRow === row && s.gridCol === col && s.action) {
+        return { ...s, action: { ...s.action, launchMetadata }, modifiedDate: now };
+      }
+      return s;
+    });
+    this.saveShortcuts(updated);
   }
 
   private findNextAvailablePosition(shortcuts: DesktopShortcut[]): { row: number; col: number } {

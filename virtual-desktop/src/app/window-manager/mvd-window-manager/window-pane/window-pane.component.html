@@ -71,6 +71,15 @@
   </div>
 </div>
 
+<rs-com-shortcut-properties
+  *ngIf="propertiesShortcut"
+  [shortcut]="propertiesShortcut"
+  [plugin]="pluginMap.get(propertiesShortcut.pluginId)"
+  (closed)="onPropertiesClosed()"
+  (iconChanged)="onPropertiesIconChanged($event)"
+  (launchMetadataChanged)="onPropertiesLaunchMetadataChanged($event)">
+</rs-com-shortcut-properties>
+
 
 <!-- 
   This program and the accompanying materials are
