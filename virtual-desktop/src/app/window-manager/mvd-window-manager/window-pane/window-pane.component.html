@@ -64,7 +64,8 @@
     (shortcutLaunched)="onIconLaunched($event)"
     (shortcutRemovedFromFolder)="onShortcutRemovedFromFolder($event)"
     (shortcutDraggedOutToDesktop)="onShortcutDraggedOutOfFolder($event)"
-    (shortcutReordered)="onShortcutReordered($event)">
+    (shortcutReordered)="onShortcutReordered($event)"
+    (shortcutContextMenu)="onIconContextMenu($event)">
   </rs-com-desktop-folder>
   <div *ngFor="let window of windows">
     <rs-com-mvd-window [desktopWindow]="window" [theme]="theme"></rs-com-mvd-window>
