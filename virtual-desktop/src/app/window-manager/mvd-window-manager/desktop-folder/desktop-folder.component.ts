@@ -53,6 +53,7 @@ export class DesktopFolderComponent {
   @Output() shortcutDroppedOnFolder = new EventEmitter<{ folder: DesktopFolder }>();
   @Output() shortcutDraggedOutToDesktop = new EventEmitter<{ folder: DesktopFolder; shortcut: DesktopShortcut; clientX: number; clientY: number }>();
   @Output() shortcutReordered = new EventEmitter<{ folder: DesktopFolder; newOrder: DesktopShortcut[] }>();
+  @Output() shortcutContextMenu = new EventEmitter<{ event: MouseEvent; shortcut: DesktopShortcut }>();
 
   @ViewChild('renameInput') renameInputRef: ElementRef<HTMLInputElement>;
   @ViewChild('expandedPanel') expandedPanelRef: ElementRef<HTMLDivElement>;
@@ -269,6 +270,12 @@ export class DesktopFolderComponent {
   }
 
   // ── Expanded-item drag (drag shortcut out of folder to desktop) ──
+
+  onExpandedItemRightClick(event: MouseEvent, shortcut: DesktopShortcut): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.shortcutContextMenu.emit({ event, shortcut });
+  }
 
   onExpandedItemMouseDown(event: MouseEvent, shortcut: DesktopShortcut): void {
     if (event.button !== 0) return;

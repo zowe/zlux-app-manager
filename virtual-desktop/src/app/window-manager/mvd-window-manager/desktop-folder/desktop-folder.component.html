@@ -71,6 +71,7 @@
            [class.drop-before]="isExpandedDragging && expandedDropIndex === i && expandedDragShortcut !== shortcut && childShortcuts.indexOf(expandedDragShortcut) > i"
            [class.drop-after]="isExpandedDragging && expandedDropIndex === i && expandedDragShortcut !== shortcut && childShortcuts.indexOf(expandedDragShortcut) < i"
            (dblclick)="shortcutLaunched.emit(shortcut)"
+           (contextmenu)="onExpandedItemRightClick($event, shortcut)"
            (mousedown)="onExpandedItemMouseDown($event, shortcut)">
         <div class="desktop-folder-expanded-icon" *ngIf="getShortcutIcon(shortcut)"
              [style.background-image]="'url(' + getShortcutIcon(shortcut) + ')'"
