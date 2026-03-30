@@ -153,6 +153,13 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
      this.shortcutsService.pinnedFolderIds$.subscribe(() => {
        this.updatePinnedFolders(this.shortcutsService.folders$.value);
      });
+
+     // Listen for pin/unpin changes from the desktop context menu
+     window.addEventListener('desktop-pinned-plugins-changed', () => {
+       if (this.allItems.length > 0) {
+         this.pluginsDataService.refreshPinnedPlugins(this.allItems);
+       }
+     });
    }
 
   private updatePinnedFolders(allFolders: DesktopFolder[]): void {

@@ -61,6 +61,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   folderPreviewIcons: { url: string | null; label: string }[] = [];
   private dragSourceShortcut: DesktopShortcut | null = null;
   propertiesShortcut: DesktopShortcut | null = null;
+  private pinnedPluginIds: Set<string> = new Set();
   maxGridRows: number = 8;
   maxGridCols: number = 20;
   iconCellWidth: number = 90;
@@ -133,6 +134,11 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.themeService.onSizeChange.subscribe((size: any) => {
       this.applyIconSize(size.windowSize || 2);
     });
+
+    // Listen for launchbar pin changes from other sources
+    window.addEventListener('desktop-pinned-plugins-changed', () => {
+      this.loadPinnedPluginIds();
+    });
   }
 
   private replaceWallpaper(url:string) {
@@ -153,6 +159,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
     this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
     this.shortcutsService.loadShortcuts();
+    this.loadPinnedPluginIds();
     return true;
   }
 
@@ -198,6 +205,14 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         action: () => { this.propertiesShortcut = shortcut; }
       }
     ];
+    // Pin/Unpin from Launchbar (only for plain plugin shortcuts, not action shortcuts)
+    if (!shortcut.action) {
+      const isPinned = this.pinnedPluginIds.has(shortcut.pluginId);
+      menuItems.splice(2, 0, {
+        text: isPinned ? 'Unpin from Taskbar' : 'Pin to Taskbar',
+        action: () => this.togglePinToLaunchbar(shortcut.pluginId, !isPinned)
+      });
+    }
     this.windowManager.contextMenuRequested.next({
       xPos: event.event.clientX,
       yPos: event.event.clientY,
@@ -576,6 +591,156 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     } else if (this.openFolderId) {
       this.openFolderId = null;
     }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    // Only handle when no window has focus and no modal is open
+    if (this.propertiesShortcut || this.openFolderId || this.renameTargetKey || this.renameFolderTargetId) return;
+    // Don't intercept when an input/textarea has focus
+    const tag = (event.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    // Don't intercept when a window has focus
+    if (this.windowManager.getAllWindows().some(w => this.windowManager.windowHasFocus(w.windowId))) return;
+
+    switch (event.key) {
+      case 'ArrowUp':
+      case 'ArrowDown':
+      case 'ArrowLeft':
+      case 'ArrowRight':
+        event.preventDefault();
+        this.navigateGrid(event.key);
+        break;
+      case 'Enter':
+        event.preventDefault();
+        this.openHighlightedItem();
+        break;
+    }
+  }
+
+  private navigateGrid(direction: string): void {
+    const allItems = this.getGridItems();
+    if (allItems.length === 0) return;
+
+    // Find the currently highlighted item
+    let currentRow = -1;
+    let currentCol = -1;
+    const highlightedShortcut = this.highlightedIconId
+      ? this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.highlightedIconId)
+      : null;
+    const highlightedFolder = this.highlightedFolderId
+      ? this.folders.find(f => f.id === this.highlightedFolderId)
+      : null;
+
+    if (highlightedShortcut) {
+      currentRow = highlightedShortcut.gridRow;
+      currentCol = highlightedShortcut.gridCol;
+    } else if (highlightedFolder) {
+      currentRow = highlightedFolder.gridRow;
+      currentCol = highlightedFolder.gridCol;
+    } else {
+      // Nothing selected — select the first item (top-left)
+      const first = allItems.sort((a, b) => a.col !== b.col ? a.col - b.col : a.row - b.row)[0];
+      this.selectGridItem(first);
+      return;
+    }
+
+    let dRow = 0, dCol = 0;
+    switch (direction) {
+      case 'ArrowUp':    dRow = -1; break;
+      case 'ArrowDown':  dRow = 1;  break;
+      case 'ArrowLeft':  dCol = -1; break;
+      case 'ArrowRight': dCol = 1;  break;
+    }
+
+    // Search in the direction for the nearest item
+    let bestItem: { row: number; col: number; type: string; ref: any } | null = null;
+    let bestDist = Infinity;
+    for (const item of allItems) {
+      if (item.row === currentRow && item.col === currentCol) continue;
+      const dr = item.row - currentRow;
+      const dc = item.col - currentCol;
+      // Must be in the correct direction
+      if (dRow !== 0 && Math.sign(dr) !== dRow) continue;
+      if (dCol !== 0 && Math.sign(dc) !== dCol) continue;
+      // For vertical movement, prefer same column; for horizontal, prefer same row
+      const primaryDist = dRow !== 0 ? Math.abs(dr) : Math.abs(dc);
+      const secondaryDist = dRow !== 0 ? Math.abs(dc) : Math.abs(dr);
+      const dist = primaryDist * 1000 + secondaryDist;
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestItem = item;
+      }
+    }
+    if (bestItem) {
+      this.selectGridItem(bestItem);
+    }
+  }
+
+  private getGridItems(): { row: number; col: number; type: string; ref: any }[] {
+    const items: { row: number; col: number; type: string; ref: any }[] = [];
+    for (const s of this.topLevelShortcuts) {
+      items.push({ row: s.gridRow, col: s.gridCol, type: 'shortcut', ref: s });
+    }
+    for (const f of this.folders) {
+      items.push({ row: f.gridRow, col: f.gridCol, type: 'folder', ref: f });
+    }
+    return items;
+  }
+
+  private selectGridItem(item: { row: number; col: number; type: string; ref: any }): void {
+    if (item.type === 'shortcut') {
+      this.highlightedIconId = this.getShortcutKey(item.ref);
+      this.highlightedFolderId = null;
+    } else {
+      this.highlightedFolderId = item.ref.id;
+      this.highlightedIconId = null;
+    }
+  }
+
+  private openHighlightedItem(): void {
+    if (this.highlightedIconId) {
+      const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.highlightedIconId);
+      if (shortcut) { this.onIconLaunched(shortcut); }
+    } else if (this.highlightedFolderId) {
+      const folder = this.folders.find(f => f.id === this.highlightedFolderId);
+      if (folder) { this.onFolderOpened(folder); }
+    }
+  }
+
+  private loadPinnedPluginIds(): void {
+    const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
+      ZoweZLUX.pluginManager.getDesktopPlugin(), 'user', 'ui/launchbar/plugins', 'pinnedPlugins.json'
+    );
+    this.http.get<any>(uri, { observe: 'response' }).subscribe(res => {
+      if (res.status !== 204 && res.body?.contents?.plugins) {
+        this.pinnedPluginIds = new Set(res.body.contents.plugins);
+      } else {
+        this.pinnedPluginIds = new Set();
+      }
+    }, () => {
+      this.pinnedPluginIds = new Set();
+    });
+  }
+
+  private togglePinToLaunchbar(pluginId: string, pin: boolean): void {
+    const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
+      ZoweZLUX.pluginManager.getDesktopPlugin(), 'user', 'ui/launchbar/plugins', 'pinnedPlugins.json'
+    );
+    this.http.get<any>(uri, { observe: 'response' }).subscribe(res => {
+      let plugins: string[] = (res.status === 204) ? [] : (res.body?.contents?.plugins || []);
+      if (pin) {
+        if (!plugins.includes(pluginId)) {
+          plugins.push(pluginId);
+        }
+      } else {
+        plugins = plugins.filter(p => p !== pluginId);
+      }
+      this.http.put(uri, { plugins }).subscribe(() => {
+        this.pinnedPluginIds = new Set(plugins);
+        window.dispatchEvent(new CustomEvent('desktop-pinned-plugins-changed'));
+      });
+    });
   }
 
   @HostListener('window:resize')
