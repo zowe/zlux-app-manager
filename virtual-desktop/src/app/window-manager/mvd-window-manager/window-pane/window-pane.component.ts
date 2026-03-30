@@ -56,6 +56,14 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   folders: DesktopFolder[] = [];
   highlightedFolderId: string | null = null;
   openFolderId: string | null = null;
+  selectedKeys: Set<string> = new Set();
+  marqueeActive = false;
+  marqueeStartX = 0;
+  marqueeStartY = 0;
+  marqueeCurrentX = 0;
+  marqueeCurrentY = 0;
+  private boundMarqueeMove: (e: MouseEvent) => void;
+  private boundMarqueeUp: (e: MouseEvent) => void;
   renameFolderTargetId: string | null = null;
   folderPreviewTargetKey: string | null = null;
   folderPreviewIcons: { url: string | null; label: string }[] = [];
@@ -139,6 +147,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     window.addEventListener('desktop-pinned-plugins-changed', () => {
       this.loadPinnedPluginIds();
     });
+
+    this.boundMarqueeMove = this.onMarqueeMouseMove.bind(this);
+    this.boundMarqueeUp = this.onMarqueeMouseUp.bind(this);
   }
 
   private replaceWallpaper(url:string) {
@@ -167,8 +178,52 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     return this.pluginMap.get(shortcut.pluginId);
   }
 
+  isItemSelected(key: string): boolean {
+    return this.selectedKeys.has(key);
+  }
+
   onIconSelected(shortcut: DesktopShortcut): void {
     this.highlightedIconId = shortcut.pluginId + (shortcut.action?.id || '');
+  }
+
+  onIconClicked(event: { shortcut: DesktopShortcut; ctrlKey: boolean }): void {
+    const key = this.getShortcutKey(event.shortcut);
+    if (event.ctrlKey) {
+      // Ctrl+click: toggle this item in/out of the selection
+      if (this.selectedKeys.has(key)) {
+        this.selectedKeys.delete(key);
+        this.highlightedIconId = null;
+      } else {
+        this.selectedKeys.add(key);
+        this.highlightedIconId = key;
+      }
+      this.highlightedFolderId = null;
+    } else {
+      // Normal click: clear multi-select, select only this one
+      this.selectedKeys.clear();
+      this.selectedKeys.add(key);
+      this.highlightedIconId = key;
+      this.highlightedFolderId = null;
+    }
+  }
+
+  onFolderClicked(event: { folder: DesktopFolder; ctrlKey: boolean }): void {
+    const key = 'folder:' + event.folder.id;
+    if (event.ctrlKey) {
+      if (this.selectedKeys.has(key)) {
+        this.selectedKeys.delete(key);
+        this.highlightedFolderId = null;
+      } else {
+        this.selectedKeys.add(key);
+        this.highlightedFolderId = event.folder.id;
+      }
+      this.highlightedIconId = null;
+    } else {
+      this.selectedKeys.clear();
+      this.selectedKeys.add(key);
+      this.highlightedFolderId = event.folder.id;
+      this.highlightedIconId = null;
+    }
   }
 
   getShortcutKey(shortcut: DesktopShortcut): string {
@@ -432,9 +487,99 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onDesktopClick(): void {
     this.highlightedIconId = null;
     this.highlightedFolderId = null;
+    this.selectedKeys.clear();
     this.renameTargetKey = null;
     this.renameFolderTargetId = null;
     this.openFolderId = null;
+  }
+
+  // ── Marquee selection ──
+
+  onDesktopMouseDown(event: MouseEvent): void {
+    // Only start marquee from the desktop background itself (not from icons/windows)
+    if (event.target !== event.currentTarget) return;
+    if (event.button !== 0) return;
+    this.marqueeActive = true;
+    this.marqueeStartX = event.clientX;
+    this.marqueeStartY = event.clientY;
+    this.marqueeCurrentX = event.clientX;
+    this.marqueeCurrentY = event.clientY;
+    if (!event.ctrlKey) {
+      this.selectedKeys.clear();
+    }
+    window.addEventListener('mousemove', this.boundMarqueeMove);
+    window.addEventListener('mouseup', this.boundMarqueeUp);
+  }
+
+  private onMarqueeMouseMove(event: MouseEvent): void {
+    this.marqueeCurrentX = event.clientX;
+    this.marqueeCurrentY = event.clientY;
+    this.updateMarqueeSelection(event.ctrlKey);
+  }
+
+  private onMarqueeMouseUp(event: MouseEvent): void {
+    window.removeEventListener('mousemove', this.boundMarqueeMove);
+    window.removeEventListener('mouseup', this.boundMarqueeUp);
+    this.updateMarqueeSelection(event.ctrlKey);
+    this.marqueeActive = false;
+    // Set highlighted to the last selected for keyboard nav continuity
+    if (this.selectedKeys.size > 0) {
+      const lastKey = Array.from(this.selectedKeys).pop()!;
+      if (lastKey.startsWith('folder:')) {
+        this.highlightedFolderId = lastKey.substring(7);
+        this.highlightedIconId = null;
+      } else {
+        this.highlightedIconId = lastKey;
+        this.highlightedFolderId = null;
+      }
+    }
+  }
+
+  private updateMarqueeSelection(ctrlHeld: boolean): void {
+    const rect = this.getMarqueeRect();
+    // Too small to be a drag — don't compute selection yet
+    if (rect.width < 5 && rect.height < 5) return;
+    const newKeys = new Set<string>();
+    // Check shortcuts
+    for (const s of this.topLevelShortcuts) {
+      const cx = this.gridPadding + s.gridCol * this.iconCellWidth + this.iconCellWidth / 2;
+      const cy = this.gridPadding + s.gridRow * this.iconCellHeight + this.iconCellHeight / 2;
+      if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
+        newKeys.add(this.getShortcutKey(s));
+      }
+    }
+    // Check folders
+    for (const f of this.folders) {
+      const cx = this.gridPadding + f.gridCol * this.iconCellWidth + this.iconCellWidth / 2;
+      const cy = this.gridPadding + f.gridRow * this.iconCellHeight + this.iconCellHeight / 2;
+      if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
+        newKeys.add('folder:' + f.id);
+      }
+    }
+    if (ctrlHeld) {
+      // Ctrl+marquee: add to existing selection
+      newKeys.forEach(k => this.selectedKeys.add(k));
+    } else {
+      this.selectedKeys = newKeys;
+    }
+  }
+
+  getMarqueeRect(): { left: number; top: number; right: number; bottom: number; width: number; height: number } {
+    const left = Math.min(this.marqueeStartX, this.marqueeCurrentX);
+    const top = Math.min(this.marqueeStartY, this.marqueeCurrentY);
+    const right = Math.max(this.marqueeStartX, this.marqueeCurrentX);
+    const bottom = Math.max(this.marqueeStartY, this.marqueeCurrentY);
+    return { left, top, right, bottom, width: right - left, height: bottom - top };
+  }
+
+  get marqueeStyle(): { [key: string]: string } {
+    const r = this.getMarqueeRect();
+    return {
+      left: r.left + 'px',
+      top: r.top + 'px',
+      width: r.width + 'px',
+      height: r.height + 'px'
+    };
   }
 
   onPropertiesClosed(): void {
@@ -689,17 +834,32 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   private selectGridItem(item: { row: number; col: number; type: string; ref: any }): void {
+    this.selectedKeys.clear();
     if (item.type === 'shortcut') {
-      this.highlightedIconId = this.getShortcutKey(item.ref);
+      const key = this.getShortcutKey(item.ref);
+      this.highlightedIconId = key;
       this.highlightedFolderId = null;
+      this.selectedKeys.add(key);
     } else {
       this.highlightedFolderId = item.ref.id;
       this.highlightedIconId = null;
+      this.selectedKeys.add('folder:' + item.ref.id);
     }
   }
 
   private openHighlightedItem(): void {
-    if (this.highlightedIconId) {
+    if (this.selectedKeys.size > 0) {
+      // Launch all selected items
+      for (const key of this.selectedKeys) {
+        if (key.startsWith('folder:')) {
+          const folder = this.folders.find(f => f.id === key.substring(7));
+          if (folder) { this.onFolderOpened(folder); }
+        } else {
+          const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === key);
+          if (shortcut) { this.onIconLaunched(shortcut); }
+        }
+      }
+    } else if (this.highlightedIconId) {
       const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.highlightedIconId);
       if (shortcut) { this.onIconLaunched(shortcut); }
     } else if (this.highlightedFolderId) {

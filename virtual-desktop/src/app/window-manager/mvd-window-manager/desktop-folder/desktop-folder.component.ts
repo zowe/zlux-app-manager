@@ -43,6 +43,7 @@ export class DesktopFolderComponent {
   }
 
   @Output() folderSelected = new EventEmitter<DesktopFolder>();
+  @Output() folderClicked = new EventEmitter<{ folder: DesktopFolder; ctrlKey: boolean }>();
   @Output() folderOpened = new EventEmitter<DesktopFolder>();
   @Output() folderContextMenu = new EventEmitter<{ event: MouseEvent; folder: DesktopFolder }>();
   @Output() folderMoved = new EventEmitter<{ folder: DesktopFolder; newRow: number; newCol: number }>();
@@ -159,7 +160,7 @@ export class DesktopFolderComponent {
   onClick(event: MouseEvent): void {
     event.stopPropagation();
     if (!this.dragStarted) {
-      this.folderSelected.emit(this.folder);
+      this.folderClicked.emit({ folder: this.folder, ctrlKey: event.ctrlKey || event.metaKey });
     }
   }
 
