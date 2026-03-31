@@ -75,6 +75,9 @@ export class DesktopFolderComponent {
   isRenaming = false;
   renameValue = '';
   renameError = false;
+  isRenamingTitle = false;
+  renameTitleValue = '';
+  renameTitleError = false;
   isDragging = false;
   dragLeft = 0;
   dragTop = 0;
@@ -307,11 +310,20 @@ export class DesktopFolderComponent {
 
   // ── Expanded-item drag (drag shortcut out of folder to desktop) ──
 
+  onExpandedPanelMouseDown(event: MouseEvent): void {
+    if (this.isRenamingTitle || this.expandedRenameShortcut) {
+      // Only prevent default if the click target is NOT the rename input itself
+      const target = event.target as HTMLElement;
+      if (!target.classList.contains('desktop-folder-title-rename-input') &&
+          !target.classList.contains('desktop-folder-expanded-rename-input')) {
+        event.preventDefault();
+      }
+    }
+  }
+
   onOverlayMouseDown(event: MouseEvent): void {
     event.stopPropagation();
-    // Prevent default so the browser does NOT blur the rename input
-    // on mousedown — the click handler decides what to do
-    if (this.expandedRenameShortcut) {
+    if (this.expandedRenameShortcut || this.isRenamingTitle) {
       event.preventDefault();
     }
   }
@@ -320,9 +332,66 @@ export class DesktopFolderComponent {
     event.stopPropagation();
     if (this.expandedRenameShortcut) {
       this.cancelExpandedRename();
+    } else if (this.isRenamingTitle) {
+      this.cancelTitleRename();
     } else {
       this.folderOpened.emit(this.folder);
     }
+  }
+
+  // ── Expanded folder title rename ──
+
+  startTitleRename(): void {
+    this.renameTitleValue = this.folder?.name || '';
+    this.renameTitleError = false;
+    this.isRenamingTitle = true;
+    setTimeout(() => {
+      const input = this.expandedPanelRef?.nativeElement.querySelector('.desktop-folder-title-rename-input') as HTMLInputElement;
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    });
+  }
+
+  confirmTitleRename(): void {
+    const trimmed = this.renameTitleValue.trim();
+    if (!trimmed) {
+      this.renameTitleError = true;
+      return;
+    }
+    const isDuplicate = this.allFolders.some(f =>
+      f.id !== this.folder.id && f.name === trimmed
+    );
+    if (isDuplicate) {
+      this.renameTitleError = true;
+      return;
+    }
+    this.isRenamingTitle = false;
+    this.renameTitleError = false;
+    this.folderRenamed.emit({ folder: this.folder, newName: trimmed });
+  }
+
+  cancelTitleRename(): void {
+    this.isRenamingTitle = false;
+    this.renameTitleError = false;
+  }
+
+  onTitleRenameKeydown(event: KeyboardEvent): void {
+    event.stopPropagation();
+    if (event.key === 'Enter') {
+      this.confirmTitleRename();
+    } else if (event.key === 'Escape') {
+      this.cancelTitleRename();
+    }
+  }
+
+  onTitleRenameBlur(): void {
+    setTimeout(() => {
+      if (this.isRenamingTitle) {
+        this.confirmTitleRename();
+      }
+    });
   }
 
   startExpandedRename(shortcut: DesktopShortcut): void {

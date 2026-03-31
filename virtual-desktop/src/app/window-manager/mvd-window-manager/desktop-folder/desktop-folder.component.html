@@ -61,9 +61,21 @@
 
 <!-- Expanded folder overlay (shown when folder is open) -->
 <div class="desktop-folder-overlay" *ngIf="isOpen" (click)="onOverlayClick($event)" (mousedown)="onOverlayMouseDown($event)">
-  <div class="desktop-folder-expanded" #expandedPanel (click)="$event.stopPropagation()">
+  <div class="desktop-folder-expanded" #expandedPanel (click)="$event.stopPropagation()" (mousedown)="onExpandedPanelMouseDown($event)">
     <div class="desktop-folder-expanded-header">
-      <span class="desktop-folder-expanded-title">{{ label }}</span>
+      <span class="desktop-folder-expanded-title" *ngIf="!isRenamingTitle"
+            (click)="startTitleRename(); $event.stopPropagation()">
+        {{ label }} <span class="desktop-folder-title-edit-icon">&#9998;</span>
+      </span>
+      <input *ngIf="isRenamingTitle"
+        class="desktop-folder-title-rename-input"
+        [class.rename-error]="renameTitleError"
+        [value]="renameTitleValue"
+        (input)="renameTitleValue = $any($event.target).value"
+        (blur)="onTitleRenameBlur()"
+        (keydown)="onTitleRenameKeydown($event)"
+        (click)="$event.stopPropagation()"
+        (mousedown)="$event.stopPropagation()" />
       <button class="desktop-folder-close-btn" (click)="folderOpened.emit(folder)" title="Close folder">&times;</button>
     </div>
     <div class="desktop-folder-expanded-grid">
