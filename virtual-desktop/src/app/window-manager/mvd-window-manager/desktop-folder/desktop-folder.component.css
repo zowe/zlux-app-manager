@@ -176,6 +176,44 @@
   color: #ffffff;
   font-size: 14px;
   font-weight: 500;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.desktop-folder-expanded-title:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #8ab4f8;
+}
+
+.desktop-folder-title-edit-icon {
+  font-size: 12px;
+  opacity: 0;
+  margin-left: 4px;
+  transition: opacity 0.15s;
+}
+
+.desktop-folder-expanded-title:hover .desktop-folder-title-edit-icon {
+  opacity: 0.7;
+}
+
+.desktop-folder-title-rename-input {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(100, 150, 255, 0.6);
+  border-radius: 4px;
+  text-align: center;
+  outline: none;
+  padding: 2px 6px;
+  box-sizing: border-box;
+  width: 80%;
+}
+
+.desktop-folder-title-rename-input.rename-error {
+  border-color: #ff4444;
 }
 
 .desktop-folder-expanded-grid {
