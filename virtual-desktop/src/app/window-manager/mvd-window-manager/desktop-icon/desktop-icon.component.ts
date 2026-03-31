@@ -40,6 +40,7 @@ export class DesktopIconComponent {
     }
   }
   @Output() iconSelected = new EventEmitter<DesktopShortcut>();
+  @Output() iconClicked = new EventEmitter<{ shortcut: DesktopShortcut; ctrlKey: boolean }>();
   @Output() iconLaunched = new EventEmitter<DesktopShortcut>();
   @Output() iconContextMenu = new EventEmitter<{ event: MouseEvent; shortcut: DesktopShortcut }>();
   @Output() iconMoved = new EventEmitter<{ shortcut: DesktopShortcut; newRow: number; newCol: number }>();
@@ -123,7 +124,7 @@ export class DesktopIconComponent {
   onClick(event: MouseEvent): void {
     event.stopPropagation();
     if (!this.dragStarted) {
-      this.iconSelected.emit(this.shortcut);
+      this.iconClicked.emit({ shortcut: this.shortcut, ctrlKey: event.ctrlKey || event.metaKey });
     }
   }
 

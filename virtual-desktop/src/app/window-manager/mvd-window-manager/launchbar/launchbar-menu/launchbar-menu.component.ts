@@ -24,6 +24,7 @@ import { KeybindingService } from '../../shared/keybinding.service';
 import { KeyCode } from '../../shared/keycode-enum';
 import { DesktopShortcutsService } from '../../services/desktop-shortcuts.service';
 import { DesktopFolder } from '../../services/desktop-shortcuts.service';
+import { StartMenuFoldersService, StartMenuFolder, StartMenuFolderItem } from '../../services/start-menu-folders.service';
 
 const FONT_SIZE=12;
 
@@ -60,6 +61,8 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public activeIndex:number;  
   private isContextMenuPresent:boolean;
   public folders: DesktopFolder[] = [];
+  public shippedFolders: StartMenuFolder[] = [];
+  public expandedShippedFolderName: string | null = null;
 
   @Input() set menuItems(items: LaunchbarItem[]) {
     this._menuItems = items;
@@ -123,7 +126,8 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     private translation: L10nTranslationService,
     private desktopComponent: DesktopComponent,
     private appKeyboard: KeybindingService,
-    private shortcutsService: DesktopShortcutsService
+    private shortcutsService: DesktopShortcutsService,
+    private startMenuFoldersService: StartMenuFoldersService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -140,6 +144,10 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     this.shortcutsService.folders$.subscribe(folders => {
       this.folders = folders;
     });
+
+    this.startMenuFoldersService.shippedFolders$.subscribe(folders => {
+      this.shippedFolders = folders;
+    });
   }
 
   onLogin(plugins:any): boolean {
@@ -147,6 +155,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       const pluginImpl:DesktopPluginDefinitionImpl = viewerPlugin as DesktopPluginDefinitionImpl;
       this.propertyWindowPluginDef=pluginImpl;
     })
+    this.startMenuFoldersService.loadShippedFolders();
     return true;
   }
 
@@ -386,7 +395,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
         action: () => isPinned ? this.shortcutsService.unpinFolder(folder.id) : this.shortcutsService.pinFolder(folder.id)
       },
       {
-        text: 'Delete Folder',
+        text: 'Unpin from Launch Menu',
         action: () => this.shortcutsService.deleteFolder(folder.id)
       }
     ];
@@ -398,6 +407,34 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   personalizationPanelToggle() {
     this.desktopComponent.personalizationPanelToggle();
     //this.activeToggle();
+  }
+
+  toggleShippedFolder(folder: StartMenuFolder): void {
+    this.expandedShippedFolderName = this.expandedShippedFolderName === folder.name ? null : folder.name;
+  }
+
+  onShippedFolderItemClicked(item: StartMenuFolderItem): void {
+    if (item.type === 'link' && item.dest) {
+      window.open(item.dest, '_blank', 'noopener,noreferrer');
+      this.isActive = false;
+      this.emitState();
+    } else if (item.type === 'app' && item.id) {
+      this.pluginManager.findPluginDefinition(item.id, false).then((plugin: any) => {
+        if (plugin) {
+          const launchMetadata = item.app2app ? item.app2app : undefined;
+          this.applicationManager.spawnApplication(plugin, launchMetadata);
+        }
+      });
+      this.isActive = false;
+      this.emitState();
+    }
+  }
+
+  getShippedFolderItemIcon(item: StartMenuFolderItem): string {
+    if (item.type === 'link') {
+      return 'fa fa-external-link';
+    }
+    return 'fa fa-rocket';
   }
 }
 

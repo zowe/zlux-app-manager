@@ -34,6 +34,14 @@
               }
             }
           },
+          "startMenu": {
+            "subResources": {
+              "folders": {
+                "aggregationPolicy": "override",
+                "variable": true
+              }
+            }
+          },
           "themebin": {
             "binary": true
           },

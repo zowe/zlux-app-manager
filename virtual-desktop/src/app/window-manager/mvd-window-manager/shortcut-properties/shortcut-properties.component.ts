@@ -90,7 +90,7 @@ export class ShortcutPropertiesComponent implements OnInit {
   }
 
   onClearIcon(): void {
-    this.newIconUrl = '';
+    this.newIconUrl = this.plugin?.image || '';
     this.iconChanged.emit({ shortcut: this.shortcut, iconUrl: undefined });
     this.iconUrl = this.plugin?.image || '';
   }

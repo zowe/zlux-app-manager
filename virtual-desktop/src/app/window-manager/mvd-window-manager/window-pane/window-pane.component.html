@@ -10,12 +10,12 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="window-pane" [ngStyle]="wallpaper" id="ZAP_DesktopHome_Wallpaper" (click)="onDesktopClick()" (contextmenu)="onDesktopRightClick($event)">
+<div class="window-pane" [ngStyle]="wallpaper" id="ZAP_DesktopHome_Wallpaper" (click)="onDesktopClick()" (contextmenu)="onDesktopRightClick($event)" (mousedown)="onDesktopMouseDown($event)">
   <rs-com-desktop-icon
     *ngFor="let shortcut of topLevelShortcuts"
     [shortcut]="shortcut"
     [plugin]="getPluginForShortcut(shortcut)"
-    [isHighlighted]="highlightedIconId === getShortcutKey(shortcut)"
+    [isHighlighted]="isItemSelected(getShortcutKey(shortcut)) || highlightedIconId === getShortcutKey(shortcut)"
     [showFolderPreview]="folderPreviewTargetKey === getShortcutKey(shortcut)"
     [folderPreviewIcons]="folderPreviewIcons"
     [allShortcuts]="topLevelShortcuts"
@@ -29,6 +29,7 @@
     [gridPadding]="gridPadding"
     [shouldRename]="renameTargetKey === getShortcutKey(shortcut)"
     (iconSelected)="onIconSelected($event)"
+    (iconClicked)="onIconClicked($event)"
     (iconLaunched)="onIconLaunched($event)"
     (iconContextMenu)="onIconContextMenu($event)"
     (iconMoved)="onIconMoved($event)"
@@ -42,7 +43,7 @@
     [folder]="folder"
     [childShortcuts]="getShortcutsInFolder(folder.id)"
     [pluginMap]="pluginMap"
-    [isHighlighted]="highlightedFolderId === folder.id || dragOverFolderId === folder.id"
+    [isHighlighted]="isItemSelected('folder:' + folder.id) || highlightedFolderId === folder.id || dragOverFolderId === folder.id"
     [isOpen]="openFolderId === folder.id"
     [allFolders]="folders"
     [allShortcuts]="shortcuts"
@@ -56,6 +57,7 @@
     [gridPadding]="gridPadding"
     [shouldRename]="renameFolderTargetId === folder.id"
     (folderSelected)="onFolderSelected($event)"
+    (folderClicked)="onFolderClicked($event)"
     (folderOpened)="onFolderOpened($event)"
     (folderContextMenu)="onFolderContextMenu($event)"
     (folderMoved)="onFolderMoved($event)"
@@ -67,6 +69,7 @@
     (shortcutReordered)="onShortcutReordered($event)"
     (shortcutContextMenu)="onIconContextMenu($event)">
   </rs-com-desktop-folder>
+  <div *ngIf="marqueeActive" class="marquee-selection" [ngStyle]="marqueeStyle"></div>
   <div *ngFor="let window of windows">
     <rs-com-mvd-window [desktopWindow]="window" [theme]="theme"></rs-com-mvd-window>
   </div>

@@ -64,13 +64,14 @@
   <div class="desktop-folder-expanded" #expandedPanel (click)="$event.stopPropagation()">
     <div class="desktop-folder-expanded-header">
       <span class="desktop-folder-expanded-title">{{ label }}</span>
+      <button class="desktop-folder-close-btn" (click)="folderOpened.emit(folder)" title="Close folder">&times;</button>
     </div>
     <div class="desktop-folder-expanded-grid">
       <div class="desktop-folder-expanded-item" *ngFor="let shortcut of childShortcuts; let i = index"
            [class.dragging-source]="expandedDragShortcut === shortcut"
            [class.drop-before]="isExpandedDragging && expandedDropIndex === i && expandedDragShortcut !== shortcut && childShortcuts.indexOf(expandedDragShortcut) > i"
            [class.drop-after]="isExpandedDragging && expandedDropIndex === i && expandedDragShortcut !== shortcut && childShortcuts.indexOf(expandedDragShortcut) < i"
-           (dblclick)="shortcutLaunched.emit(shortcut)"
+           (dblclick)="onExpandedItemClick($event, shortcut)"
            (contextmenu)="onExpandedItemRightClick($event, shortcut)"
            (mousedown)="onExpandedItemMouseDown($event, shortcut)">
         <div class="desktop-folder-expanded-icon" *ngIf="getShortcutIcon(shortcut)"

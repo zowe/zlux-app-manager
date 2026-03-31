@@ -56,11 +56,20 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   folders: DesktopFolder[] = [];
   highlightedFolderId: string | null = null;
   openFolderId: string | null = null;
+  selectedKeys: Set<string> = new Set();
+  marqueeActive = false;
+  marqueeStartX = 0;
+  marqueeStartY = 0;
+  marqueeCurrentX = 0;
+  marqueeCurrentY = 0;
+  private boundMarqueeMove: (e: MouseEvent) => void;
+  private boundMarqueeUp: (e: MouseEvent) => void;
   renameFolderTargetId: string | null = null;
   folderPreviewTargetKey: string | null = null;
   folderPreviewIcons: { url: string | null; label: string }[] = [];
   private dragSourceShortcut: DesktopShortcut | null = null;
   propertiesShortcut: DesktopShortcut | null = null;
+  private pinnedPluginIds: Set<string> = new Set();
   maxGridRows: number = 8;
   maxGridCols: number = 20;
   iconCellWidth: number = 90;
@@ -133,6 +142,14 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.themeService.onSizeChange.subscribe((size: any) => {
       this.applyIconSize(size.windowSize || 2);
     });
+
+    // Listen for launchbar pin changes from other sources
+    window.addEventListener('desktop-pinned-plugins-changed', () => {
+      this.loadPinnedPluginIds();
+    });
+
+    this.boundMarqueeMove = this.onMarqueeMouseMove.bind(this);
+    this.boundMarqueeUp = this.onMarqueeMouseUp.bind(this);
   }
 
   private replaceWallpaper(url:string) {
@@ -153,6 +170,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
     this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
     this.shortcutsService.loadShortcuts();
+    this.loadPinnedPluginIds();
     return true;
   }
 
@@ -160,8 +178,52 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     return this.pluginMap.get(shortcut.pluginId);
   }
 
+  isItemSelected(key: string): boolean {
+    return this.selectedKeys.has(key);
+  }
+
   onIconSelected(shortcut: DesktopShortcut): void {
     this.highlightedIconId = shortcut.pluginId + (shortcut.action?.id || '');
+  }
+
+  onIconClicked(event: { shortcut: DesktopShortcut; ctrlKey: boolean }): void {
+    const key = this.getShortcutKey(event.shortcut);
+    if (event.ctrlKey) {
+      // Ctrl+click: toggle this item in/out of the selection
+      if (this.selectedKeys.has(key)) {
+        this.selectedKeys.delete(key);
+        this.highlightedIconId = null;
+      } else {
+        this.selectedKeys.add(key);
+        this.highlightedIconId = key;
+      }
+      this.highlightedFolderId = null;
+    } else {
+      // Normal click: clear multi-select, select only this one
+      this.selectedKeys.clear();
+      this.selectedKeys.add(key);
+      this.highlightedIconId = key;
+      this.highlightedFolderId = null;
+    }
+  }
+
+  onFolderClicked(event: { folder: DesktopFolder; ctrlKey: boolean }): void {
+    const key = 'folder:' + event.folder.id;
+    if (event.ctrlKey) {
+      if (this.selectedKeys.has(key)) {
+        this.selectedKeys.delete(key);
+        this.highlightedFolderId = null;
+      } else {
+        this.selectedKeys.add(key);
+        this.highlightedFolderId = event.folder.id;
+      }
+      this.highlightedIconId = null;
+    } else {
+      this.selectedKeys.clear();
+      this.selectedKeys.add(key);
+      this.highlightedFolderId = event.folder.id;
+      this.highlightedIconId = null;
+    }
   }
 
   getShortcutKey(shortcut: DesktopShortcut): string {
@@ -171,6 +233,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onIconLaunched(shortcut: DesktopShortcut): void {
     const plugin = this.pluginMap.get(shortcut.pluginId);
     this.shortcutsService.invokeShortcut(shortcut, this.applicationManager, plugin);
+    this.openFolderId = null;
   }
 
   onIconContextMenu(event: { event: MouseEvent; shortcut: DesktopShortcut }): void {
@@ -198,6 +261,14 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         action: () => { this.propertiesShortcut = shortcut; }
       }
     ];
+    // Pin/Unpin from Launchbar (only for plain plugin shortcuts, not action shortcuts)
+    if (!shortcut.action) {
+      const isPinned = this.pinnedPluginIds.has(shortcut.pluginId);
+      menuItems.splice(2, 0, {
+        text: isPinned ? 'Unpin from Taskbar' : 'Pin to Taskbar',
+        action: () => this.togglePinToLaunchbar(shortcut.pluginId, !isPinned)
+      });
+    }
     this.windowManager.contextMenuRequested.next({
       xPos: event.event.clientX,
       yPos: event.event.clientY,
@@ -417,9 +488,99 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onDesktopClick(): void {
     this.highlightedIconId = null;
     this.highlightedFolderId = null;
+    this.selectedKeys.clear();
     this.renameTargetKey = null;
     this.renameFolderTargetId = null;
     this.openFolderId = null;
+  }
+
+  // ── Marquee selection ──
+
+  onDesktopMouseDown(event: MouseEvent): void {
+    // Only start marquee from the desktop background itself (not from icons/windows)
+    if (event.target !== event.currentTarget) return;
+    if (event.button !== 0) return;
+    this.marqueeActive = true;
+    this.marqueeStartX = event.clientX;
+    this.marqueeStartY = event.clientY;
+    this.marqueeCurrentX = event.clientX;
+    this.marqueeCurrentY = event.clientY;
+    if (!event.ctrlKey) {
+      this.selectedKeys.clear();
+    }
+    window.addEventListener('mousemove', this.boundMarqueeMove);
+    window.addEventListener('mouseup', this.boundMarqueeUp);
+  }
+
+  private onMarqueeMouseMove(event: MouseEvent): void {
+    this.marqueeCurrentX = event.clientX;
+    this.marqueeCurrentY = event.clientY;
+    this.updateMarqueeSelection(event.ctrlKey);
+  }
+
+  private onMarqueeMouseUp(event: MouseEvent): void {
+    window.removeEventListener('mousemove', this.boundMarqueeMove);
+    window.removeEventListener('mouseup', this.boundMarqueeUp);
+    this.updateMarqueeSelection(event.ctrlKey);
+    this.marqueeActive = false;
+    // Set highlighted to the last selected for keyboard nav continuity
+    if (this.selectedKeys.size > 0) {
+      const lastKey = Array.from(this.selectedKeys).pop()!;
+      if (lastKey.startsWith('folder:')) {
+        this.highlightedFolderId = lastKey.substring(7);
+        this.highlightedIconId = null;
+      } else {
+        this.highlightedIconId = lastKey;
+        this.highlightedFolderId = null;
+      }
+    }
+  }
+
+  private updateMarqueeSelection(ctrlHeld: boolean): void {
+    const rect = this.getMarqueeRect();
+    // Too small to be a drag — don't compute selection yet
+    if (rect.width < 5 && rect.height < 5) return;
+    const newKeys = new Set<string>();
+    // Check shortcuts
+    for (const s of this.topLevelShortcuts) {
+      const cx = this.gridPadding + s.gridCol * this.iconCellWidth + this.iconCellWidth / 2;
+      const cy = this.gridPadding + s.gridRow * this.iconCellHeight + this.iconCellHeight / 2;
+      if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
+        newKeys.add(this.getShortcutKey(s));
+      }
+    }
+    // Check folders
+    for (const f of this.folders) {
+      const cx = this.gridPadding + f.gridCol * this.iconCellWidth + this.iconCellWidth / 2;
+      const cy = this.gridPadding + f.gridRow * this.iconCellHeight + this.iconCellHeight / 2;
+      if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
+        newKeys.add('folder:' + f.id);
+      }
+    }
+    if (ctrlHeld) {
+      // Ctrl+marquee: add to existing selection
+      newKeys.forEach(k => this.selectedKeys.add(k));
+    } else {
+      this.selectedKeys = newKeys;
+    }
+  }
+
+  getMarqueeRect(): { left: number; top: number; right: number; bottom: number; width: number; height: number } {
+    const left = Math.min(this.marqueeStartX, this.marqueeCurrentX);
+    const top = Math.min(this.marqueeStartY, this.marqueeCurrentY);
+    const right = Math.max(this.marqueeStartX, this.marqueeCurrentX);
+    const bottom = Math.max(this.marqueeStartY, this.marqueeCurrentY);
+    return { left, top, right, bottom, width: right - left, height: bottom - top };
+  }
+
+  get marqueeStyle(): { [key: string]: string } {
+    const r = this.getMarqueeRect();
+    return {
+      left: r.left + 'px',
+      top: r.top + 'px',
+      width: r.width + 'px',
+      height: r.height + 'px'
+    };
   }
 
   onPropertiesClosed(): void {
@@ -435,6 +596,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onDesktopRightClick(event: MouseEvent): void {
+    if (event.target !== event.currentTarget) return;
     event.preventDefault();
     event.stopPropagation();
     const menuItems: ContextMenuItem[] = [];
@@ -575,6 +737,171 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     } else if (this.openFolderId) {
       this.openFolderId = null;
     }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    // Only handle when no window has focus and no modal is open
+    if (this.propertiesShortcut || this.openFolderId || this.renameTargetKey || this.renameFolderTargetId) return;
+    // Don't intercept when an input/textarea has focus
+    const tag = (event.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    // Don't intercept when a window has focus
+    if (this.windowManager.getAllWindows().some(w => this.windowManager.windowHasFocus(w.windowId))) return;
+
+    switch (event.key) {
+      case 'ArrowUp':
+      case 'ArrowDown':
+      case 'ArrowLeft':
+      case 'ArrowRight':
+        event.preventDefault();
+        this.navigateGrid(event.key);
+        break;
+      case 'Enter':
+        event.preventDefault();
+        this.openHighlightedItem();
+        break;
+    }
+  }
+
+  private navigateGrid(direction: string): void {
+    const allItems = this.getGridItems();
+    if (allItems.length === 0) return;
+
+    // Find the currently highlighted item
+    let currentRow = -1;
+    let currentCol = -1;
+    const highlightedShortcut = this.highlightedIconId
+      ? this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.highlightedIconId)
+      : null;
+    const highlightedFolder = this.highlightedFolderId
+      ? this.folders.find(f => f.id === this.highlightedFolderId)
+      : null;
+
+    if (highlightedShortcut) {
+      currentRow = highlightedShortcut.gridRow;
+      currentCol = highlightedShortcut.gridCol;
+    } else if (highlightedFolder) {
+      currentRow = highlightedFolder.gridRow;
+      currentCol = highlightedFolder.gridCol;
+    } else {
+      // Nothing selected — select the first item (top-left)
+      const first = allItems.sort((a, b) => a.col !== b.col ? a.col - b.col : a.row - b.row)[0];
+      this.selectGridItem(first);
+      return;
+    }
+
+    let dRow = 0, dCol = 0;
+    switch (direction) {
+      case 'ArrowUp':    dRow = -1; break;
+      case 'ArrowDown':  dRow = 1;  break;
+      case 'ArrowLeft':  dCol = -1; break;
+      case 'ArrowRight': dCol = 1;  break;
+    }
+
+    // Search in the direction for the nearest item
+    let bestItem: { row: number; col: number; type: string; ref: any } | null = null;
+    let bestDist = Infinity;
+    for (const item of allItems) {
+      if (item.row === currentRow && item.col === currentCol) continue;
+      const dr = item.row - currentRow;
+      const dc = item.col - currentCol;
+      // Must be in the correct direction
+      if (dRow !== 0 && Math.sign(dr) !== dRow) continue;
+      if (dCol !== 0 && Math.sign(dc) !== dCol) continue;
+      // For vertical movement, prefer same column; for horizontal, prefer same row
+      const primaryDist = dRow !== 0 ? Math.abs(dr) : Math.abs(dc);
+      const secondaryDist = dRow !== 0 ? Math.abs(dc) : Math.abs(dr);
+      const dist = primaryDist * 1000 + secondaryDist;
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestItem = item;
+      }
+    }
+    if (bestItem) {
+      this.selectGridItem(bestItem);
+    }
+  }
+
+  private getGridItems(): { row: number; col: number; type: string; ref: any }[] {
+    const items: { row: number; col: number; type: string; ref: any }[] = [];
+    for (const s of this.topLevelShortcuts) {
+      items.push({ row: s.gridRow, col: s.gridCol, type: 'shortcut', ref: s });
+    }
+    for (const f of this.folders) {
+      items.push({ row: f.gridRow, col: f.gridCol, type: 'folder', ref: f });
+    }
+    return items;
+  }
+
+  private selectGridItem(item: { row: number; col: number; type: string; ref: any }): void {
+    this.selectedKeys.clear();
+    if (item.type === 'shortcut') {
+      const key = this.getShortcutKey(item.ref);
+      this.highlightedIconId = key;
+      this.highlightedFolderId = null;
+      this.selectedKeys.add(key);
+    } else {
+      this.highlightedFolderId = item.ref.id;
+      this.highlightedIconId = null;
+      this.selectedKeys.add('folder:' + item.ref.id);
+    }
+  }
+
+  private openHighlightedItem(): void {
+    if (this.selectedKeys.size > 0) {
+      // Launch all selected items
+      for (const key of this.selectedKeys) {
+        if (key.startsWith('folder:')) {
+          const folder = this.folders.find(f => f.id === key.substring(7));
+          if (folder) { this.onFolderOpened(folder); }
+        } else {
+          const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === key);
+          if (shortcut) { this.onIconLaunched(shortcut); }
+        }
+      }
+    } else if (this.highlightedIconId) {
+      const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.highlightedIconId);
+      if (shortcut) { this.onIconLaunched(shortcut); }
+    } else if (this.highlightedFolderId) {
+      const folder = this.folders.find(f => f.id === this.highlightedFolderId);
+      if (folder) { this.onFolderOpened(folder); }
+    }
+  }
+
+  private loadPinnedPluginIds(): void {
+    const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
+      ZoweZLUX.pluginManager.getDesktopPlugin(), 'user', 'ui/launchbar/plugins', 'pinnedPlugins.json'
+    );
+    this.http.get<any>(uri, { observe: 'response' }).subscribe(res => {
+      if (res.status !== 204 && res.body?.contents?.plugins) {
+        this.pinnedPluginIds = new Set(res.body.contents.plugins);
+      } else {
+        this.pinnedPluginIds = new Set();
+      }
+    }, () => {
+      this.pinnedPluginIds = new Set();
+    });
+  }
+
+  private togglePinToLaunchbar(pluginId: string, pin: boolean): void {
+    const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
+      ZoweZLUX.pluginManager.getDesktopPlugin(), 'user', 'ui/launchbar/plugins', 'pinnedPlugins.json'
+    );
+    this.http.get<any>(uri, { observe: 'response' }).subscribe(res => {
+      let plugins: string[] = (res.status === 204) ? [] : (res.body?.contents?.plugins || []);
+      if (pin) {
+        if (!plugins.includes(pluginId)) {
+          plugins.push(pluginId);
+        }
+      } else {
+        plugins = plugins.filter(p => p !== pluginId);
+      }
+      this.http.put(uri, { plugins }).subscribe(() => {
+        this.pinnedPluginIds = new Set(plugins);
+        window.dispatchEvent(new CustomEvent('desktop-pinned-plugins-changed'));
+      });
+    });
   }
 
   @HostListener('window:resize')

@@ -160,6 +160,41 @@
   opacity: 0.8;
 }
 
+.launch-menu-shipped-folder-group {
+  border-radius: 6px;
+  margin: 2px 4px;
+  transition: background-color 0.15s ease;
+}
+
+.launch-menu-shipped-folder-group.expanded {
+  background-color: rgba(128, 128, 128, 0.2);
+}
+
+.launch-widget-shipped-folder-row.expanded {
+  background-color: transparent;
+}
+
+.launch-menu-shipped-folder-items {
+  padding-left: 20px;
+  padding-bottom: 6px;
+}
+
+.launch-widget-shipped-item-row {
+  opacity: 0.9;
+}
+
+.launch-widget-shipped-item-row:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.launch-menu-shipped-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies

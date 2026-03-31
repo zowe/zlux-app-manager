@@ -52,7 +52,7 @@
               [style.padding-top]="appLabelPadding"
               [style.font-size]="menuText">{{item.label}}</div>
       </div>
-      <!-- Folders section -->
+      <!-- User-created folders section -->
       <div *ngIf="folders.length > 0" class="launch-menu-folders-divider"></div>
       <div class="launch-widget-row launch-widget-folder-row"
         *ngFor="let folder of folders"
@@ -68,6 +68,41 @@
               [style.padding-top]="appLabelPadding"
               [style.font-size]="menuText">{{folder.name}}</div>
       </div>
+      <!-- Shipped (plugin-provided) folders section -->
+      <div *ngIf="shippedFolders.length > 0" class="launch-menu-folders-divider"></div>
+      <ng-container *ngFor="let sFolder of shippedFolders">
+        <div class="launch-menu-shipped-folder-group" [class.expanded]="expandedShippedFolderName === sFolder.name">
+          <div class="launch-widget-row launch-widget-shipped-folder-row"
+            (click)="toggleShippedFolder(sFolder)"
+            [title]="sFolder.name"
+            [class.expanded]="expandedShippedFolderName === sFolder.name">
+              <div class="icon launch-menu-folder-icon"
+                  [style.width]="appIconSize"
+                  [style.height]="appIconSize">
+                <em class="fa fa-folder-open" *ngIf="expandedShippedFolderName === sFolder.name" [style.font-size]="appIconSize"></em>
+                <em class="fa fa-folder" *ngIf="expandedShippedFolderName !== sFolder.name" [style.font-size]="appIconSize"></em>
+              </div>
+              <div class="app-label"
+                  [style.padding-top]="appLabelPadding"
+                  [style.font-size]="menuText">{{sFolder.name}}</div>
+          </div>
+          <div class="launch-menu-shipped-folder-items" *ngIf="expandedShippedFolderName === sFolder.name">
+            <div class="launch-widget-row launch-widget-shipped-item-row"
+              *ngFor="let sItem of sFolder.items"
+              (click)="onShippedFolderItemClicked(sItem); $event.stopPropagation()"
+              [title]="sItem.title || sItem.id || sItem.dest || ''">
+                <div class="icon launch-menu-shipped-item-icon"
+                    [style.width]="appIconSize"
+                    [style.height]="appIconSize">
+                  <em [class]="getShippedFolderItemIcon(sItem)" [style.font-size]="appIconSize"></em>
+                </div>
+                <div class="app-label"
+                    [style.padding-top]="appLabelPadding"
+                    [style.font-size]="menuText">{{sItem.title || sItem.id || sItem.dest}}</div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
     </div>
     <div class="launch-menu-search">
       <em class="launch-menu-search-icon fa fa-search"></em>
