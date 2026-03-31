@@ -126,7 +126,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
     this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res=>{
         let plugins:string[];
-        if (res.status === 204) {
+        if (res.status === 204 || !res.body || !res.body.contents || !res.body.contents.plugins) {
           plugins = [];
         } else {
           plugins = res.body.contents.plugins;
