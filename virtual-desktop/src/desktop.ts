@@ -138,7 +138,7 @@ function performBootstrap(): void {
       {
         providers: [
           ...providers,
-          { provide: APP_BASE_HREF, useValue: ZoweZLUX?.uriBroker.desktopRootUri() } 
+          { provide: APP_BASE_HREF, useValue: ZoweZLUX?.uriBroker.desktopRootUri() }
         ]
       }
     ));
