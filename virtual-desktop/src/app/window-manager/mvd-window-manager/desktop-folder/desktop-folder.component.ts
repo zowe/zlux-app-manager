@@ -36,6 +36,7 @@ export class DesktopFolderComponent {
   @Input() iconFontSize: number = 11;
   @Input() iconLetterSize: number = 22;
   @Input() gridPadding: number = 10;
+  @Input() multiDragDelta: {x: number, y: number} | null = null;
   @Input() set shouldRename(value: boolean) {
     if (value && !this.isRenaming) {
       this.startRename();
@@ -55,6 +56,8 @@ export class DesktopFolderComponent {
   @Output() shortcutDraggedOutToDesktop = new EventEmitter<{ folder: DesktopFolder; shortcut: DesktopShortcut; clientX: number; clientY: number }>();
   @Output() shortcutReordered = new EventEmitter<{ folder: DesktopFolder; newOrder: DesktopShortcut[] }>();
   @Output() shortcutContextMenu = new EventEmitter<{ event: MouseEvent; shortcut: DesktopShortcut }>();
+  @Output() folderDragMove = new EventEmitter<{ folder: DesktopFolder; clientX: number; clientY: number; deltaX: number; deltaY: number }>();
+  @Output() folderDragEnd = new EventEmitter<{ folder: DesktopFolder; clientX: number; clientY: number; deltaX: number; deltaY: number }>();
 
   @ViewChild('renameInput') renameInputRef: ElementRef<HTMLInputElement>;
   @ViewChild('expandedPanel') expandedPanelRef: ElementRef<HTMLDivElement>;
@@ -112,6 +115,18 @@ export class DesktopFolderComponent {
       return {
         left: this.dragLeft + 'px',
         top: this.dragTop + 'px',
+        width: this.iconCellWidth + 'px',
+        height: this.iconCellHeight + 'px',
+        'z-index': '10000',
+        opacity: '0.8'
+      };
+    }
+    if (this.multiDragDelta) {
+      const left = this.gridPadding + this.folder.gridCol * this.iconCellWidth + this.multiDragDelta.x;
+      const top = this.gridPadding + this.folder.gridRow * this.iconCellHeight + this.multiDragDelta.y;
+      return {
+        left: left + 'px',
+        top: top + 'px',
         width: this.iconCellWidth + 'px',
         height: this.iconCellHeight + 'px',
         'z-index': '10000',
@@ -252,6 +267,7 @@ export class DesktopFolderComponent {
     if (this.isDragging) {
       this.dragLeft = event.clientX - this.dragOffsetX;
       this.dragTop = event.clientY - this.dragOffsetY;
+      this.folderDragMove.emit({ folder: this.folder, clientX: event.clientX, clientY: event.clientY, deltaX: event.clientX - this.mouseDownX, deltaY: event.clientY - this.mouseDownY });
     }
   }
 
@@ -260,6 +276,8 @@ export class DesktopFolderComponent {
     window.removeEventListener('mouseup', this.boundOnMouseUp);
 
     if (this.isDragging) {
+      this.folderDragEnd.emit({ folder: this.folder, clientX: event.clientX, clientY: event.clientY, deltaX: event.clientX - this.mouseDownX, deltaY: event.clientY - this.mouseDownY });
+
       const newCol = Math.min(this.maxGridCols - 1, Math.max(0, Math.round((this.dragLeft - this.gridPadding) / this.iconCellWidth)));
       const newRow = Math.min(this.maxGridRows - 1, Math.max(0, Math.round((this.dragTop - this.gridPadding) / this.iconCellHeight)));
 

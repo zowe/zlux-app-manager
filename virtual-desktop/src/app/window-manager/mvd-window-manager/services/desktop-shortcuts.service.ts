@@ -515,6 +515,33 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.saveAll(this.shortcuts$.value, updated);
   }
 
+  /** Move multiple shortcuts and folders atomically in a single save */
+  batchMoveItems(
+    shortcutMoves: { pluginId: string; actionId?: string; newRow: number; newCol: number }[],
+    folderMoves: { folderId: string; newRow: number; newCol: number }[]
+  ): void {
+    const now = new Date().toISOString();
+    const shortcutMoveMap = new Map<string, { newRow: number; newCol: number }>();
+    for (const m of shortcutMoves) {
+      const key = m.actionId ? m.pluginId + m.actionId : m.pluginId;
+      shortcutMoveMap.set(key, { newRow: m.newRow, newCol: m.newCol });
+    }
+    const updatedShortcuts = this.shortcuts$.value.map(s => {
+      const key = s.action?.id ? s.pluginId + s.action.id : s.pluginId;
+      const move = shortcutMoveMap.get(key);
+      return move ? { ...s, gridRow: move.newRow, gridCol: move.newCol, modifiedDate: now } : s;
+    });
+    const folderMoveMap = new Map<string, { newRow: number; newCol: number }>();
+    for (const m of folderMoves) {
+      folderMoveMap.set(m.folderId, { newRow: m.newRow, newCol: m.newCol });
+    }
+    const updatedFolders = this.folders$.value.map(f => {
+      const move = folderMoveMap.get(f.id);
+      return move ? { ...f, gridRow: move.newRow, gridCol: move.newCol } : f;
+    });
+    this.saveAll(updatedShortcuts, updatedFolders);
+  }
+
   deleteFolder(folderId: string): void {
     const updatedFolders = this.folders$.value.filter(f => f.id !== folderId);
     // Move contained shortcuts back to the desktop grid

@@ -10,7 +10,7 @@
 <div class="desktop-icon"
      [ngStyle]="positionStyle"
      [class.highlighted]="isHighlighted"
-     [class.dragging]="isDragging"
+     [class.dragging]="isDragging || multiDragDelta"
      [class.folder-drop-target]="showFolderPreview"
      (click)="onClick($event)"
      (dblclick)="onDblClick($event)"
