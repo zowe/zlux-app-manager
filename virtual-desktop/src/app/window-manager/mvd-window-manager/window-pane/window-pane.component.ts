@@ -910,7 +910,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       case 'ArrowLeft':
       case 'ArrowRight':
         event.preventDefault();
-        this.navigateGrid(event.key);
+        this.navigateGrid(event.key, event.ctrlKey || event.metaKey);
         break;
       case 'Enter':
         event.preventDefault();
@@ -919,7 +919,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }
   }
 
-  private navigateGrid(direction: string): void {
+  private navigateGrid(direction: string, ctrlKey: boolean = false): void {
     const allItems = this.getGridItems();
     if (allItems.length === 0) return;
 
@@ -942,7 +942,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     } else {
       // Nothing selected — select the first item (top-left)
       const first = allItems.sort((a, b) => a.col !== b.col ? a.col - b.col : a.row - b.row)[0];
-      this.selectGridItem(first);
+      this.selectGridItem(first, false);
       return;
     }
 
@@ -974,7 +974,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       }
     }
     if (bestItem) {
-      this.selectGridItem(bestItem);
+      this.selectGridItem(bestItem, ctrlKey);
     }
   }
 
@@ -989,17 +989,28 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     return items;
   }
 
-  private selectGridItem(item: { row: number; col: number; type: string; ref: any }): void {
-    this.selectedKeys.clear();
+  private selectGridItem(item: { row: number; col: number; type: string; ref: any }, ctrlKey: boolean = false): void {
+    if (!ctrlKey) {
+      this.selectedKeys.clear();
+    }
     if (item.type === 'shortcut') {
       const key = this.getShortcutKey(item.ref);
       this.highlightedIconId = key;
       this.highlightedFolderId = null;
-      this.selectedKeys.add(key);
+      if (ctrlKey && this.selectedKeys.has(key)) {
+        this.selectedKeys.delete(key);
+      } else {
+        this.selectedKeys.add(key);
+      }
     } else {
       this.highlightedFolderId = item.ref.id;
       this.highlightedIconId = null;
-      this.selectedKeys.add('folder:' + item.ref.id);
+      const key = 'folder:' + item.ref.id;
+      if (ctrlKey && this.selectedKeys.has(key)) {
+        this.selectedKeys.delete(key);
+      } else {
+        this.selectedKeys.add(key);
+      }
     }
   }
 
