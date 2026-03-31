@@ -144,6 +144,14 @@ function performBootstrap(): void {
     ));
 }
 
+// set baseurl for browser-level relative URL resolution (fonts, images, etc.)
+const baseUrl = document.createElement('base');
+baseUrl.setAttribute("href", ZoweZLUX?.uriBroker.desktopRootUri());
+
+if (document.head) {
+  document.head.appendChild(baseUrl);
+}
+
 const element = document.createElement('rs-com-root');
 document.body.appendChild(element);
 performBootstrap();
