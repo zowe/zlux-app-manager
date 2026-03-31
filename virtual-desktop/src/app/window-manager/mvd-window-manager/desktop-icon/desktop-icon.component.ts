@@ -34,6 +34,7 @@ export class DesktopIconComponent {
   @Input() iconFontSize: number = 11;
   @Input() iconLetterSize: number = 22;
   @Input() gridPadding: number = 10;
+  @Input() multiDragDelta: {x: number, y: number} | null = null;
   @Input() set shouldRename(value: boolean) {
     if (value && !this.isRenaming) {
       this.startRename();
@@ -46,8 +47,8 @@ export class DesktopIconComponent {
   @Output() iconMoved = new EventEmitter<{ shortcut: DesktopShortcut; newRow: number; newCol: number }>();
   @Output() iconRenamed = new EventEmitter<{ shortcut: DesktopShortcut; newLabel: string }>();
   @Output() iconRenameCancelled = new EventEmitter<DesktopShortcut>();
-  @Output() iconDragMove = new EventEmitter<{ shortcut: DesktopShortcut; clientX: number; clientY: number }>();
-  @Output() iconDragEnd = new EventEmitter<{ shortcut: DesktopShortcut; clientX: number; clientY: number }>();
+  @Output() iconDragMove = new EventEmitter<{ shortcut: DesktopShortcut; clientX: number; clientY: number; deltaX: number; deltaY: number }>();
+  @Output() iconDragEnd = new EventEmitter<{ shortcut: DesktopShortcut; clientX: number; clientY: number; deltaX: number; deltaY: number }>();
 
   @ViewChild('renameInput') renameInputRef: ElementRef<HTMLInputElement>;
   isRenaming = false;
@@ -105,6 +106,18 @@ export class DesktopIconComponent {
       return {
         left: this.dragLeft + 'px',
         top: this.dragTop + 'px',
+        width: this.iconCellWidth + 'px',
+        height: this.iconCellHeight + 'px',
+        'z-index': '10000',
+        opacity: '0.8'
+      };
+    }
+    if (this.multiDragDelta) {
+      const left = this.gridPadding + this.shortcut.gridCol * this.iconCellWidth + this.multiDragDelta.x;
+      const top = this.gridPadding + this.shortcut.gridRow * this.iconCellHeight + this.multiDragDelta.y;
+      return {
+        left: left + 'px',
+        top: top + 'px',
         width: this.iconCellWidth + 'px',
         height: this.iconCellHeight + 'px',
         'z-index': '10000',
@@ -216,7 +229,7 @@ export class DesktopIconComponent {
     if (this.isDragging) {
       this.dragLeft = event.clientX - this.dragOffsetX;
       this.dragTop = event.clientY - this.dragOffsetY;
-      this.iconDragMove.emit({ shortcut: this.shortcut, clientX: event.clientX, clientY: event.clientY });
+      this.iconDragMove.emit({ shortcut: this.shortcut, clientX: event.clientX, clientY: event.clientY, deltaX: event.clientX - this.mouseDownX, deltaY: event.clientY - this.mouseDownY });
     }
   }
 
@@ -225,7 +238,7 @@ export class DesktopIconComponent {
     window.removeEventListener('mouseup', this.boundOnMouseUp);
 
     if (this.isDragging) {
-      this.iconDragEnd.emit({ shortcut: this.shortcut, clientX: event.clientX, clientY: event.clientY });
+      this.iconDragEnd.emit({ shortcut: this.shortcut, clientX: event.clientX, clientY: event.clientY, deltaX: event.clientX - this.mouseDownX, deltaY: event.clientY - this.mouseDownY });
 
       const newCol = Math.min(this.maxGridCols - 1, Math.max(0, Math.round((this.dragLeft - this.gridPadding) / this.iconCellWidth)));
       const newRow = Math.min(this.maxGridRows - 1, Math.max(0, Math.round((this.dragTop - this.gridPadding) / this.iconCellHeight)));

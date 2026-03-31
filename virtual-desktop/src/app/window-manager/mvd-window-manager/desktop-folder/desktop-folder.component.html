@@ -10,7 +10,7 @@
 <div class="desktop-folder"
      [ngStyle]="positionStyle"
      [class.highlighted]="isHighlighted"
-     [class.dragging]="isDragging"
+     [class.dragging]="isDragging || multiDragDelta"
      [class.open]="isOpen"
      (click)="onClick($event)"
      (dblclick)="onDblClick($event)"

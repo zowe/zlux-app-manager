@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, OnDestroy, Injector, Input, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, Injector, Input, HostListener, ElementRef } from '@angular/core';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { DesktopTheme } from "../desktop/desktop.component";
 import { HttpClient, HttpResponse } from '@angular/common/http';
@@ -64,10 +64,13 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   marqueeCurrentY = 0;
   private boundMarqueeMove: (e: MouseEvent) => void;
   private boundMarqueeUp: (e: MouseEvent) => void;
+  private marqueeJustEnded = false;
   renameFolderTargetId: string | null = null;
   folderPreviewTargetKey: string | null = null;
   folderPreviewIcons: { url: string | null; label: string }[] = [];
   private dragSourceShortcut: DesktopShortcut | null = null;
+  multiDragDelta: {x: number, y: number} | null = null;
+  private multiDragSourceKey: string | null = null;
   propertiesShortcut: DesktopShortcut | null = null;
   private pinnedPluginIds: Set<string> = new Set();
   maxGridRows: number = 8;
@@ -86,7 +89,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     private http: HttpClient,
     private themeService: ThemeEmitterService,
     private translation: L10nTranslationService,
-    public shortcutsService: DesktopShortcutsService
+    public shortcutsService: DesktopShortcutsService,
+    private elementRef: ElementRef
   ) {
     this.logger.debug("ZWED5320I", windowManager); //this.logger.debug("Window-pane-component wMgr=",windowManager);
     this.contextMenuDef = null;
@@ -375,6 +379,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onFolderMoved(event: { folder: DesktopFolder; newRow: number; newCol: number }): void {
+    if (this.dragConsumed) {
+      this.dragConsumed = false;
+      return;
+    }
     this.shortcutsService.moveFolder(event.folder.id, event.newRow, event.newCol);
   }
 
@@ -414,8 +422,16 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   /** ID of folder being hovered over during a drag (for visual highlight) */
   dragOverFolderId: string | null = null;
 
-  onIconDragMove(event: { shortcut: DesktopShortcut; clientX: number; clientY: number }): void {
+  onIconDragMove(event: { shortcut: DesktopShortcut; clientX: number; clientY: number; deltaX: number; deltaY: number }): void {
     this.dragSourceShortcut = event.shortcut;
+    const dragKey = this.getShortcutKey(event.shortcut);
+    const isMultiDrag = this.selectedKeys.has(dragKey) && this.selectedKeys.size > 1;
+
+    if (isMultiDrag) {
+      this.multiDragDelta = { x: event.deltaX, y: event.deltaY };
+      this.multiDragSourceKey = dragKey;
+    }
+
     const hoverCol = Math.floor((event.clientX - this.gridPadding) / this.iconCellWidth);
     const hoverRow = Math.floor((event.clientY - this.gridPadding) / this.iconCellHeight);
 
@@ -428,6 +444,13 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       return;
     }
     this.dragOverFolderId = null;
+
+    // Skip folder-creation preview during multi-drag
+    if (isMultiDrag) {
+      this.folderPreviewTargetKey = null;
+      this.folderPreviewIcons = [];
+      return;
+    }
 
     // Check if hovering over another top-level shortcut
     const target = this.topLevelShortcuts.find(s =>
@@ -453,7 +476,31 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }
   }
 
-  onIconDragEnd(event: { shortcut: DesktopShortcut; clientX: number; clientY: number }): void {
+  onIconDragEnd(event: { shortcut: DesktopShortcut; clientX: number; clientY: number; deltaX: number; deltaY: number }): void {
+    const dragKey = this.getShortcutKey(event.shortcut);
+    const isMultiDrag = this.multiDragSourceKey !== null && this.selectedKeys.has(dragKey) && this.selectedKeys.size > 1;
+
+    if (isMultiDrag) {
+      if (this.dragOverFolderId) {
+        // Add all selected shortcuts to the target folder
+        const shortcutsToMove: DesktopShortcut[] = [];
+        for (const key of this.selectedKeys) {
+          if (!key.startsWith('folder:')) {
+            const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === key);
+            if (shortcut) shortcutsToMove.push(shortcut);
+          }
+        }
+        for (const s of shortcutsToMove) {
+          this.shortcutsService.addShortcutToFolder(this.dragOverFolderId, s.gridRow, s.gridCol);
+        }
+      } else {
+        this.batchMoveSelectedItems(event.deltaX, event.deltaY);
+      }
+      this.dragConsumed = true;
+      this.resetMultiDragState();
+      return;
+    }
+
     // Dropped on an existing folder — add the shortcut to it
     if (this.dragOverFolderId && this.dragSourceShortcut) {
       this.shortcutsService.addShortcutToFolder(
@@ -485,7 +532,87 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.dragSourceShortcut = null;
   }
 
+  onFolderDragMove(event: { folder: DesktopFolder; clientX: number; clientY: number; deltaX: number; deltaY: number }): void {
+    const folderKey = 'folder:' + event.folder.id;
+    if (this.selectedKeys.has(folderKey) && this.selectedKeys.size > 1) {
+      this.multiDragDelta = { x: event.deltaX, y: event.deltaY };
+      this.multiDragSourceKey = folderKey;
+    }
+  }
+
+  onFolderDragEnd(event: { folder: DesktopFolder; clientX: number; clientY: number; deltaX: number; deltaY: number }): void {
+    const folderKey = 'folder:' + event.folder.id;
+    const isMultiDrag = this.multiDragSourceKey !== null && this.selectedKeys.has(folderKey) && this.selectedKeys.size > 1;
+    if (isMultiDrag) {
+      this.batchMoveSelectedItems(event.deltaX, event.deltaY);
+      this.dragConsumed = true;
+      this.resetMultiDragState();
+    }
+  }
+
+  getMultiDragDeltaForItem(key: string): {x: number, y: number} | null {
+    if (this.multiDragDelta && this.selectedKeys.has(key) && key !== this.multiDragSourceKey) {
+      return this.multiDragDelta;
+    }
+    return null;
+  }
+
+  private batchMoveSelectedItems(deltaX: number, deltaY: number): void {
+    const deltaCol = Math.round(deltaX / this.iconCellWidth);
+    const deltaRow = Math.round(deltaY / this.iconCellHeight);
+    if (deltaRow === 0 && deltaCol === 0) return;
+
+    const shortcutMoves: { pluginId: string; actionId?: string; newRow: number; newCol: number }[] = [];
+    const folderMoves: { folderId: string; newRow: number; newCol: number }[] = [];
+    const newPositions: { row: number; col: number }[] = [];
+
+    for (const key of this.selectedKeys) {
+      if (key.startsWith('folder:')) {
+        const folder = this.folders.find(f => f.id === key.substring(7));
+        if (folder) {
+          const newRow = Math.min(this.maxGridRows - 1, Math.max(0, folder.gridRow + deltaRow));
+          const newCol = Math.min(this.maxGridCols - 1, Math.max(0, folder.gridCol + deltaCol));
+          folderMoves.push({ folderId: folder.id, newRow, newCol });
+          newPositions.push({ row: newRow, col: newCol });
+        }
+      } else {
+        const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === key);
+        if (shortcut) {
+          const newRow = Math.min(this.maxGridRows - 1, Math.max(0, shortcut.gridRow + deltaRow));
+          const newCol = Math.min(this.maxGridCols - 1, Math.max(0, shortcut.gridCol + deltaCol));
+          shortcutMoves.push({ pluginId: shortcut.pluginId, actionId: shortcut.action?.id, newRow, newCol });
+          newPositions.push({ row: newRow, col: newCol });
+        }
+      }
+    }
+
+    // Check for collisions with non-selected items
+    const nonSelected = this.getGridItems().filter(item => {
+      const itemKey = item.type === 'folder' ? 'folder:' + item.ref.id : this.getShortcutKey(item.ref);
+      return !this.selectedKeys.has(itemKey);
+    });
+    const hasCollision = newPositions.some(pos =>
+      nonSelected.some(item => item.row === pos.row && item.col === pos.col)
+    );
+    if (hasCollision) return;
+
+    this.shortcutsService.batchMoveItems(shortcutMoves, folderMoves);
+  }
+
+  private resetMultiDragState(): void {
+    this.multiDragDelta = null;
+    this.multiDragSourceKey = null;
+    this.dragOverFolderId = null;
+    this.folderPreviewTargetKey = null;
+    this.folderPreviewIcons = [];
+    this.dragSourceShortcut = null;
+  }
+
   onDesktopClick(): void {
+    if (this.marqueeJustEnded) {
+      this.marqueeJustEnded = false;
+      return;
+    }
     this.highlightedIconId = null;
     this.highlightedFolderId = null;
     this.selectedKeys.clear();
@@ -522,7 +649,12 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     window.removeEventListener('mousemove', this.boundMarqueeMove);
     window.removeEventListener('mouseup', this.boundMarqueeUp);
     this.updateMarqueeSelection(event.ctrlKey);
+    const wasRealDrag = this.getMarqueeRect().width >= 5 || this.getMarqueeRect().height >= 5;
     this.marqueeActive = false;
+    if (wasRealDrag) {
+      this.marqueeJustEnded = true;
+      setTimeout(() => { this.marqueeJustEnded = false; });
+    }
     // Set highlighted to the last selected for keyboard nav continuity
     if (this.selectedKeys.size > 0) {
       const lastKey = Array.from(this.selectedKeys).pop()!;
@@ -540,19 +672,22 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const rect = this.getMarqueeRect();
     // Too small to be a drag — don't compute selection yet
     if (rect.width < 5 && rect.height < 5) return;
+    // Icon positions are relative to the pane; convert to viewport coords
+    const paneBounds = this.elementRef.nativeElement.querySelector('.window-pane')?.getBoundingClientRect()
+      || { left: 0, top: 0 };
     const newKeys = new Set<string>();
     // Check shortcuts
     for (const s of this.topLevelShortcuts) {
-      const cx = this.gridPadding + s.gridCol * this.iconCellWidth + this.iconCellWidth / 2;
-      const cy = this.gridPadding + s.gridRow * this.iconCellHeight + this.iconCellHeight / 2;
+      const cx = paneBounds.left + this.gridPadding + s.gridCol * this.iconCellWidth + this.iconCellWidth / 2;
+      const cy = paneBounds.top + this.gridPadding + s.gridRow * this.iconCellHeight + this.iconCellHeight / 2;
       if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
         newKeys.add(this.getShortcutKey(s));
       }
     }
     // Check folders
     for (const f of this.folders) {
-      const cx = this.gridPadding + f.gridCol * this.iconCellWidth + this.iconCellWidth / 2;
-      const cy = this.gridPadding + f.gridRow * this.iconCellHeight + this.iconCellHeight / 2;
+      const cx = paneBounds.left + this.gridPadding + f.gridCol * this.iconCellWidth + this.iconCellWidth / 2;
+      const cy = paneBounds.top + this.gridPadding + f.gridRow * this.iconCellHeight + this.iconCellHeight / 2;
       if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
         newKeys.add('folder:' + f.id);
       }
