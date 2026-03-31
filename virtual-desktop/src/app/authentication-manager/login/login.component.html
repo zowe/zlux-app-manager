@@ -19,10 +19,15 @@
       <div class="login-container">
         <img class="logo-img" [hidden]="changePassword || expiredPassword" [src]="logo"
           alt="Zowe - z/OS Lightweight User Experience" />
-        <button class="back-button" [hidden]="!changePassword && !expiredPassword" (click)="backButton()"
-          id="ZAP_LoginPage_BackButton">{{this.translation.translate("Back")}}</button>
-        <img class="password-logo-img" [hidden]="!changePassword && !expiredPassword" [src]="passwordLogo"
-          alt="Zowe - z/OS Lightweight User Experience" />
+        <div class="password-header" [hidden]="!changePassword && !expiredPassword">
+          <button class="back-button" (click)="backButton()"
+            id="ZAP_LoginPage_BackButton">
+            <i class="fa fa-arrow-left back-arrow-icon" aria-hidden="true"></i>
+            {{this.translation.translate("Back")}}
+          </button>
+          <img class="password-logo-img" [src]="passwordLogo"
+            alt="Zowe - z/OS Lightweight User Experience" />
+        </div>
         <form class="login-form" [class.login-form-expired]="expiredPassword"
           [class.password-login-form]="changePassword">
           <p class="login-message">{{loginMessage}}</p>
@@ -43,15 +48,21 @@
           </div>
           <label [hidden]="!expiredPassword && !changePassword" for="newPassword"
             i18n="label|Label for password@@new-password-label">New Password</label>
-          <input [hidden]="!expiredPassword && !changePassword" class="newPassword" id="ZAP_LoginPage_NewPassword"
-            aria-labelledby="newPassword" tabindex="1" type="password" name="newPassword" [(ngModel)]="newPassword"
-            maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)" />
+          <div class="input-icon-wrapper" [hidden]="!expiredPassword && !changePassword">
+            <i class="fa fa-lock input-icon" aria-hidden="true"></i>
+            <input class="newPassword icon-input" id="ZAP_LoginPage_NewPassword"
+              aria-labelledby="newPassword" tabindex="1" type="password" name="newPassword" [(ngModel)]="newPassword"
+              maxlength="100" [attr.disabled]="locked?'':null" (keyup)="considerSubmit($event)" />
+          </div>
           <label [hidden]="!expiredPassword && !changePassword" for="confirmNewPassword"
             i18n="label|Label for password@@confirm-new-password-label">Confirm New Password</label>
-          <input [hidden]="!expiredPassword && !changePassword" class="confirmNewPassword"
-            id="ZAP_LoginPage_ConfirmNewPassword" aria-labelledby="confirmNewPassword" tabindex="1" type="password"
-            name="confirmNewPassword" [(ngModel)]="confirmNewPassword" maxlength="100" [attr.disabled]="locked?'':null"
-            (keyup)="considerSubmit($event)" />
+          <div class="input-icon-wrapper" [hidden]="!expiredPassword && !changePassword">
+            <i class="fa fa-lock input-icon" aria-hidden="true"></i>
+            <input class="confirmNewPassword icon-input"
+              id="ZAP_LoginPage_ConfirmNewPassword" aria-labelledby="confirmNewPassword" tabindex="1" type="password"
+              name="confirmNewPassword" [(ngModel)]="confirmNewPassword" maxlength="100" [attr.disabled]="locked?'':null"
+              (keyup)="considerSubmit($event)" />
+          </div>
         </form>
         <p class="login-error">
           {{this.translation.translate(errorMessage)}}
