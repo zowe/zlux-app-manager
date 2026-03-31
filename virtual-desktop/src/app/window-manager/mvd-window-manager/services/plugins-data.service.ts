@@ -55,21 +55,24 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
     this.pinnedPlugins = [];
     this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res =>{
-        res.body.contents.plugins.forEach((p: string) => {
-          let found = false;
-          for (let i = 0; i < accessiblePlugins.length; i++) {
-            if (accessiblePlugins[i].plugin.getIdentifier() == p) {
-              this.pinnedPlugins.push(new PluginLaunchbarItem(accessiblePlugins[i].plugin, this.windowManager));
-              found = true;
-              break;
+        if (res.body && res.body.contents && res.body.contents.plugins) {
+          res.body.contents.plugins.forEach((p: string) => {
+            let found = false;
+            for (let i = 0; i < accessiblePlugins.length; i++) {
+              if (accessiblePlugins[i].plugin.getIdentifier() == p) {
+                this.pinnedPlugins.push(new PluginLaunchbarItem(accessiblePlugins[i].plugin, this.windowManager));
+                found = true;
+                break;
+              }
             }
-          }
-          if (!found) {
-            this.logger.warn(`Pinned plugin not found=${p}`)
-          }
-        })
+            if (!found) {
+              this.logger.warn(`Pinned plugin not found=${p}`)
+            }
+          })
+        } else {
+          this.logger.warn('ZWED5181W - Could not retrieve pinned plugins data');
+        }
       })
-    }
 
   public getResource(scope: string, resourcePath: string, fileName: string): Observable<HttpResponse<any>>{
     let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
