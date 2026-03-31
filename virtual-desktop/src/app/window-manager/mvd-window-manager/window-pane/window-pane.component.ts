@@ -305,6 +305,23 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.renameTargetKey = this.getShortcutKey(shortcut);
   }
 
+  onFolderShortcutRenamed(event: { shortcut: DesktopShortcut; newLabel: string }): void {
+    this.renameTargetKey = null;
+    const updateActionName = event.shortcut.action?.launchMetadata?.data?.type === 'newFile';
+    this.shortcutsService.renameShortcut(event.shortcut.gridRow, event.shortcut.gridCol, event.newLabel, updateActionName);
+  }
+
+  onFolderShortcutRenameCancelled(shortcut: DesktopShortcut): void {
+    this.renameTargetKey = null;
+  }
+
+  getRenameKeyForFolder(folderId: string): string | null {
+    if (!this.renameTargetKey) return null;
+    const shortcuts = this.getShortcutsInFolder(folderId);
+    const match = shortcuts.find(s => this.getShortcutKey(s) === this.renameTargetKey);
+    return match ? this.renameTargetKey : null;
+  }
+
   private openShortcutInNewTab(shortcut: DesktopShortcut, plugin?: DesktopPluginDefinitionImpl): void {
     const targetPluginId = shortcut.action?.targetPluginId || shortcut.pluginId;
     const targetPlugin = this.pluginMap.get(targetPluginId);
@@ -613,12 +630,15 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       this.marqueeJustEnded = false;
       return;
     }
+    // When a folder is open, its full-screen overlay handles all click interactions
+    if (this.openFolderId) {
+      return;
+    }
     this.highlightedIconId = null;
     this.highlightedFolderId = null;
     this.selectedKeys.clear();
     this.renameTargetKey = null;
     this.renameFolderTargetId = null;
-    this.openFolderId = null;
   }
 
   // ── Marquee selection ──

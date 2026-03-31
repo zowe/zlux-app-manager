@@ -58,6 +58,7 @@
     [gridPadding]="gridPadding"
     [multiDragDelta]="getMultiDragDeltaForItem('folder:' + folder.id)"
     [shouldRename]="renameFolderTargetId === folder.id"
+    [renameShortcutKey]="getRenameKeyForFolder(folder.id)"
     (folderSelected)="onFolderSelected($event)"
     (folderClicked)="onFolderClicked($event)"
     (folderOpened)="onFolderOpened($event)"
@@ -71,7 +72,9 @@
     (shortcutRemovedFromFolder)="onShortcutRemovedFromFolder($event)"
     (shortcutDraggedOutToDesktop)="onShortcutDraggedOutOfFolder($event)"
     (shortcutReordered)="onShortcutReordered($event)"
-    (shortcutContextMenu)="onIconContextMenu($event)">
+    (shortcutContextMenu)="onIconContextMenu($event)"
+    (shortcutRenamed)="onFolderShortcutRenamed($event)"
+    (shortcutRenameCancelled)="onFolderShortcutRenameCancelled($event)">
   </rs-com-desktop-folder>
   <div *ngIf="marqueeActive" class="marquee-selection" [ngStyle]="marqueeStyle"></div>
   <div *ngFor="let window of windows">
