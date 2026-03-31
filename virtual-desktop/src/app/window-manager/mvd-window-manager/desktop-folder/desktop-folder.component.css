@@ -140,6 +140,7 @@
   max-width: 400px;
   max-height: 400px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  user-select: none;
 }
 
 .desktop-folder-expanded-header {
@@ -232,6 +233,24 @@
   -webkit-box-orient: vertical;
   max-width: 100%;
   line-height: 1.2;
+}
+
+.desktop-folder-expanded-rename-input {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(100, 150, 255, 0.6);
+  border-radius: 2px;
+  text-align: center;
+  outline: none;
+  width: calc(100% - 4px);
+  padding: 1px 2px;
+  box-sizing: border-box;
+}
+
+.desktop-folder-expanded-rename-input.rename-error {
+  border-color: #ff4444;
 }
 
 /* ── Drag-to-create folder preview ── */

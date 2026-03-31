@@ -84,9 +84,20 @@
             {{ getShortcutLabel(shortcut)?.charAt(0) }}
           </span>
         </div>
-        <span class="desktop-folder-expanded-label" [style.font-size.px]="iconFontSize">
+        <span class="desktop-folder-expanded-label" *ngIf="expandedRenameShortcut !== shortcut" [style.font-size.px]="iconFontSize">
           {{ getShortcutLabel(shortcut) }}
         </span>
+        <input *ngIf="expandedRenameShortcut === shortcut"
+          class="desktop-folder-expanded-rename-input"
+          [class.rename-error]="expandedRenameError"
+          [style.font-size.px]="iconFontSize"
+          [value]="expandedRenameValue"
+          (input)="expandedRenameValue = $any($event.target).value"
+          (blur)="confirmExpandedRename()"
+          (keydown)="onExpandedRenameKeydown($event)"
+          (click)="$event.stopPropagation()"
+          (dblclick)="$event.stopPropagation()"
+          (mousedown)="$event.stopPropagation()" />
       </div>
     </div>
   </div>

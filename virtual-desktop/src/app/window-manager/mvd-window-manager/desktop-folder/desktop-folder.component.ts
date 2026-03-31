@@ -56,8 +56,19 @@ export class DesktopFolderComponent {
   @Output() shortcutDraggedOutToDesktop = new EventEmitter<{ folder: DesktopFolder; shortcut: DesktopShortcut; clientX: number; clientY: number }>();
   @Output() shortcutReordered = new EventEmitter<{ folder: DesktopFolder; newOrder: DesktopShortcut[] }>();
   @Output() shortcutContextMenu = new EventEmitter<{ event: MouseEvent; shortcut: DesktopShortcut }>();
+  @Output() shortcutRenamed = new EventEmitter<{ shortcut: DesktopShortcut; newLabel: string }>();
+  @Output() shortcutRenameCancelled = new EventEmitter<DesktopShortcut>();
   @Output() folderDragMove = new EventEmitter<{ folder: DesktopFolder; clientX: number; clientY: number; deltaX: number; deltaY: number }>();
   @Output() folderDragEnd = new EventEmitter<{ folder: DesktopFolder; clientX: number; clientY: number; deltaX: number; deltaY: number }>();
+
+  @Input() set renameShortcutKey(key: string | null) {
+    if (key && this.childShortcuts) {
+      const shortcut = this.childShortcuts.find(s => (s.pluginId + (s.action?.id || '')) === key);
+      if (shortcut) {
+        this.startExpandedRename(shortcut);
+      }
+    }
+  }
 
   @ViewChild('renameInput') renameInputRef: ElementRef<HTMLInputElement>;
   @ViewChild('expandedPanel') expandedPanelRef: ElementRef<HTMLDivElement>;
@@ -74,6 +85,11 @@ export class DesktopFolderComponent {
   private dragStarted = false;
   private boundOnMouseMove: (e: MouseEvent) => void;
   private boundOnMouseUp: (e: MouseEvent) => void;
+
+  // Expanded-item rename state
+  expandedRenameShortcut: DesktopShortcut | null = null;
+  expandedRenameValue = '';
+  expandedRenameError = false;
 
   // Expanded-item drag state (dragging a shortcut within/out of the folder)
   expandedDragShortcut: DesktopShortcut | null = null;
@@ -290,6 +306,49 @@ export class DesktopFolderComponent {
   }
 
   // ── Expanded-item drag (drag shortcut out of folder to desktop) ──
+
+  startExpandedRename(shortcut: DesktopShortcut): void {
+    this.expandedRenameShortcut = shortcut;
+    this.expandedRenameValue = this.getShortcutLabel(shortcut);
+    this.expandedRenameError = false;
+    setTimeout(() => {
+      const input = this.expandedPanelRef?.nativeElement.querySelector('.desktop-folder-expanded-rename-input') as HTMLInputElement;
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    });
+  }
+
+  confirmExpandedRename(): void {
+    const trimmed = this.expandedRenameValue.trim();
+    if (!trimmed || !this.expandedRenameShortcut) {
+      this.expandedRenameError = true;
+      return;
+    }
+    this.expandedRenameError = false;
+    const shortcut = this.expandedRenameShortcut;
+    this.expandedRenameShortcut = null;
+    this.shortcutRenamed.emit({ shortcut, newLabel: trimmed });
+  }
+
+  cancelExpandedRename(): void {
+    const shortcut = this.expandedRenameShortcut;
+    this.expandedRenameShortcut = null;
+    this.expandedRenameError = false;
+    if (shortcut) {
+      this.shortcutRenameCancelled.emit(shortcut);
+    }
+  }
+
+  onExpandedRenameKeydown(event: KeyboardEvent): void {
+    event.stopPropagation();
+    if (event.key === 'Enter') {
+      this.confirmExpandedRename();
+    } else if (event.key === 'Escape') {
+      this.cancelExpandedRename();
+    }
+  }
 
   onExpandedItemRightClick(event: MouseEvent, shortcut: DesktopShortcut): void {
     event.preventDefault();
