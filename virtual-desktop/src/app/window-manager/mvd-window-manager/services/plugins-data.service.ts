@@ -73,6 +73,7 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
           this.logger.warn('ZWED5181W - Could not retrieve pinned plugins data');
         }
       })
+    }
 
   public getResource(scope: string, resourcePath: string, fileName: string): Observable<HttpResponse<any>>{
     let uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(ZoweZLUX.pluginManager.getDesktopPlugin(), scope, resourcePath, fileName);
