@@ -233,6 +233,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onIconLaunched(shortcut: DesktopShortcut): void {
     const plugin = this.pluginMap.get(shortcut.pluginId);
     this.shortcutsService.invokeShortcut(shortcut, this.applicationManager, plugin);
+    this.openFolderId = null;
   }
 
   onIconContextMenu(event: { event: MouseEvent; shortcut: DesktopShortcut }): void {
