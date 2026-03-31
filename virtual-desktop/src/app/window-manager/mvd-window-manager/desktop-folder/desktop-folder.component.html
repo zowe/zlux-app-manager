@@ -45,7 +45,7 @@
     </ng-container>
   </div>
 
-  <span class="desktop-folder-label" *ngIf="!isRenaming" [style.font-size.px]="iconFontSize">{{ label }}</span>
+  <span class="desktop-folder-label" *ngIf="!isRenaming" [style.font-size.px]="iconFontSize" [title]="label">{{ label }}</span>
   <input *ngIf="isRenaming" #renameInput
     class="desktop-folder-rename-input"
     [class.rename-error]="renameError"
@@ -96,7 +96,7 @@
             {{ getShortcutLabel(shortcut)?.charAt(0) }}
           </span>
         </div>
-        <span class="desktop-folder-expanded-label" *ngIf="expandedRenameShortcut !== shortcut" [style.font-size.px]="iconFontSize">
+        <span class="desktop-folder-expanded-label" *ngIf="expandedRenameShortcut !== shortcut" [style.font-size.px]="iconFontSize" [title]="getShortcutLabel(shortcut)">
           {{ getShortcutLabel(shortcut) }}
         </span>
         <input *ngIf="expandedRenameShortcut === shortcut"

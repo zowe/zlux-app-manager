@@ -44,7 +44,7 @@
     </div>
   </ng-template>
 
-  <span class="desktop-icon-label" *ngIf="!isRenaming" [style.font-size.px]="iconFontSize">{{ label }}</span>
+  <span class="desktop-icon-label" *ngIf="!isRenaming" [style.font-size.px]="iconFontSize" [title]="label">{{ label }}</span>
   <input *ngIf="isRenaming" #renameInput
     class="desktop-icon-rename-input"
     [class.rename-error]="renameError"
