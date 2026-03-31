@@ -149,11 +149,13 @@ export class PluginsDataService implements MVDHosting.LogoutActionInterface {
   public removeFromConfigServer(item: LaunchbarItem): void {
     this.getResource(this.scope, this.resourcePath, this.fileName)
       .subscribe(res=>{
-        let index = res.body.contents.plugins.indexOf(item.plugin.getBasePlugin().getIdentifier());
-        let plugins = res.body.contents.plugins;
-        if (index != -1) {
-          plugins.splice(index, 1);
-          this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
+        if (res.body && res.body.contents && res.body.contents.plugins) {
+          let index = res.body.contents.plugins.indexOf(item.plugin.getBasePlugin().getIdentifier());
+          let plugins = res.body.contents.plugins;
+          if (index != -1) {
+            plugins.splice(index, 1);
+            this.saveResource(plugins, this.scope, this.resourcePath, this.fileName);
+          }
         }
       })
   }
