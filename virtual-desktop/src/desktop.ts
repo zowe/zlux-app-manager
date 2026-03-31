@@ -138,10 +138,15 @@ function performBootstrap(): void {
       {
         providers: [
           ...providers,
-          { provide: APP_BASE_HREF, useValue: ZoweZLUX?.uriBroker.desktopRootUri() }
+          { provide: APP_BASE_HREF, useValue: ZoweZLUX?.uriBroker.desktopRootUri() } 
         ]
       }
     ));
+}
+const baseUrl = document.createElement('base');
+baseUrl.setAttribute("href", ZoweZLUX?.uriBroker.desktopRootUri());
+if (document.head) {
+  document.head.appendChild(baseUrl);
 }
 
 const element = document.createElement('rs-com-root');
@@ -157,4 +162,3 @@ performBootstrap();
 
   Copyright Contributors to the Zowe Project.
 */
-
