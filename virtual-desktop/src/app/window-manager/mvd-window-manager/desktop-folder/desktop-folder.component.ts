@@ -78,6 +78,7 @@ export class DesktopFolderComponent {
   expandedDragLeft = 0;
   expandedDragTop = 0;
   expandedDropIndex: number = -1;
+  private expandedDragStarted = false;
   private expandedMouseDownX = 0;
   private expandedMouseDownY = 0;
   private boundExpandedMouseMove: (e: MouseEvent) => void;
@@ -278,12 +279,19 @@ export class DesktopFolderComponent {
     this.shortcutContextMenu.emit({ event, shortcut });
   }
 
+  onExpandedItemClick(event: MouseEvent, shortcut: DesktopShortcut): void {
+    event.stopPropagation();
+    if (!this.expandedDragStarted) {
+      this.shortcutLaunched.emit(shortcut);
+    }
+  }
+
   onExpandedItemMouseDown(event: MouseEvent, shortcut: DesktopShortcut): void {
     if (event.button !== 0) return;
-    event.preventDefault();
     this.expandedMouseDownX = event.clientX;
     this.expandedMouseDownY = event.clientY;
     this.expandedDragShortcut = shortcut;
+    this.expandedDragStarted = false;
     window.addEventListener('mousemove', this.boundExpandedMouseMove);
     window.addEventListener('mouseup', this.boundExpandedMouseUp);
   }
@@ -293,6 +301,7 @@ export class DesktopFolderComponent {
     const dy = event.clientY - this.expandedMouseDownY;
     if (!this.isExpandedDragging && (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD)) {
       this.isExpandedDragging = true;
+      this.expandedDragStarted = true;
     }
     if (this.isExpandedDragging) {
       this.expandedDragLeft = event.clientX - 35;
