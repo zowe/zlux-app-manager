@@ -249,20 +249,69 @@
   border-radius: 5px;
 }
 
+.password-header {
+  position: relative;
+  width: 100%;
+}
+
 .back-button {
+  position: absolute;
+  top: 0;
+  left: 0;
   font-family: 'Roboto-Medium', 'Roboto Medium', 'Roboto', sans-serif;
   font-weight: 500;
   font-style: normal;
-  font-size: 15px;
+  font-size: 14px;
   color: #4B8EFF;
   border: none;
   background: none;
   cursor: pointer;
-  margin-bottom: 8px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.back-arrow-icon {
+  font-size: 13px;
 }
 
 .back-button:hover {
   color: black;
+}
+
+.reveal-password-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  color: #888;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+.reveal-password-btn:hover {
+  color: #333;
+}
+
+.reveal-password-btn .fa {
+  font-size: 15px;
+}
+
+.reveal-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 11px;
+}
+
+.input-icon-wrapper .icon-input {
+  padding-right: 72px;
 }
 
 /*
