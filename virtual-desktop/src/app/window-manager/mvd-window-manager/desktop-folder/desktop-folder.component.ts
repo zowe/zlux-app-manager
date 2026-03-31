@@ -307,6 +307,24 @@ export class DesktopFolderComponent {
 
   // ── Expanded-item drag (drag shortcut out of folder to desktop) ──
 
+  onOverlayMouseDown(event: MouseEvent): void {
+    event.stopPropagation();
+    // Prevent default so the browser does NOT blur the rename input
+    // on mousedown — the click handler decides what to do
+    if (this.expandedRenameShortcut) {
+      event.preventDefault();
+    }
+  }
+
+  onOverlayClick(event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.expandedRenameShortcut) {
+      this.cancelExpandedRename();
+    } else {
+      this.folderOpened.emit(this.folder);
+    }
+  }
+
   startExpandedRename(shortcut: DesktopShortcut): void {
     this.expandedRenameShortcut = shortcut;
     this.expandedRenameValue = this.getShortcutLabel(shortcut);
@@ -339,6 +357,15 @@ export class DesktopFolderComponent {
     if (shortcut) {
       this.shortcutRenameCancelled.emit(shortcut);
     }
+  }
+
+  /** Defer blur so click handlers fire first while rename state is still active */
+  onExpandedRenameBlur(): void {
+    setTimeout(() => {
+      if (this.expandedRenameShortcut) {
+        this.confirmExpandedRename();
+      }
+    });
   }
 
   onExpandedRenameKeydown(event: KeyboardEvent): void {

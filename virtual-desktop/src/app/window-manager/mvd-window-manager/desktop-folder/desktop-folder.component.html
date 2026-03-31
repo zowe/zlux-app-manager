@@ -60,7 +60,7 @@
 </div>
 
 <!-- Expanded folder overlay (shown when folder is open) -->
-<div class="desktop-folder-overlay" *ngIf="isOpen" (click)="folderOpened.emit(folder)">
+<div class="desktop-folder-overlay" *ngIf="isOpen" (click)="onOverlayClick($event)" (mousedown)="onOverlayMouseDown($event)">
   <div class="desktop-folder-expanded" #expandedPanel (click)="$event.stopPropagation()">
     <div class="desktop-folder-expanded-header">
       <span class="desktop-folder-expanded-title">{{ label }}</span>
@@ -93,7 +93,7 @@
           [style.font-size.px]="iconFontSize"
           [value]="expandedRenameValue"
           (input)="expandedRenameValue = $any($event.target).value"
-          (blur)="confirmExpandedRename()"
+          (blur)="onExpandedRenameBlur()"
           (keydown)="onExpandedRenameKeydown($event)"
           (click)="$event.stopPropagation()"
           (dblclick)="$event.stopPropagation()"

@@ -630,12 +630,15 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       this.marqueeJustEnded = false;
       return;
     }
+    // When a folder is open, its full-screen overlay handles all click interactions
+    if (this.openFolderId) {
+      return;
+    }
     this.highlightedIconId = null;
     this.highlightedFolderId = null;
     this.selectedKeys.clear();
     this.renameTargetKey = null;
     this.renameFolderTargetId = null;
-    this.openFolderId = null;
   }
 
   // ── Marquee selection ──
