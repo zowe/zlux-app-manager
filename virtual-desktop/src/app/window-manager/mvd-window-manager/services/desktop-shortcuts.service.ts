@@ -139,6 +139,30 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     );
   }
 
+  /**
+   * Reload shortcuts from the server after an external app modified them.
+   * Only updates shortcuts — folders and pinnedFolderIds are owned by the
+   * desktop and are never accepted from external writes.
+   */
+  reloadShortcutsExternal(): void {
+    this.getResource().subscribe(
+      (res: HttpResponse<any>) => {
+        if (res.status === 204 || !res.body?.contents) {
+          this.shortcuts$.next([]);
+        } else {
+          const incomingShortcuts = (res.body.contents.shortcuts || []) as DesktopShortcut[];
+          this.shortcuts$.next(incomingShortcuts);
+          // Write back with our authoritative folders/pinnedFolderIds in case the
+          // external app omitted or corrupted them.
+          this.saveAll(incomingShortcuts, this.folders$.value);
+        }
+      },
+      () => {
+        // Network error — don't touch anything
+      }
+    );
+  }
+
   /** Add a simple app-launch shortcut */
   addShortcut(pluginId: string): void {
     const current = this.shortcuts$.value;

@@ -120,7 +120,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
     // Listen for external shortcut changes (e.g. from ZFM plugin)
     window.addEventListener('desktop-shortcuts-changed', () => {
-      this.shortcutsService.loadShortcuts();
+      this.shortcutsService.reloadShortcutsExternal();
     });
 
     // Listen for editor saving a new file created from a desktop shortcut
