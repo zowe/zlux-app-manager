@@ -53,9 +53,9 @@
               [style.font-size]="menuText">{{item.label}}</div>
       </div>
       <!-- User-created folders section -->
-      <div *ngIf="folders.length > 0" class="launch-menu-folders-divider"></div>
+      <div *ngIf="launchMenuFolders.length > 0" class="launch-menu-folders-divider"></div>
       <div class="launch-widget-row launch-widget-folder-row"
-        *ngFor="let folder of folders"
+        *ngFor="let folder of launchMenuFolders"
         (click)="folderClicked(folder)"
         (contextmenu)="onFolderRightClick($event, folder)"
         [title]="folder.name">

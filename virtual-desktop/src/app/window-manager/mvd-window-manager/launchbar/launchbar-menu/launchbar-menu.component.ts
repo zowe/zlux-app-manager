@@ -61,6 +61,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public activeIndex:number;  
   private isContextMenuPresent:boolean;
   public folders: DesktopFolder[] = [];
+  public launchMenuFolders: DesktopFolder[] = [];
   public shippedFolders: StartMenuFolder[] = [];
   public expandedShippedFolderName: string | null = null;
 
@@ -143,6 +144,11 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
 
     this.shortcutsService.folders$.subscribe(folders => {
       this.folders = folders;
+      this.updateLaunchMenuFolders();
+    });
+
+    this.shortcutsService.launchMenuFolderIds$.subscribe(() => {
+      this.updateLaunchMenuFolders();
     });
 
     this.startMenuFoldersService.shippedFolders$.subscribe(folders => {
@@ -157,6 +163,11 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     })
     this.startMenuFoldersService.loadShippedFolders();
     return true;
+  }
+
+  private updateLaunchMenuFolders(): void {
+    const pinnedIds = this.shortcutsService.launchMenuFolderIds$.value;
+    this.launchMenuFolders = this.folders.filter(f => pinnedIds.includes(f.id));
   }
 
   ngOnInit(): void {
@@ -396,6 +407,10 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       },
       {
         text: 'Unpin from Launch Menu',
+        action: () => this.shortcutsService.unpinFromLaunchMenu(folder.id)
+      },
+      {
+        text: 'Delete Folder',
         action: () => this.shortcutsService.deleteFolder(folder.id)
       }
     ];
