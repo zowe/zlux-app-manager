@@ -370,6 +370,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onFolderContextMenu(event: { event: MouseEvent; folder: DesktopFolder }): void {
     const folder = event.folder;
     const isPinned = this.shortcutsService.isFolderPinned(folder.id);
+    const isInLaunchMenu = this.shortcutsService.isFolderInLaunchMenu(folder.id);
     const menuItems: ContextMenuItem[] = [
       {
         text: 'Open Folder',
@@ -382,6 +383,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       {
         text: isPinned ? 'Unpin from Taskbar' : 'Pin to Taskbar',
         action: () => isPinned ? this.shortcutsService.unpinFolder(folder.id) : this.shortcutsService.pinFolder(folder.id)
+      },
+      {
+        text: isInLaunchMenu ? 'Unpin from Launch Menu' : 'Pin to Launch Menu',
+        action: () => isInLaunchMenu ? this.shortcutsService.unpinFromLaunchMenu(folder.id) : this.shortcutsService.pinToLaunchMenu(folder.id)
       },
       {
         text: 'Delete Folder',

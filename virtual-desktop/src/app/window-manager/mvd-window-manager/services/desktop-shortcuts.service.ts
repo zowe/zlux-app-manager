@@ -98,6 +98,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   shortcuts$ = new BehaviorSubject<DesktopShortcut[]>([]);
   folders$ = new BehaviorSubject<DesktopFolder[]>([]);
   pinnedFolderIds$ = new BehaviorSubject<string[]>([]);
+  launchMenuFolderIds$ = new BehaviorSubject<string[]>([]);
 
   private static generateFolderId(): string {
     return 'folder-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 8);
@@ -115,6 +116,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.shortcuts$.next([]);
     this.folders$.next([]);
     this.pinnedFolderIds$.next([]);
+    this.launchMenuFolderIds$.next([]);
     return true;
   }
 
@@ -125,16 +127,19 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
           this.shortcuts$.next([]);
           this.folders$.next([]);
           this.pinnedFolderIds$.next([]);
+          this.launchMenuFolderIds$.next([]);
         } else {
           this.shortcuts$.next((res.body.contents.shortcuts || []) as DesktopShortcut[]);
           this.folders$.next((res.body.contents.folders || []) as DesktopFolder[]);
           this.pinnedFolderIds$.next((res.body.contents.pinnedFolderIds || []) as string[]);
+          this.launchMenuFolderIds$.next((res.body.contents.launchMenuFolderIds || []) as string[]);
         }
       },
       () => {
         this.shortcuts$.next([]);
         this.folders$.next([]);
         this.pinnedFolderIds$.next([]);
+        this.launchMenuFolderIds$.next([]);
       }
     );
   }
@@ -581,6 +586,11 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
         return sc;
       });
     }
+    // Also remove from pinned and launch menu lists
+    const updatedPinned = this.pinnedFolderIds$.value.filter(id => id !== folderId);
+    const updatedLaunchMenu = this.launchMenuFolderIds$.value.filter(id => id !== folderId);
+    this.pinnedFolderIds$.next(updatedPinned);
+    this.launchMenuFolderIds$.next(updatedLaunchMenu);
     this.saveAll(updatedShortcuts, updatedFolders);
   }
 
@@ -621,11 +631,41 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     return this.pinnedFolderIds$.value.includes(folderId);
   }
 
+  // ── Launch menu pinning for folders ──
+
+  pinToLaunchMenu(folderId: string): void {
+    const current = this.launchMenuFolderIds$.value;
+    if (!current.includes(folderId)) {
+      const updated = [...current, folderId];
+      this.saveLaunchMenuFolderIds(updated);
+    }
+  }
+
+  unpinFromLaunchMenu(folderId: string): void {
+    const updated = this.launchMenuFolderIds$.value.filter(id => id !== folderId);
+    this.saveLaunchMenuFolderIds(updated);
+  }
+
+  isFolderInLaunchMenu(folderId: string): boolean {
+    return this.launchMenuFolderIds$.value.includes(folderId);
+  }
+
+  private saveLaunchMenuFolderIds(ids: string[]): void {
+    const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
+      ZoweZLUX.pluginManager.getDesktopPlugin(), this.scope, this.resourcePath, this.fileName
+    );
+    const params = { shortcuts: this.shortcuts$.value, folders: this.folders$.value, pinnedFolderIds: this.pinnedFolderIds$.value, launchMenuFolderIds: ids };
+    this.http.put(uri, params).subscribe(
+      () => { this.launchMenuFolderIds$.next(ids); },
+      (err) => { this.logger.warn('Could not save launch menu folder IDs', err); }
+    );
+  }
+
   private savePinnedFolderIds(ids: string[]): void {
     const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
       ZoweZLUX.pluginManager.getDesktopPlugin(), this.scope, this.resourcePath, this.fileName
     );
-    const params = { shortcuts: this.shortcuts$.value, folders: this.folders$.value, pinnedFolderIds: ids };
+    const params = { shortcuts: this.shortcuts$.value, folders: this.folders$.value, pinnedFolderIds: ids, launchMenuFolderIds: this.launchMenuFolderIds$.value };
     this.http.put(uri, params).subscribe(
       () => { this.pinnedFolderIds$.next(ids); },
       (err) => { this.logger.warn('Could not save pinned folder IDs', err); }
@@ -646,7 +686,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
       ZoweZLUX.pluginManager.getDesktopPlugin(), this.scope, this.resourcePath, this.fileName
     );
-    const params = { shortcuts, folders, pinnedFolderIds: this.pinnedFolderIds$.value };
+    const params = { shortcuts, folders, pinnedFolderIds: this.pinnedFolderIds$.value, launchMenuFolderIds: this.launchMenuFolderIds$.value };
     this.http.put(uri, params).subscribe(
       () => {
         this.shortcuts$.next(shortcuts);
