@@ -171,16 +171,19 @@
 }
 
 .launch-widget-shipped-folder-row.expanded {
-  background-color: transparent;
-}
-
-.launch-menu-shipped-folder-items {
-  padding-left: 20px;
-  padding-bottom: 6px;
+  background-color: rgba(128, 128, 128, 0.2);
+  border-radius: 6px 6px 0 0;
 }
 
 .launch-widget-shipped-item-row {
   opacity: 0.9;
+  background-color: rgba(128, 128, 128, 0.2);
+  padding-left: 20px;
+}
+
+.launch-widget-shipped-item-row.last-shipped-item {
+  border-radius: 0 0 6px 6px;
+  padding-bottom: 2px;
 }
 
 .launch-widget-shipped-item-row:hover {

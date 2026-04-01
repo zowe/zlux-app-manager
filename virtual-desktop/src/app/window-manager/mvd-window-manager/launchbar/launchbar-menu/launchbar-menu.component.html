@@ -37,70 +37,70 @@
          [style.background]="color.launchbarMenuColor"
          [style.width]="menuWidthInner"
          [style.color]="color.launchbarMenuText">
-      <div class="launch-widget-row" 
-        *ngFor="let item of displayItems | sortBy: 'label'; let i = index;" 
-        (click)="clicked(item)" 
-        [title]="item.tooltip" 
-        (contextmenu)="onRightClick($event, item)"
-        [class.active]="i==this.activeIndex" 
-        (mouseover)="this.activeIndex=i">
-          <div class="icon"
-              [style.width]="appIconSize"
-              [style.height]="appIconSize"
-              [style.background-image]="'url('+item.image+')'"></div>
-          <div class="app-label"
-              [style.padding-top]="appLabelPadding"
-              [style.font-size]="menuText">{{item.label}}</div>
-      </div>
-      <!-- User-created folders section -->
-      <div *ngIf="launchMenuFolders.length > 0" class="launch-menu-folders-divider"></div>
-      <div class="launch-widget-row launch-widget-folder-row"
-        *ngFor="let folder of launchMenuFolders"
-        (click)="folderClicked(folder)"
-        (contextmenu)="onFolderRightClick($event, folder)"
-        [title]="folder.name">
-          <div class="icon launch-menu-folder-icon"
-              [style.width]="appIconSize"
-              [style.height]="appIconSize">
-            <em class="fa fa-folder" [style.font-size]="appIconSize"></em>
-          </div>
-          <div class="app-label"
-              [style.padding-top]="appLabelPadding"
-              [style.font-size]="menuText">{{folder.name}}</div>
-      </div>
-      <!-- Shipped (plugin-provided) folders section -->
-      <div *ngIf="shippedFolders.length > 0" class="launch-menu-folders-divider"></div>
-      <ng-container *ngFor="let sFolder of shippedFolders">
-        <div class="launch-menu-shipped-folder-group" [class.expanded]="expandedShippedFolderName === sFolder.name">
-          <div class="launch-widget-row launch-widget-shipped-folder-row"
-            (click)="toggleShippedFolder(sFolder)"
-            [title]="sFolder.name"
-            [class.expanded]="expandedShippedFolderName === sFolder.name">
-              <div class="icon launch-menu-folder-icon"
-                  [style.width]="appIconSize"
-                  [style.height]="appIconSize">
-                <em class="fa fa-folder-open" *ngIf="expandedShippedFolderName === sFolder.name" [style.font-size]="appIconSize"></em>
-                <em class="fa fa-folder" *ngIf="expandedShippedFolderName !== sFolder.name" [style.font-size]="appIconSize"></em>
-              </div>
-              <div class="app-label"
-                  [style.padding-top]="appLabelPadding"
-                  [style.font-size]="menuText">{{sFolder.name}}</div>
-          </div>
-          <div class="launch-menu-shipped-folder-items" *ngIf="expandedShippedFolderName === sFolder.name">
-            <div class="launch-widget-row launch-widget-shipped-item-row"
-              *ngFor="let sItem of sFolder.items"
-              (click)="onShippedFolderItemClicked(sItem); $event.stopPropagation()"
-              [title]="sItem.title || sItem.id || sItem.dest || ''">
-                <div class="icon launch-menu-shipped-item-icon"
-                    [style.width]="appIconSize"
-                    [style.height]="appIconSize">
-                  <em [class]="getShippedFolderItemIcon(sItem)" [style.font-size]="appIconSize"></em>
-                </div>
-                <div class="app-label"
-                    [style.padding-top]="appLabelPadding"
-                    [style.font-size]="menuText">{{sItem.title || sItem.id || sItem.dest}}</div>
+      <ng-container *ngFor="let entry of combinedEntries; let i = index;">
+        <!-- App entry -->
+        <div *ngIf="entry.kind === 'app'" class="launch-widget-row"
+          (click)="clicked(entry.item)"
+          [title]="entry.item.tooltip"
+          (contextmenu)="onRightClick($event, entry.item)"
+          [class.active]="i==this.activeIndex"
+          (mouseover)="this.activeIndex=i">
+            <div class="icon"
+                [style.width]="appIconSize"
+                [style.height]="appIconSize"
+                [style.background-image]="'url('+entry.item.image+')'"></div>
+            <div class="app-label"
+                [style.padding-top]="appLabelPadding"
+                [style.font-size]="menuText">{{entry.item.label}}</div>
+        </div>
+        <!-- User-created folder entry -->
+        <div *ngIf="entry.kind === 'userFolder'" class="launch-widget-row launch-widget-folder-row"
+          (click)="folderClicked(entry.folder)"
+          (contextmenu)="onFolderRightClick($event, entry.folder)"
+          [title]="entry.folder.name"
+          [class.active]="i==this.activeIndex"
+          (mouseover)="this.activeIndex=i">
+            <div class="icon launch-menu-folder-icon"
+                [style.width]="appIconSize"
+                [style.height]="appIconSize">
+              <em class="fa fa-folder" [style.font-size]="appIconSize"></em>
             </div>
-          </div>
+            <div class="app-label"
+                [style.padding-top]="appLabelPadding"
+                [style.font-size]="menuText">{{entry.folder.name}}</div>
+        </div>
+        <!-- Shipped folder header -->
+        <div *ngIf="entry.kind === 'shippedFolder'" class="launch-widget-row launch-widget-shipped-folder-row"
+          (click)="toggleShippedFolder(entry.folder)"
+          [title]="entry.folder.name"
+          [class.active]="i==this.activeIndex"
+          [class.expanded]="expandedShippedFolderName === entry.folder.name"
+          (mouseover)="this.activeIndex=i">
+            <div class="icon launch-menu-folder-icon"
+                [style.width]="appIconSize"
+                [style.height]="appIconSize">
+              <em class="fa fa-folder-open" *ngIf="expandedShippedFolderName === entry.folder.name" [style.font-size]="appIconSize"></em>
+              <em class="fa fa-folder" *ngIf="expandedShippedFolderName !== entry.folder.name" [style.font-size]="appIconSize"></em>
+            </div>
+            <div class="app-label"
+                [style.padding-top]="appLabelPadding"
+                [style.font-size]="menuText">{{entry.folder.name}}</div>
+        </div>
+        <!-- Shipped folder item -->
+        <div *ngIf="entry.kind === 'shippedItem'" class="launch-widget-row launch-widget-shipped-item-row"
+          (click)="onShippedFolderItemClicked(entry.item); $event.stopPropagation()"
+          [title]="entry.item.title || entry.item.id || entry.item.dest || ''"
+          [class.active]="i==this.activeIndex"
+          [class.last-shipped-item]="isLastShippedItem(i)"
+          (mouseover)="this.activeIndex=i">
+            <div class="icon launch-menu-shipped-item-icon"
+                [style.width]="appIconSize"
+                [style.height]="appIconSize">
+              <em [class]="getShippedFolderItemIcon(entry.item)" [style.font-size]="appIconSize"></em>
+            </div>
+            <div class="app-label"
+                [style.padding-top]="appLabelPadding"
+                [style.font-size]="menuText">{{entry.item.title || entry.item.id || entry.item.dest}}</div>
         </div>
       </ng-container>
     </div>

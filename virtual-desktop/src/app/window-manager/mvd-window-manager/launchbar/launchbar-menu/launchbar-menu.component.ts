@@ -26,6 +26,12 @@ import { DesktopShortcutsService } from '../../services/desktop-shortcuts.servic
 import { DesktopFolder } from '../../services/desktop-shortcuts.service';
 import { StartMenuFoldersService, StartMenuFolder, StartMenuFolderItem } from '../../services/start-menu-folders.service';
 
+export type MenuEntry =
+  | { kind: 'app'; item: LaunchbarItem }
+  | { kind: 'userFolder'; folder: DesktopFolder }
+  | { kind: 'shippedFolder'; folder: StartMenuFolder }
+  | { kind: 'shippedItem'; item: StartMenuFolderItem; parentFolder: StartMenuFolder };
+
 const FONT_SIZE=12;
 
 @Component({
@@ -64,11 +70,13 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public launchMenuFolders: DesktopFolder[] = [];
   public shippedFolders: StartMenuFolder[] = [];
   public expandedShippedFolderName: string | null = null;
+  public combinedEntries: MenuEntry[] = [];
 
   @Input() set menuItems(items: LaunchbarItem[]) {
     this._menuItems = items;
     this.displayItems = items;
     this.filterMenuItems();
+    this.rebuildCombinedEntries();
   }
  
   @Input() set theme(newTheme: DesktopTheme) {
@@ -145,14 +153,17 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     this.shortcutsService.folders$.subscribe(folders => {
       this.folders = folders;
       this.updateLaunchMenuFolders();
+      this.rebuildCombinedEntries();
     });
 
     this.shortcutsService.launchMenuFolderIds$.subscribe(() => {
       this.updateLaunchMenuFolders();
+      this.rebuildCombinedEntries();
     });
 
     this.startMenuFoldersService.shippedFolders$.subscribe(folders => {
       this.shippedFolders = folders;
+      this.rebuildCombinedEntries();
     });
   }
 
@@ -168,6 +179,28 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   private updateLaunchMenuFolders(): void {
     const pinnedIds = this.shortcutsService.launchMenuFolderIds$.value;
     this.launchMenuFolders = this.folders.filter(f => pinnedIds.includes(f.id));
+  }
+
+  rebuildCombinedEntries(): void {
+    const appEntries: MenuEntry[] = (this.displayItems || [])
+      .slice()
+      .sort((a, b) => a.label.localeCompare(b.label))
+      .map(item => ({ kind: 'app' as const, item }));
+
+    const userFolderEntries: MenuEntry[] = this.launchMenuFolders
+      .map(folder => ({ kind: 'userFolder' as const, folder }));
+
+    const shippedFolderEntries: MenuEntry[] = [];
+    for (const folder of this.shippedFolders) {
+      shippedFolderEntries.push({ kind: 'shippedFolder' as const, folder });
+      if (this.expandedShippedFolderName === folder.name) {
+        for (const item of folder.items) {
+          shippedFolderEntries.push({ kind: 'shippedItem' as const, item, parentFolder: folder });
+        }
+      }
+    }
+
+    this.combinedEntries = [...appEntries, ...userFolderEntries, ...shippedFolderEntries];
   }
 
   ngOnInit(): void {
@@ -223,6 +256,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   resetMenu(): void {
     this.appFilter = '';
     this.displayItems = this._menuItems;
+    this.rebuildCombinedEntries();
   }
 
   filterMenuItems(): void {
@@ -236,6 +270,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     } else {
       this.displayItems = this._menuItems;
     }
+    this.rebuildCombinedEntries();
   }
 
   clicked(item: LaunchbarItem): void {
@@ -285,14 +320,17 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
         break;
       } 
       case KeyCode.ENTER: {
-          if(this.activeIndex<this.displayItems.length) {
-            this.clicked(this.displayItems[this.activeIndex]);
+          if(this.activeIndex < this.combinedEntries.length) {
+            this.activateEntry(this.combinedEntries[this.activeIndex]);
           }
           break;
       }
       case KeyCode.RIGHT_ARROW: {
-        if(this.activeIndex<this.displayItems.length) {
-          this.getContextMenu(this.displayItems[this.activeIndex]);
+        if(this.activeIndex < this.combinedEntries.length) {
+          const entry = this.combinedEntries[this.activeIndex];
+          if (entry.kind === 'app') {
+            this.getContextMenu(entry.item);
+          }
         }
         break;
       }
@@ -307,7 +345,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
         break;
       }
       case KeyCode.DOWN_ARROW: {
-        if(this.activeIndex < this.displayItems.length-1) {
+        if(this.activeIndex < this.combinedEntries.length-1) {
           this.activeIndex++;
         } 
         this.scrollToActiveMenuItem();
@@ -426,6 +464,24 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
 
   toggleShippedFolder(folder: StartMenuFolder): void {
     this.expandedShippedFolderName = this.expandedShippedFolderName === folder.name ? null : folder.name;
+    this.rebuildCombinedEntries();
+  }
+
+  activateEntry(entry: MenuEntry): void {
+    switch (entry.kind) {
+      case 'app':
+        this.clicked(entry.item);
+        break;
+      case 'userFolder':
+        this.folderClicked(entry.folder);
+        break;
+      case 'shippedFolder':
+        this.toggleShippedFolder(entry.folder);
+        break;
+      case 'shippedItem':
+        this.onShippedFolderItemClicked(entry.item);
+        break;
+    }
   }
 
   onShippedFolderItemClicked(item: StartMenuFolderItem): void {
@@ -450,6 +506,11 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       return 'fa fa-external-link';
     }
     return 'fa fa-rocket';
+  }
+
+  isLastShippedItem(index: number): boolean {
+    const next = this.combinedEntries[index + 1];
+    return !next || next.kind !== 'shippedItem';
   }
 }
 
