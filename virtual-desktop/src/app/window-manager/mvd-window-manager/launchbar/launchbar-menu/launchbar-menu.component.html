@@ -95,8 +95,10 @@
           (mouseover)="this.activeIndex=i">
             <div class="icon launch-menu-shipped-item-icon"
                 [style.width]="appIconSize"
-                [style.height]="appIconSize">
-              <em [class]="getShippedFolderItemIcon(entry.item)" [style.font-size]="appIconSize"></em>
+                [style.height]="appIconSize"
+                [style.background-image]="entry.resolvedIcon ? 'url(' + entry.resolvedIcon + ')' : null"
+                [class.has-app-icon]="entry.resolvedIcon">
+              <em *ngIf="!entry.resolvedIcon" [class]="getShippedFolderItemIcon(entry.item)" [style.font-size]="appIconSize"></em>
             </div>
             <div class="app-label"
                 [style.padding-top]="appLabelPadding"

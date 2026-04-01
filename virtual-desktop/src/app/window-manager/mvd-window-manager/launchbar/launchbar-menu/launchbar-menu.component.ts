@@ -30,7 +30,7 @@ export type MenuEntry =
   | { kind: 'app'; item: LaunchbarItem }
   | { kind: 'userFolder'; folder: DesktopFolder }
   | { kind: 'shippedFolder'; folder: StartMenuFolder }
-  | { kind: 'shippedItem'; item: StartMenuFolderItem; parentFolder: StartMenuFolder };
+  | { kind: 'shippedItem'; item: StartMenuFolderItem; parentFolder: StartMenuFolder; resolvedIcon?: string };
 
 const FONT_SIZE=12;
 
@@ -195,7 +195,17 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       shippedFolderEntries.push({ kind: 'shippedFolder' as const, folder });
       if (this.expandedShippedFolderName === folder.name) {
         for (const item of folder.items) {
-          shippedFolderEntries.push({ kind: 'shippedItem' as const, item, parentFolder: folder });
+          const entry: MenuEntry = { kind: 'shippedItem' as const, item, parentFolder: folder };
+          if (item.type === 'app' && item.id) {
+            const plugin = ZoweZLUX.pluginManager.getPlugin(item.id);
+            if (plugin) {
+              const webContent = plugin.getWebContent();
+              if (webContent && webContent.launchDefinition && webContent.launchDefinition.imageSrc) {
+                entry.resolvedIcon = ZoweZLUX.uriBroker.pluginResourceUri(plugin, webContent.launchDefinition.imageSrc);
+              }
+            }
+          }
+          shippedFolderEntries.push(entry);
         }
       }
     }
