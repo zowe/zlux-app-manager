@@ -83,6 +83,7 @@
            [class.dragging-source]="expandedDragShortcut === shortcut"
            [class.drop-before]="isExpandedDragging && expandedDropIndex === i && expandedDragShortcut !== shortcut && childShortcuts.indexOf(expandedDragShortcut) > i"
            [class.drop-after]="isExpandedDragging && expandedDropIndex === i && expandedDragShortcut !== shortcut && childShortcuts.indexOf(expandedDragShortcut) < i"
+           [class.keyboard-focused]="focusedExpandedIndex === i"
            (dblclick)="onExpandedItemClick($event, shortcut)"
            (contextmenu)="onExpandedItemRightClick($event, shortcut)"
            (mousedown)="onExpandedItemMouseDown($event, shortcut)">

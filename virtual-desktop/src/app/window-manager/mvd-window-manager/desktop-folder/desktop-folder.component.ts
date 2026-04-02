@@ -106,11 +106,49 @@ export class DesktopFolderComponent {
   private boundExpandedMouseMove: (e: MouseEvent) => void;
   private boundExpandedMouseUp: (e: MouseEvent) => void;
 
+  // Keyboard navigation within expanded folder
+  focusedExpandedIndex: number = -1;
+
   constructor() {
     this.boundOnMouseMove = this.onMouseMove.bind(this);
     this.boundOnMouseUp = this.onMouseUp.bind(this);
     this.boundExpandedMouseMove = this.onExpandedMouseMove.bind(this);
     this.boundExpandedMouseUp = this.onExpandedMouseUp.bind(this);
+  }
+
+  /**
+   * Handle keyboard navigation within the expanded folder.
+   * Called by window-pane when arrow keys or Enter are pressed while this folder is open.
+   * Returns true if the event was handled, false if it should propagate (e.g. Escape).
+   */
+  handleExpandedKeydown(key: string): boolean {
+    if (!this.isOpen || !this.childShortcuts.length) return false;
+    // Don't navigate if renaming
+    if (this.expandedRenameShortcut || this.isRenamingTitle) return false;
+
+    const count = this.childShortcuts.length;
+    switch (key) {
+      case 'ArrowRight':
+        this.focusedExpandedIndex = this.focusedExpandedIndex < count - 1 ? this.focusedExpandedIndex + 1 : 0;
+        return true;
+      case 'ArrowLeft':
+        this.focusedExpandedIndex = this.focusedExpandedIndex > 0 ? this.focusedExpandedIndex - 1 : count - 1;
+        return true;
+      case 'ArrowDown':
+        // Move down by a row (estimate ~5 items per row based on 70px items in ~400px panel)
+        this.focusedExpandedIndex = Math.min(this.focusedExpandedIndex + 5, count - 1);
+        return true;
+      case 'ArrowUp':
+        this.focusedExpandedIndex = Math.max(this.focusedExpandedIndex - 5, 0);
+        return true;
+      case 'Enter':
+        if (this.focusedExpandedIndex >= 0 && this.focusedExpandedIndex < count) {
+          this.shortcutLaunched.emit(this.childShortcuts[this.focusedExpandedIndex]);
+        }
+        return true;
+      default:
+        return false;
+    }
   }
 
   /** Get the first N child icon URLs for the folder's preview grid */

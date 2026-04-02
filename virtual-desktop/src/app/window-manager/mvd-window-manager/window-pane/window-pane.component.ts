@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, OnDestroy, Injector, Input, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Injector, Input, HostListener, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { DesktopTheme } from "../desktop/desktop.component";
 import { HttpClient, HttpResponse } from '@angular/common/http';
@@ -20,6 +20,7 @@ import { BaseLogger } from 'virtual-desktop-logger';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
 import { DesktopShortcut, DesktopFolder, DesktopShortcutsService } from '../services/desktop-shortcuts.service';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
+import { DesktopFolderComponent } from '../desktop-folder/desktop-folder.component';
 import { L10nTranslationService } from 'angular-l10n';
 import { delay } from 'rxjs/operators';
 
@@ -39,6 +40,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
+
+  @ViewChildren(DesktopFolderComponent) folderComponents: QueryList<DesktopFolderComponent>;
 
   @Input() set theme(newTheme: DesktopTheme) {
     this._theme = newTheme;
@@ -364,6 +367,11 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     } else {
       this.openFolderId = folder.id;
       this.shortcutsService.markFolderOpened(folder.id);
+      // Initialize keyboard focus at first item when folder opens
+      const folderComp = this.folderComponents?.find(fc => fc.folder?.id === folder.id);
+      if (folderComp) {
+        folderComp.focusedExpandedIndex = 0;
+      }
     }
   }
 
@@ -902,7 +910,15 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
     // Only handle when no window has focus and no modal is open
-    if (this.propertiesShortcut || this.openFolderId || this.renameTargetKey || this.renameFolderTargetId) return;
+    if (this.propertiesShortcut || this.renameTargetKey || this.renameFolderTargetId) return;
+    // Delegate to open folder's keyboard handler
+    if (this.openFolderId) {
+      const folderComp = this.folderComponents?.find(fc => fc.folder?.id === this.openFolderId);
+      if (folderComp?.handleExpandedKeydown(event.key)) {
+        event.preventDefault();
+      }
+      return;
+    }
     // Don't intercept when an input/textarea has focus
     const tag = (event.target as HTMLElement)?.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
