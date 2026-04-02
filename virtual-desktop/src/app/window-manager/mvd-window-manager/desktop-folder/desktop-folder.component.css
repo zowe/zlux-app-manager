@@ -322,6 +322,13 @@
   padding-right: 2px;
 }
 
+.desktop-folder-expanded-item.keyboard-focused {
+  background-color: rgba(100, 150, 255, 0.25);
+  border-radius: 6px;
+  outline: 2px solid rgba(100, 150, 255, 0.6);
+  outline-offset: -2px;
+}
+
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
