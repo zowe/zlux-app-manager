@@ -190,7 +190,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onIconSelected(shortcut: DesktopShortcut): void {
-    this.highlightedIconId = shortcut.pluginId + (shortcut.action?.id || '');
+    this.highlightedIconId = shortcut.id;
   }
 
   onIconClicked(event: { shortcut: DesktopShortcut; ctrlKey: boolean }): void {
@@ -1085,15 +1085,20 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
           ? new Set(['folder:' + this.highlightedFolderId])
           : null;
     if (!keysToDelete || keysToDelete.size === 0) return;
+    const shortcutIds: string[] = [];
+    const folderIds: string[] = [];
     for (const key of keysToDelete) {
       if (key.startsWith('folder:')) {
-        this.shortcutsService.deleteFolder(key.substring(7));
+        folderIds.push(key.substring(7));
       } else {
         const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === key);
         if (shortcut) {
-          this.shortcutsService.removeShortcutById(shortcut.id);
+          shortcutIds.push(shortcut.id);
         }
       }
+    }
+    if (shortcutIds.length > 0 || folderIds.length > 0) {
+      this.shortcutsService.batchDeleteItems(shortcutIds, folderIds);
     }
     this.selectedKeys.clear();
     this.highlightedIconId = null;

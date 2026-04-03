@@ -207,7 +207,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   /** Add a simple app-launch shortcut */
   addShortcut(pluginId: string): void {
     const current = this.shortcuts$.value;
-    const alreadyExists = current.some(s => s.pluginId === pluginId && !s.action);
+    const alreadyExists = current.some(s => s.pluginId === pluginId && !s.action && !s.folderId);
     if (alreadyExists) {
       return;
     }
@@ -620,6 +620,39 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       const move = folderMoveMap.get(f.id);
       return move ? { ...f, gridRow: move.newRow, gridCol: move.newCol } : f;
     });
+    this.saveAll(updatedShortcuts, updatedFolders);
+  }
+
+  /** Delete multiple shortcuts and folders atomically in a single save */
+  batchDeleteItems(shortcutIds: string[], folderIds: string[]): void {
+    const shortcutIdSet = new Set(shortcutIds);
+    const folderIdSet = new Set(folderIds);
+
+    // Remove the targeted shortcuts
+    let updatedShortcuts = this.shortcuts$.value.filter(s => !shortcutIdSet.has(s.id));
+
+    // For each deleted folder, move its contained shortcuts back to the desktop grid
+    let updatedFolders = this.folders$.value.filter(f => !folderIdSet.has(f.id));
+    for (const folderId of folderIds) {
+      const inFolder = updatedShortcuts.filter(s => s.folderId === folderId);
+      for (const s of inFolder) {
+        const position = this.findNextAvailablePosition(updatedShortcuts.filter(sc => !sc.folderId));
+        updatedShortcuts = updatedShortcuts.map(sc => {
+          if (sc === s) {
+            const { folderId: _, ...rest } = sc;
+            return { ...rest, gridRow: position.row, gridCol: position.col };
+          }
+          return sc;
+        });
+      }
+    }
+
+    // Also remove from pinned and launch menu lists
+    const updatedPinned = this.pinnedFolderIds$.value.filter(id => !folderIdSet.has(id));
+    const updatedLaunchMenu = this.launchMenuFolderIds$.value.filter(id => !folderIdSet.has(id));
+    this.pinnedFolderIds$.next(updatedPinned);
+    this.launchMenuFolderIds$.next(updatedLaunchMenu);
+
     this.saveAll(updatedShortcuts, updatedFolders);
   }
 
