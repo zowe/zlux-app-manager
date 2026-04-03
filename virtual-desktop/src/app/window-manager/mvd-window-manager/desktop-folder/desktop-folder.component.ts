@@ -63,7 +63,7 @@ export class DesktopFolderComponent {
 
   @Input() set renameShortcutKey(key: string | null) {
     if (key && this.childShortcuts) {
-      const shortcut = this.childShortcuts.find(s => (s.pluginId + (s.action?.id || '')) === key);
+      const shortcut = this.childShortcuts.find(s => s.id === key);
       if (shortcut) {
         this.startExpandedRename(shortcut);
       }

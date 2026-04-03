@@ -419,7 +419,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
               s.pluginId === item.plugin.getBasePlugin().getIdentifier() && !s.folderId && !s.action
             );
             if (target) {
-              this.shortcutsService.addShortcutToFolder(folder.id, target.gridRow, target.gridCol);
+              this.shortcutsService.addShortcutToFolder(folder.id, target.id);
             }
           }, 300);
         }
