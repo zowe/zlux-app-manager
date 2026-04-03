@@ -177,13 +177,25 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
         } else {
           let incomingShortcuts = (res.body.contents.shortcuts || []) as DesktopShortcut[];
           // Backfill IDs for shortcuts migrated from pre-ID format
-          incomingShortcuts = incomingShortcuts.map(s =>
-            s.id ? s : { ...s, id: DesktopShortcutsService.generateShortcutId() }
-          );
+          let needsIdBackfill = false;
+          incomingShortcuts = incomingShortcuts.map(s => {
+            if (!s.id) {
+              needsIdBackfill = true;
+              return { ...s, id: DesktopShortcutsService.generateShortcutId() };
+            }
+            return s;
+          });
           this.shortcuts$.next(incomingShortcuts);
-          // Write back with our authoritative folders/pinnedFolderIds in case the
-          // external app omitted or corrupted them.
-          this.saveAll(incomingShortcuts, this.folders$.value);
+          // Only write back if the external app corrupted our data or IDs need backfill
+          const incomingFolders = res.body.contents.folders as DesktopFolder[] | undefined;
+          const incomingPinned = res.body.contents.pinnedFolderIds as string[] | undefined;
+          const incomingLaunchMenu = res.body.contents.launchMenuFolderIds as string[] | undefined;
+          const foldersCorrupted = !incomingFolders || JSON.stringify(incomingFolders) !== JSON.stringify(this.folders$.value);
+          const pinnedCorrupted = !incomingPinned || JSON.stringify(incomingPinned) !== JSON.stringify(this.pinnedFolderIds$.value);
+          const launchMenuCorrupted = !incomingLaunchMenu || JSON.stringify(incomingLaunchMenu) !== JSON.stringify(this.launchMenuFolderIds$.value);
+          if (needsIdBackfill || foldersCorrupted || pinnedCorrupted || launchMenuCorrupted) {
+            this.saveAll(incomingShortcuts, this.folders$.value);
+          }
         }
       },
       () => {
@@ -460,6 +472,26 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     if (!target) return;
     const others = this.shortcuts$.value.filter(s => s !== target);
     const updatedShortcuts = [...others, { ...target, folderId, gridRow: -1, gridCol: -1 }];
+    const updatedFolders = this.folders$.value.map(f =>
+      f.id === folderId ? { ...f, modifiedDate: now } : f
+    );
+    this.saveAll(updatedShortcuts, updatedFolders);
+  }
+
+  /** Create a new shortcut and place it directly into a folder in a single save */
+  addShortcutDirectlyToFolder(pluginId: string, folderId: string): void {
+    const current = this.shortcuts$.value;
+    const now = new Date().toISOString();
+    const newShortcut: DesktopShortcut = {
+      id: DesktopShortcutsService.generateShortcutId(),
+      pluginId,
+      gridRow: -1,
+      gridCol: -1,
+      folderId,
+      createdDate: now,
+      modifiedDate: now
+    };
+    const updatedShortcuts = [...current, newShortcut];
     const updatedFolders = this.folders$.value.map(f =>
       f.id === folderId ? { ...f, modifiedDate: now } : f
     );

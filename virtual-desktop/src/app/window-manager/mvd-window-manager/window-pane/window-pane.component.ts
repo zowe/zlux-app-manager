@@ -22,7 +22,7 @@ import { DesktopShortcut, DesktopFolder, DesktopShortcutsService } from '../serv
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { DesktopFolderComponent } from '../desktop-folder/desktop-folder.component';
 import { L10nTranslationService } from 'angular-l10n';
-import { delay } from 'rxjs/operators';
+import { delay, skip, first } from 'rxjs/operators';
 
 const DESKTOP_PLUGIN = ZoweZLUX.pluginManager.getDesktopPlugin();
 const DESKTOP_WALLPAPER_URI = ZoweZLUX.uriBroker.pluginConfigUri(DESKTOP_PLUGIN,'ui/themebin', 'wallpaper');
@@ -824,15 +824,16 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       }
     };
     this.shortcutsService.addActionShortcut(shortcut);
-    // Wait for the shortcut to appear then trigger rename
-    setTimeout(() => {
-      const created = this.shortcuts.find(s =>
-        s.action?.launchMetadata?.data?.type === 'newFile' && s.displayLabel === defaultLabel
-      );
+    // Trigger rename once the shortcut appears in the reactive stream
+    this.shortcutsService.shortcuts$.pipe(
+      skip(1), // skip the current value, wait for the next emission (from saveAll)
+      first()
+    ).subscribe(shortcuts => {
+      const created = shortcuts.find(s => s.id === shortcut.id);
       if (created) {
         this.renameTargetKey = this.getShortcutKey(created);
       }
-    }, 200);
+    });
   }
 
   ngOnInit(): void {
