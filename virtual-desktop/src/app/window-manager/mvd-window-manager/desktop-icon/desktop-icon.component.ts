@@ -244,7 +244,7 @@ export class DesktopIconComponent {
       const newRow = Math.min(this.maxGridRows - 1, Math.max(0, Math.round((this.dragTop - this.gridPadding) / this.iconCellHeight)));
 
       const occupied = this.allShortcuts.some(s =>
-        s.pluginId !== this.shortcut.pluginId && s.gridRow === newRow && s.gridCol === newCol
+        s.id !== this.shortcut.id && s.gridRow === newRow && s.gridCol === newCol
       );
 
       if (!occupied && (newRow !== this.shortcut.gridRow || newCol !== this.shortcut.gridCol)) {
