@@ -148,7 +148,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   ngOnInit(): void {
     this.date = new Date();
-    setZoweVersion();
+    this.setZoweVersion();
     interval(1000).subscribe(() => this.date = new Date());
   }
 
