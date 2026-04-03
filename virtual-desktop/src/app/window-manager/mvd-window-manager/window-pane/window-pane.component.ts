@@ -912,6 +912,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onKeyDown(event: KeyboardEvent): void {
     // Only handle when no window has focus and no modal is open
     if (this.propertiesShortcut || this.renameTargetKey || this.renameFolderTargetId) return;
+    // Don't intercept when an input/textarea has focus
+    const tag = (event.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     // Delegate to open folder's keyboard handler
     if (this.openFolderId) {
       const folderComp = this.folderComponents?.find(fc => fc.folder?.id === this.openFolderId);
@@ -920,9 +923,6 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       }
       return;
     }
-    // Don't intercept when an input/textarea has focus
-    const tag = (event.target as HTMLElement)?.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     // Don't intercept when a window has focus
     if (this.windowManager.getAllWindows().some(w => this.windowManager.windowHasFocus(w.windowId))) return;
 
