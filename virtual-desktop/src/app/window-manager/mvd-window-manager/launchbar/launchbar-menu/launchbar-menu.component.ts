@@ -411,17 +411,10 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       const addToFolderItems: ContextMenuItem[] = this.folders.map(folder => ({
         text: folder.name,
         action: () => {
-          this.shortcutsService.addShortcut(item.plugin.getBasePlugin().getIdentifier());
-          // After the shortcut is saved, add it to the folder
-          setTimeout(() => {
-            const shortcuts = this.shortcutsService.shortcuts$.value;
-            const target = shortcuts.find(s =>
-              s.pluginId === item.plugin.getBasePlugin().getIdentifier() && !s.folderId && !s.action
-            );
-            if (target) {
-              this.shortcutsService.addShortcutToFolder(folder.id, target.gridRow, target.gridCol);
-            }
-          }, 300);
+          this.shortcutsService.addShortcutDirectlyToFolder(
+            item.plugin.getBasePlugin().getIdentifier(),
+            folder.id
+          );
         }
       }));
       menuItems.splice(menuItems.length - 1, 0, {

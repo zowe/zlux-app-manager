@@ -63,7 +63,7 @@ export class DesktopFolderComponent {
 
   @Input() set renameShortcutKey(key: string | null) {
     if (key && this.childShortcuts) {
-      const shortcut = this.childShortcuts.find(s => (s.pluginId + (s.action?.id || '')) === key);
+      const shortcut = this.childShortcuts.find(s => s.id === key);
       if (shortcut) {
         this.startExpandedRename(shortcut);
       }
@@ -127,6 +127,7 @@ export class DesktopFolderComponent {
     if (this.expandedRenameShortcut || this.isRenamingTitle) return false;
 
     const count = this.childShortcuts.length;
+    const itemsPerRow = this.getItemsPerRow();
     switch (key) {
       case 'ArrowRight':
         this.focusedExpandedIndex = this.focusedExpandedIndex < count - 1 ? this.focusedExpandedIndex + 1 : 0;
@@ -135,11 +136,10 @@ export class DesktopFolderComponent {
         this.focusedExpandedIndex = this.focusedExpandedIndex > 0 ? this.focusedExpandedIndex - 1 : count - 1;
         return true;
       case 'ArrowDown':
-        // Move down by a row (estimate ~5 items per row based on 70px items in ~400px panel)
-        this.focusedExpandedIndex = Math.min(this.focusedExpandedIndex + 5, count - 1);
+        this.focusedExpandedIndex = Math.min(this.focusedExpandedIndex + itemsPerRow, count - 1);
         return true;
       case 'ArrowUp':
-        this.focusedExpandedIndex = Math.max(this.focusedExpandedIndex - 5, 0);
+        this.focusedExpandedIndex = Math.max(this.focusedExpandedIndex - itemsPerRow, 0);
         return true;
       case 'Enter':
         if (this.focusedExpandedIndex >= 0 && this.focusedExpandedIndex < count) {
@@ -149,6 +149,19 @@ export class DesktopFolderComponent {
       default:
         return false;
     }
+  }
+
+  /** Compute items per row from the actual expanded panel width */
+  private getItemsPerRow(): number {
+    if (!this.expandedPanelRef) return 4;
+    const grid = this.expandedPanelRef.nativeElement.querySelector('.desktop-folder-expanded-grid');
+    if (!grid) return 4;
+    const gridStyle = getComputedStyle(grid);
+    const gap = parseFloat(gridStyle.gap) || 8;
+    const gridWidth = grid.clientWidth;
+    // Item width (70px) + padding (4px each side) = effective item width
+    const itemWidth = 70 + 8; // CSS: width:70px, padding:4px
+    return Math.max(1, Math.floor((gridWidth + gap) / (itemWidth + gap)));
   }
 
   /** Get the first N child icon URLs for the folder's preview grid */

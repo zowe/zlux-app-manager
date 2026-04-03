@@ -22,7 +22,7 @@ import { DesktopShortcut, DesktopFolder, DesktopShortcutsService } from '../serv
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { DesktopFolderComponent } from '../desktop-folder/desktop-folder.component';
 import { L10nTranslationService } from 'angular-l10n';
-import { delay } from 'rxjs/operators';
+import { delay, skip, first } from 'rxjs/operators';
 
 const DESKTOP_PLUGIN = ZoweZLUX.pluginManager.getDesktopPlugin();
 const DESKTOP_WALLPAPER_URI = ZoweZLUX.uriBroker.pluginConfigUri(DESKTOP_PLUGIN,'ui/themebin', 'wallpaper');
@@ -234,7 +234,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   getShortcutKey(shortcut: DesktopShortcut): string {
-    return shortcut.pluginId + (shortcut.action?.id || '');
+    return shortcut.id;
   }
 
   onIconLaunched(shortcut: DesktopShortcut): void {
@@ -261,7 +261,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       },
       {
         text: 'Remove From Desktop',
-        action: () => this.shortcutsService.removeShortcutAtPosition(shortcut.gridRow, shortcut.gridCol)
+        action: () => this.shortcutsService.removeShortcutById(shortcut.id)
       },
       {
         text: 'Properties',
@@ -288,19 +288,19 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       this.dragConsumed = false;
       return;
     }
-    this.shortcutsService.moveShortcut(event.shortcut.pluginId, event.newRow, event.newCol, event.shortcut.action?.id);
+    this.shortcutsService.moveShortcut(event.shortcut.id, event.newRow, event.newCol);
   }
 
   onIconRenamed(event: { shortcut: DesktopShortcut; newLabel: string }): void {
     this.renameTargetKey = null;
     const updateActionName = event.shortcut.action?.launchMetadata?.data?.type === 'newFile';
-    this.shortcutsService.renameShortcut(event.shortcut.gridRow, event.shortcut.gridCol, event.newLabel, updateActionName);
+    this.shortcutsService.renameShortcut(event.shortcut.id, event.newLabel, updateActionName);
   }
 
   onIconRenameCancelled(shortcut: DesktopShortcut): void {
     this.renameTargetKey = null;
     if (shortcut.action?.launchMetadata?.data?.type === 'newFile' && shortcut.displayLabel === 'New File') {
-      this.shortcutsService.removeShortcutAtPosition(shortcut.gridRow, shortcut.gridCol);
+      this.shortcutsService.removeShortcutById(shortcut.id);
     }
   }
 
@@ -311,7 +311,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onFolderShortcutRenamed(event: { shortcut: DesktopShortcut; newLabel: string }): void {
     this.renameTargetKey = null;
     const updateActionName = event.shortcut.action?.launchMetadata?.data?.type === 'newFile';
-    this.shortcutsService.renameShortcut(event.shortcut.gridRow, event.shortcut.gridCol, event.newLabel, updateActionName);
+    this.shortcutsService.renameShortcut(event.shortcut.id, event.newLabel, updateActionName);
   }
 
   onFolderShortcutRenameCancelled(shortcut: DesktopShortcut): void {
@@ -426,7 +426,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onShortcutRemovedFromFolder(event: { folder: DesktopFolder; shortcut: DesktopShortcut }): void {
-    this.shortcutsService.removeShortcutFromFolder(event.folder.id, event.shortcut.gridRow, event.shortcut.gridCol);
+    this.shortcutsService.removeShortcutFromFolder(event.folder.id, event.shortcut.id);
     if (!this.folders.some(f => f.id === event.folder.id)) {
       this.openFolderId = null;
     }
@@ -435,7 +435,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onShortcutDraggedOutOfFolder(event: { folder: DesktopFolder; shortcut: DesktopShortcut; clientX: number; clientY: number }): void {
     const col = Math.min(this.maxGridCols - 1, Math.max(0, Math.floor((event.clientX - this.gridPadding) / this.iconCellWidth)));
     const row = Math.min(this.maxGridRows - 1, Math.max(0, Math.floor((event.clientY - this.gridPadding) / this.iconCellHeight)));
-    this.shortcutsService.removeShortcutFromFolderToPosition(event.folder.id, event.shortcut.gridRow, event.shortcut.gridCol, row, col);
+    this.shortcutsService.removeShortcutFromFolderToPosition(event.folder.id, event.shortcut.id, row, col);
     if (!this.folders.some(f => f.id === event.folder.id)) {
       this.openFolderId = null;
     }
@@ -521,7 +521,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
           }
         }
         for (const s of shortcutsToMove) {
-          this.shortcutsService.addShortcutToFolder(this.dragOverFolderId, s.gridRow, s.gridCol);
+          this.shortcutsService.addShortcutToFolder(this.dragOverFolderId, s.id);
         }
       } else {
         this.batchMoveSelectedItems(event.deltaX, event.deltaY);
@@ -535,8 +535,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     if (this.dragOverFolderId && this.dragSourceShortcut) {
       this.shortcutsService.addShortcutToFolder(
         this.dragOverFolderId,
-        this.dragSourceShortcut.gridRow,
-        this.dragSourceShortcut.gridCol
+        this.dragSourceShortcut.id
       );
       this.dragConsumed = true;
       this.dragOverFolderId = null;
@@ -592,7 +591,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const deltaRow = Math.round(deltaY / this.iconCellHeight);
     if (deltaRow === 0 && deltaCol === 0) return;
 
-    const shortcutMoves: { pluginId: string; actionId?: string; newRow: number; newCol: number }[] = [];
+    const shortcutMoves: { shortcutId: string; newRow: number; newCol: number }[] = [];
     const folderMoves: { folderId: string; newRow: number; newCol: number }[] = [];
     const newPositions: { row: number; col: number }[] = [];
 
@@ -610,7 +609,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         if (shortcut) {
           const newRow = Math.min(this.maxGridRows - 1, Math.max(0, shortcut.gridRow + deltaRow));
           const newCol = Math.min(this.maxGridCols - 1, Math.max(0, shortcut.gridCol + deltaCol));
-          shortcutMoves.push({ pluginId: shortcut.pluginId, actionId: shortcut.action?.id, newRow, newCol });
+          shortcutMoves.push({ shortcutId: shortcut.id, newRow, newCol });
           newPositions.push({ row: newRow, col: newCol });
         }
       }
@@ -756,11 +755,11 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onPropertiesIconChanged(event: { shortcut: DesktopShortcut; iconUrl: string | undefined }): void {
-    this.shortcutsService.updateShortcutIcon(event.shortcut.gridRow, event.shortcut.gridCol, event.iconUrl);
+    this.shortcutsService.updateShortcutIcon(event.shortcut.id, event.iconUrl);
   }
 
   onPropertiesLaunchMetadataChanged(event: { shortcut: DesktopShortcut; launchMetadata: any }): void {
-    this.shortcutsService.updateShortcutLaunchMetadata(event.shortcut.gridRow, event.shortcut.gridCol, event.launchMetadata);
+    this.shortcutsService.updateShortcutLaunchMetadata(event.shortcut.id, event.launchMetadata);
   }
 
   onDesktopRightClick(event: MouseEvent): void {
@@ -808,6 +807,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const defaultLabel = 'New File';
     const actionData = { targetPluginId: 'org.zowe.editor', type: 'newFile', name: defaultLabel };
     const shortcut: DesktopShortcut = {
+      id: DesktopShortcutsService.generateShortcutId(),
       pluginId: 'org.zowe.editor',
       gridRow: 0,
       gridCol: 0,
@@ -824,15 +824,16 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       }
     };
     this.shortcutsService.addActionShortcut(shortcut);
-    // Wait for the shortcut to appear then trigger rename
-    setTimeout(() => {
-      const created = this.shortcuts.find(s =>
-        s.action?.launchMetadata?.data?.type === 'newFile' && s.displayLabel === defaultLabel
-      );
+    // Trigger rename once the shortcut appears in the reactive stream
+    this.shortcutsService.shortcuts$.pipe(
+      skip(1), // skip the current value, wait for the next emission (from saveAll)
+      first()
+    ).subscribe(shortcuts => {
+      const created = shortcuts.find(s => s.id === shortcut.id);
       if (created) {
         this.renameTargetKey = this.getShortcutKey(created);
       }
-    }, 200);
+    });
   }
 
   ngOnInit(): void {
@@ -911,6 +912,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onKeyDown(event: KeyboardEvent): void {
     // Only handle when no window has focus and no modal is open
     if (this.propertiesShortcut || this.renameTargetKey || this.renameFolderTargetId) return;
+    // Don't intercept when an input/textarea has focus
+    const tag = (event.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     // Delegate to open folder's keyboard handler
     if (this.openFolderId) {
       const folderComp = this.folderComponents?.find(fc => fc.folder?.id === this.openFolderId);
@@ -919,9 +923,6 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       }
       return;
     }
-    // Don't intercept when an input/textarea has focus
-    const tag = (event.target as HTMLElement)?.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     // Don't intercept when a window has focus
     if (this.windowManager.getAllWindows().some(w => this.windowManager.windowHasFocus(w.windowId))) return;
 
