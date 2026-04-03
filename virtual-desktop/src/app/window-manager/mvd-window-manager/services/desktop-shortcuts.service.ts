@@ -269,8 +269,11 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   renameShortcut(shortcutId: string, newLabel: string, updateActionName?: boolean): boolean {
     const current = this.shortcuts$.value;
+    const target = current.find(s => s.id === shortcutId);
+    if (!target) return false;
+    // Scope duplicate check to the same container (folder or top-level desktop)
     const isDuplicate = current.some(s =>
-      s.id !== shortcutId && s.displayLabel === newLabel
+      s.id !== shortcutId && s.displayLabel === newLabel && (s.folderId || null) === (target.folderId || null)
     );
     if (isDuplicate) {
       return false;
@@ -472,6 +475,22 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     if (!target) return;
     const others = this.shortcuts$.value.filter(s => s !== target);
     const updatedShortcuts = [...others, { ...target, folderId, gridRow: -1, gridCol: -1 }];
+    const updatedFolders = this.folders$.value.map(f =>
+      f.id === folderId ? { ...f, modifiedDate: now } : f
+    );
+    this.saveAll(updatedShortcuts, updatedFolders);
+  }
+
+  /** Add multiple existing shortcuts to a folder atomically in a single save */
+  batchAddShortcutsToFolder(folderId: string, shortcutIds: string[]): void {
+    const now = new Date().toISOString();
+    const idSet = new Set(shortcutIds);
+    const updatedShortcuts = this.shortcuts$.value.map(s => {
+      if (idSet.has(s.id) && !s.folderId) {
+        return { ...s, folderId, gridRow: -1, gridCol: -1 };
+      }
+      return s;
+    });
     const updatedFolders = this.folders$.value.map(f =>
       f.id === folderId ? { ...f, modifiedDate: now } : f
     );
@@ -767,7 +786,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.saveAll(this.shortcuts$.value, folders);
   }
 
-  private saveAll(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): void {
+  saveAll(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): void {
     const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
       ZoweZLUX.pluginManager.getDesktopPlugin(), this.scope, this.resourcePath, this.fileName
     );
