@@ -888,7 +888,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
             this.wallpaper.background = temp;
             const notifTitle = this.translation.translate("Personalization");
             let notifMessage;
-            if (error.status = 413) //payload too large
+            if (error.status === 413) //payload too large
             { // Needs translations
               notifMessage = `Wallpaper changed failed: Server supports a max size of '` + DESKTOP_WALLPAPER_MAX_SIZE + `' mb.`;
             } else {
