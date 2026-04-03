@@ -550,8 +550,15 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       const target = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.folderPreviewTargetKey);
       if (target) {
         const folder = this.shortcutsService.createFolderFromShortcuts(target, this.dragSourceShortcut);
-        // Auto-rename after creation
-        setTimeout(() => { this.renameFolderTargetId = folder.id; }, 200);
+        // Auto-rename once the folder appears in the reactive stream
+        this.shortcutsService.folders$.pipe(
+          skip(1),
+          first()
+        ).subscribe(folders => {
+          if (folders.some(f => f.id === folder.id)) {
+            this.renameFolderTargetId = folder.id;
+          }
+        });
       }
       this.dragConsumed = true;
     }
@@ -788,7 +795,14 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const col = Math.min(this.maxGridCols - 1, Math.max(0, Math.floor((clientX - this.gridPadding) / this.iconCellWidth)));
     const row = Math.min(this.maxGridRows - 1, Math.max(0, Math.floor((clientY - this.gridPadding) / this.iconCellHeight)));
     const folder = this.shortcutsService.createFolder('New Folder', row, col, []);
-    setTimeout(() => { this.renameFolderTargetId = folder.id; }, 200);
+    this.shortcutsService.folders$.pipe(
+      skip(1),
+      first()
+    ).subscribe(folders => {
+      if (folders.some(f => f.id === folder.id)) {
+        this.renameFolderTargetId = folder.id;
+      }
+    });
   }
 
   private createNewFileShortcut(): void {
