@@ -190,7 +190,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onIconSelected(shortcut: DesktopShortcut): void {
-    this.highlightedIconId = shortcut.pluginId + (shortcut.action?.id || '');
+    this.highlightedIconId = shortcut.id;
   }
 
   onIconClicked(event: { shortcut: DesktopShortcut; ctrlKey: boolean }): void {
@@ -905,6 +905,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       this.propertiesShortcut = null;
     } else if (this.openFolderId) {
       this.openFolderId = null;
+    } else if (this.selectedKeys.size > 0 || this.highlightedIconId || this.highlightedFolderId) {
+      this.selectedKeys.clear();
+      this.highlightedIconId = null;
+      this.highlightedFolderId = null;
     }
   }
 
@@ -937,6 +941,21 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       case 'Enter':
         event.preventDefault();
         this.openHighlightedItem();
+        break;
+      case 'Delete':
+      case 'Backspace':
+        event.preventDefault();
+        this.deleteSelectedItems();
+        break;
+      case 'F2':
+        event.preventDefault();
+        this.renameHighlightedItem();
+        break;
+      case 'a':
+        if (event.ctrlKey || event.metaKey) {
+          event.preventDefault();
+          this.selectAllItems();
+        }
         break;
     }
   }
@@ -1054,6 +1073,53 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     } else if (this.highlightedFolderId) {
       const folder = this.folders.find(f => f.id === this.highlightedFolderId);
       if (folder) { this.onFolderOpened(folder); }
+    }
+  }
+
+  private deleteSelectedItems(): void {
+    const keysToDelete = this.selectedKeys.size > 0
+      ? new Set(this.selectedKeys)
+      : this.highlightedIconId
+        ? new Set([this.highlightedIconId])
+        : this.highlightedFolderId
+          ? new Set(['folder:' + this.highlightedFolderId])
+          : null;
+    if (!keysToDelete || keysToDelete.size === 0) return;
+    const shortcutIds: string[] = [];
+    const folderIds: string[] = [];
+    for (const key of keysToDelete) {
+      if (key.startsWith('folder:')) {
+        folderIds.push(key.substring(7));
+      } else {
+        const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === key);
+        if (shortcut) {
+          shortcutIds.push(shortcut.id);
+        }
+      }
+    }
+    if (shortcutIds.length > 0 || folderIds.length > 0) {
+      this.shortcutsService.batchDeleteItems(shortcutIds, folderIds);
+    }
+    this.selectedKeys.clear();
+    this.highlightedIconId = null;
+    this.highlightedFolderId = null;
+  }
+
+  private renameHighlightedItem(): void {
+    if (this.highlightedIconId) {
+      this.renameTargetKey = this.highlightedIconId;
+    } else if (this.highlightedFolderId) {
+      this.renameFolderTargetId = this.highlightedFolderId;
+    }
+  }
+
+  private selectAllItems(): void {
+    this.selectedKeys.clear();
+    for (const s of this.topLevelShortcuts) {
+      this.selectedKeys.add(this.getShortcutKey(s));
+    }
+    for (const f of this.folders) {
+      this.selectedKeys.add('folder:' + f.id);
     }
   }
 

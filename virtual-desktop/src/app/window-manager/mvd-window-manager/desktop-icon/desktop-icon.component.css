@@ -20,6 +20,7 @@
   border-radius: 4px;
   border: 1px solid transparent;
   box-sizing: border-box;
+  transition: left 0.15s ease-out, top 0.15s ease-out;
 }
 
 .desktop-icon:hover {
@@ -33,6 +34,7 @@
 
 .desktop-icon.dragging {
   opacity: 0.8;
+  transition: none;
 }
 
 .desktop-icon-image {

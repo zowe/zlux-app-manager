@@ -95,9 +95,7 @@ export class DesktopIconComponent {
     if (duplicates.length <= 1) {
       return baseLabel;
     }
-    const idx = duplicates.findIndex(s =>
-      s.gridRow === this.shortcut.gridRow && s.gridCol === this.shortcut.gridCol
-    );
+    const idx = duplicates.findIndex(s => s.id === this.shortcut.id);
     return idx > 0 ? baseLabel + ' (' + (idx + 1) + ')' : baseLabel;
   }
 
@@ -177,7 +175,7 @@ export class DesktopIconComponent {
       return;
     }
     const isDuplicate = this.allShortcuts.some(s =>
-      !(s.gridRow === this.shortcut.gridRow && s.gridCol === this.shortcut.gridCol)
+      s.id !== this.shortcut.id
       && (s.displayLabel || '') === trimmed
     );
     if (isDuplicate) {
@@ -244,7 +242,7 @@ export class DesktopIconComponent {
       const newRow = Math.min(this.maxGridRows - 1, Math.max(0, Math.round((this.dragTop - this.gridPadding) / this.iconCellHeight)));
 
       const occupied = this.allShortcuts.some(s =>
-        s.pluginId !== this.shortcut.pluginId && s.gridRow === newRow && s.gridCol === newCol
+        s.id !== this.shortcut.id && s.gridRow === newRow && s.gridCol === newCol
       );
 
       if (!occupied && (newRow !== this.shortcut.gridRow || newCol !== this.shortcut.gridCol)) {
