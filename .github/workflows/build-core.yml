@@ -156,39 +156,6 @@ jobs:
         env:
           JF_ARTIFACTORY_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
           
-      - name: '[Test] Inspect JF_ARTIFACTORY_TOKEN format'
-        run: |
-          echo "=== Token length ==="
-          echo "${#JF_ARTIFACTORY_TOKEN} characters"
-          
-          echo "=== First 20 chars after decode (masked) ==="
-          DECODED=$(echo "$JF_ARTIFACTORY_TOKEN" | base64 --decode 2>/dev/null || echo "DECODE_FAILED")
-          
-          if [ "$DECODED" = "DECODE_FAILED" ]; then
-            echo "❌ Not valid base64"
-          else
-            echo "Decoded length: ${#DECODED} characters"
-            echo "First char: $(echo "$DECODED" | head -c 1)"
-            
-            if echo "$DECODED" | head -c 1 | grep -q '{'; then
-              echo "✅ Looks like JSON"
-              echo "--- Keys ---"
-              echo "$DECODED" | jq -r 'keys[]' 2>/dev/null || echo "❌ Invalid JSON"
-              echo "--- URL ---"
-              echo "$DECODED" | jq -r '.url // .artifactoryUrl // "NO_URL_FOUND"' 2>/dev/null || echo "❌ Could not extract URL"
-            else
-              echo "⚠️ Not JSON - might be a raw connection string or multiline value"
-              echo "Number of lines: $(echo "$DECODED" | wc -l)"
-              echo "Contains 'jfrog': $(echo "$DECODED" | grep -c 'jfrog' || echo '0')"
-              echo "Contains 'http': $(echo "$DECODED" | grep -c 'http' || echo '0')"
-              
-              echo "--- Extracting any URLs found ---"
-              echo "$DECODED" | grep -oP 'https?://[^\s"]+' || echo "No URLs found"
-            fi
-          fi
-        env:
-          JF_ARTIFACTORY_TOKEN: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
-
       - name: '[Prep 4] prepare workflow'
         uses: zowe-actions/zlux-builds/core/prepare@v3.x/main
         with:
