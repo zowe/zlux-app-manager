@@ -793,6 +793,15 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     }
   }
 
+  clearFocusedWindow(): void {
+    this.focusedWindow = null;
+    this.setDesktopTitle();
+  }
+
+  hasFocusedWindow(): boolean {
+    return this.focusedWindow !== null;
+  }
+
   getWindowEvents(windowId: MVDWindowManagement.WindowId): LocalWindowEvents {
     const desktopWindow = this.windowMap.get(windowId);
     if (desktopWindow == null) {
