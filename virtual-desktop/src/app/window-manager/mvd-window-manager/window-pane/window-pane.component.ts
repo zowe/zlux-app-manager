@@ -793,6 +793,12 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     event.preventDefault();
     event.stopPropagation();
     const menuItems: ContextMenuItem[] = [];
+    if (this.shortcutsService.canUndoDelete) {
+      menuItems.push({
+        text: this.translation.translate('Undo Delete'),
+        action: () => this.shortcutsService.undoLastDelete()
+      });
+    }
     menuItems.push({
       text: this.translation.translate('New Folder'),
       action: () => this.createDesktopFolder(event.clientX, event.clientY)
@@ -992,6 +998,12 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         if (event.ctrlKey || event.metaKey) {
           event.preventDefault();
           this.selectAllItems();
+        }
+        break;
+      case 'z':
+        if (event.ctrlKey || event.metaKey) {
+          event.preventDefault();
+          this.shortcutsService.undoLastDelete();
         }
         break;
     }

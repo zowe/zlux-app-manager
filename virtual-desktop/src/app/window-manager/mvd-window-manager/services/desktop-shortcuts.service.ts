@@ -72,6 +72,13 @@ export interface DesktopFolder {
   lastOpenedDate: string;
 }
 
+export interface DeletionUndoSnapshot {
+  shortcuts: DesktopShortcut[];
+  folders: DesktopFolder[];
+  pinnedFolderIds: string[];
+  launchMenuFolderIds: string[];
+}
+
 @Injectable()
 export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
@@ -106,6 +113,9 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
    *  Used by findNextAvailablePosition() to place new shortcuts within the visible area. */
   maxGridRows: number = 20;
   maxGridCols: number = 20;
+
+  private static readonly MAX_UNDO_DEPTH = 10;
+  private deletionUndoStack: DeletionUndoSnapshot[] = [];
 
   /** Called by the desktop component whenever the viewport or icon size changes. */
   updateGridLimits(rows: number, cols: number): void {
@@ -255,6 +265,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   removeShortcutById(shortcutId: string): void {
+    this.pushDeletionSnapshot();
     const updated = this.shortcuts$.value.filter(s => s.id !== shortcutId);
     this.saveShortcuts(updated);
   }
@@ -672,6 +683,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /** Delete multiple shortcuts and folders atomically in a single save */
   batchDeleteItems(shortcutIds: string[], folderIds: string[]): void {
+    this.pushDeletionSnapshot();
     const shortcutIdSet = new Set(shortcutIds);
     const folderIdSet = new Set(folderIds);
 
@@ -694,6 +706,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   deleteFolder(folderId: string): void {
+    this.pushDeletionSnapshot();
     const updatedFolders = this.folders$.value.filter(f => f.id !== folderId);
     const updatedShortcuts = this.releaseShortcutsFromFolder([...this.shortcuts$.value], folderId);
     // Also remove from pinned and launch menu lists
@@ -808,6 +821,31 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   /** Save only shortcuts, preserving current folders */
   private saveShortcuts(shortcuts: DesktopShortcut[]): void {
     this.saveAll(shortcuts, this.folders$.value);
+  }
+
+  private pushDeletionSnapshot(): void {
+    this.deletionUndoStack.push({
+      shortcuts: JSON.parse(JSON.stringify(this.shortcuts$.value)),
+      folders: JSON.parse(JSON.stringify(this.folders$.value)),
+      pinnedFolderIds: [...this.pinnedFolderIds$.value],
+      launchMenuFolderIds: [...this.launchMenuFolderIds$.value]
+    });
+    if (this.deletionUndoStack.length > DesktopShortcutsService.MAX_UNDO_DEPTH) {
+      this.deletionUndoStack.shift();
+    }
+  }
+
+  get canUndoDelete(): boolean {
+    return this.deletionUndoStack.length > 0;
+  }
+
+  undoLastDelete(): boolean {
+    const snapshot = this.deletionUndoStack.pop();
+    if (!snapshot) return false;
+    this.pinnedFolderIds$.next(snapshot.pinnedFolderIds);
+    this.launchMenuFolderIds$.next(snapshot.launchMenuFolderIds);
+    this.saveAll(snapshot.shortcuts, snapshot.folders);
+    return true;
   }
 
   /** Notify the user via Zowe notification center when a save operation fails */
