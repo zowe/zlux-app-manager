@@ -686,6 +686,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.marqueeCurrentY = event.clientY;
     if (!event.ctrlKey) {
       this.selectedKeys.clear();
+      this.highlightedIconId = null;
+      this.highlightedFolderId = null;
     }
     window.addEventListener('mousemove', this.boundMarqueeMove);
     window.addEventListener('mouseup', this.boundMarqueeUp);
