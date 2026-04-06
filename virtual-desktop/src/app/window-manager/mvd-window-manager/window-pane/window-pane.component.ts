@@ -70,6 +70,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   private boundMarqueeMove: (e: MouseEvent) => void;
   private boundMarqueeUp: (e: MouseEvent) => void;
   private marqueeJustEnded = false;
+  private justDefocusedWindow = false;
   renameFolderTargetId: string | null = null;
   folderPreviewTargetKey: string | null = null;
   folderPreviewIcons: { url: string | null; label: string }[] = [];
@@ -196,6 +197,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onIconClicked(event: { shortcut: DesktopShortcut; ctrlKey: boolean }): void {
+    this.windowManager.clearFocusedWindow();
     const key = this.getShortcutKey(event.shortcut);
     if (event.ctrlKey) {
       // Ctrl+click: toggle this item in/out of the selection
@@ -217,6 +219,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onFolderClicked(event: { folder: DesktopFolder; ctrlKey: boolean }): void {
+    this.windowManager.clearFocusedWindow();
     const key = 'folder:' + event.folder.id;
     if (event.ctrlKey) {
       if (this.selectedKeys.has(key)) {
@@ -659,6 +662,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
   onDesktopClick(event: MouseEvent): void {
     if (event.target !== event.currentTarget) return;
+    if (this.justDefocusedWindow) {
+      this.justDefocusedWindow = false;
+      return;
+    }
     if (this.marqueeJustEnded) {
       this.marqueeJustEnded = false;
       return;
@@ -680,6 +687,11 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     // Only start marquee from the desktop background itself (not from icons/windows)
     if (event.target !== event.currentTarget) return;
     if (event.button !== 0) return;
+    if (this.windowManager.hasFocusedWindow()) {
+      this.windowManager.clearFocusedWindow();
+      this.justDefocusedWindow = true;
+      return;
+    }
     this.marqueeActive = true;
     this.marqueeStartX = event.clientX;
     this.marqueeStartY = event.clientY;
