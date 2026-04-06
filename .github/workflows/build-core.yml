@@ -155,6 +155,7 @@ jobs:
         uses: jfrog/setup-jfrog-cli@v5
         env:
           JF_ARTIFACTORY_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
+          JF_URL: ${{ secrets.JF_URL }}
 
       - name: '[Prep 4] prepare workflow'
         uses: zowe-actions/zlux-builds/core/prepare@v3.x/main
