@@ -464,6 +464,14 @@ export class DesktopFolderComponent {
       this.expandedRenameError = true;
       return;
     }
+    const isDuplicate = this.childShortcuts.some(s =>
+      s.id !== this.expandedRenameShortcut!.id
+      && (s.displayLabel || '') === trimmed
+    );
+    if (isDuplicate) {
+      this.expandedRenameError = true;
+      return;
+    }
     this.expandedRenameError = false;
     const shortcut = this.expandedRenameShortcut;
     this.expandedRenameShortcut = null;

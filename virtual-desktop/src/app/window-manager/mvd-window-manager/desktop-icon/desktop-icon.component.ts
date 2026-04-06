@@ -9,7 +9,7 @@
 */
 
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { DesktopShortcut } from '../services/desktop-shortcuts.service';
+import { DesktopShortcut, DesktopFolder } from '../services/desktop-shortcuts.service';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 
 const DRAG_THRESHOLD = 5;
@@ -26,6 +26,7 @@ export class DesktopIconComponent {
   @Input() showFolderPreview: boolean = false;
   @Input() folderPreviewIcons: { url: string | null; label: string }[] = [];
   @Input() allShortcuts: DesktopShortcut[] = [];
+  @Input() allFolders: DesktopFolder[] = [];
   @Input() maxGridRows: number = 20;
   @Input() maxGridCols: number = 20;
   @Input() iconCellWidth: number = 90;
@@ -243,7 +244,7 @@ export class DesktopIconComponent {
 
       const occupied = this.allShortcuts.some(s =>
         s.id !== this.shortcut.id && s.gridRow === newRow && s.gridCol === newCol
-      );
+      ) || this.allFolders.some(f => f.gridRow === newRow && f.gridCol === newCol);
 
       if (!occupied && (newRow !== this.shortcut.gridRow || newCol !== this.shortcut.gridCol)) {
         this.iconMoved.emit({ shortcut: this.shortcut, newRow, newCol });
