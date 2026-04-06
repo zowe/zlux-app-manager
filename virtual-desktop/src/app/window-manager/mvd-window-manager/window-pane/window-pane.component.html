@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="window-pane" [ngStyle]="wallpaper" id="ZAP_DesktopHome_Wallpaper" (click)="onDesktopClick()" (contextmenu)="onDesktopRightClick($event)" (mousedown)="onDesktopMouseDown($event)">
+<div class="window-pane" [ngStyle]="wallpaper" id="ZAP_DesktopHome_Wallpaper" (click)="onDesktopClick($event)" (contextmenu)="onDesktopRightClick($event)" (mousedown)="onDesktopMouseDown($event)">
   <rs-com-desktop-icon
     *ngFor="let shortcut of topLevelShortcuts"
     [shortcut]="shortcut"

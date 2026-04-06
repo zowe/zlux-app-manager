@@ -657,7 +657,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.dragSourceShortcut = null;
   }
 
-  onDesktopClick(): void {
+  onDesktopClick(event: MouseEvent): void {
+    if (event.target !== event.currentTarget) return;
     if (this.marqueeJustEnded) {
       this.marqueeJustEnded = false;
       return;
