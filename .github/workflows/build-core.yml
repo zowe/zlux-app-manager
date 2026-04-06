@@ -154,6 +154,7 @@ jobs:
       - name: '[Prep 3] Setup jFrog CLI'
         uses: jfrog/setup-jfrog-cli@v5
         env:
+          JF_URL: ${{ secrets.JF_URL }}
           JF_ARTIFACTORY_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
 
       - name: '[Prep 4] prepare workflow'
