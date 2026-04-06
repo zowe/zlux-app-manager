@@ -102,6 +102,17 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   pinnedFolderIds$ = new BehaviorSubject<string[]>([]);
   launchMenuFolderIds$ = new BehaviorSubject<string[]>([]);
 
+  /** Viewport-proportional grid limits, updated by WindowPaneComponent on resize/theme change.
+   *  Used by findNextAvailablePosition() to place new shortcuts within the visible area. */
+  maxGridRows: number = 20;
+  maxGridCols: number = 20;
+
+  /** Called by the desktop component whenever the viewport or icon size changes. */
+  updateGridLimits(rows: number, cols: number): void {
+    this.maxGridRows = rows;
+    this.maxGridCols = cols;
+  }
+
   private static generateFolderId(): string {
     return 'folder-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 8);
   }
@@ -417,10 +428,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       ...topLevelShortcuts.map(s => `${s.gridRow},${s.gridCol}`),
       ...folders.map(f => `${f.gridRow},${f.gridCol}`)
     ]);
-    const maxRows = 20;
-    const maxCols = 20;
-    for (let col = 0; col < maxCols; col++) {
-      for (let row = 0; row < maxRows; row++) {
+    for (let col = 0; col < this.maxGridCols; col++) {
+      for (let row = 0; row < this.maxGridRows; row++) {
         if (!occupied.has(`${row},${col}`)) {
           return { row, col };
         }
@@ -761,7 +770,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     const params = { shortcuts: this.shortcuts$.value, folders: this.folders$.value, pinnedFolderIds: this.pinnedFolderIds$.value, launchMenuFolderIds: ids };
     this.http.put(uri, params).subscribe(
       () => { this.launchMenuFolderIds$.next(ids); },
-      (err) => { this.logger.warn('Could not save launch menu folder IDs', err); }
+      (err) => {
+        this.logger.warn('Could not save launch menu folder IDs', err);
+        this.notifySaveError(err);
+      }
     );
   }
 
@@ -772,18 +784,11 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     const params = { shortcuts: this.shortcuts$.value, folders: this.folders$.value, pinnedFolderIds: ids, launchMenuFolderIds: this.launchMenuFolderIds$.value };
     this.http.put(uri, params).subscribe(
       () => { this.pinnedFolderIds$.next(ids); },
-      (err) => { this.logger.warn('Could not save pinned folder IDs', err); }
+      (err) => {
+        this.logger.warn('Could not save pinned folder IDs', err);
+        this.notifySaveError(err);
+      }
     );
-  }
-
-  /** Save shortcuts directly (e.g. after reflowing out-of-bounds icons on resize) */
-  saveShortcutsDirect(shortcuts: DesktopShortcut[]): void {
-    this.saveAll(shortcuts, this.folders$.value);
-  }
-
-  /** Save folders directly (e.g. after reflowing out-of-bounds folders on resize) */
-  saveFoldersDirect(folders: DesktopFolder[]): void {
-    this.saveAll(this.shortcuts$.value, folders);
   }
 
   saveAll(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): void {
@@ -798,6 +803,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       },
       (err) => {
         this.logger.warn('Could not save desktop shortcuts', err);
+        this.notifySaveError(err);
       }
     );
   }
@@ -805,6 +811,19 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   /** Save only shortcuts, preserving current folders */
   private saveShortcuts(shortcuts: DesktopShortcut[]): void {
     this.saveAll(shortcuts, this.folders$.value);
+  }
+
+  /** Notify the user via Zowe notification center when a save operation fails */
+  private notifySaveError(err: any): void {
+    const status = err?.status ? ` (${err.status})` : '';
+    ZoweZLUX.notificationManager.notify(
+      ZoweZLUX.notificationManager.createNotification(
+        'Desktop Shortcuts',
+        `Your desktop changes could not be saved${status}. They will be lost on next login.`,
+        1,
+        'org.zowe.zlux.ng2desktop'
+      )
+    );
   }
 
   private getResource(): Observable<HttpResponse<any>> {

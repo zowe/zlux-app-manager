@@ -1077,19 +1077,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }
   }
 
+  /** Open only the currently highlighted (focused) item — not the entire selection.
+   *  This matches Windows 11 behavior: selection is for batch delete/move, Enter opens the focused item. */
   private openHighlightedItem(): void {
-    if (this.selectedKeys.size > 0) {
-      // Launch all selected items
-      for (const key of this.selectedKeys) {
-        if (key.startsWith('folder:')) {
-          const folder = this.folders.find(f => f.id === key.substring(7));
-          if (folder) { this.onFolderOpened(folder); }
-        } else {
-          const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === key);
-          if (shortcut) { this.onIconLaunched(shortcut); }
-        }
-      }
-    } else if (this.highlightedIconId) {
+    if (this.highlightedIconId) {
       const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.highlightedIconId);
       if (shortcut) { this.onIconLaunched(shortcut); }
     } else if (this.highlightedFolderId) {
@@ -1230,6 +1221,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   private updateGridDimensions(): void {
     this.maxGridCols = Math.max(1, Math.floor((window.innerWidth - this.gridPadding) / this.iconCellWidth));
     this.maxGridRows = Math.max(1, Math.floor((window.innerHeight - this.gridPadding) / this.iconCellHeight));
+    // Keep the service in sync so new shortcuts are placed within the visible grid
+    this.shortcutsService.updateGridLimits(this.maxGridRows, this.maxGridCols);
   }
 
   private reflowOutOfBoundsIcons(): void {
