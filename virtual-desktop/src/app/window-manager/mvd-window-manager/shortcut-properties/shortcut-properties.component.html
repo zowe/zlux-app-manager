@@ -40,6 +40,10 @@
           <span class="shortcut-properties-label">Plugin ID</span>
           <span class="shortcut-properties-value shortcut-properties-mono">{{ pluginId }}</span>
         </div>
+        <div class="shortcut-properties-row" *ngIf="pluginVersion">
+          <span class="shortcut-properties-label">Version</span>
+          <span class="shortcut-properties-value">{{ pluginVersion }}</span>
+        </div>
         <div class="shortcut-properties-row">
           <span class="shortcut-properties-label">Created</span>
           <span class="shortcut-properties-value">{{ createdDate }}</span>

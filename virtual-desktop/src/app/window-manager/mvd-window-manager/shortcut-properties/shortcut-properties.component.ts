@@ -27,6 +27,7 @@ export class ShortcutPropertiesComponent implements OnInit {
   originalName: string = '';
   displayName: string = '';
   pluginId: string = '';
+  pluginVersion: string = '';
   iconUrl: string = '';
   createdDate: string = '';
   modifiedDate: string = '';
@@ -45,6 +46,7 @@ export class ShortcutPropertiesComponent implements OnInit {
     this.originalName = this.plugin?.label || this.shortcut.pluginId;
     this.displayName = this.shortcut.displayLabel || this.originalName;
     this.pluginId = this.shortcut.pluginId;
+    this.pluginVersion = this.plugin?.getBasePlugin()?.getVersion?.() || '';
     this.iconUrl = this.shortcut.displayIcon || this.plugin?.image || '';
     this.newIconUrl = this.shortcut.displayIcon || this.plugin?.image || '';
     this.createdDate = this.formatDateTime(this.shortcut.createdDate);
