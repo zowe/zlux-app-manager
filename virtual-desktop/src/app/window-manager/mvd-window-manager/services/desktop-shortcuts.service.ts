@@ -651,6 +651,25 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.saveAll(updatedShortcuts, updatedFolders);
   }
 
+  /** Move all shortcuts belonging to a folder back to the top-level desktop grid.
+   *  Each orphaned shortcut is assigned the nearest available position.
+   *  Returns a new shortcuts array with the folderId cleared and positions assigned. */
+  private releaseShortcutsFromFolder(shortcuts: DesktopShortcut[], folderId: string): DesktopShortcut[] {
+    let updated = shortcuts;
+    const inFolder = updated.filter(s => s.folderId === folderId);
+    for (const s of inFolder) {
+      const position = this.findNextAvailablePosition(updated.filter(sc => !sc.folderId));
+      updated = updated.map(sc => {
+        if (sc === s) {
+          const { folderId: _, ...rest } = sc;
+          return { ...rest, gridRow: position.row, gridCol: position.col };
+        }
+        return sc;
+      });
+    }
+    return updated;
+  }
+
   /** Delete multiple shortcuts and folders atomically in a single save */
   batchDeleteItems(shortcutIds: string[], folderIds: string[]): void {
     const shortcutIdSet = new Set(shortcutIds);
@@ -662,17 +681,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     // For each deleted folder, move its contained shortcuts back to the desktop grid
     let updatedFolders = this.folders$.value.filter(f => !folderIdSet.has(f.id));
     for (const folderId of folderIds) {
-      const inFolder = updatedShortcuts.filter(s => s.folderId === folderId);
-      for (const s of inFolder) {
-        const position = this.findNextAvailablePosition(updatedShortcuts.filter(sc => !sc.folderId));
-        updatedShortcuts = updatedShortcuts.map(sc => {
-          if (sc === s) {
-            const { folderId: _, ...rest } = sc;
-            return { ...rest, gridRow: position.row, gridCol: position.col };
-          }
-          return sc;
-        });
-      }
+      updatedShortcuts = this.releaseShortcutsFromFolder(updatedShortcuts, folderId);
     }
 
     // Also remove from pinned and launch menu lists
@@ -686,19 +695,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   deleteFolder(folderId: string): void {
     const updatedFolders = this.folders$.value.filter(f => f.id !== folderId);
-    // Move contained shortcuts back to the desktop grid
-    let updatedShortcuts = [...this.shortcuts$.value];
-    const inFolder = updatedShortcuts.filter(s => s.folderId === folderId);
-    for (const s of inFolder) {
-      const position = this.findNextAvailablePosition(updatedShortcuts.filter(sc => !sc.folderId));
-      updatedShortcuts = updatedShortcuts.map(sc => {
-        if (sc === s) {
-          const { folderId: _, ...rest } = sc;
-          return { ...rest, gridRow: position.row, gridCol: position.col };
-        }
-        return sc;
-      });
-    }
+    const updatedShortcuts = this.releaseShortcutsFromFolder([...this.shortcuts$.value], folderId);
     // Also remove from pinned and launch menu lists
     const updatedPinned = this.pinnedFolderIds$.value.filter(id => id !== folderId);
     const updatedLaunchMenu = this.launchMenuFolderIds$.value.filter(id => id !== folderId);
