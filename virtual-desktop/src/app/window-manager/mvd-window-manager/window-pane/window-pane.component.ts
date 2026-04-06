@@ -61,6 +61,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   openFolderId: string | null = null;
   selectedKeys: Set<string> = new Set();
   marqueeActive = false;
+  marqueeFadingOut = false;
+  private marqueeFadeTimer: any = null;
   marqueeStartX = 0;
   marqueeStartY = 0;
   marqueeCurrentX = 0;
@@ -701,7 +703,11 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.updateMarqueeSelection(event.ctrlKey);
     const wasRealDrag = this.getMarqueeRect().width >= 5 || this.getMarqueeRect().height >= 5;
     this.marqueeActive = false;
+    // Fade out the marquee rectangle before removing it from the DOM
     if (wasRealDrag) {
+      this.marqueeFadingOut = true;
+      if (this.marqueeFadeTimer) clearTimeout(this.marqueeFadeTimer);
+      this.marqueeFadeTimer = setTimeout(() => { this.marqueeFadingOut = false; }, 150);
       this.marqueeJustEnded = true;
       setTimeout(() => { this.marqueeJustEnded = false; });
     }

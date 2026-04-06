@@ -77,7 +77,7 @@
     (shortcutRenamed)="onFolderShortcutRenamed($event)"
     (shortcutRenameCancelled)="onFolderShortcutRenameCancelled($event)">
   </rs-com-desktop-folder>
-  <div *ngIf="marqueeActive" class="marquee-selection" [ngStyle]="marqueeStyle"></div>
+  <div *ngIf="marqueeActive || marqueeFadingOut" class="marquee-selection" [class.marquee-fadeout]="marqueeFadingOut" [ngStyle]="marqueeStyle"></div>
   <div *ngFor="let window of windows">
     <rs-com-mvd-window [desktopWindow]="window" [theme]="theme"></rs-com-mvd-window>
   </div>
