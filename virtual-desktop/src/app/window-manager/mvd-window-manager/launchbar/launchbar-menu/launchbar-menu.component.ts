@@ -418,7 +418,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
         }
       }));
       menuItems.splice(menuItems.length - 1, 0, {
-        text: 'Add to Folder',
+        text: this.translation.translate('Add to Folder'),
         children: addToFolderItems
       });
     }
@@ -439,19 +439,19 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     const isPinned = this.shortcutsService.isFolderPinned(folder.id);
     const menuItems: ContextMenuItem[] = [
       {
-        text: 'Open Folder',
+        text: this.translation.translate('Open Folder'),
         action: () => this.folderClicked(folder)
       },
       {
-        text: isPinned ? 'Unpin from Taskbar' : 'Pin to Taskbar',
+        text: isPinned ? this.translation.translate('Unpin from Taskbar') : this.translation.translate('Pin to Taskbar'),
         action: () => isPinned ? this.shortcutsService.unpinFolder(folder.id) : this.shortcutsService.pinFolder(folder.id)
       },
       {
-        text: 'Unpin from Launch Menu',
+        text: this.translation.translate('Unpin from Launch Menu'),
         action: () => this.shortcutsService.unpinFromLaunchMenu(folder.id)
       },
       {
-        text: 'Delete Folder',
+        text: this.translation.translate('Delete Folder'),
         action: () => this.shortcutsService.deleteFolder(folder.id)
       }
     ];

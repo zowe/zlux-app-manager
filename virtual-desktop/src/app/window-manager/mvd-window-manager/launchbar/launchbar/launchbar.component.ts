@@ -181,11 +181,11 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
     event.stopPropagation();
     const menuItems: ContextMenuItem[] = [
       {
-        text: 'Open Folder',
+        text: this.translation.translate('Open Folder'),
         action: () => this.onPinnedFolderClick(folder)
       },
       {
-        text: 'Unpin from Taskbar',
+        text: this.translation.translate('Unpin from Taskbar'),
         action: () => this.shortcutsService.unpinFolder(folder.id)
       }
     ];

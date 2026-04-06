@@ -134,8 +134,8 @@ function getDesktopShortcutContext(item: LaunchbarItem, shortcutsService: Deskto
   const hasShortcut = shortcutsService.hasShortcut(pluginId);
   return {
     text: hasShortcut
-      ? 'Remove From Desktop'
-      : 'Add Shortcut To Desktop',
+      ? translationService.translate('Remove From Desktop')
+      : translationService.translate('Add Shortcut To Desktop'),
     action: () => {
       if (hasShortcut) {
         shortcutsService.removeShortcut(pluginId);

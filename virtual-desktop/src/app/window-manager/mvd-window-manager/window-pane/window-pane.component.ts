@@ -248,23 +248,23 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const plugin = this.pluginMap.get(shortcut.pluginId);
     const menuItems: ContextMenuItem[] = [
       {
-        text: 'Open',
+        text: this.translation.translate('Open'),
         action: () => this.onIconLaunched(shortcut)
       },
       {
-        text: 'Open in New Browser Tab',
+        text: this.translation.translate('Open in New Browser Tab'),
         action: () => this.openShortcutInNewTab(shortcut, plugin)
       },
       {
-        text: 'Rename',
+        text: this.translation.translate('Rename'),
         action: () => this.startIconRename(shortcut)
       },
       {
-        text: 'Remove From Desktop',
+        text: this.translation.translate('Remove From Desktop'),
         action: () => this.shortcutsService.removeShortcutById(shortcut.id)
       },
       {
-        text: 'Properties',
+        text: this.translation.translate('Properties'),
         action: () => { this.propertiesShortcut = shortcut; }
       }
     ];
@@ -272,7 +272,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     if (!shortcut.action) {
       const isPinned = this.pinnedPluginIds.has(shortcut.pluginId);
       menuItems.splice(2, 0, {
-        text: isPinned ? 'Unpin from Taskbar' : 'Pin to Taskbar',
+        text: isPinned ? this.translation.translate('Unpin from Taskbar') : this.translation.translate('Pin to Taskbar'),
         action: () => this.togglePinToLaunchbar(shortcut.pluginId, !isPinned)
       });
     }
@@ -299,6 +299,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
   onIconRenameCancelled(shortcut: DesktopShortcut): void {
     this.renameTargetKey = null;
+    // Auto-delete "New File" shortcuts that were never given a real name by the user.
+    // We check displayLabel === 'New File' because that's the default assigned at creation time.
+    // If the user partially renamed it before cancelling, we keep the shortcut since they may retry.
     if (shortcut.action?.launchMetadata?.data?.type === 'newFile' && shortcut.displayLabel === 'New File') {
       this.shortcutsService.removeShortcutById(shortcut.id);
     }
@@ -383,23 +386,23 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const isInLaunchMenu = this.shortcutsService.isFolderInLaunchMenu(folder.id);
     const menuItems: ContextMenuItem[] = [
       {
-        text: 'Open Folder',
+        text: this.translation.translate('Open Folder'),
         action: () => this.onFolderOpened(folder)
       },
       {
-        text: 'Rename',
+        text: this.translation.translate('Rename'),
         action: () => { this.renameFolderTargetId = folder.id; }
       },
       {
-        text: isPinned ? 'Unpin from Taskbar' : 'Pin to Taskbar',
+        text: isPinned ? this.translation.translate('Unpin from Taskbar') : this.translation.translate('Pin to Taskbar'),
         action: () => isPinned ? this.shortcutsService.unpinFolder(folder.id) : this.shortcutsService.pinFolder(folder.id)
       },
       {
-        text: isInLaunchMenu ? 'Unpin from Launch Menu' : 'Pin to Launch Menu',
+        text: isInLaunchMenu ? this.translation.translate('Unpin from Launch Menu') : this.translation.translate('Pin to Launch Menu'),
         action: () => isInLaunchMenu ? this.shortcutsService.unpinFromLaunchMenu(folder.id) : this.shortcutsService.pinToLaunchMenu(folder.id)
       },
       {
-        text: 'Delete Folder',
+        text: this.translation.translate('Delete Folder'),
         action: () => this.shortcutsService.deleteFolder(folder.id)
       }
     ];
@@ -783,12 +786,12 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     event.stopPropagation();
     const menuItems: ContextMenuItem[] = [];
     menuItems.push({
-      text: 'New Folder',
+      text: this.translation.translate('New Folder'),
       action: () => this.createDesktopFolder(event.clientX, event.clientY)
     });
     if (this.pluginMap.has('org.zowe.editor')) {
       menuItems.push({
-        text: 'Create New File',
+        text: this.translation.translate('Create New File'),
         action: () => this.createNewFileShortcut()
       });
     }
@@ -802,6 +805,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   private createDesktopFolder(clientX: number, clientY: number): void {
     const col = Math.min(this.maxGridCols - 1, Math.max(0, Math.floor((clientX - this.gridPadding) / this.iconCellWidth)));
     const row = Math.min(this.maxGridRows - 1, Math.max(0, Math.floor((clientY - this.gridPadding) / this.iconCellHeight)));
+    // Don't create a folder on a cell already occupied by a shortcut or another folder
+    const occupied = this.topLevelShortcuts.some(s => s.gridRow === row && s.gridCol === col)
+      || this.folders.some(f => f.gridRow === row && f.gridCol === col);
+    if (occupied) return;
     const folder = this.shortcutsService.createFolder('New Folder', row, col, []);
     this.shortcutsService.folders$.pipe(
       skip(1),
@@ -1077,19 +1084,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }
   }
 
+  /** Open only the currently highlighted (focused) item — not the entire selection.
+   *  This matches Windows 11 behavior: selection is for batch delete/move, Enter opens the focused item. */
   private openHighlightedItem(): void {
-    if (this.selectedKeys.size > 0) {
-      // Launch all selected items
-      for (const key of this.selectedKeys) {
-        if (key.startsWith('folder:')) {
-          const folder = this.folders.find(f => f.id === key.substring(7));
-          if (folder) { this.onFolderOpened(folder); }
-        } else {
-          const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === key);
-          if (shortcut) { this.onIconLaunched(shortcut); }
-        }
-      }
-    } else if (this.highlightedIconId) {
+    if (this.highlightedIconId) {
       const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.highlightedIconId);
       if (shortcut) { this.onIconLaunched(shortcut); }
     } else if (this.highlightedFolderId) {
@@ -1230,6 +1228,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   private updateGridDimensions(): void {
     this.maxGridCols = Math.max(1, Math.floor((window.innerWidth - this.gridPadding) / this.iconCellWidth));
     this.maxGridRows = Math.max(1, Math.floor((window.innerHeight - this.gridPadding) / this.iconCellHeight));
+    // Keep the service in sync so new shortcuts are placed within the visible grid
+    this.shortcutsService.updateGridLimits(this.maxGridRows, this.maxGridCols);
   }
 
   private reflowOutOfBoundsIcons(): void {

@@ -84,15 +84,13 @@ export class DesktopIconComponent {
     if (!baseLabel || !this.allShortcuts || this.allShortcuts.length <= 1) {
       return baseLabel;
     }
-    // Find all shortcuts with the same base label
-    const duplicates = this.allShortcuts.filter(s => {
-      const sLabel = s.displayLabel || '';
-      const thisLabel = this.shortcut?.displayLabel || '';
-      // For simple shortcuts (no displayLabel), use plugin label — these won't collide
-      // For action shortcuts with displayLabel, check for duplicates
-      if (!thisLabel) return false;
-      return sLabel === thisLabel;
-    });
+    // Find all shortcuts with the same displayLabel and sort by ID for a stable suffix.
+    // Without sorting, reordering the array (e.g. via drag) would shuffle the (2), (3) suffixes.
+    const thisLabel = this.shortcut?.displayLabel || '';
+    if (!thisLabel) return baseLabel;
+    const duplicates = this.allShortcuts
+      .filter(s => (s.displayLabel || '') === thisLabel)
+      .sort((a, b) => a.id.localeCompare(b.id));
     if (duplicates.length <= 1) {
       return baseLabel;
     }
