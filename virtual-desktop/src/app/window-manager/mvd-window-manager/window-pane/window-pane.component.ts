@@ -22,7 +22,7 @@ import { DesktopShortcut, DesktopFolder, DesktopShortcutsService } from '../serv
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { DesktopFolderComponent } from '../desktop-folder/desktop-folder.component';
 import { L10nTranslationService } from 'angular-l10n';
-import { delay, skip, first } from 'rxjs/operators';
+import { delay } from 'rxjs/operators';
 
 const DESKTOP_PLUGIN = ZoweZLUX.pluginManager.getDesktopPlugin();
 const DESKTOP_WALLPAPER_URI = ZoweZLUX.uriBroker.pluginConfigUri(DESKTOP_PLUGIN,'ui/themebin', 'wallpaper');
@@ -437,24 +437,20 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
   onShortcutRemovedFromFolder(event: { folder: DesktopFolder; shortcut: DesktopShortcut }): void {
     this.shortcutsService.removeShortcutFromFolder(event.folder.id, event.shortcut.id);
-    // Folder may be auto-deleted if it becomes empty — check after save completes
-    this.shortcutsService.folders$.pipe(skip(1), first()).subscribe(folders => {
-      if (!folders.some(f => f.id === event.folder.id)) {
-        this.openFolderId = null;
-      }
-    });
+    // Folder may be auto-deleted if it becomes empty
+    if (!this.shortcutsService.folders$.value.some(f => f.id === event.folder.id)) {
+      this.openFolderId = null;
+    }
   }
 
   onShortcutDraggedOutOfFolder(event: { folder: DesktopFolder; shortcut: DesktopShortcut; clientX: number; clientY: number }): void {
     const col = Math.min(this.maxGridCols - 1, Math.max(0, Math.floor((event.clientX - this.gridPadding) / this.iconCellWidth)));
     const row = Math.min(this.maxGridRows - 1, Math.max(0, Math.floor((event.clientY - this.gridPadding) / this.iconCellHeight)));
     this.shortcutsService.removeShortcutFromFolderToPosition(event.folder.id, event.shortcut.id, row, col);
-    // Folder may be auto-deleted if it becomes empty — check after save completes
-    this.shortcutsService.folders$.pipe(skip(1), first()).subscribe(folders => {
-      if (!folders.some(f => f.id === event.folder.id)) {
-        this.openFolderId = null;
-      }
-    });
+    // Folder may be auto-deleted if it becomes empty
+    if (!this.shortcutsService.folders$.value.some(f => f.id === event.folder.id)) {
+      this.openFolderId = null;
+    }
   }
 
   onShortcutReordered(event: { folder: DesktopFolder; newOrder: DesktopShortcut[] }): void {
@@ -566,15 +562,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       const target = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.folderPreviewTargetKey);
       if (target) {
         const folder = this.shortcutsService.createFolderFromShortcuts(target, this.dragSourceShortcut);
-        // Auto-rename once the folder appears in the reactive stream
-        this.shortcutsService.folders$.pipe(
-          skip(1),
-          first()
-        ).subscribe(folders => {
-          if (folders.some(f => f.id === folder.id)) {
-            this.renameFolderTargetId = folder.id;
-          }
-        });
+        if (this.shortcutsService.folders$.value.some(f => f.id === folder.id)) {
+          this.renameFolderTargetId = folder.id;
+        }
       }
       this.dragConsumed = true;
     }
@@ -837,14 +827,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       || this.folders.some(f => f.gridRow === row && f.gridCol === col);
     if (occupied) return;
     const folder = this.shortcutsService.createFolder('New Folder', row, col, []);
-    this.shortcutsService.folders$.pipe(
-      skip(1),
-      first()
-    ).subscribe(folders => {
-      if (folders.some(f => f.id === folder.id)) {
-        this.renameFolderTargetId = folder.id;
-      }
-    });
+    if (this.shortcutsService.folders$.value.some(f => f.id === folder.id)) {
+      this.renameFolderTargetId = folder.id;
+    }
   }
 
   private createNewFileShortcut(): void {
@@ -879,17 +864,16 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         launchMetadata: { data: { type: 'newFile', name: defaultLabel, directory: directory } }
       }
     };
+    const shortcutId = shortcut.id;
     this.shortcutsService.addActionShortcut(shortcut);
-    // Trigger rename once the shortcut appears in the reactive stream
-    this.shortcutsService.shortcuts$.pipe(
-      skip(1), // skip the current value, wait for the next emission (from saveAll)
-      first()
-    ).subscribe(shortcuts => {
-      const created = shortcuts.find(s => s.id === shortcut.id);
-      if (created) {
-        this.renameTargetKey = this.getShortcutKey(created);
-      }
-    });
+    // With optimistic updates, addActionShortcut synchronously emits to shortcuts$.
+    // Check the current value directly instead of using skip(1) which would
+    // miss the synchronous emission and wait for an unrelated future save.
+    const current = this.shortcutsService.shortcuts$.value;
+    const created = current.find(s => s.id === shortcutId);
+    if (created) {
+      this.renameTargetKey = this.getShortcutKey(created);
+    }
   }
 
   ngOnInit(): void {

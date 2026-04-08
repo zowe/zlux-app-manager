@@ -371,7 +371,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   /** Invoke a shortcut — either a plain launch or a dispatcher action */
   invokeShortcut(shortcut: DesktopShortcut, applicationManager: MVDHosting.ApplicationManagerInterface, pluginDef?: any): void {
     const targetId = shortcut.action?.targetPluginId || shortcut.pluginId;
-    if (!ZoweZLUX.pluginManager.getPlugin(targetId)) {
+    const targetPlugin = ZoweZLUX.pluginManager.getPlugin(targetId);
+    if (!targetPlugin) {
       this.logger.warn(`Cannot launch shortcut: plugin '${targetId}' is not installed`);
       ZoweZLUX.notificationManager.notify(
         ZoweZLUX.notificationManager.createNotification('Desktop Shortcut', `Cannot open shortcut: the required application '${targetId}' is not installed.`, 1, 'org.zowe.zlux.ng2desktop')
@@ -380,17 +381,26 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     }
     if (shortcut.action) {
       const actionDef = shortcut.action;
-      const targetMode = (ZoweZLUX.dispatcher.constants.ActionTargetMode as any)[actionDef.targetMode];
-      const actionType = (ZoweZLUX.dispatcher.constants.ActionType as any)[actionDef.type];
-      const action = ZoweZLUX.dispatcher.makeAction(
-        actionDef.id,
-        actionDef.name,
-        targetMode,
-        actionType,
-        actionDef.targetPluginId,
-        actionDef.primaryArgument || null
-      );
-      ZoweZLUX.dispatcher.invokeAction(action, actionDef.launchMetadata || {});
+      // For converted file shortcuts (openFile), spawn the editor directly with
+      // the launchMetadata so the editor receives it as LAUNCH_METADATA without
+      // any dispatcher primaryArgument transform that can corrupt the structure.
+      const dataType = actionDef.launchMetadata?.data?.type;
+      if (dataType === 'openFile' || dataType === 'newFile') {
+        const targetPluginDef = pluginDef || { basePlugin: targetPlugin, getBasePlugin: () => targetPlugin };
+        applicationManager.spawnApplication(targetPluginDef as any, actionDef.launchMetadata);
+      } else {
+        const targetMode = (ZoweZLUX.dispatcher.constants.ActionTargetMode as any)[actionDef.targetMode];
+        const actionType = (ZoweZLUX.dispatcher.constants.ActionType as any)[actionDef.type];
+        const action = ZoweZLUX.dispatcher.makeAction(
+          actionDef.id,
+          actionDef.name,
+          targetMode,
+          actionType,
+          actionDef.targetPluginId,
+          actionDef.primaryArgument || null
+        );
+        ZoweZLUX.dispatcher.invokeAction(action, actionDef.launchMetadata || {});
+      }
     } else if (pluginDef) {
       applicationManager.spawnApplication(pluginDef, null);
     }
@@ -802,15 +812,19 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   saveAll(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): void {
+    // Update local state immediately so subsequent reads (e.g. markShortcutOpened
+    // firing concurrently with convertNewFileShortcut) always see the newest data.
+    // Without this, competing HTTP PUTs read stale snapshots and the last response
+    // to arrive wins — which reverts conversions like newFile → openFile.
+    this.shortcuts$.next(shortcuts);
+    this.folders$.next(folders);
+
     const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
       ZoweZLUX.pluginManager.getDesktopPlugin(), this.scope, this.resourcePath, this.fileName
     );
     const params = { shortcuts, folders, pinnedFolderIds: this.pinnedFolderIds$.value, launchMenuFolderIds: this.launchMenuFolderIds$.value };
     this.http.put(uri, params).subscribe(
-      () => {
-        this.shortcuts$.next(shortcuts);
-        this.folders$.next(folders);
-      },
+      () => { /* state already applied optimistically above */ },
       (err) => {
         this.logger.warn('Could not save desktop shortcuts', err);
         this.notifySaveError(err);
