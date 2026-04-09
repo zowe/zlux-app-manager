@@ -138,12 +138,19 @@ function performBootstrap(): void {
 
 // set baseurl 
 const baseUrl = document.createElement('base');
-const currentPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-baseUrl.setAttribute("href", currentPath);
+const desktopUri = ZoweZLUX?.uriBroker.desktopRootUri();
+baseUrl.setAttribute("href", desktopUri);
 
 if (document.head) {
   document.head.appendChild(baseUrl);
 }
+
+try {
+  window.history.replaceState(null, '', desktopUri);
+} catch (e) {
+  console.warn('ZWED5170W - Could not align URL with desktop base URI:', e);
+}
+
 
 const element = document.createElement('rs-com-root');
 document.body.appendChild(element);
