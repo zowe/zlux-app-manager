@@ -83,7 +83,8 @@ function openStandalone(item: LaunchbarItem): void {
       window.open(`${location.origin}${ZoweZLUX.uriBroker.pluginResourceUri(item.plugin.getBasePlugin(), pluginWebContent.startingPage)}`);
     }
   } else {
-    window.open(`${location.href}?pluginId=${item.plugin.basePlugin.getIdentifier()}&showLogin=true`);
+    const baseHref = (window as any).__zowe_bootstrap_href || location.href;
+    window.open(`${baseHref}?pluginId=${item.plugin.basePlugin.getIdentifier()}&showLogin=true`);
   }
 }
 
