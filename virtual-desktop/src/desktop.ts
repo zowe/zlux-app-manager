@@ -148,7 +148,7 @@ if (document.head) {
 try {
   window.history.replaceState(null, '', desktopUri);
 } catch (e) {
-  console.warn('ZWED5170W - Could not align URL with desktop base URI:', e);
+  console.warn('Could not align URL with desktop base URI:', e);
 }
 
 
