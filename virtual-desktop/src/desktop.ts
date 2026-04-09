@@ -138,7 +138,8 @@ function performBootstrap(): void {
 
 // set baseurl 
 const baseUrl = document.createElement('base');
-baseUrl.setAttribute("href", ZoweZLUX?.uriBroker.desktopRootUri());
+const currentPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+baseUrl.setAttribute("href", currentPath);
 
 if (document.head) {
   document.head.appendChild(baseUrl);
