@@ -145,11 +145,28 @@ if (document.head) {
   document.head.appendChild(baseUrl);
 }
 
+const bootstrapHref = window.location.pathname + window.location.search + window.location.hash;
+(window as any).__zowe_bootstrap_href = window.location.href;
 try {
   window.history.replaceState(null, '', desktopUri);
 } catch (e) {
   console.warn('Could not align URL with desktop base URI:', e);
 }
+
+window.addEventListener('beforeunload', () => {
+  try {
+    window.history.replaceState(null, '', bootstrapHref);
+    setTimeout(() => {
+      try {
+        window.history.replaceState(null, '', desktopUri);
+      } catch(e) {
+        console.warn('Could not re-apply desktop URI after cancelled navigation:', e);
+      }
+    }, 0);
+  } catch(e) {
+    console.warn('Could not restore bootstrap URI during page unload:', e);
+  }
+});
 
 const element = document.createElement('rs-com-root');
 document.body.appendChild(element);
