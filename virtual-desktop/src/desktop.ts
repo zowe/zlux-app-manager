@@ -151,7 +151,6 @@ try {
   console.warn('Could not align URL with desktop base URI:', e);
 }
 
-
 const element = document.createElement('rs-com-root');
 document.body.appendChild(element);
 performBootstrap();
