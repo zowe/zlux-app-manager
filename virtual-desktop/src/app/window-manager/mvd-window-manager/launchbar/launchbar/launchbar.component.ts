@@ -155,7 +155,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
      });
 
      // Listen for pin/unpin changes from the desktop context menu
-     window.addEventListener('desktop-pinned-plugins-changed', () => {
+     window.addEventListener('zlux_desktop-pinned-plugins-changed', () => {
        if (this.allItems.length > 0) {
          this.pluginsDataService.refreshPinnedPlugins(this.allItems);
        }
@@ -173,7 +173,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
 
   onPinnedFolderClick(folder: DesktopFolder): void {
     // Dispatch an event so the window-pane can open the folder
-    window.dispatchEvent(new CustomEvent('desktop-open-folder', { detail: { folderId: folder.id } }));
+    window.dispatchEvent(new CustomEvent('zlux_desktop-open-folder', { detail: { folderId: folder.id } }));
   }
 
   onPinnedFolderRightClick(event: MouseEvent, folder: DesktopFolder): boolean {

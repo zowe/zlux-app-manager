@@ -428,7 +428,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   }
 
   folderClicked(folder: DesktopFolder): void {
-    window.dispatchEvent(new CustomEvent('desktop-open-folder', { detail: { folderId: folder.id } }));
+    window.dispatchEvent(new CustomEvent('zlux_desktop-open-folder', { detail: { folderId: folder.id } }));
     this.isActive = false;
     this.emitState();
   }

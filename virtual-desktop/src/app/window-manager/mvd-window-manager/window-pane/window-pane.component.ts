@@ -124,13 +124,13 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       this.folders = folders;
     });
 
-    // Listen for external shortcut changes (e.g. from ZFM plugin)
-    window.addEventListener('desktop-shortcuts-changed', () => {
+    // Listen for external shortcut changes
+    window.addEventListener('zlux_desktop-shortcuts-changed', () => {
       this.shortcutsService.reloadShortcutsExternal();
     });
 
     // Listen for editor saving a new file created from a desktop shortcut
-    window.addEventListener('desktop-new-file-saved', ((event: CustomEvent) => {
+    window.addEventListener('zlux_desktop-new-file-saved', ((event: CustomEvent) => {
       const { originalName, filePath } = event.detail;
       if (originalName && filePath) {
         this.shortcutsService.convertNewFileShortcut(originalName, filePath);
@@ -138,7 +138,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }) as EventListener);
 
     // Listen for folder open requests from the taskbar
-    window.addEventListener('desktop-open-folder', ((event: CustomEvent) => {
+    window.addEventListener('zlux_desktop-open-folder', ((event: CustomEvent) => {
       const { folderId } = event.detail;
       if (folderId) {
         const folder = this.folders.find(f => f.id === folderId);
@@ -154,7 +154,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     });
 
     // Listen for launchbar pin changes from other sources
-    window.addEventListener('desktop-pinned-plugins-changed', () => {
+    window.addEventListener('zlux_desktop-pinned-plugins-changed', () => {
       this.loadPinnedPluginIds();
     });
 
@@ -1189,7 +1189,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       }
       this.http.put(uri, { plugins }).subscribe(() => {
         this.pinnedPluginIds = new Set(plugins);
-        window.dispatchEvent(new CustomEvent('desktop-pinned-plugins-changed'));
+        window.dispatchEvent(new CustomEvent('zlux_desktop-pinned-plugins-changed'));
       });
     });
   }
