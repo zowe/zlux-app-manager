@@ -46,12 +46,6 @@ export interface DesktopShortcut {
   action?: DesktopShortcutAction;
   /** If set, this shortcut belongs to a folder rather than the top-level desktop grid */
   folderId?: string;
-  /** ISO-8601 timestamp of when the shortcut was created */
-  createdDate?: string;
-  /** ISO-8601 timestamp of the last modification (rename, move, icon change, metadata edit) */
-  modifiedDate?: string;
-  /** ISO-8601 timestamp of the last time the shortcut was launched */
-  lastOpenedDate?: string;
 }
 
 export interface DesktopFolder {
@@ -64,12 +58,6 @@ export interface DesktopFolder {
   gridCol: number;
   /** Optional custom icon URL (overrides the auto-generated child icon grid) */
   displayIcon?: string;
-  /** ISO-8601 timestamp of when the folder was created */
-  createdDate: string;
-  /** ISO-8601 timestamp of the last structural modification (add/remove/rename) */
-  modifiedDate: string;
-  /** ISO-8601 timestamp of the last time the folder was opened/expanded */
-  lastOpenedDate: string;
 }
 
 export interface DeletionUndoSnapshot {
@@ -298,24 +286,20 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     if (alreadyExists) {
       return;
     }
-    const now = new Date().toISOString();
     const position = this.findNextAvailablePosition(current);
-    const updated: DesktopShortcut[] = [...current, { id: DesktopShortcutsService.generateShortcutId(), pluginId, gridRow: position.row, gridCol: position.col, createdDate: now, modifiedDate: now }];
+    const updated: DesktopShortcut[] = [...current, { id: DesktopShortcutsService.generateShortcutId(), pluginId, gridRow: position.row, gridCol: position.col }];
     this.saveShortcuts(updated);
   }
 
   /** Add an app-to-app action shortcut with full dispatcher action details */
   addActionShortcut(shortcut: Omit<DesktopShortcut, 'gridRow' | 'gridCol'>): void {
     const current = this.shortcuts$.value;
-    const now = new Date().toISOString();
     const position = this.findNextAvailablePosition(current);
     const updated: DesktopShortcut[] = [...current, {
       ...shortcut,
       id: shortcut.id || DesktopShortcutsService.generateShortcutId(),
       gridRow: position.row,
-      gridCol: position.col,
-      createdDate: now,
-      modifiedDate: now
+      gridCol: position.col
     }];
     this.saveShortcuts(updated);
   }
@@ -346,7 +330,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       return;
     }
     const updated = current.map(s => {
-      return s.id === shortcutId ? { ...s, gridRow: newRow, gridCol: newCol, modifiedDate: new Date().toISOString() } : s;
+      return s.id === shortcutId ? { ...s, gridRow: newRow, gridCol: newCol } : s;
     });
     this.saveShortcuts(updated);
   }
@@ -368,7 +352,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     }
     const updated = current.map(s => {
       if (s.id === shortcutId) {
-        const renamed = { ...s, displayLabel: newLabel, modifiedDate: new Date().toISOString() };
+        const renamed = { ...s, displayLabel: newLabel };
         if (updateActionName && renamed.action?.launchMetadata?.data) {
           renamed.action = {
             ...renamed.action,
@@ -470,27 +454,14 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     } else if (pluginDef) {
       applicationManager.spawnApplication(pluginDef, null);
     }
-    this.markShortcutOpened(shortcut);
-  }
-
-  private markShortcutOpened(shortcut: DesktopShortcut): void {
-    const now = new Date().toISOString();
-    const updated = this.shortcuts$.value.map(s => {
-      if (s.id === shortcut.id) {
-        return { ...s, lastOpenedDate: now };
-      }
-      return s;
-    });
-    this.saveShortcuts(updated);
   }
 
   /** Update the icon URL of a shortcut */
   updateShortcutIcon(shortcutId: string, iconUrl: string | undefined): void {
     const sanitized = DesktopShortcutsService.sanitizeIconUrl(iconUrl);
-    const now = new Date().toISOString();
     const updated = this.shortcuts$.value.map(s => {
       if (s.id === shortcutId) {
-        return { ...s, displayIcon: sanitized, modifiedDate: now };
+        return { ...s, displayIcon: sanitized };
       }
       return s;
     });
@@ -499,10 +470,9 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /** Update the launchMetadata of an action shortcut */
   updateShortcutLaunchMetadata(shortcutId: string, launchMetadata: any): void {
-    const now = new Date().toISOString();
     const updated = this.shortcuts$.value.map(s => {
       if (s.id === shortcutId && s.action) {
-        return { ...s, action: { ...s.action, launchMetadata }, modifiedDate: now };
+        return { ...s, action: { ...s.action, launchMetadata } };
       }
       return s;
     });
@@ -535,15 +505,11 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /** Create a new folder at the given grid position with the provided shortcuts moved into it */
   createFolder(name: string, gridRow: number, gridCol: number, shortcutIds: string[]): DesktopFolder {
-    const now = new Date().toISOString();
     const folder: DesktopFolder = {
       id: DesktopShortcutsService.generateFolderId(),
       name,
       gridRow,
-      gridCol,
-      createdDate: now,
-      modifiedDate: now,
-      lastOpenedDate: now
+      gridCol
     };
     const updatedFolders = [...this.folders$.value, folder];
     const shortcutIdSet = new Set(shortcutIds);
@@ -567,20 +533,15 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /** Add an existing shortcut to a folder */
   addShortcutToFolder(folderId: string, shortcutId: string): void {
-    const now = new Date().toISOString();
     const target = this.shortcuts$.value.find(s => s.id === shortcutId && !s.folderId);
     if (!target) return;
     const others = this.shortcuts$.value.filter(s => s !== target);
     const updatedShortcuts = [...others, { ...target, folderId, gridRow: -1, gridCol: -1 }];
-    const updatedFolders = this.folders$.value.map(f =>
-      f.id === folderId ? { ...f, modifiedDate: now } : f
-    );
-    this.saveAll(updatedShortcuts, updatedFolders);
+    this.saveAll(updatedShortcuts, this.folders$.value);
   }
 
   /** Add multiple existing shortcuts to a folder atomically in a single save */
   batchAddShortcutsToFolder(folderId: string, shortcutIds: string[]): void {
-    const now = new Date().toISOString();
     const idSet = new Set(shortcutIds);
     const updatedShortcuts = this.shortcuts$.value.map(s => {
       if (idSet.has(s.id) && !s.folderId) {
@@ -588,35 +549,25 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       }
       return s;
     });
-    const updatedFolders = this.folders$.value.map(f =>
-      f.id === folderId ? { ...f, modifiedDate: now } : f
-    );
-    this.saveAll(updatedShortcuts, updatedFolders);
+    this.saveAll(updatedShortcuts, this.folders$.value);
   }
 
   /** Create a new shortcut and place it directly into a folder in a single save */
   addShortcutDirectlyToFolder(pluginId: string, folderId: string): void {
     const current = this.shortcuts$.value;
-    const now = new Date().toISOString();
     const newShortcut: DesktopShortcut = {
       id: DesktopShortcutsService.generateShortcutId(),
       pluginId,
       gridRow: -1,
       gridCol: -1,
-      folderId,
-      createdDate: now,
-      modifiedDate: now
+      folderId
     };
     const updatedShortcuts = [...current, newShortcut];
-    const updatedFolders = this.folders$.value.map(f =>
-      f.id === folderId ? { ...f, modifiedDate: now } : f
-    );
-    this.saveAll(updatedShortcuts, updatedFolders);
+    this.saveAll(updatedShortcuts, this.folders$.value);
   }
 
   /** Remove a shortcut from its folder back to the desktop grid */
   removeShortcutFromFolder(folderId: string, shortcutId: string): void {
-    const now = new Date().toISOString();
     const position = this.findNextAvailablePosition(this.shortcuts$.value);
     const updatedShortcuts = this.shortcuts$.value.map(s => {
       if (s.id === shortcutId && s.folderId === folderId) {
@@ -630,16 +581,13 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     if (remainingInFolder.length === 0) {
       updatedFolders = this.folders$.value.filter(f => f.id !== folderId);
     } else {
-      updatedFolders = this.folders$.value.map(f =>
-        f.id === folderId ? { ...f, modifiedDate: now } : f
-      );
+      updatedFolders = this.folders$.value;
     }
     this.saveAll(updatedShortcuts, updatedFolders);
   }
 
   /** Remove a shortcut from its folder and place it at a specific desktop grid position */
   removeShortcutFromFolderToPosition(folderId: string, shortcutId: string, newRow: number, newCol: number): void {
-    const now = new Date().toISOString();
     const topLevel = this.shortcuts$.value.filter(s => !s.folderId);
     const folders = this.folders$.value;
     const occupied = new Set([
@@ -665,23 +613,17 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     if (remainingInFolder.length === 0) {
       updatedFolders = folders.filter(f => f.id !== folderId);
     } else {
-      updatedFolders = folders.map(f =>
-        f.id === folderId ? { ...f, modifiedDate: now } : f
-      );
+      updatedFolders = folders;
     }
     this.saveAll(updatedShortcuts, updatedFolders);
   }
 
   /** Reorder the shortcuts within a folder. The newOrder array contains the shortcuts in the desired order. */
   reorderShortcutsInFolder(folderId: string, newOrder: DesktopShortcut[]): void {
-    const now = new Date().toISOString();
     const otherShortcuts = this.shortcuts$.value.filter(s => s.folderId !== folderId);
     const reordered = newOrder.map(s => ({ ...s, folderId }));
     const updatedShortcuts = [...otherShortcuts, ...reordered];
-    const updatedFolders = this.folders$.value.map(f =>
-      f.id === folderId ? { ...f, modifiedDate: now } : f
-    );
-    this.saveAll(updatedShortcuts, updatedFolders);
+    this.saveAll(updatedShortcuts, this.folders$.value);
   }
 
   renameFolder(folderId: string, newName: string): boolean {
@@ -690,9 +632,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     if (isDuplicate) {
       return false;
     }
-    const now = new Date().toISOString();
     const updated = current.map(f =>
-      f.id === folderId ? { ...f, name: newName, modifiedDate: now } : f
+      f.id === folderId ? { ...f, name: newName } : f
     );
     this.saveAll(this.shortcuts$.value, updated);
     return true;
@@ -719,14 +660,13 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     shortcutMoves: { shortcutId: string; newRow: number; newCol: number }[],
     folderMoves: { folderId: string; newRow: number; newCol: number }[]
   ): void {
-    const now = new Date().toISOString();
     const shortcutMoveMap = new Map<string, { newRow: number; newCol: number }>();
     for (const m of shortcutMoves) {
       shortcutMoveMap.set(m.shortcutId, { newRow: m.newRow, newCol: m.newCol });
     }
     const updatedShortcuts = this.shortcuts$.value.map(s => {
       const move = shortcutMoveMap.get(s.id);
-      return move ? { ...s, gridRow: move.newRow, gridCol: move.newCol, modifiedDate: now } : s;
+      return move ? { ...s, gridRow: move.newRow, gridCol: move.newCol } : s;
     });
     const folderMoveMap = new Map<string, { newRow: number; newCol: number }>();
     for (const m of folderMoves) {
@@ -794,21 +734,11 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.saveAll(updatedShortcuts, updatedFolders);
   }
 
-  /** Update the lastOpenedDate for a folder */
-  markFolderOpened(folderId: string): void {
-    const now = new Date().toISOString();
-    const updated = this.folders$.value.map(f =>
-      f.id === folderId ? { ...f, lastOpenedDate: now } : f
-    );
-    this.saveAll(this.shortcuts$.value, updated);
-  }
-
   /** Update the display icon for a folder (architecture for future UX) */
   setFolderIcon(folderId: string, iconUrl: string | undefined): void {
     const sanitized = DesktopShortcutsService.sanitizeIconUrl(iconUrl);
-    const now = new Date().toISOString();
     const updated = this.folders$.value.map(f =>
-      f.id === folderId ? { ...f, displayIcon: sanitized, modifiedDate: now } : f
+      f.id === folderId ? { ...f, displayIcon: sanitized } : f
     );
     this.saveAll(this.shortcuts$.value, updated);
   }
@@ -880,8 +810,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   saveAll(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): void {
-    // Update local state immediately so subsequent reads (e.g. markShortcutOpened
-    // firing concurrently with convertNewFileShortcut) always see the newest data.
+    // Update local state immediately so subsequent reads (e.g.
+    // convertNewFileShortcut) always see the newest data.
     // Without this, competing HTTP PUTs read stale snapshots and the last response
     // to arrive wins — which reverts conversions like newFile → openFile.
     this.shortcuts$.next(shortcuts);

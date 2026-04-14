@@ -376,7 +376,6 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       this.openFolderId = null;
     } else {
       this.openFolderId = folder.id;
-      this.shortcutsService.markFolderOpened(folder.id);
       // Initialize keyboard focus at first item when folder opens
       const folderComp = this.folderComponents?.find(fc => fc.folder?.id === folder.id);
       if (folderComp) {

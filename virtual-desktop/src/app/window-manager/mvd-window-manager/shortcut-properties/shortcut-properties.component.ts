@@ -29,9 +29,6 @@ export class ShortcutPropertiesComponent implements OnInit {
   pluginId: string = '';
   pluginVersion: string = '';
   iconUrl: string = '';
-  createdDate: string = '';
-  modifiedDate: string = '';
-  lastOpenedDate: string = '';
   hasAction: boolean = false;
   actionId: string = '';
   actionName: string = '';
@@ -50,9 +47,6 @@ export class ShortcutPropertiesComponent implements OnInit {
     this.pluginVersion = this.plugin?.getBasePlugin()?.getVersion?.() || '';
     this.iconUrl = this.shortcut.displayIcon || this.plugin?.image || '';
     this.newIconUrl = this.shortcut.displayIcon || this.plugin?.image || '';
-    this.createdDate = this.formatDateTime(this.shortcut.createdDate);
-    this.modifiedDate = this.formatDateTime(this.shortcut.modifiedDate);
-    this.lastOpenedDate = this.formatDateTime(this.shortcut.lastOpenedDate);
 
     if (this.shortcut.action) {
       this.hasAction = true;
@@ -63,19 +57,6 @@ export class ShortcutPropertiesComponent implements OnInit {
       this.targetMode = this.shortcut.action.targetMode || '';
       this.launchMetadataJson = JSON.stringify(this.shortcut.action.launchMetadata || {}, null, 2);
     }
-  }
-
-  private formatDateTime(isoString: string | undefined): string {
-    if (!isoString) return 'N/A';
-    const date = new Date(isoString);
-    return date.toLocaleString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
   }
 
   onOverlayClick(event: MouseEvent): void {
