@@ -9,7 +9,7 @@
 */
 
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { DesktopShortcut } from '../services/desktop-shortcuts.service';
+import { DesktopShortcut, DesktopShortcutsService } from '../services/desktop-shortcuts.service';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 
 @Component({
@@ -41,6 +41,7 @@ export class ShortcutPropertiesComponent implements OnInit {
   launchMetadataJson: string = '';
   launchMetadataError: string = '';
   newIconUrl: string = '';
+  iconUrlError: string = '';
 
   ngOnInit(): void {
     this.originalName = this.plugin?.label || this.shortcut.pluginId;
@@ -86,9 +87,14 @@ export class ShortcutPropertiesComponent implements OnInit {
   }
 
   onSaveIcon(): void {
-    const url = this.newIconUrl.trim() || undefined;
-    this.iconChanged.emit({ shortcut: this.shortcut, iconUrl: url });
-    this.iconUrl = url || this.plugin?.image || '';
+    this.iconUrlError = '';
+    const raw = this.newIconUrl.trim() || undefined;
+    if (raw && !DesktopShortcutsService.sanitizeIconUrl(raw)) {
+      this.iconUrlError = 'Invalid URL';
+      return;
+    }
+    this.iconChanged.emit({ shortcut: this.shortcut, iconUrl: raw });
+    this.iconUrl = raw || this.plugin?.image || '';
   }
 
   onClearIcon(): void {

@@ -9,7 +9,7 @@
 */
 
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { DesktopFolder, DesktopShortcut } from '../services/desktop-shortcuts.service';
+import { DesktopFolder, DesktopShortcut, DesktopShortcutsService } from '../services/desktop-shortcuts.service';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 
 const DRAG_THRESHOLD = 5;
@@ -170,7 +170,7 @@ export class DesktopFolderComponent {
     return this.childShortcuts.slice(0, maxIcons).map(s => {
       const plugin = this.pluginMap.get(s.pluginId);
       return {
-        url: s.displayIcon || plugin?.image || null,
+        url: DesktopShortcutsService.sanitizeIconUrl(s.displayIcon) || plugin?.image || null,
         label: s.displayLabel || plugin?.label || ''
       };
     });
@@ -228,7 +228,11 @@ export class DesktopFolderComponent {
   }
 
   get hasCustomIcon(): boolean {
-    return !!this.folder?.displayIcon;
+    return !!DesktopShortcutsService.sanitizeIconUrl(this.folder?.displayIcon);
+  }
+
+  get safeDisplayIcon(): string | undefined {
+    return DesktopShortcutsService.sanitizeIconUrl(this.folder?.displayIcon);
   }
 
   trackByIndex(index: number): number {
@@ -236,7 +240,7 @@ export class DesktopFolderComponent {
   }
 
   getShortcutIcon(shortcut: DesktopShortcut): string | null {
-    return shortcut.displayIcon || this.pluginMap.get(shortcut.pluginId)?.image || null;
+    return DesktopShortcutsService.sanitizeIconUrl(shortcut.displayIcon) || this.pluginMap.get(shortcut.pluginId)?.image || null;
   }
 
   getShortcutLabel(shortcut: DesktopShortcut): string {
