@@ -52,6 +52,11 @@ export class MvdModuleFactory {
   }
 
   public static getTranslationProviders(): Promise<StaticProvider[]> {
+    // Set $localize locale once at Desktop startup for AOT-compiled plugin translations
+    const localeService = MvdModuleFactory.getLocaleService();
+    if (typeof $localize !== 'undefined') {
+      $localize.locale = localeService.getLanguage();
+    }
     const translationLoader = MvdModuleFactory.getTranslationLoaderService();
     return translationLoader.getTranslationProviders(ZoweZLUX.pluginManager.getDesktopPlugin());
   }
