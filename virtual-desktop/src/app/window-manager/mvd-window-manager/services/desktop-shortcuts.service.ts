@@ -104,6 +104,57 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     return `${DesktopShortcutsService.ACTION_ID_PREFIX}.${underscored}.${hex}`;
   }
 
+  /**
+   * Validate and sanitize an icon URL to prevent script injection and path traversal.
+   * Returns the URL unchanged if safe, or undefined if the URL is rejected.
+   * Allows: http(s) URLs, data: image URIs, and relative paths that don't traverse upward.
+   */
+  static sanitizeIconUrl(url: string | undefined): string | undefined {
+    if (!url) return undefined;
+    const trimmed = url.trim();
+    if (!trimmed) return undefined;
+
+    // Block javascript:, vbscript:, and other dangerous schemes
+    const schemeLower = trimmed.toLowerCase().replace(/[\s\x00-\x1f]/g, '');
+    if (/^(javascript|vbscript|data(?!:image\/)):/i.test(schemeLower)) {
+      return undefined;
+    }
+
+    // Block path traversal sequences
+    if (/\.\.[\\/]/.test(trimmed) || trimmed.includes('..%2f') || trimmed.includes('..%5c')
+        || trimmed.toLowerCase().includes('..%252f')) {
+      return undefined;
+    }
+
+    // Block HTML/script injection characters that have no place in a URL
+    if (/[<>"'`{}]/.test(trimmed)) {
+      return undefined;
+    }
+
+    // Block hex-encoded control characters (\x00–\x1f) and null bytes
+    if (/\\x[0-9a-fA-F]{2}/.test(trimmed) || /\x00/.test(trimmed) || /%00/.test(trimmed)) {
+      return undefined;
+    }
+
+    // Block punycode in URLs (xn-- encoded domains used for homograph attacks)
+    if (/xn--/i.test(trimmed)) {
+      return undefined;
+    }
+
+    // Allow data:image/* URIs (e.g. data:image/png;base64,...)
+    if (/^data:image\//i.test(trimmed)) {
+      return trimmed;
+    }
+
+    // Allow http/https URLs and relative paths (e.g. /ZLUX/plugins/.../assets/icon.png)
+    if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/')) {
+      return trimmed;
+    }
+
+    // Reject anything else (e.g. ftp:, file:, unknown schemes)
+    return undefined;
+  }
+
   shortcuts$ = new BehaviorSubject<DesktopShortcut[]>([]);
   folders$ = new BehaviorSubject<DesktopFolder[]>([]);
   pinnedFolderIds$ = new BehaviorSubject<string[]>([]);
@@ -147,6 +198,16 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     return true;
   }
 
+  /** Strip any displayIcon values that fail URL sanitization (defense against tampered config data) */
+  private static sanitizeLoadedIcons(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): void {
+    for (const s of shortcuts) {
+      s.displayIcon = DesktopShortcutsService.sanitizeIconUrl(s.displayIcon);
+    }
+    for (const f of folders) {
+      f.displayIcon = DesktopShortcutsService.sanitizeIconUrl(f.displayIcon);
+    }
+  }
+
   loadShortcuts(): void {
     this.getResource().subscribe(
       (res: HttpResponse<any>) => {
@@ -167,6 +228,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
             }
             return s;
           });
+          DesktopShortcutsService.sanitizeLoadedIcons(shortcuts, folders);
           this.shortcuts$.next(shortcuts);
           this.folders$.next(folders);
           this.pinnedFolderIds$.next((res.body.contents.pinnedFolderIds || []) as string[]);
@@ -206,6 +268,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
             }
             return s;
           });
+          // Sanitize icon URLs from external data before accepting them
+          for (const s of incomingShortcuts) {
+            s.displayIcon = DesktopShortcutsService.sanitizeIconUrl(s.displayIcon);
+          }
           this.shortcuts$.next(incomingShortcuts);
           // Only write back if the external app corrupted our data or IDs need backfill
           const incomingFolders = res.body.contents.folders as DesktopFolder[] | undefined;
@@ -420,10 +486,11 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /** Update the icon URL of a shortcut */
   updateShortcutIcon(shortcutId: string, iconUrl: string | undefined): void {
+    const sanitized = DesktopShortcutsService.sanitizeIconUrl(iconUrl);
     const now = new Date().toISOString();
     const updated = this.shortcuts$.value.map(s => {
       if (s.id === shortcutId) {
-        return { ...s, displayIcon: iconUrl, modifiedDate: now };
+        return { ...s, displayIcon: sanitized, modifiedDate: now };
       }
       return s;
     });
@@ -738,9 +805,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /** Update the display icon for a folder (architecture for future UX) */
   setFolderIcon(folderId: string, iconUrl: string | undefined): void {
+    const sanitized = DesktopShortcutsService.sanitizeIconUrl(iconUrl);
     const now = new Date().toISOString();
     const updated = this.folders$.value.map(f =>
-      f.id === folderId ? { ...f, displayIcon: iconUrl, modifiedDate: now } : f
+      f.id === folderId ? { ...f, displayIcon: sanitized, modifiedDate: now } : f
     );
     this.saveAll(this.shortcuts$.value, updated);
   }

@@ -9,7 +9,7 @@
 */
 
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { DesktopShortcut, DesktopFolder } from '../services/desktop-shortcuts.service';
+import { DesktopShortcut, DesktopFolder, DesktopShortcutsService } from '../services/desktop-shortcuts.service';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 
 const DRAG_THRESHOLD = 5;
@@ -72,7 +72,7 @@ export class DesktopIconComponent {
   }
 
   get iconUrl(): string | null {
-    return this.shortcut?.displayIcon || this.plugin?.image || null;
+    return DesktopShortcutsService.sanitizeIconUrl(this.shortcut?.displayIcon) || this.plugin?.image || null;
   }
 
   get miniIconSize(): number {
@@ -156,7 +156,7 @@ export class DesktopIconComponent {
   }
 
   startRename(): void {
-    this.renameValue = this.shortcut?.displayLabel || this.plugin?.label || '';
+    this.renameValue = this.label;
     this.renameError = false;
     this.isRenaming = true;
     setTimeout(() => {

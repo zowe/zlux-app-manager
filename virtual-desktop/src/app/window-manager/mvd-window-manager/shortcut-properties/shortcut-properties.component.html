@@ -67,10 +67,11 @@
                  type="text"
                  placeholder="Icon URL"
                  [value]="newIconUrl"
-                 (input)="newIconUrl = $any($event.target).value" />
+                 (input)="newIconUrl = $any($event.target).value; iconUrlError = ''" />
           <button class="shortcut-properties-btn" (click)="onSaveIcon()">Apply</button>
           <button class="shortcut-properties-btn shortcut-properties-btn-secondary" (click)="onClearIcon()">Reset</button>
         </div>
+        <span class="shortcut-properties-error" *ngIf="iconUrlError">{{ iconUrlError }}</span>
       </div>
 
       <!-- Action details (only for action shortcuts) -->

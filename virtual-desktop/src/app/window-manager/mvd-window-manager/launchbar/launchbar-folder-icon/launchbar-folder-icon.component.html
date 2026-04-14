@@ -17,7 +17,7 @@
   <!-- Custom folder icon -->
   <div class="launchbar-folder-icon-image" *ngIf="hasCustomIcon"
        [style.width]="iconSize" [style.height]="iconSize"
-       [style.background-image]="'url(' + folder.displayIcon + ')'"
+       [style.background-image]="'url(' + safeDisplayIcon + ')'"
        [title]="label">
   </div>
 

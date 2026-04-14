@@ -19,7 +19,7 @@
 
   <!-- Custom icon (set via setFolderIcon) -->
   <div class="desktop-folder-image" *ngIf="hasCustomIcon"
-       [style.background-image]="'url(' + folder.displayIcon + ')'"
+       [style.background-image]="'url(' + safeDisplayIcon + ')'"
        [style.width.px]="iconImageSize" [style.height.px]="iconImageSize">
   </div>
 
@@ -64,6 +64,7 @@
   <div class="desktop-folder-expanded" #expandedPanel (click)="$event.stopPropagation()" (mousedown)="onExpandedPanelMouseDown($event)">
     <div class="desktop-folder-expanded-header">
       <span class="desktop-folder-expanded-title" *ngIf="!isRenamingTitle"
+            [title]="label"
             (click)="startTitleRename(); $event.stopPropagation()">
         {{ label }} <span class="desktop-folder-title-edit-icon">&#9998;</span>
       </span>

@@ -9,7 +9,7 @@
 */
 
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { DesktopFolder, DesktopShortcut } from '../services/desktop-shortcuts.service';
+import { DesktopFolder, DesktopShortcut, DesktopShortcutsService } from '../services/desktop-shortcuts.service';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 
 const DRAG_THRESHOLD = 5;
@@ -170,14 +170,25 @@ export class DesktopFolderComponent {
     return this.childShortcuts.slice(0, maxIcons).map(s => {
       const plugin = this.pluginMap.get(s.pluginId);
       return {
-        url: s.displayIcon || plugin?.image || null,
+        url: DesktopShortcutsService.sanitizeIconUrl(s.displayIcon) || plugin?.image || null,
         label: s.displayLabel || plugin?.label || ''
       };
     });
   }
 
   get label(): string {
-    return this.folder?.name || 'New Folder';
+    const baseName = this.folder?.name || 'New Folder';
+    if (!this.allFolders || this.allFolders.length <= 1) {
+      return baseName;
+    }
+    const duplicates = this.allFolders
+      .filter(f => f.name === baseName)
+      .sort((a, b) => a.id.localeCompare(b.id));
+    if (duplicates.length <= 1) {
+      return baseName;
+    }
+    const idx = duplicates.findIndex(f => f.id === this.folder.id);
+    return idx > 0 ? baseName + ' (' + (idx + 1) + ')' : baseName;
   }
 
   get positionStyle(): { [key: string]: string } {
@@ -228,7 +239,11 @@ export class DesktopFolderComponent {
   }
 
   get hasCustomIcon(): boolean {
-    return !!this.folder?.displayIcon;
+    return !!DesktopShortcutsService.sanitizeIconUrl(this.folder?.displayIcon);
+  }
+
+  get safeDisplayIcon(): string | undefined {
+    return DesktopShortcutsService.sanitizeIconUrl(this.folder?.displayIcon);
   }
 
   trackByIndex(index: number): number {
@@ -236,7 +251,7 @@ export class DesktopFolderComponent {
   }
 
   getShortcutIcon(shortcut: DesktopShortcut): string | null {
-    return shortcut.displayIcon || this.pluginMap.get(shortcut.pluginId)?.image || null;
+    return DesktopShortcutsService.sanitizeIconUrl(shortcut.displayIcon) || this.pluginMap.get(shortcut.pluginId)?.image || null;
   }
 
   getShortcutLabel(shortcut: DesktopShortcut): string {
@@ -268,7 +283,7 @@ export class DesktopFolderComponent {
   }
 
   startRename(): void {
-    this.renameValue = this.folder?.name || '';
+    this.renameValue = this.label;
     this.renameError = false;
     this.isRenaming = true;
     setTimeout(() => {
@@ -393,7 +408,7 @@ export class DesktopFolderComponent {
   // ── Expanded folder title rename ──
 
   startTitleRename(): void {
-    this.renameTitleValue = this.folder?.name || '';
+    this.renameTitleValue = this.label;
     this.renameTitleError = false;
     this.isRenamingTitle = true;
     setTimeout(() => {

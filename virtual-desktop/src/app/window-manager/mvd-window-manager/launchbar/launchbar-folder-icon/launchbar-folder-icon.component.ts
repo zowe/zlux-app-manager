@@ -9,7 +9,7 @@
 */
 
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { DesktopFolder, DesktopShortcut } from '../../services/desktop-shortcuts.service';
+import { DesktopFolder, DesktopShortcut, DesktopShortcutsService } from '../../services/desktop-shortcuts.service';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { DesktopTheme } from '../../desktop/desktop.component';
 
@@ -57,7 +57,7 @@ export class LaunchbarFolderIconComponent {
     return this.childShortcuts.slice(0, 4).map(s => {
       const plugin = this.pluginMap.get(s.pluginId);
       return {
-        url: s.displayIcon || plugin?.image || null,
+        url: DesktopShortcutsService.sanitizeIconUrl(s.displayIcon) || plugin?.image || null,
         label: s.displayLabel || plugin?.label || ''
       };
     });
@@ -68,7 +68,11 @@ export class LaunchbarFolderIconComponent {
   }
 
   get hasCustomIcon(): boolean {
-    return !!this.folder?.displayIcon;
+    return !!DesktopShortcutsService.sanitizeIconUrl(this.folder?.displayIcon);
+  }
+
+  get safeDisplayIcon(): string | undefined {
+    return DesktopShortcutsService.sanitizeIconUrl(this.folder?.displayIcon);
   }
 
   trackByIndex(index: number): number {
