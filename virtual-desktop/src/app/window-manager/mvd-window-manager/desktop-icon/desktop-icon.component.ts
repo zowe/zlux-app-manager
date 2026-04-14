@@ -156,7 +156,7 @@ export class DesktopIconComponent {
   }
 
   startRename(): void {
-    this.renameValue = this.shortcut?.displayLabel || this.plugin?.label || '';
+    this.renameValue = this.label;
     this.renameError = false;
     this.isRenaming = true;
     setTimeout(() => {
