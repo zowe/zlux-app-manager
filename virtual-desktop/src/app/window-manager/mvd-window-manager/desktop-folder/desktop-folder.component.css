@@ -126,7 +126,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 9000;
+  z-index: 4000;
   background-color: rgba(0, 0, 0, 0.3);
 }
 
@@ -309,7 +309,7 @@
 
 .desktop-folder-expanded-drag-preview {
   position: fixed;
-  z-index: 10000;
+  z-index: 4500;
   opacity: 0.8;
   pointer-events: none;
   display: flex;
