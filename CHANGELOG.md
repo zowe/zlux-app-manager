@@ -4,7 +4,7 @@ All notable changes to the Zlux App Manager will be documented in this file.
 
 ## `3.5.0`
 - Enhancement: i18n functionality from the Zowe v2 Desktop has been added to v3. ([#684](https://github.com/zowe/zlux-app-manager/pull/684))
-- Add Desktop shortcuts that allow users to perform app-to-app actions. Shortcuts are renamable, rearrangeable on the grid, removable, and resizeable via the user preferences "Size" option. Other apps can invoke shortcut related API functions via window event listeners.
+- Enhancement: Add Desktop shortcuts and folders. Shortcuts are draggable, renamable, removable, and resizable via user preferences. Drag shortcuts onto each other to create folders with inline rename and preview icons. Includes keyboard navigation, marquee multi-select, multi-drag, undo deletions, shortcut properties dialog, pin-to-taskbar for folders, and shipped start menu folders for plugins. ([#695](https://github.com/zowe/zlux-app-manager/pull/695))
 
 
 ## `3.4.0`
