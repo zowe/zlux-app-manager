@@ -14,6 +14,7 @@ import { PluginManager } from 'zlux-base/plugin-manager/plugin-manager'
 import { MvdUri } from '../uri/mvd-uri'
 import { Dispatcher } from 'zlux-base/dispatcher/dispatcher'
 import { Environment } from 'zlux-base/environment/environment'
+import { ServerMetadata } from 'zlux-base/server-metadata/server-metadata'
 import { Logger } from '../../../../zlux-shared/src/logging/logger'
 import { Registry } from 'zlux-base/registry/registry'
 import { ZoweNotificationManager } from 'zlux-base/notification-manager/notification-manager'
@@ -46,6 +47,7 @@ fetch('/ZLUX/plugins/org.zowe.zlux.bootstrap/web/assets/i18n/log/messages_en.jso
 export class ZoweZLUXResources {
   static pluginManager = PluginManager
   static environment:Environment = environment
+  static serverMetadata:ZLUX.ServerMetadata = new ServerMetadata();
   static uriBroker:ZLUX.UriBroker = new MvdUri(environment);
   static dispatcher:Dispatcher = new Dispatcher(bootstrapLogger);
   static logger:Logger = logger;
