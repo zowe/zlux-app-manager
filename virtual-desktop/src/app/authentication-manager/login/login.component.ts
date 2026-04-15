@@ -359,7 +359,11 @@ export class LoginComponent implements OnInit {
   }
 
   getPluginVersion(): string | null {
-    return "v. " + this.plugin.version;
+    return 'v. ' + this.plugin.version;
+  }
+
+  getZoweVersion(): string | null {
+    return this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : null;
   }
 
   getZoweVersion(): string | null {
