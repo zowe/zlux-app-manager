@@ -84,6 +84,12 @@
   color: #3333337d;
 }
 
+.zowe-version-info {
+  font-size: smaller;
+  margin-top: 5px;
+  color: #3333337d;
+}
+
 .btn.btn-primary.launchbar-button {
   width: 100%;
   margin: 5px 0px 5px 0px;
