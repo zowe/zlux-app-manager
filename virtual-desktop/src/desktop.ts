@@ -134,6 +134,7 @@ function performBootstrap(): void {
   MvdModuleFactory.getTranslationProviders()
     .then(providers => platformBrowserDynamic().bootstrapModule(mainModule
       || MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent), {providers: providers}));
+<<<<<<< HEAD
 }
 
 // set baseurl 
@@ -142,9 +143,11 @@ baseUrl.setAttribute("href", ZoweZLUX?.uriBroker.desktopRootUri());
 
 if (document.head) {
   document.head.appendChild(baseUrl);
+=======
+>>>>>>> ffe2ef6f (commiting)
 }
 
-// set baseurl
+// set baseurl 
 const baseUrl = document.createElement('base');
 baseUrl.setAttribute("href", ZoweZLUX?.uriBroker.desktopRootUri());
 
