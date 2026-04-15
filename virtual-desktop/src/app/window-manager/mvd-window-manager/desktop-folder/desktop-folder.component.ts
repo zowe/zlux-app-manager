@@ -374,7 +374,7 @@ export class DesktopFolderComponent {
     }
   }
 
-  // ── Expanded-item drag (drag shortcut out of folder to desktop) ──
+  // -- Expanded-item drag (drag shortcut out of folder to desktop) --
 
   onExpandedPanelMouseDown(event: MouseEvent): void {
     if (this.isRenamingTitle || this.expandedRenameShortcut) {
@@ -404,7 +404,7 @@ export class DesktopFolderComponent {
     }
   }
 
-  // ── Expanded folder title rename ──
+  // -- Expanded folder title rename --
 
   startTitleRename(): void {
     this.renameTitleValue = this.label;

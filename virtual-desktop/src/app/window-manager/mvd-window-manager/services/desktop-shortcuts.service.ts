@@ -33,7 +33,7 @@ export interface DesktopShortcutAction {
 export interface DesktopShortcut {
   /** Unique identifier for this shortcut instance */
   id: string;
-  /** Plugin to launch (always required — identifies the app for icon/label fallback) */
+  /** Plugin to launch (always required -- identifies the app for icon/label fallback) */
   pluginId: string;
   /** Grid position */
   gridRow: number;
@@ -119,7 +119,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       return undefined;
     }
 
-    // Block hex-encoded control characters (\x00–\x1f) and null bytes
+    // Block hex-encoded control characters (\x00-\x1f) and null bytes
     if (/\\x[0-9a-fA-F]{2}/.test(trimmed) || /\x00/.test(trimmed) || /%00/.test(trimmed)) {
       return undefined;
     }
@@ -237,7 +237,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /**
    * Reload shortcuts from the server after an external app modified them.
-   * Only updates shortcuts — folders and pinnedFolderIds are owned by the
+   * Only updates shortcuts -- folders and pinnedFolderIds are owned by the
    * desktop and are never accepted from external writes.
    */
   reloadShortcutsExternal(): void {
@@ -274,7 +274,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
         }
       },
       () => {
-        // Network error — don't touch anything
+        // Network error -- don't touch anything
       }
     );
   }
@@ -418,7 +418,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.saveShortcuts(updated);
   }
 
-  /** Invoke a shortcut — either a plain launch or a dispatcher action */
+  /** Invoke a shortcut -- either a plain launch or a dispatcher action */
   invokeShortcut(shortcut: DesktopShortcut, applicationManager: MVDHosting.ApplicationManagerInterface, pluginDef?: any): void {
     const targetId = shortcut.action?.targetPluginId || shortcut.pluginId;
     const targetPlugin = ZoweZLUX.pluginManager.getPlugin(targetId);
@@ -496,7 +496,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     return { row: 0, col: 0 };
   }
 
-  // ── Folder operations ──
+  // -- Folder operations --
 
   /** Get shortcuts that belong to a specific folder */
   getShortcutsInFolder(folderId: string): DesktopShortcut[] {
@@ -743,7 +743,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.saveAll(this.shortcuts$.value, updated);
   }
 
-  // ── Taskbar pinning for folders ──
+  // -- Taskbar pinning for folders --
 
   pinFolder(folderId: string): void {
     const current = this.pinnedFolderIds$.value;
@@ -762,7 +762,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     return this.pinnedFolderIds$.value.includes(folderId);
   }
 
-  // ── Launch menu pinning for folders ──
+  // -- Launch menu pinning for folders --
 
   pinToLaunchMenu(folderId: string): void {
     const current = this.launchMenuFolderIds$.value;
@@ -813,7 +813,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     // Update local state immediately so subsequent reads (e.g.
     // convertNewFileShortcut) always see the newest data.
     // Without this, competing HTTP PUTs read stale snapshots and the last response
-    // to arrive wins — which reverts conversions like newFile → openFile.
+    // to arrive wins -- which reverts conversions like newFile -> openFile.
     this.shortcuts$.next(shortcuts);
     this.folders$.next(folders);
 

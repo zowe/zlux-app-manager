@@ -364,7 +364,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     return this.shortcuts.filter(s => s.folderId === folderId);
   }
 
-  // ── Folder event handlers ──
+  // -- Folder event handlers --
 
   onFolderSelected(folder: DesktopFolder): void {
     this.highlightedFolderId = folder.id;
@@ -456,7 +456,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.shortcutsService.reorderShortcutsInFolder(event.folder.id, event.newOrder);
   }
 
-  // ── Drag-to-create-folder logic ──
+  // -- Drag-to-create-folder logic --
 
   private dragConsumed = false;
 
@@ -542,7 +542,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       return;
     }
 
-    // Dropped on an existing folder — add the shortcut to it
+    // Dropped on an existing folder -- add the shortcut to it
     if (this.dragOverFolderId && this.dragSourceShortcut) {
       this.shortcutsService.addShortcutToFolder(
         this.dragOverFolderId,
@@ -556,7 +556,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       return;
     }
 
-    // Dropped on another shortcut — create a new folder from both
+    // Dropped on another shortcut -- create a new folder from both
     if (this.folderPreviewTargetKey && this.dragSourceShortcut) {
       const target = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.folderPreviewTargetKey);
       if (target) {
@@ -670,7 +670,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.renameFolderTargetId = null;
   }
 
-  // ── Marquee selection ──
+  // -- Marquee selection --
 
   onDesktopMouseDown(event: MouseEvent): void {
     // Only start marquee from the desktop background itself (not from icons/windows)
@@ -730,7 +730,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
   private updateMarqueeSelection(ctrlHeld: boolean): void {
     const rect = this.getMarqueeRect();
-    // Too small to be a drag — don't compute selection yet
+    // Too small to be a drag -- don't compute selection yet
     if (rect.width < 5 && rect.height < 5) return;
     // Icon positions are relative to the pane; convert to viewport coords
     const paneBounds = this.elementRef.nativeElement.querySelector('.window-pane')?.getBoundingClientRect()
@@ -1026,7 +1026,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       currentRow = highlightedFolder.gridRow;
       currentCol = highlightedFolder.gridCol;
     } else {
-      // Nothing selected — select the first item (top-left)
+      // Nothing selected -- select the first item (top-left)
       const first = allItems.sort((a, b) => a.col !== b.col ? a.col - b.col : a.row - b.row)[0];
       this.selectGridItem(first, false);
       return;
@@ -1100,7 +1100,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }
   }
 
-  /** Open only the currently highlighted (focused) item — not the entire selection.
+  /** Open only the currently highlighted (focused) item -- not the entire selection.
    *  This matches Windows 11 behavior: selection is for batch delete/move, Enter opens the focused item. */
   private openHighlightedItem(): void {
     if (this.highlightedIconId) {

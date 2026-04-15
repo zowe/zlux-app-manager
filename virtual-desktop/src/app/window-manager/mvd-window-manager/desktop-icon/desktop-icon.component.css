@@ -90,7 +90,7 @@
   border-color: #ff4444;
 }
 
-/* ── Folder drop target / preview state ── */
+/* -- Folder drop target / preview state -- */
 .desktop-icon.folder-drop-target {
   background-color: rgba(100, 150, 255, 0.15);
   border-color: rgba(100, 150, 255, 0.4);
