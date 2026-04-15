@@ -366,10 +366,6 @@ export class LoginComponent implements OnInit {
     return this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : null;
   }
 
-  getZoweVersion(): string | null {
-    return this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : null;
-  }
-
   backButton(): void {
     if (this.changePassword) {
       this.authenticationService.hidePasswordChangeScreen();
