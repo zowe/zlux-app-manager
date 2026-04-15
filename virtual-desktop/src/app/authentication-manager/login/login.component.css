@@ -211,6 +211,14 @@
   margin-top: 16px;
 }
 
+.zowe-version-info {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  color: #47474785;
+  display: block;
+  margin-top: 4px;
+}
+
 .login-click-blocker {
   position: fixed;
   height: 100%;
