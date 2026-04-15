@@ -129,14 +129,6 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       this.shortcutsService.reloadShortcutsExternal();
     });
 
-    // Listen for editor saving a new file created from a desktop shortcut
-    window.addEventListener('zlux_desktop-new-file-saved', ((event: CustomEvent) => {
-      const { originalName, filePath } = event.detail;
-      if (originalName && filePath) {
-        this.shortcutsService.convertNewFileShortcut(originalName, filePath);
-      }
-    }) as EventListener);
-
     // Listen for folder open requests from the taskbar
     window.addEventListener('zlux_desktop-open-folder', ((event: CustomEvent) => {
       const { folderId } = event.detail;
@@ -298,18 +290,11 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
   onIconRenamed(event: { shortcut: DesktopShortcut; newLabel: string }): void {
     this.renameTargetKey = null;
-    const updateActionName = event.shortcut.action?.launchMetadata?.data?.type === 'newFile';
-    this.shortcutsService.renameShortcut(event.shortcut.id, event.newLabel, updateActionName);
+    this.shortcutsService.renameShortcut(event.shortcut.id, event.newLabel);
   }
 
   onIconRenameCancelled(shortcut: DesktopShortcut): void {
     this.renameTargetKey = null;
-    // Auto-delete "New File" shortcuts that were never given a real name by the user.
-    // We check displayLabel === 'New File' because that's the default assigned at creation time.
-    // If the user partially renamed it before cancelling, we keep the shortcut since they may retry.
-    if (shortcut.action?.launchMetadata?.data?.type === 'newFile' && shortcut.displayLabel === 'New File') {
-      this.shortcutsService.removeShortcutById(shortcut.id);
-    }
   }
 
   private startIconRename(shortcut: DesktopShortcut): void {
@@ -318,8 +303,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
   onFolderShortcutRenamed(event: { shortcut: DesktopShortcut; newLabel: string }): void {
     this.renameTargetKey = null;
-    const updateActionName = event.shortcut.action?.launchMetadata?.data?.type === 'newFile';
-    this.shortcutsService.renameShortcut(event.shortcut.id, event.newLabel, updateActionName);
+    this.shortcutsService.renameShortcut(event.shortcut.id, event.newLabel);
   }
 
   onFolderShortcutRenameCancelled(shortcut: DesktopShortcut): void {
@@ -805,12 +789,6 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       text: this.translation.translate('New Folder'),
       action: () => this.createDesktopFolder(event.clientX, event.clientY)
     });
-    if (this.pluginMap.has('org.zowe.editor')) {
-      menuItems.push({
-        text: this.translation.translate('Create New File'),
-        action: () => this.createNewFileShortcut()
-      });
-    }
     this.windowManager.contextMenuRequested.next({
       xPos: event.clientX,
       yPos: event.clientY,
@@ -828,50 +806,6 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const folder = this.shortcutsService.createFolder('New Folder', row, col, []);
     if (this.shortcutsService.folders$.value.some(f => f.id === folder.id)) {
       this.renameFolderTargetId = folder.id;
-    }
-  }
-
-  private createNewFileShortcut(): void {
-    this.http.get<any>(ZoweZLUX.uriBroker.userInfoUri()).subscribe(
-      (resp) => {
-        const homeDir = resp?.home?.trim() || '/';
-        this.createNewFileShortcutWithDir(homeDir);
-      },
-      () => {
-        this.createNewFileShortcutWithDir('/');
-      }
-    );
-  }
-
-  private createNewFileShortcutWithDir(directory: string): void {
-    const defaultLabel = 'New File';
-    const actionData = { targetPluginId: 'org.zowe.editor', type: 'newFile', name: defaultLabel };
-    const shortcut: DesktopShortcut = {
-      id: DesktopShortcutsService.generateShortcutId(),
-      pluginId: 'org.zowe.editor',
-      gridRow: 0,
-      gridCol: 0,
-      displayLabel: defaultLabel,
-      displayIcon: ZoweZLUX.uriBroker.pluginResourceUri(DESKTOP_PLUGIN, 'assets/images/new-file.svg'),
-      action: {
-        id: DesktopShortcutsService.generateActionId('org.zowe.editor', actionData),
-        name: 'Open New File in Editor',
-        targetPluginId: 'org.zowe.editor',
-        targetMode: 'PluginCreate',
-        type: 'Message',
-        primaryArgument: { data: { op: 'deref', source: 'event', path: ['data'] } },
-        launchMetadata: { data: { type: 'newFile', name: defaultLabel, directory: directory } }
-      }
-    };
-    const shortcutId = shortcut.id;
-    this.shortcutsService.addActionShortcut(shortcut);
-    // With optimistic updates, addActionShortcut synchronously emits to shortcuts$.
-    // Check the current value directly instead of using skip(1) which would
-    // miss the synchronous emission and wait for an unrelated future save.
-    const current = this.shortcutsService.shortcuts$.value;
-    const created = current.find(s => s.id === shortcutId);
-    if (created) {
-      this.renameTargetKey = this.getShortcutKey(created);
     }
   }
 

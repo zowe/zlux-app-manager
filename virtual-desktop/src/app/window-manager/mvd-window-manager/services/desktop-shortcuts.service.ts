@@ -339,7 +339,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     return this.shortcuts$.value.some(s => s.pluginId === pluginId && !s.action);
   }
 
-  renameShortcut(shortcutId: string, newLabel: string, updateActionName?: boolean): boolean {
+  renameShortcut(shortcutId: string, newLabel: string): boolean {
     const current = this.shortcuts$.value;
     const target = current.find(s => s.id === shortcutId);
     if (!target) return false;
@@ -352,17 +352,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     }
     const updated = current.map(s => {
       if (s.id === shortcutId) {
-        const renamed = { ...s, displayLabel: newLabel };
-        if (updateActionName && renamed.action?.launchMetadata?.data) {
-          renamed.action = {
-            ...renamed.action,
-            launchMetadata: {
-              ...renamed.action.launchMetadata,
-              data: { ...renamed.action.launchMetadata.data, name: newLabel }
-            }
-          };
-        }
-        return renamed;
+        return { ...s, displayLabel: newLabel };
       }
       return s;
     });
@@ -391,33 +381,6 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.saveShortcuts(updated);
   }
 
-  /** Convert a newFile shortcut to an openFile shortcut after the file has been saved */
-  convertNewFileShortcut(originalName: string, filePath: string): void {
-    const current = this.shortcuts$.value;
-    const match = current.find(s =>
-      s.action?.launchMetadata?.data?.type === 'newFile' &&
-      (s.action.launchMetadata.data.name === originalName || s.displayLabel === originalName)
-    );
-    if (!match) return;
-    const fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
-    const updated = current.map(s => {
-      if (s === match) {
-        return {
-          ...s,
-          displayLabel: fileName,
-          action: {
-            ...s.action!,
-            id: DesktopShortcutsService.generateActionId('org.zowe.editor', { targetPluginId: 'org.zowe.editor', type: 'openFile', name: filePath }),
-            name: 'Open ' + fileName + ' in Editor',
-            launchMetadata: { data: { type: 'openFile', name: filePath } }
-          }
-        };
-      }
-      return s;
-    });
-    this.saveShortcuts(updated);
-  }
-
   /** Invoke a shortcut -- either a plain launch or a dispatcher action */
   invokeShortcut(shortcut: DesktopShortcut, applicationManager: MVDHosting.ApplicationManagerInterface, pluginDef?: any): void {
     const targetId = shortcut.action?.targetPluginId || shortcut.pluginId;
@@ -431,11 +394,11 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     }
     if (shortcut.action) {
       const actionDef = shortcut.action;
-      // For converted file shortcuts (openFile), spawn the editor directly with
+      // For file shortcuts (openFile), spawn the editor directly with
       // the launchMetadata so the editor receives it as LAUNCH_METADATA without
       // any dispatcher primaryArgument transform that can corrupt the structure.
       const dataType = actionDef.launchMetadata?.data?.type;
-      if (dataType === 'openFile' || dataType === 'newFile') {
+      if (dataType === 'openFile') {
         const targetPluginDef = pluginDef || { basePlugin: targetPlugin, getBasePlugin: () => targetPlugin };
         applicationManager.spawnApplication(targetPluginDef as any, actionDef.launchMetadata);
       } else {
@@ -810,10 +773,9 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   saveAll(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): void {
-    // Update local state immediately so subsequent reads (e.g.
-    // convertNewFileShortcut) always see the newest data.
+    // Update local state immediately so subsequent reads always see the newest data.
     // Without this, competing HTTP PUTs read stale snapshots and the last response
-    // to arrive wins -- which reverts conversions like newFile -> openFile.
+    // to arrive wins.
     this.shortcuts$.next(shortcuts);
     this.folders$.next(folders);
 
