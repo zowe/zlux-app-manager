@@ -15,6 +15,7 @@ import {
   TRANSLATIONS,
   TRANSLATIONS_FORMAT,
 } from '@angular/core';
+import { loadTranslations } from '@angular/localize';
 import { from, lastValueFrom, Observable, throwError } from 'rxjs';
 import { LanguageLocaleService } from './language-locale.service';
 import { BaseLogger } from 'virtual-desktop-logger';
@@ -59,27 +60,96 @@ export class TranslationLoaderService {
     // ex.: messages.es.xlf
     const fallbackTranslationFileURL = baseLanguage !== language ? this.getTranslationFileURL(plugin, baseLanguage) : null;
     let currentTranslationFileURL = translationFileURL;
-    return lastValueFrom(this.loadTranslations(currentTranslationFileURL).pipe(
+    return lastValueFrom(this.fetchTranslations(currentTranslationFileURL).pipe(
       catchError(err => {
         if (fallbackTranslationFileURL != null) {
           this.logger.warn("ZWED5170W", translationFileURL, fallbackTranslationFileURL); //this.logger.warn(`Failed to load language file ${translationFileURL}, using ${fallbackTranslationFileURL}.`);
           currentTranslationFileURL = fallbackTranslationFileURL;
-          return this.loadTranslations(currentTranslationFileURL);
+          return this.fetchTranslations(currentTranslationFileURL);
         }
         return throwError(err);
       })))
-      .then((translations: string) => [
-        { provide: TRANSLATIONS, useValue: translations },
-        { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
-        { provide: LOCALE_ID, useValue: language }
-      ])
+      .then((translations: string) => {
+        // Parse XLF and register with $localize for AOT-compiled plugin templates
+        this.registerXlfWithLocalize(translations);
+        return [
+          { provide: TRANSLATIONS, useValue: translations },
+          { provide: TRANSLATIONS_FORMAT, useValue: 'xlf' },
+          { provide: LOCALE_ID, useValue: language }
+        ];
+      })
       .catch(() => {
         this.logger.warn("ZWED5171W", currentTranslationFileURL); //this.logger.warn(`Failed to load language file ${currentTranslationFileURL}, using no translation files.`);
           return noProviders;
       });
   }
 
-  private loadTranslations(fileURL: string): Observable<string> {
+  /**
+   * Parse XLF content and register translations with $localize for AOT-compiled templates.
+   * loadTranslations() from @angular/localize is additive in Angular 18+ —
+   * it merges into existing $localize.TRANSLATIONS without clearing,
+   * so each plugin's translations accumulate safely.
+   */
+  private registerXlfWithLocalize(xlf: string): void {
+    try {
+      const parsed = this.parseXlf(xlf);
+      const count = Object.keys(parsed).length;
+      if (count > 0) {
+        loadTranslations(parsed);
+        this.logger.debug(`Registered ${count} $localize translation(s) from XLF`);
+      }
+    } catch (e) {
+      this.logger.warn(`Failed to parse XLF for $localize registration`, e);
+    }
+  }
+
+  /**
+   * Parse XLIFF 1.2 content into a Record<string, string> map
+   * suitable for @angular/localize's loadTranslations().
+   * Keys are trans-unit IDs (matching @@customId from i18n attributes),
+   * values are translation strings with {$PLACEHOLDER} interpolation syntax.
+   */
+  private parseXlf(xlf: string): Record<string, string> {
+    const translations: Record<string, string> = {};
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xlf, 'text/xml');
+    const transUnits = doc.getElementsByTagName('trans-unit');
+    for (let i = 0; i < transUnits.length; i++) {
+      const unit = transUnits[i];
+      const id = unit.getAttribute('id');
+      const target = unit.getElementsByTagName('target')[0];
+      if (id && target) {
+        translations[id] = this.serializeTargetContent(target);
+      }
+    }
+    return translations;
+  }
+
+  /**
+   * Serialize the content of a <target> element, converting XLIFF
+   * placeholder elements (<x id="..."/>) into $localize-compatible
+   * {$PLACEHOLDER_NAME} format.
+   */
+  private serializeTargetContent(targetEl: Element): string {
+    let result = '';
+    for (let i = 0; i < targetEl.childNodes.length; i++) {
+      const node = targetEl.childNodes[i];
+      if (node.nodeType === Node.TEXT_NODE) {
+        result += node.textContent || '';
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as Element;
+        if (el.tagName === 'x' || el.tagName === 'X') {
+          const phId = el.getAttribute('id');
+          if (phId) {
+            result += `{$${phId}}`;
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  private fetchTranslations(fileURL: string): Observable<string> {
     return from(window.fetch(fileURL).then(res => {
       if (res.ok) {
         return res.text();

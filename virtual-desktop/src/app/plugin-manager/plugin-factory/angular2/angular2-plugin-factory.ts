@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -139,15 +137,21 @@ export class Angular2PluginFactory extends PluginFactory {
 
     this.logger.info(`ZWED5052I`, pluginDefinition.getIdentifier(), scriptUrl); //this.logger.info(`Loading Angular Plugin ID=${pluginDefinition.getIdentifier()}, URL=${scriptUrl}`);
 
-    return new Promise((resolve, reject) => {
-      (window as any).require([scriptUrl],
-        (plugin: MvdNativeAngularPlugin) => {
-          this.translationLoaderService.getTranslationProviders(pluginDefinition.getBasePlugin()).then(providers => {
-            resolve(new CompiledPlugin(plugin.pluginComponent, plugin.pluginModule, providers));
-          },
-        (failure: any) => reject(failure));
+    // Fetch XLF and register with $localize BEFORE loading plugin JS.
+    // AOT-compiled templates contain top-level $localize`...` constants that
+    // execute immediately when RequireJS evaluates main.js, so translations
+    // must already be in $localize.TRANSLATIONS at that point.
+    return this.translationLoaderService
+      .getTranslationProviders(pluginDefinition.getBasePlugin())
+      .then(providers => {
+        return new Promise<CompiledPlugin>((resolve, reject) => {
+          (window as any).require([scriptUrl],
+            (plugin: MvdNativeAngularPlugin) => {
+              resolve(new CompiledPlugin(plugin.pluginComponent, plugin.pluginModule, providers));
+            },
+            (failure: any) => reject(failure));
         });
-    });
+      });
   }
 }
 
@@ -162,4 +166,3 @@ export class Angular2PluginFactory extends PluginFactory {
  Copyright Contributors to the Zowe Project.
  Copyright Contributors to the Zowe Project.
 */
-
