@@ -144,6 +144,14 @@ if (document.head) {
   document.head.appendChild(baseUrl);
 }
 
+// set baseurl
+const baseUrl = document.createElement('base');
+baseUrl.setAttribute("href", ZoweZLUX?.uriBroker.desktopRootUri());
+
+if (document.head) {
+  document.head.appendChild(baseUrl);
+}
+
 const element = document.createElement('rs-com-root');
 document.body.appendChild(element);
 performBootstrap();
