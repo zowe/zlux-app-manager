@@ -466,6 +466,15 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     return this.shortcuts$.value.filter(s => s.folderId === folderId);
   }
 
+  /** Generate a folder name that does not collide with any existing folder name */
+  getUniqueFolderName(baseName: string): string {
+    const names = new Set(this.folders$.value.map(f => f.name));
+    if (!names.has(baseName)) return baseName;
+    let i = 2;
+    while (names.has(`${baseName} (${i})`)) i++;
+    return `${baseName} (${i})`;
+  }
+
   /** Create a new folder at the given grid position with the provided shortcuts moved into it */
   createFolder(name: string, gridRow: number, gridCol: number, shortcutIds: string[]): DesktopFolder {
     const folder: DesktopFolder = {
@@ -488,7 +497,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /** Create a folder by merging two shortcuts (drag-to-create) */
   createFolderFromShortcuts(targetShortcut: DesktopShortcut, droppedShortcut: DesktopShortcut): DesktopFolder {
-    return this.createFolder('New Folder', targetShortcut.gridRow, targetShortcut.gridCol, [
+    return this.createFolder(this.getUniqueFolderName('New Folder'), targetShortcut.gridRow, targetShortcut.gridCol, [
       targetShortcut.id,
       droppedShortcut.id
     ]);

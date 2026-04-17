@@ -803,7 +803,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const occupied = this.topLevelShortcuts.some(s => s.gridRow === row && s.gridCol === col)
       || this.folders.some(f => f.gridRow === row && f.gridCol === col);
     if (occupied) return;
-    const folder = this.shortcutsService.createFolder('New Folder', row, col, []);
+    const folder = this.shortcutsService.createFolder(this.shortcutsService.getUniqueFolderName('New Folder'), row, col, []);
     if (this.shortcutsService.folders$.value.some(f => f.id === folder.id)) {
       this.renameFolderTargetId = folder.id;
     }
