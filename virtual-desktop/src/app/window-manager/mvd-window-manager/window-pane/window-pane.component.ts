@@ -124,21 +124,13 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       this.folders = folders;
     });
 
-    // Listen for external shortcut changes (e.g. from ZFM plugin)
-    window.addEventListener('desktop-shortcuts-changed', () => {
+    // Listen for external shortcut changes
+    window.addEventListener('zlux_desktop-shortcuts-changed', () => {
       this.shortcutsService.reloadShortcutsExternal();
     });
 
-    // Listen for editor saving a new file created from a desktop shortcut
-    window.addEventListener('desktop-new-file-saved', ((event: CustomEvent) => {
-      const { originalName, filePath } = event.detail;
-      if (originalName && filePath) {
-        this.shortcutsService.convertNewFileShortcut(originalName, filePath);
-      }
-    }) as EventListener);
-
     // Listen for folder open requests from the taskbar
-    window.addEventListener('desktop-open-folder', ((event: CustomEvent) => {
+    window.addEventListener('zlux_desktop-open-folder', ((event: CustomEvent) => {
       const { folderId } = event.detail;
       if (folderId) {
         const folder = this.folders.find(f => f.id === folderId);
@@ -154,7 +146,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     });
 
     // Listen for launchbar pin changes from other sources
-    window.addEventListener('desktop-pinned-plugins-changed', () => {
+    window.addEventListener('zlux_desktop-pinned-plugins-changed', () => {
       this.loadPinnedPluginIds();
     });
 
@@ -298,18 +290,11 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
   onIconRenamed(event: { shortcut: DesktopShortcut; newLabel: string }): void {
     this.renameTargetKey = null;
-    const updateActionName = event.shortcut.action?.launchMetadata?.data?.type === 'newFile';
-    this.shortcutsService.renameShortcut(event.shortcut.id, event.newLabel, updateActionName);
+    this.shortcutsService.renameShortcut(event.shortcut.id, event.newLabel);
   }
 
   onIconRenameCancelled(shortcut: DesktopShortcut): void {
     this.renameTargetKey = null;
-    // Auto-delete "New File" shortcuts that were never given a real name by the user.
-    // We check displayLabel === 'New File' because that's the default assigned at creation time.
-    // If the user partially renamed it before cancelling, we keep the shortcut since they may retry.
-    if (shortcut.action?.launchMetadata?.data?.type === 'newFile' && shortcut.displayLabel === 'New File') {
-      this.shortcutsService.removeShortcutById(shortcut.id);
-    }
   }
 
   private startIconRename(shortcut: DesktopShortcut): void {
@@ -318,8 +303,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
   onFolderShortcutRenamed(event: { shortcut: DesktopShortcut; newLabel: string }): void {
     this.renameTargetKey = null;
-    const updateActionName = event.shortcut.action?.launchMetadata?.data?.type === 'newFile';
-    this.shortcutsService.renameShortcut(event.shortcut.id, event.newLabel, updateActionName);
+    this.shortcutsService.renameShortcut(event.shortcut.id, event.newLabel);
   }
 
   onFolderShortcutRenameCancelled(shortcut: DesktopShortcut): void {
@@ -364,7 +348,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     return this.shortcuts.filter(s => s.folderId === folderId);
   }
 
-  // ── Folder event handlers ──
+  // -- Folder event handlers --
 
   onFolderSelected(folder: DesktopFolder): void {
     this.highlightedFolderId = folder.id;
@@ -376,7 +360,6 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       this.openFolderId = null;
     } else {
       this.openFolderId = folder.id;
-      this.shortcutsService.markFolderOpened(folder.id);
       // Initialize keyboard focus at first item when folder opens
       const folderComp = this.folderComponents?.find(fc => fc.folder?.id === folder.id);
       if (folderComp) {
@@ -457,7 +440,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.shortcutsService.reorderShortcutsInFolder(event.folder.id, event.newOrder);
   }
 
-  // ── Drag-to-create-folder logic ──
+  // -- Drag-to-create-folder logic --
 
   private dragConsumed = false;
 
@@ -543,7 +526,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       return;
     }
 
-    // Dropped on an existing folder — add the shortcut to it
+    // Dropped on an existing folder -- add the shortcut to it
     if (this.dragOverFolderId && this.dragSourceShortcut) {
       this.shortcutsService.addShortcutToFolder(
         this.dragOverFolderId,
@@ -557,7 +540,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       return;
     }
 
-    // Dropped on another shortcut — create a new folder from both
+    // Dropped on another shortcut -- create a new folder from both
     if (this.folderPreviewTargetKey && this.dragSourceShortcut) {
       const target = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.folderPreviewTargetKey);
       if (target) {
@@ -671,7 +654,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.renameFolderTargetId = null;
   }
 
-  // ── Marquee selection ──
+  // -- Marquee selection --
 
   onDesktopMouseDown(event: MouseEvent): void {
     // Only start marquee from the desktop background itself (not from icons/windows)
@@ -731,7 +714,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
   private updateMarqueeSelection(ctrlHeld: boolean): void {
     const rect = this.getMarqueeRect();
-    // Too small to be a drag — don't compute selection yet
+    // Too small to be a drag -- don't compute selection yet
     if (rect.width < 5 && rect.height < 5) return;
     // Icon positions are relative to the pane; convert to viewport coords
     const paneBounds = this.elementRef.nativeElement.querySelector('.window-pane')?.getBoundingClientRect()
@@ -806,12 +789,6 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       text: this.translation.translate('New Folder'),
       action: () => this.createDesktopFolder(event.clientX, event.clientY)
     });
-    if (this.pluginMap.has('org.zowe.editor')) {
-      menuItems.push({
-        text: this.translation.translate('Create New File'),
-        action: () => this.createNewFileShortcut()
-      });
-    }
     this.windowManager.contextMenuRequested.next({
       xPos: event.clientX,
       yPos: event.clientY,
@@ -826,53 +803,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const occupied = this.topLevelShortcuts.some(s => s.gridRow === row && s.gridCol === col)
       || this.folders.some(f => f.gridRow === row && f.gridCol === col);
     if (occupied) return;
-    const folder = this.shortcutsService.createFolder('New Folder', row, col, []);
+    const folder = this.shortcutsService.createFolder(this.shortcutsService.getUniqueFolderName('New Folder'), row, col, []);
     if (this.shortcutsService.folders$.value.some(f => f.id === folder.id)) {
       this.renameFolderTargetId = folder.id;
-    }
-  }
-
-  private createNewFileShortcut(): void {
-    this.http.get<any>(ZoweZLUX.uriBroker.userInfoUri()).subscribe(
-      (resp) => {
-        const homeDir = resp?.home?.trim() || '/';
-        this.createNewFileShortcutWithDir(homeDir);
-      },
-      () => {
-        this.createNewFileShortcutWithDir('/');
-      }
-    );
-  }
-
-  private createNewFileShortcutWithDir(directory: string): void {
-    const defaultLabel = 'New File';
-    const actionData = { targetPluginId: 'org.zowe.editor', type: 'newFile', name: defaultLabel };
-    const shortcut: DesktopShortcut = {
-      id: DesktopShortcutsService.generateShortcutId(),
-      pluginId: 'org.zowe.editor',
-      gridRow: 0,
-      gridCol: 0,
-      displayLabel: defaultLabel,
-      displayIcon: ZoweZLUX.uriBroker.pluginResourceUri(DESKTOP_PLUGIN, 'assets/images/new-file.svg'),
-      action: {
-        id: DesktopShortcutsService.generateActionId('org.zowe.editor', actionData),
-        name: 'Open New File in Editor',
-        targetPluginId: 'org.zowe.editor',
-        targetMode: 'PluginCreate',
-        type: 'Message',
-        primaryArgument: { data: { op: 'deref', source: 'event', path: ['data'] } },
-        launchMetadata: { data: { type: 'newFile', name: defaultLabel, directory: directory } }
-      }
-    };
-    const shortcutId = shortcut.id;
-    this.shortcutsService.addActionShortcut(shortcut);
-    // With optimistic updates, addActionShortcut synchronously emits to shortcuts$.
-    // Check the current value directly instead of using skip(1) which would
-    // miss the synchronous emission and wait for an unrelated future save.
-    const current = this.shortcutsService.shortcuts$.value;
-    const created = current.find(s => s.id === shortcutId);
-    if (created) {
-      this.renameTargetKey = this.getShortcutKey(created);
     }
   }
 
@@ -1027,7 +960,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       currentRow = highlightedFolder.gridRow;
       currentCol = highlightedFolder.gridCol;
     } else {
-      // Nothing selected — select the first item (top-left)
+      // Nothing selected -- select the first item (top-left)
       const first = allItems.sort((a, b) => a.col !== b.col ? a.col - b.col : a.row - b.row)[0];
       this.selectGridItem(first, false);
       return;
@@ -1101,7 +1034,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }
   }
 
-  /** Open only the currently highlighted (focused) item — not the entire selection.
+  /** Open only the currently highlighted (focused) item -- not the entire selection.
    *  This matches Windows 11 behavior: selection is for batch delete/move, Enter opens the focused item. */
   private openHighlightedItem(): void {
     if (this.highlightedIconId) {
@@ -1190,7 +1123,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       }
       this.http.put(uri, { plugins }).subscribe(() => {
         this.pinnedPluginIds = new Set(plugins);
-        window.dispatchEvent(new CustomEvent('desktop-pinned-plugins-changed'));
+        window.dispatchEvent(new CustomEvent('zlux_desktop-pinned-plugins-changed'));
       });
     });
   }

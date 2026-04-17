@@ -119,7 +119,7 @@
   border-color: #ff4444;
 }
 
-/* ── Expanded folder overlay ── */
+/* -- Expanded folder overlay -- */
 .desktop-folder-overlay {
   position: fixed;
   top: 0;
@@ -301,7 +301,7 @@
   border-color: #ff4444;
 }
 
-/* ── Drag-to-create folder preview ── */
+/* -- Drag-to-create folder preview -- */
 :host-context(.folder-drop-preview) .desktop-folder-grid {
   opacity: 0.6;
   background-color: rgba(100, 150, 255, 0.2);
