@@ -1,6 +1,10 @@
 {
   "name": "org.zowe.zlux.ng2desktop.settings",
   "version": "2.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zowe/zlux-app-manager.git"
+  },
   "scripts": {
     "start": "webpack --progress --watch",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --progress",
@@ -21,8 +25,9 @@
     "@angular/platform-browser": "~18.0.0",
     "@angular/platform-browser-dynamic": "~18.0.0",
     "@angular/router": "~18.0.0",
+    "@zlux/widgets": "github:zowe/zlux-widgets#v3.x/master",
     "@ngtools/webpack": "~18.0.0",
-    "angular-l10n": "~16.0.0",
+    "angular-l10n": "~17.0.1",
     "angular2-template-loader": "~0.6.2",
     "codelyzer": "~6.0.2",
     "copy-webpack-plugin": "~11.0.0",
