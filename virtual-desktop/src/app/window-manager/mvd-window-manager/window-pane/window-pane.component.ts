@@ -265,7 +265,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       },
       {
         text: this.translation.translate('Remove From Desktop'),
-        action: () => this.shortcutsService.removeShortcutById(shortcut.id)
+        action: () => this.deleteShortcutOrSelection(shortcut)
       },
       {
         text: this.translation.translate('Properties'),
@@ -1080,6 +1080,17 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.selectedKeys.clear();
     this.highlightedIconId = null;
     this.highlightedFolderId = null;
+  }
+
+  /** Delete a shortcut via context menu. If the shortcut is part of a multi-selection,
+   *  delete all selected items instead of just the one that was right-clicked. */
+  private deleteShortcutOrSelection(shortcut: DesktopShortcut): void {
+    const key = this.getShortcutKey(shortcut);
+    if (this.selectedKeys.has(key) && this.selectedKeys.size > 1) {
+      this.deleteSelectedItems();
+    } else {
+      this.shortcutsService.removeShortcutById(shortcut.id);
+    }
   }
 
   private renameHighlightedItem(): void {
