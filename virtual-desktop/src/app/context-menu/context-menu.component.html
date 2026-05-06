@@ -17,9 +17,10 @@
   [style.top.px]='this.newY'
   [class.propagateChildLeft]="this._propagateChildLeft"
   [class.navigable]='this.isNavigable'
+  [class.child-menu]='this._isChildMenu'
   id="ZAP_ContextMenu_Panel"
 >
-  <ul>
+  <ul [style.max-height]="_ulMaxHeight">
     <ng-container *ngFor='let menuItem of menuItems; let i = index;'>
       <ng-container *ngIf='menuItem.children != null && menuItem.children.length > 0; then multiItem else singleItem'></ng-container>
       <ng-template #singleItem>

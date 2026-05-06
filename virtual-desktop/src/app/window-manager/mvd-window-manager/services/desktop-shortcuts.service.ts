@@ -289,6 +289,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       return;
     }
     const position = this.findNextAvailablePosition(current);
+    if (!position) {
+      this.notifyGridFull();
+      return;
+    }
     const updated: DesktopShortcut[] = [...current, { id: DesktopShortcutsService.generateShortcutId(), pluginId, gridRow: position.row, gridCol: position.col }];
     this.saveShortcuts(updated);
   }
@@ -297,6 +301,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   addActionShortcut(shortcut: Omit<DesktopShortcut, 'gridRow' | 'gridCol'>): void {
     const current = this.shortcuts$.value;
     const position = this.findNextAvailablePosition(current);
+    if (!position) {
+      this.notifyGridFull();
+      return;
+    }
     const updated: DesktopShortcut[] = [...current, {
       ...shortcut,
       id: shortcut.id || DesktopShortcutsService.generateShortcutId(),
@@ -447,12 +455,13 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.saveShortcuts(updated);
   }
 
-  private findNextAvailablePosition(shortcuts: DesktopShortcut[]): { row: number; col: number } {
+  private findNextAvailablePosition(shortcuts: DesktopShortcut[]): { row: number; col: number } | null {
     return this.findNextAvailablePositionFrom(shortcuts, this.folders$.value);
   }
 
-  /** Find the next available grid position given arbitrary shortcuts and folders arrays */
-  private findNextAvailablePositionFrom(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): { row: number; col: number } {
+  /** Find the next available grid position given arbitrary shortcuts and folders arrays.
+   *  Returns null if the grid is completely full. */
+  private findNextAvailablePositionFrom(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): { row: number; col: number } | null {
     const topLevelShortcuts = shortcuts.filter(s => !s.folderId);
     const occupied = new Set([
       ...topLevelShortcuts.map(s => `${s.gridRow},${s.gridCol}`),
@@ -465,7 +474,12 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
         }
       }
     }
-    return { row: 0, col: 0 };
+    return null;
+  }
+
+  /** Returns true if every cell in the grid is occupied */
+  isGridFull(): boolean {
+    return this.findNextAvailablePositionFrom(this.shortcuts$.value, this.folders$.value) === null;
   }
 
   /** Check if a grid position is occupied in the given shortcuts and folders arrays */
@@ -556,6 +570,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   /** Remove a shortcut from its folder back to the desktop grid */
   removeShortcutFromFolder(folderId: string, shortcutId: string): void {
     const position = this.findNextAvailablePosition(this.shortcuts$.value);
+    if (!position) {
+      this.notifyGridFull();
+      return;
+    }
     const updatedShortcuts = this.shortcuts$.value.map(s => {
       if (s.id === shortcutId && s.folderId === folderId) {
         const { folderId: _, ...rest } = s;
@@ -584,7 +602,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     let targetRow = newRow;
     let targetCol = newCol;
     if (occupied.has(`${targetRow},${targetCol}`)) {
-      const pos = this.findNextAvailablePosition(this.shortcuts$.value);
+      const pos = this.findNextAvailablePosition(this.shortcuts$.value) || { row: newRow, col: newCol };
       targetRow = pos.row;
       targetCol = pos.col;
     }
@@ -674,6 +692,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     const inFolder = updated.filter(s => s.folderId === folderId);
     for (const s of inFolder) {
       const position = this.findNextAvailablePosition(updated.filter(sc => !sc.folderId));
+      if (!position) break; // Grid full -- remaining shortcuts stay hidden
       updated = updated.map(sc => {
         if (sc === s) {
           const { folderId: _, ...rest } = sc;
@@ -874,6 +893,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       if (currentFolders.some(f => f.id === folder.id)) continue;
       if (this.isPositionOccupied(folder.gridRow, folder.gridCol, currentShortcuts, currentFolders)) {
         const pos = this.findNextAvailablePositionFrom(currentShortcuts, currentFolders);
+        if (!pos) continue; // Grid full -- skip this folder
         currentFolders = [...currentFolders, { ...folder, gridRow: pos.row, gridCol: pos.col }];
       } else {
         currentFolders = [...currentFolders, folder];
@@ -888,6 +908,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
         currentShortcuts = [...currentShortcuts, shortcut];
       } else if (this.isPositionOccupied(shortcut.gridRow, shortcut.gridCol, currentShortcuts, currentFolders)) {
         const pos = this.findNextAvailablePositionFrom(currentShortcuts, currentFolders);
+        if (!pos) continue; // Grid full -- skip this shortcut
         currentShortcuts = [...currentShortcuts, { ...shortcut, gridRow: pos.row, gridCol: pos.col }];
       } else {
         currentShortcuts = [...currentShortcuts, shortcut];
@@ -934,6 +955,18 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       ZoweZLUX.notificationManager.createNotification(
         'Desktop Shortcuts',
         `Your desktop changes could not be saved${status}. They will be lost on next login.`,
+        1,
+        'org.zowe.zlux.ng2desktop'
+      )
+    );
+  }
+
+  /** Notify the user when the desktop grid has no available space */
+  private notifyGridFull(): void {
+    ZoweZLUX.notificationManager.notify(
+      ZoweZLUX.notificationManager.createNotification(
+        'Desktop Shortcuts',
+        'The desktop is full. Remove some shortcuts or folders to make room.',
         1,
         'org.zowe.zlux.ng2desktop'
       )

@@ -792,10 +792,12 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         action: () => this.shortcutsService.undoLastDelete()
       });
     }
-    menuItems.push({
-      text: this.translation.translate('New Folder'),
-      action: () => this.createDesktopFolder(event.clientX, event.clientY)
-    });
+    if (!this.shortcutsService.isGridFull()) {
+      menuItems.push({
+        text: this.translation.translate('New Folder'),
+        action: () => this.createDesktopFolder(event.clientX, event.clientY)
+      });
+    }
     this.windowManager.contextMenuRequested.next({
       xPos: event.clientX,
       yPos: event.clientY,
@@ -1228,6 +1230,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       if (!s.folderId && (s.gridRow >= this.maxGridRows || s.gridCol >= this.maxGridCols)) {
         occupied.delete(`${s.gridRow},${s.gridCol}`);
         const pos = this.findNearestAvailablePosition(s.gridRow, s.gridCol, occupied);
+        if (!pos) break; // Grid full -- stop reflowing
         updatedShortcuts[i] = { ...s, gridRow: pos.row, gridCol: pos.col };
         occupied.add(`${pos.row},${pos.col}`);
         shortcutsChanged = true;
@@ -1240,6 +1243,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       if (f.gridRow >= this.maxGridRows || f.gridCol >= this.maxGridCols) {
         occupied.delete(`${f.gridRow},${f.gridCol}`);
         const pos = this.findNearestAvailablePosition(f.gridRow, f.gridCol, occupied);
+        if (!pos) break; // Grid full -- stop reflowing
         updatedFolders[i] = { ...f, gridRow: pos.row, gridCol: pos.col };
         occupied.add(`${pos.row},${pos.col}`);
         foldersChanged = true;
@@ -1255,8 +1259,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }
   }
 
-  /** Find the closest in-bounds unoccupied cell to the given position using Manhattan distance */
-  private findNearestAvailablePosition(fromRow: number, fromCol: number, occupied: Set<string>): { row: number; col: number } {
+  /** Find the closest in-bounds unoccupied cell to the given position using Manhattan distance.\n   *  Returns null if no position is available. */
+  private findNearestAvailablePosition(fromRow: number, fromCol: number, occupied: Set<string>): { row: number; col: number } | null {
     const clampedRow = Math.min(fromRow, this.maxGridRows - 1);
     const clampedCol = Math.min(fromCol, this.maxGridCols - 1);
     if (!occupied.has(`${clampedRow},${clampedCol}`)) {
@@ -1276,7 +1280,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         }
       }
     }
-    return { row: 0, col: 0 };
+    return null;
   }
 }
 
