@@ -45,6 +45,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
   @Input() set theme(newTheme: DesktopTheme) {
     this._theme = newTheme;
+    if (newTheme?.size?.launchbar) {
+      this.launchbarSize = newTheme.size.launchbar;
+    }
     if (newTheme?.size?.window) {
       this.applyIconSize(newTheme.size.window);
     }
@@ -87,6 +90,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   iconFontSize: number = 11;
   iconLetterSize: number = 22;
   gridPadding: number = 10;
+  private launchbarSize: number = 2;
   private resizeTimer: any = null;
 
   constructor(
@@ -142,6 +146,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
     // Subscribe to UI size changes from personalization panel
     this.themeService.onSizeChange.subscribe((size: any) => {
+      if (size.launchbarSize) {
+        this.launchbarSize = size.launchbarSize;
+      }
       this.applyIconSize(size.windowSize || 2);
     });
 
@@ -1175,9 +1182,19 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.reflowOutOfBoundsIcons();
   }
 
+  /** Pixel height of the launchbar based on its size setting */
+  private getLaunchbarHeight(): number {
+    switch (this.launchbarSize) {
+      case 1: return 25;
+      case 3: return 76;
+      default: return 41; // medium (2)
+    }
+  }
+
   private updateGridDimensions(): void {
+    const launchbarHeight = this.getLaunchbarHeight();
     this.maxGridCols = Math.max(1, Math.floor((window.innerWidth - this.gridPadding) / this.iconCellWidth));
-    this.maxGridRows = Math.max(1, Math.floor((window.innerHeight - this.gridPadding) / this.iconCellHeight));
+    this.maxGridRows = Math.max(1, Math.floor((window.innerHeight - this.gridPadding - launchbarHeight) / this.iconCellHeight));
     // Keep the service in sync so new shortcuts are placed within the visible grid
     this.shortcutsService.updateGridLimits(this.maxGridRows, this.maxGridCols);
   }

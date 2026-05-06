@@ -61,10 +61,12 @@ export interface DesktopFolder {
 }
 
 export interface DeletionUndoSnapshot {
-  shortcuts: DesktopShortcut[];
-  folders: DesktopFolder[];
-  pinnedFolderIds: string[];
-  launchMenuFolderIds: string[];
+  deletedShortcuts: DesktopShortcut[];
+  deletedFolders: DesktopFolder[];
+  removedPinnedFolderIds: string[];
+  removedLaunchMenuFolderIds: string[];
+  /** Shortcuts that were released from deleted folders and need to be moved back on undo */
+  releasedFromFolder: { shortcutId: string; folderId: string }[];
 }
 
 @Injectable()
@@ -315,7 +317,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   removeShortcutById(shortcutId: string): void {
-    this.pushDeletionSnapshot();
+    const deleted = this.shortcuts$.value.find(s => s.id === shortcutId);
+    if (deleted) {
+      this.pushDeletionDiff([deleted], [], [], [], []);
+    }
     const updated = this.shortcuts$.value.filter(s => s.id !== shortcutId);
     this.saveShortcuts(updated);
   }
@@ -443,8 +448,12 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   private findNextAvailablePosition(shortcuts: DesktopShortcut[]): { row: number; col: number } {
+    return this.findNextAvailablePositionFrom(shortcuts, this.folders$.value);
+  }
+
+  /** Find the next available grid position given arbitrary shortcuts and folders arrays */
+  private findNextAvailablePositionFrom(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): { row: number; col: number } {
     const topLevelShortcuts = shortcuts.filter(s => !s.folderId);
-    const folders = this.folders$.value;
     const occupied = new Set([
       ...topLevelShortcuts.map(s => `${s.gridRow},${s.gridCol}`),
       ...folders.map(f => `${f.gridRow},${f.gridCol}`)
@@ -457,6 +466,12 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       }
     }
     return { row: 0, col: 0 };
+  }
+
+  /** Check if a grid position is occupied in the given shortcuts and folders arrays */
+  private isPositionOccupied(row: number, col: number, shortcuts: DesktopShortcut[], folders: DesktopFolder[]): boolean {
+    return shortcuts.some(s => !s.folderId && s.gridRow === row && s.gridCol === col)
+      || folders.some(f => f.gridRow === row && f.gridCol === col);
   }
 
   // -- Folder operations --
@@ -672,9 +687,20 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /** Delete multiple shortcuts and folders atomically in a single save */
   batchDeleteItems(shortcutIds: string[], folderIds: string[]): void {
-    this.pushDeletionSnapshot();
     const shortcutIdSet = new Set(shortcutIds);
     const folderIdSet = new Set(folderIds);
+
+    const deletedShortcuts = this.shortcuts$.value.filter(s => shortcutIdSet.has(s.id));
+    const deletedFolders = this.folders$.value.filter(f => folderIdSet.has(f.id));
+    const removedPinned = this.pinnedFolderIds$.value.filter(id => folderIdSet.has(id));
+    const removedLaunchMenu = this.launchMenuFolderIds$.value.filter(id => folderIdSet.has(id));
+    const releasedFromFolder: { shortcutId: string; folderId: string }[] = [];
+    for (const folderId of folderIds) {
+      for (const s of this.shortcuts$.value.filter(s => s.folderId === folderId)) {
+        releasedFromFolder.push({ shortcutId: s.id, folderId });
+      }
+    }
+    this.pushDeletionDiff(deletedShortcuts, deletedFolders, removedPinned, removedLaunchMenu, releasedFromFolder);
 
     // Remove the targeted shortcuts
     let updatedShortcuts = this.shortcuts$.value.filter(s => !shortcutIdSet.has(s.id));
@@ -695,7 +721,14 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   deleteFolder(folderId: string): void {
-    this.pushDeletionSnapshot();
+    const deletedFolder = this.folders$.value.find(f => f.id === folderId);
+    const removedPinned = this.pinnedFolderIds$.value.filter(id => id === folderId);
+    const removedLaunchMenu = this.launchMenuFolderIds$.value.filter(id => id === folderId);
+    const releasedFromFolder = this.shortcuts$.value
+      .filter(s => s.folderId === folderId)
+      .map(s => ({ shortcutId: s.id, folderId }));
+    this.pushDeletionDiff([], deletedFolder ? [deletedFolder] : [], removedPinned, removedLaunchMenu, releasedFromFolder);
+
     const updatedFolders = this.folders$.value.filter(f => f.id !== folderId);
     const updatedShortcuts = this.releaseShortcutsFromFolder([...this.shortcuts$.value], folderId);
     // Also remove from pinned and launch menu lists
@@ -806,12 +839,19 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.saveAll(shortcuts, this.folders$.value);
   }
 
-  private pushDeletionSnapshot(): void {
+  private pushDeletionDiff(
+    deletedShortcuts: DesktopShortcut[],
+    deletedFolders: DesktopFolder[],
+    removedPinnedFolderIds: string[],
+    removedLaunchMenuFolderIds: string[],
+    releasedFromFolder: { shortcutId: string; folderId: string }[]
+  ): void {
     this.deletionUndoStack.push({
-      shortcuts: JSON.parse(JSON.stringify(this.shortcuts$.value)),
-      folders: JSON.parse(JSON.stringify(this.folders$.value)),
-      pinnedFolderIds: [...this.pinnedFolderIds$.value],
-      launchMenuFolderIds: [...this.launchMenuFolderIds$.value]
+      deletedShortcuts: JSON.parse(JSON.stringify(deletedShortcuts)),
+      deletedFolders: JSON.parse(JSON.stringify(deletedFolders)),
+      removedPinnedFolderIds: [...removedPinnedFolderIds],
+      removedLaunchMenuFolderIds: [...removedLaunchMenuFolderIds],
+      releasedFromFolder: [...releasedFromFolder]
     });
     if (this.deletionUndoStack.length > DesktopShortcutsService.MAX_UNDO_DEPTH) {
       this.deletionUndoStack.shift();
@@ -825,9 +865,65 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   undoLastDelete(): boolean {
     const snapshot = this.deletionUndoStack.pop();
     if (!snapshot) return false;
-    this.pinnedFolderIds$.next(snapshot.pinnedFolderIds);
-    this.launchMenuFolderIds$.next(snapshot.launchMenuFolderIds);
-    this.saveAll(snapshot.shortcuts, snapshot.folders);
+
+    let currentShortcuts = [...this.shortcuts$.value];
+    let currentFolders = [...this.folders$.value];
+
+    // Re-add deleted folders first (so positions are resolved before shortcuts)
+    for (const folder of snapshot.deletedFolders) {
+      if (currentFolders.some(f => f.id === folder.id)) continue;
+      if (this.isPositionOccupied(folder.gridRow, folder.gridCol, currentShortcuts, currentFolders)) {
+        const pos = this.findNextAvailablePositionFrom(currentShortcuts, currentFolders);
+        currentFolders = [...currentFolders, { ...folder, gridRow: pos.row, gridCol: pos.col }];
+      } else {
+        currentFolders = [...currentFolders, folder];
+      }
+    }
+
+    // Re-add deleted shortcuts
+    for (const shortcut of snapshot.deletedShortcuts) {
+      if (currentShortcuts.some(s => s.id === shortcut.id)) continue;
+      if (shortcut.folderId) {
+        // Was inside a folder -- add back as-is
+        currentShortcuts = [...currentShortcuts, shortcut];
+      } else if (this.isPositionOccupied(shortcut.gridRow, shortcut.gridCol, currentShortcuts, currentFolders)) {
+        const pos = this.findNextAvailablePositionFrom(currentShortcuts, currentFolders);
+        currentShortcuts = [...currentShortcuts, { ...shortcut, gridRow: pos.row, gridCol: pos.col }];
+      } else {
+        currentShortcuts = [...currentShortcuts, shortcut];
+      }
+    }
+
+    // Move released shortcuts back into their restored folders
+    if (snapshot.releasedFromFolder.length > 0) {
+      const releaseMap = new Map<string, string>();
+      for (const entry of snapshot.releasedFromFolder) {
+        releaseMap.set(entry.shortcutId, entry.folderId);
+      }
+      currentShortcuts = currentShortcuts.map(s => {
+        const originalFolderId = releaseMap.get(s.id);
+        if (originalFolderId && currentFolders.some(f => f.id === originalFolderId)) {
+          return { ...s, folderId: originalFolderId, gridRow: -1, gridCol: -1 };
+        }
+        return s;
+      });
+    }
+
+    // Re-add removed pinned folder IDs
+    const updatedPinned = [...this.pinnedFolderIds$.value];
+    for (const id of snapshot.removedPinnedFolderIds) {
+      if (!updatedPinned.includes(id)) updatedPinned.push(id);
+    }
+    this.pinnedFolderIds$.next(updatedPinned);
+
+    // Re-add removed launch menu folder IDs
+    const updatedLaunchMenu = [...this.launchMenuFolderIds$.value];
+    for (const id of snapshot.removedLaunchMenuFolderIds) {
+      if (!updatedLaunchMenu.includes(id)) updatedLaunchMenu.push(id);
+    }
+    this.launchMenuFolderIds$.next(updatedLaunchMenu);
+
+    this.saveAll(currentShortcuts, currentFolders);
     return true;
   }
 
