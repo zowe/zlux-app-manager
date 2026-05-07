@@ -144,6 +144,11 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       }
     }) as EventListener);
 
+    // Close any open folder when an app is launched from the launchbar/menu
+    window.addEventListener('zlux_desktop-close-folder', () => {
+      this.openFolderId = null;
+    });
+
     // Subscribe to UI size changes from personalization panel
     this.themeService.onSizeChange.subscribe((size: any) => {
       if (size.launchbarSize) {

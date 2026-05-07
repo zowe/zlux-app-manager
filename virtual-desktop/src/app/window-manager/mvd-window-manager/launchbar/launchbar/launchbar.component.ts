@@ -301,7 +301,8 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
     return openItems;
   }
   menuItemClicked(item: LaunchbarItem): void {
-    this.applicationManager.spawnApplication(item.plugin, null)
+    this.applicationManager.spawnApplication(item.plugin, null);
+    window.dispatchEvent(new Event('zlux_desktop-close-folder'));
   }
 
   launchbarItemClicked(event: MouseEvent, item: LaunchbarItem): void {
@@ -321,6 +322,7 @@ export class LaunchbarComponent implements MVDHosting.LogoutActionInterface {
       item.showInstanceView = false;
       this.applicationManager.showApplicationWindow(item.plugin)
     }
+    window.dispatchEvent(new Event('zlux_desktop-close-folder'));
   }
 
   onStateChanged(isActive: boolean): void {

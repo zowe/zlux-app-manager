@@ -502,6 +502,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       this.isActive = false;
       this.emitState();
     }
+    window.dispatchEvent(new Event('zlux_desktop-close-folder'));
   }
 
   getShippedFolderItemIcon(item: StartMenuFolderItem): string {
