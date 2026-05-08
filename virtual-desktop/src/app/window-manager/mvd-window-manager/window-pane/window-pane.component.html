@@ -12,7 +12,7 @@
 
 <div class="window-pane" [ngStyle]="wallpaper" id="ZAP_DesktopHome_Wallpaper" (click)="onDesktopClick($event)" (contextmenu)="onDesktopRightClick($event)" (mousedown)="onDesktopMouseDown($event)">
   <rs-com-desktop-icon
-    *ngFor="let shortcut of topLevelShortcuts"
+    *ngFor="let shortcut of visibleShortcuts"
     [shortcut]="shortcut"
     [plugin]="getPluginForShortcut(shortcut)"
     [isHighlighted]="isItemSelected(getShortcutKey(shortcut)) || highlightedIconId === getShortcutKey(shortcut)"
@@ -41,7 +41,7 @@
     (iconDragEnd)="onIconDragEnd($event)">
   </rs-com-desktop-icon>
   <rs-com-desktop-folder
-    *ngFor="let folder of folders"
+    *ngFor="let folder of visibleFolders"
     [folder]="folder"
     [childShortcuts]="getShortcutsInFolder(folder.id)"
     [pluginMap]="pluginMap"

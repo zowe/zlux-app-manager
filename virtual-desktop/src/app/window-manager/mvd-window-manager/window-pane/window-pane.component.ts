@@ -356,6 +356,16 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     return this.shortcuts.filter(s => !s.folderId);
   }
 
+  /** Top-level shortcuts within the visible grid bounds */
+  get visibleShortcuts(): DesktopShortcut[] {
+    return this.topLevelShortcuts.filter(s => s.gridRow < this.maxGridRows && s.gridCol < this.maxGridCols);
+  }
+
+  /** Folders within the visible grid bounds */
+  get visibleFolders(): DesktopFolder[] {
+    return this.folders.filter(f => f.gridRow < this.maxGridRows && f.gridCol < this.maxGridCols);
+  }
+
   getShortcutsInFolder(folderId: string): DesktopShortcut[] {
     return this.shortcuts.filter(s => s.folderId === folderId);
   }
@@ -797,12 +807,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         action: () => this.shortcutsService.undoLastDelete()
       });
     }
-    if (!this.shortcutsService.isGridFull()) {
-      menuItems.push({
-        text: this.translation.translate('New Folder'),
-        action: () => this.createDesktopFolder(event.clientX, event.clientY)
-      });
-    }
+    menuItems.push({
+      text: this.translation.translate('New Folder'),
+      action: () => this.createDesktopFolder(event.clientX, event.clientY)
+    });
     this.windowManager.contextMenuRequested.next({
       xPos: event.clientX,
       yPos: event.clientY,
@@ -811,12 +819,20 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   private createDesktopFolder(clientX: number, clientY: number): void {
-    const col = Math.min(this.maxGridCols - 1, Math.max(0, Math.floor((clientX - this.gridPadding) / this.iconCellWidth)));
-    const row = Math.min(this.maxGridRows - 1, Math.max(0, Math.floor((clientY - this.gridPadding) / this.iconCellHeight)));
-    // Don't create a folder on a cell already occupied by a shortcut or another folder
+    let col = Math.min(this.maxGridCols - 1, Math.max(0, Math.floor((clientX - this.gridPadding) / this.iconCellWidth)));
+    let row = Math.min(this.maxGridRows - 1, Math.max(0, Math.floor((clientY - this.gridPadding) / this.iconCellHeight)));
+    // If the clicked cell is occupied, find the nearest available position
     const occupied = this.topLevelShortcuts.some(s => s.gridRow === row && s.gridCol === col)
       || this.folders.some(f => f.gridRow === row && f.gridCol === col);
-    if (occupied) return;
+    if (occupied) {
+      const occupiedSet = new Set([
+        ...this.topLevelShortcuts.map(s => `${s.gridRow},${s.gridCol}`),
+        ...this.folders.map(f => `${f.gridRow},${f.gridCol}`)
+      ]);
+      const pos = this.findNearestAvailablePosition(row, col, occupiedSet);
+      row = pos.row;
+      col = pos.col;
+    }
     const folder = this.shortcutsService.createFolder(this.shortcutsService.getUniqueFolderName('New Folder'), row, col, []);
     if (this.shortcutsService.folders$.value.some(f => f.id === folder.id)) {
       this.renameFolderTargetId = folder.id;
@@ -1235,7 +1251,6 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       if (!s.folderId && (s.gridRow >= this.maxGridRows || s.gridCol >= this.maxGridCols)) {
         occupied.delete(`${s.gridRow},${s.gridCol}`);
         const pos = this.findNearestAvailablePosition(s.gridRow, s.gridCol, occupied);
-        if (!pos) break; // Grid full -- stop reflowing
         updatedShortcuts[i] = { ...s, gridRow: pos.row, gridCol: pos.col };
         occupied.add(`${pos.row},${pos.col}`);
         shortcutsChanged = true;
@@ -1248,7 +1263,6 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       if (f.gridRow >= this.maxGridRows || f.gridCol >= this.maxGridCols) {
         occupied.delete(`${f.gridRow},${f.gridCol}`);
         const pos = this.findNearestAvailablePosition(f.gridRow, f.gridCol, occupied);
-        if (!pos) break; // Grid full -- stop reflowing
         updatedFolders[i] = { ...f, gridRow: pos.row, gridCol: pos.col };
         occupied.add(`${pos.row},${pos.col}`);
         foldersChanged = true;
@@ -1264,8 +1278,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }
   }
 
-  /** Find the closest in-bounds unoccupied cell to the given position using Manhattan distance.\n   *  Returns null if no position is available. */
-  private findNearestAvailablePosition(fromRow: number, fromCol: number, occupied: Set<string>): { row: number; col: number } | null {
+  /** Find the closest in-bounds unoccupied cell to the given position using Manhattan distance.
+   *  If the visible grid is full, places in overflow rows beyond maxGridRows. */
+  private findNearestAvailablePosition(fromRow: number, fromCol: number, occupied: Set<string>): { row: number; col: number } {
     const clampedRow = Math.min(fromRow, this.maxGridRows - 1);
     const clampedCol = Math.min(fromCol, this.maxGridCols - 1);
     if (!occupied.has(`${clampedRow},${clampedCol}`)) {
@@ -1285,7 +1300,16 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         }
       }
     }
-    return null;
+    // Visible grid full -- place in overflow rows
+    let overflowRow = this.maxGridRows;
+    while (true) {
+      for (let col = 0; col < this.maxGridCols; col++) {
+        if (!occupied.has(`${overflowRow},${col}`)) {
+          return { row: overflowRow, col };
+        }
+      }
+      overflowRow++;
+    }
   }
 }
 
