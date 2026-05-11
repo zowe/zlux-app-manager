@@ -1,0 +1,272 @@
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/
+
+/* --------------------------------------------------------
+   Spotlight Launcher -- macOS Spotlight-inspired overlay
+   -------------------------------------------------------- */
+
+.spotlight-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 18vh;
+  z-index: 99999;
+  animation: spotlightFadeIn 0.15s ease-out;
+}
+
+.spotlight-panel {
+  width: 640px;
+  max-width: 90vw;
+  background: #2b2b2e;
+  border-radius: 12px;
+  box-shadow: 0 16px 70px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: spotlightSlideIn 0.18s ease-out;
+}
+
+/* --- Input row --- */
+.spotlight-input-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #323236;
+  border-radius: 12px 12px 0 0;
+}
+
+.spotlight-search-icon {
+  font-size: 18px;
+  color: #aaa;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.spotlight-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f0f0f0;
+  font-size: 18px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  caret-color: #58a6ff;
+}
+
+.spotlight-input::placeholder {
+  color: #777;
+  font-size: 15px;
+}
+
+.spotlight-shortcut-hint {
+  color: #666;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.spotlight-spinner {
+  font-size: 16px;
+  color: #58a6ff;
+  margin-left: 8px;
+}
+
+/* --- Results container --- */
+.spotlight-results {
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #555 transparent;
+}
+
+.spotlight-results::-webkit-scrollbar {
+  width: 6px;
+}
+
+.spotlight-results::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.spotlight-results::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+
+/* --- Category groups --- */
+.spotlight-category-group {
+  padding: 4px 0;
+}
+
+.spotlight-category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px 4px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #888;
+  user-select: none;
+}
+
+.spotlight-category-header i {
+  font-size: 12px;
+}
+
+/* --- Individual result --- */
+.spotlight-result-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.08s ease;
+  gap: 10px;
+}
+
+.spotlight-result-item:hover,
+.spotlight-result-item.active {
+  background: #3a3a3f;
+}
+
+.spotlight-result-item.active {
+  background: #0066d6;
+}
+
+.spotlight-result-icon-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.spotlight-result-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #aaa;
+  flex-shrink: 0;
+}
+
+.spotlight-result-item.active .spotlight-result-icon {
+  color: #fff;
+}
+
+.spotlight-result-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.spotlight-result-label {
+  font-size: 14px;
+  color: #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spotlight-result-item.active .spotlight-result-label {
+  color: #fff;
+}
+
+.spotlight-result-desc {
+  font-size: 11px;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.spotlight-result-item.active .spotlight-result-desc {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* --- No results --- */
+.spotlight-no-results {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 16px;
+  color: #888;
+  font-size: 13px;
+  justify-content: center;
+}
+
+/* --- Footer hints --- */
+.spotlight-footer {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  padding: 8px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #2b2b2e;
+}
+
+.spotlight-footer span {
+  font-size: 11px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: inherit;
+  color: #aaa;
+  background: #3a3a3f;
+  border: 1px solid #555;
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
+/* --- Animations --- */
+@keyframes spotlightFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes spotlightSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/

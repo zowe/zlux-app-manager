@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, Injector } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
@@ -27,11 +27,13 @@ const ENABLE_PLUGINS_ADDED_TIMEOUT = 1000;
   selector: 'rs-com-mvd-desktop',
   templateUrl: 'desktop.component.html'
 })
-export class DesktopComponent implements MVDHosting.LoginActionInterface {
+export class DesktopComponent implements MVDHosting.LoginActionInterface, OnInit, OnDestroy {
   contextMenuDef: { xPos: number, yPos: number, items: ContextMenuItem[] } | null;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public isPersonalizationPanelVisible: boolean;
+  public isSpotlightVisible: boolean = false;
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
+  private spotlightShortcutHandler: (event: KeyboardEvent) => void;
 
   /* Default theme is a dark grey, with white text, on medium size desktop */
   public _theme: DesktopTheme = {
@@ -82,6 +84,21 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
+    this.spotlightShortcutHandler = (event: KeyboardEvent) => {
+      if (!this.authenticationManager.getUsername()) {
+        return;
+      }
+      if (event.shiftKey && event.code === 'Space' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.isSpotlightVisible = !this.isSpotlightVisible;
+      }
+    };
+    document.addEventListener('keydown', this.spotlightShortcutHandler, true);
+  }
+
+  ngOnDestroy(): void {
+    document.removeEventListener('keydown', this.spotlightShortcutHandler, true);
   }
 
   onLogin(username: string, plugins: ZLUX.Plugin[]): boolean {
@@ -132,6 +149,14 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface {
 
   closeContextMenu(): void {
     this.contextMenuDef = null;
+  }
+
+  toggleSpotlight(): void {
+    this.isSpotlightVisible = !this.isSpotlightVisible;
+  }
+
+  hideSpotlight(): void {
+    this.isSpotlightVisible = false;
   }
 }
 

@@ -16,6 +16,7 @@
 <rs-com-window-pane [theme]="_theme"></rs-com-window-pane>
 <rs-com-launchbar (changeTheme)="setTheme($event)" (previewTheme)="previewTheme($event)" [theme]="_theme"></rs-com-launchbar>
 <rs-com-personalization-panel *ngIf="isPersonalizationPanelVisible"></rs-com-personalization-panel>
+<rs-com-spotlight-launcher *ngIf="isSpotlightVisible" (closed)="hideSpotlight()"></rs-com-spotlight-launcher>
 <include-external-css></include-external-css>
 
 <!-- 

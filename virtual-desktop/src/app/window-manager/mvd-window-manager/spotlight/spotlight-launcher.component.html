@@ -1,0 +1,76 @@
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->
+
+<div class="spotlight-backdrop" (click)="onBackdropClick($event)">
+  <div class="spotlight-panel">
+    <!-- Search Input -->
+    <div class="spotlight-input-wrapper">
+      <i class="fa fa-search spotlight-search-icon"></i>
+      <input
+        #searchInput
+        type="text"
+        class="spotlight-input"
+        [value]="query"
+        (input)="onInputChange($event)"
+        (keydown)="onKeyDown($event)"
+        placeholder="Search or prefix with job, dataset, uss, app, tso, api..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <span class="spotlight-shortcut-hint" *ngIf="!query">
+        <kbd>Esc</kbd> to close
+      </span>
+      <i class="fa fa-spinner fa-spin spotlight-spinner" *ngIf="isLoading"></i>
+    </div>
+
+    <!-- Results -->
+    <div class="spotlight-results" *ngIf="flatResults.length > 0 || (hasSearched && !isLoading)">
+      <ng-container *ngIf="flatResults.length > 0">
+        <div class="spotlight-category-group" *ngFor="let group of groups">
+          <div class="spotlight-category-header">
+            <i [class]="group.icon"></i>
+            <span>{{ group.category }}</span>
+          </div>
+          <div
+            *ngFor="let result of group.results"
+            class="spotlight-result-item"
+            [class.active]="isActive(result)"
+            (click)="selectResult(result)"
+            (mouseenter)="activeIndex = getResultIndex(result)"
+          >
+            <img
+              *ngIf="result.icon"
+              [src]="result.icon"
+              class="spotlight-result-icon-img"
+              (error)="result.icon = undefined"
+            />
+            <i *ngIf="!result.icon" class="spotlight-result-icon" [ngClass]="getCategoryIconClass(result.category)"></i>
+            <div class="spotlight-result-text">
+              <span class="spotlight-result-label">{{ result.label }}</span>
+              <span class="spotlight-result-desc" *ngIf="result.description">{{ result.description }}</span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="spotlight-no-results" *ngIf="flatResults.length === 0 && hasSearched && !isLoading">
+        <i class="fa fa-info-circle"></i>
+        <span>No results found for "{{ query }}"</span>
+      </div>
+    </div>
+
+    <!-- Hints footer -->
+    <div class="spotlight-footer" *ngIf="flatResults.length > 0">
+      <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
+      <span><kbd>Enter</kbd> Open</span>
+      <span><kbd>Esc</kbd> Close</span>
+    </div>
+  </div>
+</div>
