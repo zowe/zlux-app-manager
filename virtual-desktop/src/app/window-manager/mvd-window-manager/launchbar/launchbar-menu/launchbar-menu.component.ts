@@ -408,7 +408,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager, this.shortcutsService);
     // Add "Add to Folder" submenu items if folders exist
     if (this.folders.length > 0) {
-      const sortedFolders = [...this.folders].sort((a, b) => a.name.localeCompare(b.name));
+      const sortedFolders = [...this.folders].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
       const addToFolderItems: ContextMenuItem[] = sortedFolders.map(folder => ({
         text: folder.name,
         action: () => {
