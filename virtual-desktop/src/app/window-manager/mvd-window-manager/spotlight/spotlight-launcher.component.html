@@ -9,21 +9,36 @@
 -->
 
 <div class="spotlight-backdrop" (click)="onBackdropClick($event)">
-  <div class="spotlight-panel">
+  <div class="spotlight-panel"
+    #spotlightPanel
+    [class.is-dragging]="isDragging"
+    [class.is-resizing]="isResizing"
+    [style.left.px]="panelX"
+    [style.top.px]="panelY"
+    [style.width.px]="panelW"
+    [style.height]="panelH > 0 ? panelH + 'px' : 'auto'"
+    [style.max-height]="panelH > 0 ? 'none' : maxAutoHeight + 'px'"
+    (mousedown)="onDragStart($event)"
+  >
     <!-- Search Input -->
     <div class="spotlight-input-wrapper">
       <i class="fa fa-search spotlight-search-icon"></i>
-      <input
-        #searchInput
-        type="text"
-        class="spotlight-input"
-        [value]="query"
-        (input)="onInputChange($event)"
-        (keydown)="onKeyDown($event)"
-        placeholder="Search or prefix with job, dataset, uss, app, tso, api..."
-        autocomplete="off"
-        spellcheck="false"
-      />
+      <div class="spotlight-input-container">
+        <input
+          #searchInput
+          type="text"
+          class="spotlight-input"
+          [class.has-query]="query.length > 0"
+          [style.width]="query.length > 0 ? (query.length + 1) + 'ch' : ''"
+          [value]="query"
+          (input)="onInputChange($event)"
+          (keydown)="onKeyDown($event)"
+          placeholder="Search or prefix: /job /dataset /uss /app /tso /mvs /api"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <span class="spotlight-ghost-text" *ngIf="ghostText"><span class="spotlight-ghost-typed">{{query}}</span>{{ghostText}}</span>
+      </div>
       <span class="spotlight-shortcut-hint" *ngIf="!query">
         <kbd>Esc</kbd> to close
       </span>
@@ -37,6 +52,11 @@
           <div class="spotlight-category-header">
             <i [class]="group.icon"></i>
             <span>{{ group.category }}</span>
+            <span class="spotlight-clear-all"
+              *ngIf="isHistoryGroup(group)"
+              (click)="clearAllHistory(group); $event.stopPropagation()">
+              Clear history
+            </span>
           </div>
           <div
             *ngFor="let result of group.results"
@@ -54,8 +74,14 @@
             <i *ngIf="!result.icon" class="spotlight-result-icon" [ngClass]="getCategoryIconClass(result.category)"></i>
             <div class="spotlight-result-text">
               <span class="spotlight-result-label">{{ result.label }}</span>
-              <span class="spotlight-result-desc" *ngIf="result.description">{{ result.description }}</span>
+              <span class="spotlight-result-desc" *ngIf="result.description && !result.output">{{ result.description }}</span>
+              <pre class="spotlight-tso-output" *ngIf="result.output">{{ result.output }}</pre>
             </div>
+            <i class="fa fa-times spotlight-history-remove"
+              *ngIf="result.historyItem"
+              title="Remove from history"
+              (click)="removeHistoryItem(result); $event.stopPropagation()">
+            </i>
           </div>
         </div>
       </ng-container>
@@ -69,8 +95,14 @@
     <!-- Hints footer -->
     <div class="spotlight-footer" *ngIf="flatResults.length > 0">
       <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
-      <span><kbd>Enter</kbd> Open</span>
+      <span *ngIf="flatResults[activeIndex]?.pendingExecution"><kbd>Enter</kbd> Execute</span>
+      <span *ngIf="flatResults[activeIndex]?.output"><kbd>Enter</kbd> Copy output</span>
+      <span *ngIf="activeIndex >= 0 && !flatResults[activeIndex]?.output && !flatResults[activeIndex]?.pendingExecution"><kbd>Enter</kbd> Open</span>
       <span><kbd>Esc</kbd> Close</span>
     </div>
+
+    <!-- Resize handles -->
+    <div class="spotlight-resize-handle spotlight-resize-br" (mousedown)="onResizeStart($event, 'br')"></div>
+    <div class="spotlight-resize-handle spotlight-resize-bl" (mousedown)="onResizeStart($event, 'bl')"></div>
   </div>
 </div>
