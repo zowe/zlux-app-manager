@@ -143,9 +143,12 @@ export class SpotlightSearchService {
     const parsed = this.parsePrefix(q);
 
     if (parsed) {
-      // Prefix-only (no space, empty query) that also looks like a USS path:
+      // Prefix-only (no space, empty query) that could match a USS directory:
       // merge category results (e.g. history) with USS file results.
-      if (parsed.query === '' && q.startsWith('/')) {
+      // Only do this for non-command categories to avoid unnecessary HTTP calls
+      // for prefixes like /tso, /mvs, /api that are clearly not USS paths.
+      const commandCategories = ['tso', 'console', 'api'];
+      if (parsed.query === '' && q.startsWith('/') && !commandCategories.includes(parsed.category)) {
         return forkJoin([
           this.searchCategory(parsed.category, parsed.query),
           this.searchUssFiles(q)
@@ -189,10 +192,7 @@ export class SpotlightSearchService {
     const rest = q.substring(spaceIdx + 1).trim();
     const category = prefixMap[prefix];
     if (!category) return null;
-    if (rest.length === 0) {
-      return { category, query: '' };
-    }
-    return category ? { category, query: rest } : null;
+    return { category, query: rest };
   }
 
   private searchCategory(category: string, q: string): Observable<SpotlightResult[]> {

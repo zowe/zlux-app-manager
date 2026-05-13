@@ -21,7 +21,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import { debounceTime, switchMap, take } from 'rxjs/operators';
 import { SpotlightSearchService, SpotlightResult, SpotlightResultCategory } from './spotlight-search.service';
 
 interface CategoryGroup {
@@ -381,7 +381,7 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
       const submit$ = result.category === 'MVS Console'
         ? this.searchService.submitConsoleCommand(cmd)
         : this.searchService.submitTsoCommand(cmd);
-      submit$.subscribe(results => {
+      submit$.pipe(take(1)).subscribe(results => {
         this.isLoading = false;
         this.buildGroups(results);
       });
