@@ -255,6 +255,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   onIconContextMenu(event: { event: MouseEvent; shortcut: DesktopShortcut }): void {
     const shortcut = event.shortcut;
     const plugin = this.pluginMap.get(shortcut.pluginId);
+    const shortcutKey = this.getShortcutKey(shortcut);
+    const isMultiSelect = this.selectedKeys.has(shortcutKey) && this.selectedKeys.size > 1;
     const menuItems: ContextMenuItem[] = [
       {
         text: this.translation.translate('Open'),
@@ -269,7 +271,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         action: () => this.startIconRename(shortcut)
       },
       {
-        text: this.translation.translate('Remove From Desktop'),
+        text: isMultiSelect ? this.translation.translate('Delete Selected') : this.translation.translate('Remove From Desktop'),
         action: () => this.deleteShortcutOrSelection(shortcut)
       },
       {
@@ -394,6 +396,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const folder = event.folder;
     const isPinned = this.shortcutsService.isFolderPinned(folder.id);
     const isInLaunchMenu = this.shortcutsService.isFolderInLaunchMenu(folder.id);
+    const folderKey = 'folder:' + folder.id;
+    const isMultiSelect = this.selectedKeys.has(folderKey) && this.selectedKeys.size > 1;
     const menuItems: ContextMenuItem[] = [
       {
         text: this.translation.translate('Open Folder'),
@@ -412,8 +416,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         action: () => isInLaunchMenu ? this.shortcutsService.unpinFromLaunchMenu(folder.id) : this.shortcutsService.pinToLaunchMenu(folder.id)
       },
       {
-        text: this.translation.translate('Delete Folder'),
-        action: () => this.shortcutsService.deleteFolder(folder.id)
+        text: isMultiSelect ? this.translation.translate('Delete Selected') : this.translation.translate('Delete Folder'),
+        action: () => this.deleteFolderOrSelection(folder)
       }
     ];
     this.windowManager.contextMenuRequested.next({
@@ -1113,6 +1117,15 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       this.deleteSelectedItems();
     } else {
       this.shortcutsService.removeShortcutById(shortcut.id);
+    }
+  }
+
+  private deleteFolderOrSelection(folder: DesktopFolder): void {
+    const key = 'folder:' + folder.id;
+    if (this.selectedKeys.has(key) && this.selectedKeys.size > 1) {
+      this.deleteSelectedItems();
+    } else {
+      this.shortcutsService.deleteFolder(folder.id);
     }
   }
 
