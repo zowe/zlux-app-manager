@@ -77,6 +77,19 @@
     (shortcutRenamed)="onFolderShortcutRenamed($event)"
     (shortcutRenameCancelled)="onFolderShortcutRenameCancelled($event)">
   </rs-com-desktop-folder>
+  <div *ngFor="let file of visibleRealFiles"
+    class="real-file-icon"
+    [ngStyle]="getRealFilePositionStyle(file)"
+    [class.highlighted]="isItemSelected('file:' + file.name) || highlightedIconId === ('file:' + file.name)"
+    (click)="onRealFileClicked($event, file)"
+    (dblclick)="onRealFileLaunched(file)"
+    (contextmenu)="onRealFileContextMenu($event, file)">
+    <div class="real-file-icon-image"
+         [style.width.px]="iconImageSize" [style.height.px]="iconImageSize">
+      <span class="real-file-icon-letter" [style.font-size.px]="iconLetterSize">{{ file.directory ? 'D' : 'F' }}</span>
+    </div>
+    <span class="real-file-icon-label" [style.font-size.px]="iconFontSize" [title]="file.name">{{ file.name }}</span>
+  </div>
   <div *ngIf="marqueeActive || marqueeFadingOut" class="marquee-selection" [class.marquee-fadeout]="marqueeFadingOut" [ngStyle]="marqueeStyle"></div>
   <div *ngFor="let window of windows">
     <rs-com-mvd-window [desktopWindow]="window" [theme]="theme"></rs-com-mvd-window>

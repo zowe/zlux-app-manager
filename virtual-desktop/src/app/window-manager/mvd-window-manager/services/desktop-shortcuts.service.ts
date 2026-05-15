@@ -10,8 +10,11 @@
 
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, Subscription, forkJoin, of } from 'rxjs';
+import { take, catchError } from 'rxjs/operators';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { UssFileService } from './uss-file.service';
+import { UssStorageBackend, DesktopRealFile } from './uss-storage-backend.service';
 
 export interface DesktopShortcutAction {
   /** Unique ID for the action (e.g. 'org.zowe.terminal.tn3270.open-session') */
@@ -76,6 +79,27 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   private resourcePath: string = 'ui/desktop/shortcuts';
   private fileName: string = 'shortcuts.json';
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+
+  /** Whether file-backed storage is active (vs config dataservice) */
+  private fileBackedMode = false;
+
+  /** USS storage backend -- only used when fileBackedMode is true */
+  private ussBackend: UssStorageBackend | null = null;
+
+  /** USS file service -- injected, used to create the backend */
+  private ussFileService: UssFileService | null = null;
+
+  /** Subscription to external change events from polling */
+  private externalChangeSub: Subscription | null = null;
+
+  /** Real USS files on the desktop (only populated in file-backed mode) */
+  realFiles$ = new BehaviorSubject<DesktopRealFile[]>([]);
+
+  /** Whether trash has entries (for context menu visibility) */
+  trashHasEntries$ = new BehaviorSubject<boolean>(false);
+
+  /** File associations from .desktop-settings.json */
+  fileAssociations$ = new BehaviorSubject<{ [ext: string]: string }>({});
 
   static readonly ACTION_ID_PREFIX = 'org.zowe.ivydesktop.shortcutaction';
 
@@ -174,8 +198,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   constructor(
     private injector: Injector,
-    private http: HttpClient
+    private http: HttpClient,
+    ussFileService: UssFileService
   ) {
+    this.ussFileService = ussFileService;
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
     this.authenticationManager.registerPreLogoutAction(this);
   }
@@ -185,6 +211,17 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.folders$.next([]);
     this.pinnedFolderIds$.next([]);
     this.launchMenuFolderIds$.next([]);
+    this.realFiles$.next([]);
+    this.trashHasEntries$.next(false);
+    this.fileAssociations$.next({});
+    if (this.ussBackend) {
+      this.ussBackend.destroy();
+      this.ussBackend = null;
+    }
+    if (this.externalChangeSub) {
+      this.externalChangeSub.unsubscribe();
+      this.externalChangeSub = null;
+    }
     return true;
   }
 
@@ -199,6 +236,211 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   loadShortcuts(): void {
+    // Check feature flag and initialize file-backed mode if enabled
+    this.fetchShortcutsConfig().then((config) => {
+      if (config.fileBackedShortcuts) {
+        this.initFileBackedMode(config);
+      } else {
+        this.loadFromConfigDataservice();
+      }
+    }).catch(() => {
+      this.loadFromConfigDataservice();
+    });
+  }
+
+  /** Fetch shortcuts configuration from the dedicated server endpoint */
+  private fetchShortcutsConfig(): Promise<{
+    fileBackedShortcuts: boolean;
+    shortcutsPollInterval: number;
+    shortcutsDirectory: string | null;
+    systemShortcutsDirectory: string | null;
+  }> {
+    return new Promise((resolve, reject) => {
+      const uriPrefix = window.location.pathname.split('ZLUX/plugins/')[0];
+      this.http.get<any>(`${uriPrefix}server/shortcuts-config`).subscribe(
+        (res) => resolve({
+          fileBackedShortcuts: res.fileBackedShortcuts ?? false,
+          shortcutsPollInterval: res.shortcutsPollInterval ?? 30000,
+          shortcutsDirectory: res.shortcutsDirectory ?? null,
+          systemShortcutsDirectory: res.systemShortcutsDirectory ?? null
+        }),
+        (err) => reject(err)
+      );
+    });
+  }
+
+  /** Initialize file-backed mode: resolve home dir, create backend, load or migrate */
+  private initFileBackedMode(config: {
+    shortcutsDirectory: string | null;
+    systemShortcutsDirectory: string | null;
+    shortcutsPollInterval: number;
+  }): void {
+    const shortcutsDir = config.shortcutsDirectory;
+    const systemDir = config.systemShortcutsDirectory;
+    const pollInterval = config.shortcutsPollInterval;
+
+    this.fileBackedMode = true;
+    this.ussBackend = new UssStorageBackend(this.ussFileService!);
+
+    // Resolve the shortcuts root directory
+    this.ussFileService!.resolveShortcutsRoot(shortcutsDir);
+    this.ussFileService!.ready$.pipe(take(1)).subscribe(
+      (rootPath: string) => {
+        // Try to load existing file-backed data
+        this.ussBackend!.init(rootPath, systemDir, pollInterval).subscribe(
+          (state) => {
+            if (state.shortcuts.length === 0 && state.folders.length === 0 && state.realFiles.length === 0) {
+              // Empty directory -- attempt migration from config dataservice
+              this.loadFromConfigDataserviceForMigration(rootPath, systemDir, pollInterval);
+            } else {
+              this.applyFileBackedState(state);
+            }
+          },
+          (err) => {
+            this.logger.warn('Failed to load file-backed shortcuts: ' + (err.message || err));
+            this.loadFromConfigDataservice();
+          }
+        );
+      },
+      (err: any) => {
+        this.logger.warn('Failed to resolve shortcuts root: ' + (err.message || err));
+        this.fileBackedMode = false;
+        this.ussBackend = null;
+        this.loadFromConfigDataservice();
+      }
+    );
+  }
+
+  /** Load from config dataservice, then migrate to file-backed storage */
+  private loadFromConfigDataserviceForMigration(rootPath: string, systemDir: string | null, pollInterval: number): void {
+    this.getResource().subscribe(
+      (res: HttpResponse<any>) => {
+        if (res.status === 204 || !res.body?.contents) {
+          // No existing config data either -- just load empty state from USS
+          this.ussBackend!.init(rootPath, systemDir, pollInterval).subscribe(
+            (state) => this.applyFileBackedState(state),
+            () => this.setEmptyState()
+          );
+          return;
+        }
+        let shortcuts = (res.body.contents.shortcuts || []) as DesktopShortcut[];
+        const folders = (res.body.contents.folders || []) as DesktopFolder[];
+        shortcuts = shortcuts.map(s => s.id ? s : { ...s, id: DesktopShortcutsService.generateShortcutId() });
+        DesktopShortcutsService.sanitizeLoadedIcons(shortcuts, folders);
+        const pinnedFolderIds = (res.body.contents.pinnedFolderIds || []) as string[];
+        const launchMenuFolderIds = (res.body.contents.launchMenuFolderIds || []) as string[];
+
+        // Migrate to USS
+        this.ussBackend!.migrate(shortcuts, folders, pinnedFolderIds, launchMenuFolderIds).subscribe(
+          (migrated) => {
+            if (migrated) {
+              this.logger.info('Migration from config dataservice completed -- reloading from USS');
+            }
+            // Reload from USS to get the canonical state
+            this.ussBackend!.loadAll().subscribe(
+              (state) => this.applyFileBackedState(state),
+              () => {
+                // Fallback: use the migrated data directly
+                this.shortcuts$.next(shortcuts);
+                this.folders$.next(folders);
+                this.pinnedFolderIds$.next(pinnedFolderIds);
+                this.launchMenuFolderIds$.next(launchMenuFolderIds);
+              }
+            );
+          },
+          () => {
+            this.logger.warn('Migration failed -- using config dataservice data');
+            this.shortcuts$.next(shortcuts);
+            this.folders$.next(folders);
+            this.pinnedFolderIds$.next(pinnedFolderIds);
+            this.launchMenuFolderIds$.next(launchMenuFolderIds);
+          }
+        );
+      },
+      () => {
+        this.setEmptyState();
+      }
+    );
+  }
+
+  /** Apply state loaded from the USS backend to the BehaviorSubjects */
+  private applyFileBackedState(state: {
+    shortcuts: DesktopShortcut[];
+    folders: DesktopFolder[];
+    pinnedFolderIds: string[];
+    launchMenuFolderIds: string[];
+    realFiles: DesktopRealFile[];
+  }): void {
+    // Auto-place any items without a grid position
+    this.autoPlaceItems(state.shortcuts, state.folders, state.realFiles);
+
+    DesktopShortcutsService.sanitizeLoadedIcons(state.shortcuts, state.folders);
+    this.shortcuts$.next(state.shortcuts);
+    this.folders$.next(state.folders);
+    this.pinnedFolderIds$.next(state.pinnedFolderIds);
+    this.launchMenuFolderIds$.next(state.launchMenuFolderIds);
+    this.realFiles$.next(state.realFiles);
+    this.fileAssociations$.next(this.ussBackend?.getSettings()?.fileAssociations || {});
+
+    // Check trash state
+    if (this.ussBackend) {
+      this.trashHasEntries$.next(this.ussBackend.hasTrashEntries());
+    }
+
+    // Subscribe to external changes from polling
+    if (this.ussBackend && !this.externalChangeSub) {
+      this.externalChangeSub = this.ussBackend.externalChange$.subscribe(() => {
+        this.reloadFromUss();
+      });
+    }
+  }
+
+  /** Auto-place items that don't have a grid position (-1, -1) */
+  private autoPlaceItems(shortcuts: DesktopShortcut[], folders: DesktopFolder[], realFiles: DesktopRealFile[]): void {
+    // Place folders first
+    for (const folder of folders) {
+      if (folder.gridRow < 0 || folder.gridCol < 0) {
+        const pos = this.findNextAvailablePositionFrom(shortcuts, folders);
+        folder.gridRow = pos.row;
+        folder.gridCol = pos.col;
+      }
+    }
+    // Place top-level shortcuts
+    for (const shortcut of shortcuts) {
+      if (!shortcut.folderId && (shortcut.gridRow < 0 || shortcut.gridCol < 0)) {
+        const pos = this.findNextAvailablePositionFrom(shortcuts, folders);
+        shortcut.gridRow = pos.row;
+        shortcut.gridCol = pos.col;
+      }
+    }
+    // Place real files
+    for (const rf of realFiles) {
+      if (rf.gridRow < 0 || rf.gridCol < 0) {
+        const pos = this.findNextAvailablePositionFrom(shortcuts, folders);
+        rf.gridRow = pos.row;
+        rf.gridCol = pos.col;
+      }
+    }
+  }
+
+  /** Reload all state from USS (triggered by polling external changes) */
+  private reloadFromUss(): void {
+    if (!this.ussBackend) return;
+    this.ussBackend.loadAll().subscribe(
+      (state) => this.applyFileBackedState(state),
+      (err) => this.logger.warn('Failed to reload from USS: ' + (err.message || err))
+    );
+  }
+
+  /** Trigger a manual refresh (for "Refresh Desktop" context menu action) */
+  refreshDesktop(): void {
+    if (this.fileBackedMode && this.ussBackend) {
+      this.ussBackend.poll();
+    }
+  }
+
+  /** Original config dataservice load path */
+  private loadFromConfigDataservice(): void {
     this.getResource().subscribe(
       (res: HttpResponse<any>) => {
         if (res.status === 204 || !res.body?.contents) {
@@ -243,6 +485,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
    * desktop and are never accepted from external writes.
    */
   reloadShortcutsExternal(): void {
+    if (this.fileBackedMode) {
+      this.reloadFromUss();
+      return;
+    }
     this.getResource().subscribe(
       (res: HttpResponse<any>) => {
         if (res.status === 204 || !res.body?.contents) {
@@ -322,7 +568,21 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       this.pushDeletionDiff([deleted], [], [], [], []);
     }
     const updated = this.shortcuts$.value.filter(s => s.id !== shortcutId);
-    this.saveShortcuts(updated);
+    this.shortcuts$.next(updated);
+
+    if (this.fileBackedMode && this.ussBackend) {
+      // Move shortcut file to .zweTrash/
+      this.ussBackend.moveShortcutToTrash(shortcutId).subscribe(
+        () => {
+          this.trashHasEntries$.next(true);
+          this.ussBackend!.removePosition(shortcutId);
+          this.ussBackend!.updatePositions([]).subscribe();
+        },
+        (err) => this.logger.warn('Failed to move shortcut to trash: ' + err)
+      );
+    } else {
+      this.saveShortcuts(updated);
+    }
   }
 
   moveShortcut(shortcutId: string, newRow: number, newCol: number): void {
@@ -330,7 +590,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     const topLevel = current.filter(s => !s.folderId);
     const folders = this.folders$.value;
     const occupied = topLevel.some(s => s.id !== shortcutId && s.gridRow === newRow && s.gridCol === newCol)
-      || folders.some(f => f.gridRow === newRow && f.gridCol === newCol);
+      || folders.some(f => f.gridRow === newRow && f.gridCol === newCol)
+      || this.realFiles$.value.some(rf => rf.gridRow === newRow && rf.gridCol === newCol);
     if (occupied) {
       return;
     }
@@ -457,7 +718,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     const topLevelShortcuts = shortcuts.filter(s => !s.folderId);
     const occupied = new Set([
       ...topLevelShortcuts.map(s => `${s.gridRow},${s.gridCol}`),
-      ...folders.map(f => `${f.gridRow},${f.gridCol}`)
+      ...folders.map(f => `${f.gridRow},${f.gridCol}`),
+      ...this.realFiles$.value.map(rf => `${rf.gridRow},${rf.gridCol}`)
     ]);
     for (let col = 0; col < this.maxGridCols; col++) {
       for (let row = 0; row < this.maxGridRows; row++) {
@@ -487,7 +749,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   /** Check if a grid position is occupied in the given shortcuts and folders arrays */
   private isPositionOccupied(row: number, col: number, shortcuts: DesktopShortcut[], folders: DesktopFolder[]): boolean {
     return shortcuts.some(s => !s.folderId && s.gridRow === row && s.gridCol === col)
-      || folders.some(f => f.gridRow === row && f.gridCol === col);
+      || folders.some(f => f.gridRow === row && f.gridCol === col)
+      || this.realFiles$.value.some(rf => rf.gridRow === row && rf.gridCol === col);
   }
 
   // -- Folder operations --
@@ -522,7 +785,19 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       }
       return s;
     });
-    this.saveAll(updatedShortcuts, updatedFolders);
+
+    // In file-backed mode, also create the USS directory
+    if (this.fileBackedMode && this.ussBackend) {
+      this.ussBackend.createFolderDir(name).subscribe(
+        () => this.saveAll(updatedShortcuts, updatedFolders),
+        (err) => {
+          this.logger.warn('Failed to create folder directory: ' + err);
+          this.notifySaveError(err);
+        }
+      );
+    } else {
+      this.saveAll(updatedShortcuts, updatedFolders);
+    }
     return folder;
   }
 
@@ -595,7 +870,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     const folders = this.folders$.value;
     const occupied = new Set([
       ...topLevel.map(s => `${s.gridRow},${s.gridCol}`),
-      ...folders.map(f => `${f.gridRow},${f.gridCol}`)
+      ...folders.map(f => `${f.gridRow},${f.gridCol}`),
+      ...this.realFiles$.value.map(rf => `${rf.gridRow},${rf.gridCol}`)
     ]);
     let targetRow = newRow;
     let targetCol = newCol;
@@ -635,10 +911,23 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     if (isDuplicate) {
       return false;
     }
+    const oldFolder = current.find(f => f.id === folderId);
     const updated = current.map(f =>
       f.id === folderId ? { ...f, name: newName } : f
     );
-    this.saveAll(this.shortcuts$.value, updated);
+
+    // In file-backed mode, also rename the USS directory
+    if (this.fileBackedMode && this.ussBackend && oldFolder) {
+      this.ussBackend.renameFolderDir(oldFolder.name, newName).subscribe(
+        () => this.saveAll(this.shortcuts$.value, updated),
+        (err) => {
+          this.logger.warn('Failed to rename folder directory: ' + err);
+          this.notifySaveError(err);
+        }
+      );
+    } else {
+      this.saveAll(this.shortcuts$.value, updated);
+    }
     return true;
   }
 
@@ -647,7 +936,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     const folders = this.folders$.value;
     const occupied = new Set([
       ...shortcuts.map(s => `${s.gridRow},${s.gridCol}`),
-      ...folders.filter(f => f.id !== folderId).map(f => `${f.gridRow},${f.gridCol}`)
+      ...folders.filter(f => f.id !== folderId).map(f => `${f.gridRow},${f.gridCol}`),
+      ...this.realFiles$.value.map(rf => `${rf.gridRow},${rf.gridCol}`)
     ]);
     if (occupied.has(`${newRow},${newCol}`)) {
       return;
@@ -733,7 +1023,29 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     this.pinnedFolderIds$.next(updatedPinned);
     this.launchMenuFolderIds$.next(updatedLaunchMenu);
 
-    this.saveAll(updatedShortcuts, updatedFolders);
+    // In file-backed mode, move items to trash before saving state
+    if (this.fileBackedMode && this.ussBackend) {
+      const trashOps: Observable<any>[] = [];
+      for (const s of deletedShortcuts) {
+        trashOps.push(this.ussBackend.moveShortcutToTrash(s.id).pipe(catchError(() => of(''))));
+      }
+      for (const f of deletedFolders) {
+        trashOps.push(this.ussBackend.moveFolderToTrash(f.name).pipe(catchError(() => of(''))));
+      }
+      if (trashOps.length > 0) {
+        forkJoin(trashOps).subscribe(
+          () => {
+            this.trashHasEntries$.next(true);
+            this.saveAll(updatedShortcuts, updatedFolders);
+          },
+          () => this.saveAll(updatedShortcuts, updatedFolders)
+        );
+      } else {
+        this.saveAll(updatedShortcuts, updatedFolders);
+      }
+    } else {
+      this.saveAll(updatedShortcuts, updatedFolders);
+    }
   }
 
   deleteFolder(folderId: string): void {
@@ -747,12 +1059,26 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
     const updatedFolders = this.folders$.value.filter(f => f.id !== folderId);
     const updatedShortcuts = this.releaseShortcutsFromFolder([...this.shortcuts$.value], folderId);
-    // Also remove from pinned and launch menu lists
     const updatedPinned = this.pinnedFolderIds$.value.filter(id => id !== folderId);
     const updatedLaunchMenu = this.launchMenuFolderIds$.value.filter(id => id !== folderId);
     this.pinnedFolderIds$.next(updatedPinned);
     this.launchMenuFolderIds$.next(updatedLaunchMenu);
-    this.saveAll(updatedShortcuts, updatedFolders);
+
+    // In file-backed mode, move the folder directory to trash
+    if (this.fileBackedMode && this.ussBackend && deletedFolder) {
+      this.ussBackend.moveFolderToTrash(deletedFolder.name).subscribe(
+        () => {
+          this.trashHasEntries$.next(true);
+          this.saveAll(updatedShortcuts, updatedFolders);
+        },
+        (err: any) => {
+          this.logger.warn('Failed to move folder to trash: ' + err);
+          this.saveAll(updatedShortcuts, updatedFolders);
+        }
+      );
+    } else {
+      this.saveAll(updatedShortcuts, updatedFolders);
+    }
   }
 
   /** Update the display icon for a folder (architecture for future UX) */
@@ -803,12 +1129,23 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   private saveLaunchMenuFolderIds(ids: string[]): void {
+    this.launchMenuFolderIds$.next(ids);
+    if (this.fileBackedMode && this.ussBackend) {
+      this.ussBackend.updateSettings({ launchMenuFolderIds: ids }).subscribe(
+        () => {},
+        (err) => {
+          this.logger.warn('Could not save launch menu folder IDs', err);
+          this.notifySaveError(err);
+        }
+      );
+      return;
+    }
     const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
       ZoweZLUX.pluginManager.getDesktopPlugin(), this.scope, this.resourcePath, this.fileName
     );
     const params = { shortcuts: this.shortcuts$.value, folders: this.folders$.value, pinnedFolderIds: this.pinnedFolderIds$.value, launchMenuFolderIds: ids };
     this.http.put(uri, params).subscribe(
-      () => { this.launchMenuFolderIds$.next(ids); },
+      () => {},
       (err) => {
         this.logger.warn('Could not save launch menu folder IDs', err);
         this.notifySaveError(err);
@@ -817,12 +1154,23 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   private savePinnedFolderIds(ids: string[]): void {
+    this.pinnedFolderIds$.next(ids);
+    if (this.fileBackedMode && this.ussBackend) {
+      this.ussBackend.updateSettings({ pinnedFolderIds: ids }).subscribe(
+        () => {},
+        (err) => {
+          this.logger.warn('Could not save pinned folder IDs', err);
+          this.notifySaveError(err);
+        }
+      );
+      return;
+    }
     const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
       ZoweZLUX.pluginManager.getDesktopPlugin(), this.scope, this.resourcePath, this.fileName
     );
     const params = { shortcuts: this.shortcuts$.value, folders: this.folders$.value, pinnedFolderIds: ids, launchMenuFolderIds: this.launchMenuFolderIds$.value };
     this.http.put(uri, params).subscribe(
-      () => { this.pinnedFolderIds$.next(ids); },
+      () => {},
       (err) => {
         this.logger.warn('Could not save pinned folder IDs', err);
         this.notifySaveError(err);
@@ -831,22 +1179,90 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   saveAll(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): void {
-    // Update local state immediately so subsequent reads always see the newest data.
-    // Without this, competing HTTP PUTs read stale snapshots and the last response
-    // to arrive wins.
+    // Update local state immediately (optimistic update)
     this.shortcuts$.next(shortcuts);
     this.folders$.next(folders);
+
+    if (this.fileBackedMode && this.ussBackend) {
+      this.saveAllToUss(shortcuts, folders);
+      return;
+    }
 
     const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
       ZoweZLUX.pluginManager.getDesktopPlugin(), this.scope, this.resourcePath, this.fileName
     );
     const params = { shortcuts, folders, pinnedFolderIds: this.pinnedFolderIds$.value, launchMenuFolderIds: this.launchMenuFolderIds$.value };
     this.http.put(uri, params).subscribe(
-      () => { /* state already applied optimistically above */ },
+      () => {},
       (err) => {
         this.logger.warn('Could not save desktop shortcuts', err);
         this.notifySaveError(err);
       }
+    );
+  }
+
+  /** Persist all state to USS files */
+  private saveAllToUss(shortcuts: DesktopShortcut[], folders: DesktopFolder[]): void {
+    if (!this.ussBackend) return;
+
+    // Write each shortcut to .zweStore/
+    const writeOps: Observable<void>[] = [];
+    for (const s of shortcuts) {
+      writeOps.push(this.ussBackend.writeShortcut(s));
+    }
+
+    // Build and update grid positions
+    const positions: { key: string; gridRow: number; gridCol: number }[] = [];
+    for (const s of shortcuts) {
+      if (!s.folderId && s.gridRow >= 0 && s.gridCol >= 0) {
+        positions.push({ key: s.id, gridRow: s.gridRow, gridCol: s.gridCol });
+      }
+    }
+    for (const f of folders) {
+      if (f.gridRow >= 0 && f.gridCol >= 0) {
+        positions.push({ key: f.id, gridRow: f.gridRow, gridCol: f.gridCol });
+      }
+    }
+    // Include real file positions
+    for (const rf of this.realFiles$.value) {
+      if (rf.gridRow >= 0 && rf.gridCol >= 0) {
+        positions.push({ key: rf.name, gridRow: rf.gridRow, gridCol: rf.gridCol });
+      }
+    }
+
+    // Update folder map in settings
+    const folderMap: { [id: string]: string } = {};
+    for (const f of folders) {
+      const existingMap = this.ussBackend.getSettings().folderMap || {};
+      folderMap[f.id] = existingMap[f.id] || f.name;
+    }
+
+    // Execute all writes
+    if (writeOps.length > 0) {
+      forkJoin(writeOps).subscribe(
+        () => {},
+        (err) => {
+          this.logger.warn('Could not save shortcuts to USS', err);
+          this.notifySaveError(err);
+        }
+      );
+    }
+
+    // Update positions and settings
+    if (positions.length > 0) {
+      this.ussBackend.updatePositions(positions).subscribe(
+        () => {},
+        (err) => this.logger.warn('Could not save grid positions', err)
+      );
+    }
+
+    this.ussBackend.updateSettings({
+      folderMap,
+      pinnedFolderIds: this.pinnedFolderIds$.value,
+      launchMenuFolderIds: this.launchMenuFolderIds$.value
+    }).subscribe(
+      () => {},
+      (err) => this.logger.warn('Could not save desktop settings', err)
     );
   }
 
@@ -962,6 +1378,75 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     );
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.http.get(uri, { headers, observe: 'response' });
+  }
+
+  /** Whether file-backed storage is currently active */
+  get isFileBacked(): boolean {
+    return this.fileBackedMode;
+  }
+
+  /** Set all state to empty */
+  private setEmptyState(): void {
+    this.shortcuts$.next([]);
+    this.folders$.next([]);
+    this.pinnedFolderIds$.next([]);
+    this.launchMenuFolderIds$.next([]);
+    this.realFiles$.next([]);
+  }
+
+  // -- Trash operations (file-backed mode only) --
+
+  /** Empty the trash directory. Requires user confirmation in the UI. */
+  emptyTrash(): void {
+    if (!this.fileBackedMode || !this.ussBackend) return;
+    this.ussBackend.emptyTrash().subscribe(
+      () => this.trashHasEntries$.next(false),
+      (err) => {
+        this.logger.warn('Failed to empty trash: ' + err);
+        this.notifySaveError(err);
+      }
+    );
+  }
+
+  // -- File association operations (file-backed mode only) --
+
+  /** Get the app associated with a file extension */
+  getFileAssociation(ext: string): string | null {
+    if (!this.ussBackend) return null;
+    return this.ussBackend.getFileAssociation(ext);
+  }
+
+  /** Set a file extension -> app association */
+  setFileAssociation(ext: string, pluginId: string): void {
+    if (!this.ussBackend) return;
+    this.ussBackend.setFileAssociation(ext, pluginId).subscribe(
+      () => {
+        this.fileAssociations$.next(this.ussBackend!.getSettings().fileAssociations || {});
+      },
+      (err) => this.logger.warn('Failed to save file association: ' + err)
+    );
+  }
+
+  /** Invoke a real file (double-click) -- check file associations and launch */
+  invokeRealFile(file: DesktopRealFile, applicationManager: MVDHosting.ApplicationManagerInterface): void {
+    const ext = file.name.includes('.') ? file.name.split('.').pop()! : '';
+    const assocPluginId = ext ? this.getFileAssociation(ext) : null;
+    if (assocPluginId) {
+      const plugin = ZoweZLUX.pluginManager.getPlugin(assocPluginId);
+      if (plugin) {
+        const pluginDef = { basePlugin: plugin, getBasePlugin: () => plugin };
+        applicationManager.spawnApplication(pluginDef as any, { data: { type: 'openFile', name: file.path } });
+        return;
+      }
+    }
+    // No association -- try to open with the editor as a default fallback
+    const editorPlugin = ZoweZLUX.pluginManager.getPlugin('org.zowe.editor');
+    if (editorPlugin) {
+      const pluginDef = { basePlugin: editorPlugin, getBasePlugin: () => editorPlugin };
+      applicationManager.spawnApplication(pluginDef as any, { data: { type: 'openFile', name: file.path } });
+    } else {
+      this.logger.warn('No file association and no editor available for: ' + file.name);
+    }
   }
 }
 

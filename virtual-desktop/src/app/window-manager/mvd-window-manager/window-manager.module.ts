@@ -31,6 +31,8 @@ import { PersonalizationComponent } from '../mvd-window-manager/personalization-
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { ThemeEmitterService } from './services/theme-emitter.service';
 import { DesktopShortcutsService } from './services/desktop-shortcuts.service';
+import { UssFileService } from './services/uss-file.service';
+import { UssStorageBackend } from './services/uss-storage-backend.service';
 import { DesktopIconComponent } from './desktop-icon/desktop-icon.component';
 import { DesktopFolderComponent } from './desktop-folder/desktop-folder.component';
 import { ShortcutPropertiesComponent } from './shortcut-properties/shortcut-properties.component';
@@ -70,6 +72,8 @@ import { IncludeExternalCssComponent } from 'app/shared/include-external-css.com
     WindowManagerService,
     ThemeEmitterService,
     DesktopShortcutsService,
+    UssFileService,
+    UssStorageBackend,
     provideHttpClient(),
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },

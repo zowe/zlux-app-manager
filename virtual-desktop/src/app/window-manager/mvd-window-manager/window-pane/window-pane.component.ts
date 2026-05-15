@@ -19,6 +19,7 @@ import { WindowManagerService } from '../shared/window-manager.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { ThemeEmitterService } from '../services/theme-emitter.service';
 import { DesktopShortcut, DesktopFolder, DesktopShortcutsService } from '../services/desktop-shortcuts.service';
+import { DesktopRealFile } from '../services/uss-storage-backend.service';
 import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { DesktopFolderComponent } from '../desktop-folder/desktop-folder.component';
 import { L10nTranslationService } from 'angular-l10n';
@@ -56,6 +57,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   private _theme: DesktopTheme;
 
   shortcuts: DesktopShortcut[] = [];
+  realFiles: DesktopRealFile[] = [];
   pluginMap: Map<string, DesktopPluginDefinitionImpl> = new Map();
   highlightedIconId: string | null = null;
   renameTargetKey: string | null = null;
@@ -126,6 +128,10 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
 
     this.shortcutsService.folders$.subscribe(folders => {
       this.folders = folders;
+    });
+
+    this.shortcutsService.realFiles$.subscribe(files => {
+      this.realFiles = files;
     });
 
     // Listen for external shortcut changes
@@ -366,6 +372,11 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   /** Folders within the visible grid bounds */
   get visibleFolders(): DesktopFolder[] {
     return this.folders.filter(f => f.gridRow < this.maxGridRows && f.gridCol < this.maxGridCols);
+  }
+
+  /** Real USS files within the visible grid bounds */
+  get visibleRealFiles(): DesktopRealFile[] {
+    return this.realFiles.filter(f => f.gridRow < this.maxGridRows && f.gridCol < this.maxGridCols);
   }
 
   getShortcutsInFolder(folderId: string): DesktopShortcut[] {
@@ -762,6 +773,14 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         newKeys.add('folder:' + f.id);
       }
     }
+    // Check real files
+    for (const rf of this.realFiles) {
+      const cx = paneBounds.left + this.gridPadding + rf.gridCol * this.iconCellWidth + this.iconCellWidth / 2;
+      const cy = paneBounds.top + this.gridPadding + rf.gridRow * this.iconCellHeight + this.iconCellHeight / 2;
+      if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
+        newKeys.add('file:' + rf.name);
+      }
+    }
     if (ctrlHeld) {
       // Ctrl+marquee: add to existing selection
       newKeys.forEach(k => this.selectedKeys.add(k));
@@ -800,6 +819,83 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.shortcutsService.updateShortcutLaunchMetadata(event.shortcut.id, event.launchMetadata);
   }
 
+  // -- Real file event handlers (file-backed mode) --
+
+  onRealFileClicked(event: MouseEvent, file: DesktopRealFile): void {
+    event.stopPropagation();
+    this.windowManager.clearFocusedWindow();
+    const key = 'file:' + file.name;
+    if (event.ctrlKey || event.metaKey) {
+      if (this.selectedKeys.has(key)) {
+        this.selectedKeys.delete(key);
+        this.highlightedIconId = null;
+      } else {
+        this.selectedKeys.add(key);
+        this.highlightedIconId = key;
+      }
+    } else {
+      this.selectedKeys.clear();
+      this.selectedKeys.add(key);
+      this.highlightedIconId = key;
+    }
+    this.highlightedFolderId = null;
+  }
+
+  onRealFileLaunched(file: DesktopRealFile): void {
+    this.shortcutsService.invokeRealFile(file, this.applicationManager);
+  }
+
+  onRealFileContextMenu(event: MouseEvent, file: DesktopRealFile): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const menuItems: ContextMenuItem[] = [
+      {
+        text: this.translation.translate('Open'),
+        action: () => this.onRealFileLaunched(file)
+      },
+      {
+        text: this.translation.translate('Delete'),
+        action: () => this.deleteRealFile(file)
+      }
+    ];
+    this.windowManager.contextMenuRequested.next({
+      xPos: event.clientX,
+      yPos: event.clientY,
+      items: menuItems
+    });
+  }
+
+  private deleteRealFile(file: DesktopRealFile): void {
+    if (!this.shortcutsService.isFileBacked) return;
+    // Use the backend to move the file to trash
+    const backend = (this.shortcutsService as any).ussBackend;
+    if (backend) {
+      backend.moveToTrash(file.path, file.name).subscribe(
+        () => this.shortcutsService.refreshDesktop(),
+        (err: any) => this.logger.warn('Failed to delete real file: ' + err)
+      );
+    }
+  }
+
+  getRealFileIcon(file: DesktopRealFile): string {
+    return file.directory ? 'folder' : 'description';
+  }
+
+  getRealFileLabel(file: DesktopRealFile): string {
+    return file.name;
+  }
+
+  getRealFilePositionStyle(file: DesktopRealFile): { [key: string]: string } {
+    const left = this.gridPadding + file.gridCol * this.iconCellWidth;
+    const top = this.gridPadding + file.gridRow * this.iconCellHeight;
+    return {
+      left: left + 'px',
+      top: top + 'px',
+      width: this.iconCellWidth + 'px',
+      height: this.iconCellHeight + 'px'
+    };
+  }
+
   onDesktopRightClick(event: MouseEvent): void {
     if (event.target !== event.currentTarget) return;
     event.preventDefault();
@@ -815,6 +911,23 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       text: this.translation.translate('New Folder'),
       action: () => this.createDesktopFolder(event.clientX, event.clientY)
     });
+    // File-backed mode extras
+    if (this.shortcutsService.isFileBacked) {
+      menuItems.push({
+        text: this.translation.translate('Refresh Desktop'),
+        action: () => this.shortcutsService.refreshDesktop()
+      });
+      if (this.shortcutsService.trashHasEntries$.value) {
+        menuItems.push({
+          text: this.translation.translate('Empty Trash'),
+          action: () => {
+            if (window.confirm(this.translation.translate('Permanently delete all items in the trash?'))) {
+              this.shortcutsService.emptyTrash();
+            }
+          }
+        });
+      }
+    }
     this.windowManager.contextMenuRequested.next({
       xPos: event.clientX,
       yPos: event.clientY,
@@ -827,11 +940,13 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     let row = Math.min(this.maxGridRows - 1, Math.max(0, Math.floor((clientY - this.gridPadding) / this.iconCellHeight)));
     // If the clicked cell is occupied, find the nearest available position
     const occupied = this.topLevelShortcuts.some(s => s.gridRow === row && s.gridCol === col)
-      || this.folders.some(f => f.gridRow === row && f.gridCol === col);
+      || this.folders.some(f => f.gridRow === row && f.gridCol === col)
+      || this.realFiles.some(rf => rf.gridRow === row && rf.gridCol === col);
     if (occupied) {
       const occupiedSet = new Set([
         ...this.topLevelShortcuts.map(s => `${s.gridRow},${s.gridCol}`),
-        ...this.folders.map(f => `${f.gridRow},${f.gridCol}`)
+        ...this.folders.map(f => `${f.gridRow},${f.gridCol}`),
+        ...this.realFiles.map(rf => `${rf.gridRow},${rf.gridCol}`)
       ]);
       const pos = this.findNearestAvailablePosition(row, col, occupiedSet);
       row = pos.row;
@@ -1040,6 +1155,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     for (const f of this.folders) {
       items.push({ row: f.gridRow, col: f.gridCol, type: 'folder', ref: f });
     }
+    for (const rf of this.realFiles) {
+      items.push({ row: rf.gridRow, col: rf.gridCol, type: 'realfile', ref: rf });
+    }
     return items;
   }
 
@@ -1056,10 +1174,19 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       } else {
         this.selectedKeys.add(key);
       }
-    } else {
+    } else if (item.type === 'folder') {
       this.highlightedFolderId = item.ref.id;
       this.highlightedIconId = null;
       const key = 'folder:' + item.ref.id;
+      if (ctrlKey && this.selectedKeys.has(key)) {
+        this.selectedKeys.delete(key);
+      } else {
+        this.selectedKeys.add(key);
+      }
+    } else if (item.type === 'realfile') {
+      const key = 'file:' + item.ref.name;
+      this.highlightedIconId = key;
+      this.highlightedFolderId = null;
       if (ctrlKey && this.selectedKeys.has(key)) {
         this.selectedKeys.delete(key);
       } else {
@@ -1072,8 +1199,14 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
    *  This matches Windows 11 behavior: selection is for batch delete/move, Enter opens the focused item. */
   private openHighlightedItem(): void {
     if (this.highlightedIconId) {
-      const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.highlightedIconId);
-      if (shortcut) { this.onIconLaunched(shortcut); }
+      if (this.highlightedIconId.startsWith('file:')) {
+        const fileName = this.highlightedIconId.substring(5);
+        const file = this.realFiles.find(f => f.name === fileName);
+        if (file) { this.onRealFileLaunched(file); }
+      } else {
+        const shortcut = this.topLevelShortcuts.find(s => this.getShortcutKey(s) === this.highlightedIconId);
+        if (shortcut) { this.onIconLaunched(shortcut); }
+      }
     } else if (this.highlightedFolderId) {
       const folder = this.folders.find(f => f.id === this.highlightedFolderId);
       if (folder) { this.onFolderOpened(folder); }
@@ -1144,6 +1277,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     }
     for (const f of this.folders) {
       this.selectedKeys.add('folder:' + f.id);
+    }
+    for (const rf of this.realFiles) {
+      this.selectedKeys.add('file:' + rf.name);
     }
   }
 
@@ -1255,7 +1391,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     // Build a shared occupied set for both shortcuts and folders
     const occupied = new Set([
       ...updatedShortcuts.filter(s => !s.folderId).map(s => `${s.gridRow},${s.gridCol}`),
-      ...updatedFolders.map(f => `${f.gridRow},${f.gridCol}`)
+      ...updatedFolders.map(f => `${f.gridRow},${f.gridCol}`),
+      ...this.realFiles.map(rf => `${rf.gridRow},${rf.gridCol}`)
     ]);
 
     // Reflow out-of-bounds shortcuts
