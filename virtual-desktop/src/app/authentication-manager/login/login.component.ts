@@ -54,6 +54,9 @@ export class LoginComponent implements OnInit {
   errorDetails: string;
   loginMessage: string;
   expiredPassword: boolean;
+  revealPassword: boolean;
+  revealNewPassword: boolean;
+  revealConfirmPassword: boolean;
   private passwordServices: Set<string>;
   private themeManager: any;
   public showLogin: boolean;
@@ -79,6 +82,9 @@ export class LoginComponent implements OnInit {
     this.confirmNewPassword = '';
     this.errorMessage = '';
     this.expiredPassword = false;
+    this.revealPassword = false;
+    this.revealNewPassword = false;
+    this.revealConfirmPassword = false;
     this.passwordServices = new Set<string>();
     this.enableExpirationPrompt = true;
     this.renewSession = this.renewSession.bind(this);
