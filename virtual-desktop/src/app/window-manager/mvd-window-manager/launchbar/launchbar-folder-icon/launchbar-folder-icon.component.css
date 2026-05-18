@@ -42,7 +42,7 @@
 .launchbar-folder-tooltip {
   display: none;
   position: absolute;
-  width: 60px;
+  max-width: 120px;
   color: white;
   background-color: #00000090;
   padding: 2px;
@@ -51,6 +51,9 @@
   line-height: 120%;
   z-index: 7;
   text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .launchbar-folder-icon-container:hover .launchbar-folder-tooltip {

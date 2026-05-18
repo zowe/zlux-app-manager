@@ -263,30 +263,39 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const plugin = this.pluginMap.get(shortcut.pluginId);
     const shortcutKey = this.getShortcutKey(shortcut);
     const isMultiSelect = this.selectedKeys.has(shortcutKey) && this.selectedKeys.size > 1;
-    const menuItems: ContextMenuItem[] = [
-      {
-        text: this.translation.translate('Open'),
-        action: () => this.onIconLaunched(shortcut)
-      },
-      {
-        text: this.translation.translate('Open in New Browser Tab'),
-        action: () => this.openShortcutInNewTab(shortcut, plugin)
-      },
-      {
-        text: this.translation.translate('Rename'),
-        action: () => this.startIconRename(shortcut)
-      },
+    const menuItems: ContextMenuItem[] = [];
+    if (!isMultiSelect) {
+      menuItems.push(
+        {
+          text: this.translation.translate('Open'),
+          action: () => this.onIconLaunched(shortcut)
+        },
+        {
+          text: this.translation.translate('Open in New Browser Tab'),
+          action: () => this.openShortcutInNewTab(shortcut, plugin)
+        },
+        {
+          text: this.translation.translate('Rename'),
+          action: () => this.startIconRename(shortcut)
+        }
+      );
+    }
+    menuItems.push(
       {
         text: isMultiSelect ? this.translation.translate('Delete Selected') : this.translation.translate('Remove From Desktop'),
         action: () => this.deleteShortcutOrSelection(shortcut)
-      },
-      {
-        text: this.translation.translate('Properties'),
-        action: () => { this.propertiesShortcut = shortcut; }
       }
-    ];
-    // Pin/Unpin from Launchbar (only for plain plugin shortcuts, not action shortcuts)
-    if (!shortcut.action) {
+    );
+    if (!isMultiSelect) {
+      menuItems.push(
+        {
+          text: this.translation.translate('Properties'),
+          action: () => { this.propertiesShortcut = shortcut; }
+        }
+      );
+    }
+    // Pin/Unpin from Launchbar (only for plain plugin shortcuts, not action shortcuts, single selection only)
+    if (!isMultiSelect && !shortcut.action) {
       const isPinned = this.pinnedPluginIds.has(shortcut.pluginId);
       menuItems.splice(2, 0, {
         text: isPinned ? this.translation.translate('Unpin from Taskbar') : this.translation.translate('Pin to Taskbar'),
@@ -409,28 +418,33 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     const isInLaunchMenu = this.shortcutsService.isFolderInLaunchMenu(folder.id);
     const folderKey = 'folder:' + folder.id;
     const isMultiSelect = this.selectedKeys.has(folderKey) && this.selectedKeys.size > 1;
-    const menuItems: ContextMenuItem[] = [
-      {
-        text: this.translation.translate('Open Folder'),
-        action: () => this.onFolderOpened(folder)
-      },
-      {
-        text: this.translation.translate('Rename'),
-        action: () => { this.renameFolderTargetId = folder.id; }
-      },
-      {
-        text: isPinned ? this.translation.translate('Unpin from Taskbar') : this.translation.translate('Pin to Taskbar'),
-        action: () => isPinned ? this.shortcutsService.unpinFolder(folder.id) : this.shortcutsService.pinFolder(folder.id)
-      },
-      {
-        text: isInLaunchMenu ? this.translation.translate('Unpin from Launch Menu') : this.translation.translate('Pin to Launch Menu'),
-        action: () => isInLaunchMenu ? this.shortcutsService.unpinFromLaunchMenu(folder.id) : this.shortcutsService.pinToLaunchMenu(folder.id)
-      },
+    const menuItems: ContextMenuItem[] = [];
+    if (!isMultiSelect) {
+      menuItems.push(
+        {
+          text: this.translation.translate('Open Folder'),
+          action: () => this.onFolderOpened(folder)
+        },
+        {
+          text: this.translation.translate('Rename'),
+          action: () => { this.renameFolderTargetId = folder.id; }
+        },
+        {
+          text: isPinned ? this.translation.translate('Unpin from Taskbar') : this.translation.translate('Pin to Taskbar'),
+          action: () => isPinned ? this.shortcutsService.unpinFolder(folder.id) : this.shortcutsService.pinFolder(folder.id)
+        },
+        {
+          text: isInLaunchMenu ? this.translation.translate('Unpin from Launch Menu') : this.translation.translate('Pin to Launch Menu'),
+          action: () => isInLaunchMenu ? this.shortcutsService.unpinFromLaunchMenu(folder.id) : this.shortcutsService.pinToLaunchMenu(folder.id)
+        }
+      );
+    }
+    menuItems.push(
       {
         text: isMultiSelect ? this.translation.translate('Delete Selected') : this.translation.translate('Delete Folder'),
         action: () => this.deleteFolderOrSelection(folder)
       }
-    ];
+    );
     this.windowManager.contextMenuRequested.next({
       xPos: event.event.clientX,
       yPos: event.event.clientY,
