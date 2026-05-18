@@ -911,6 +911,10 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     // Re-add deleted shortcuts
     for (const shortcut of snapshot.deletedShortcuts) {
       if (currentShortcuts.some(s => s.id === shortcut.id)) continue;
+      // Skip if a shortcut for the same plugin already exists in the same container
+      if (!shortcut.action && currentShortcuts.some(s =>
+        s.pluginId === shortcut.pluginId && !s.action && (s.folderId || null) === (shortcut.folderId || null)
+      )) continue;
       if (shortcut.folderId) {
         // Was inside a folder -- add back as-is
         currentShortcuts = [...currentShortcuts, shortcut];
