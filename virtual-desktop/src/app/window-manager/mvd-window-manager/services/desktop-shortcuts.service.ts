@@ -558,6 +558,18 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   /** Create a new shortcut and place it directly into a folder in a single save */
   addShortcutDirectlyToFolder(pluginId: string, folderId: string): void {
     const current = this.shortcuts$.value;
+    // Prevent duplicate apps in the same folder
+    if (current.some(s => s.pluginId === pluginId && s.folderId === folderId)) {
+      ZoweZLUX.notificationManager.notify(
+        ZoweZLUX.notificationManager.createNotification(
+          'Desktop Shortcuts',
+          'This application is already in the selected folder.',
+          1,
+          'org.zowe.zlux.ng2desktop'
+        )
+      );
+      return;
+    }
     const newShortcut: DesktopShortcut = {
       id: DesktopShortcutsService.generateShortcutId(),
       pluginId,
