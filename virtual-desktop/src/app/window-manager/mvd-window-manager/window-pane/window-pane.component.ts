@@ -288,8 +288,8 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
         }
       );
     }
-    // Pin/Unpin from Launchbar (only for plain plugin shortcuts, not action shortcuts)
-    if (!shortcut.action) {
+    // Pin/Unpin from Launchbar (only for plain plugin shortcuts, not action shortcuts, single selection only)
+    if (!isMultiSelect && !shortcut.action) {
       const isPinned = this.pinnedPluginIds.has(shortcut.pluginId);
       menuItems.splice(2, 0, {
         text: isPinned ? this.translation.translate('Unpin from Taskbar') : this.translation.translate('Pin to Taskbar'),
