@@ -15,53 +15,10 @@ import { take, catchError } from 'rxjs/operators';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { UssFileService } from './uss-file.service';
 import { UssStorageBackend, DesktopRealFile } from './uss-storage-backend.service';
+import { DesktopShortcut, DesktopFolder, sanitizeIconUrl, generateShortcutId, generateFolderId } from './desktop-shortcuts.types';
 
-export interface DesktopShortcutAction {
-  /** Unique ID for the action (e.g. 'org.zowe.terminal.tn3270.open-session') */
-  id: string;
-  /** Human-readable action name */
-  name: string;
-  /** Target plugin identifier */
-  targetPluginId: string;
-  /** ActionTargetMode: 'PluginCreate' | 'PluginFindAnyOrCreate' | 'PluginFindUniqueOrCreate' */
-  targetMode: string;
-  /** ActionType: 'Launch' | 'Message' | 'Route' | 'Focus' */
-  type: string;
-  /** Template for the primaryArgument passed to dispatcher.makeAction */
-  primaryArgument?: any;
-  /** The event context data passed to dispatcher.invokeAction */
-  launchMetadata?: any;
-}
-
-export interface DesktopShortcut {
-  /** Unique identifier for this shortcut instance */
-  id: string;
-  /** Plugin to launch (always required -- identifies the app for icon/label fallback) */
-  pluginId: string;
-  /** Grid position */
-  gridRow: number;
-  gridCol: number;
-  /** Optional custom label (overrides the plugin's default label) */
-  displayLabel?: string;
-  /** Optional custom icon URL (overrides the plugin's default icon) */
-  displayIcon?: string;
-  /** Optional action to invoke instead of a plain launch */
-  action?: DesktopShortcutAction;
-  /** If set, this shortcut belongs to a folder rather than the top-level desktop grid */
-  folderId?: string;
-}
-
-export interface DesktopFolder {
-  /** Unique identifier for this folder */
-  id: string;
-  /** User-visible name */
-  name: string;
-  /** Grid position on the desktop (or -1/-1 if only in taskbar/launch menu) */
-  gridRow: number;
-  gridCol: number;
-  /** Optional custom icon URL (overrides the auto-generated child icon grid) */
-  displayIcon?: string;
-}
+export { DesktopShortcutAction, DesktopShortcut, DesktopFolder } from './desktop-shortcuts.types';
+export { DesktopRealFile } from './uss-storage-backend.service';
 
 export interface DeletionUndoSnapshot {
   deletedShortcuts: DesktopShortcut[];
@@ -124,49 +81,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
    * Allows: http(s) URLs, data: image URIs, and relative paths that don't traverse upward.
    */
   static sanitizeIconUrl(url: string | undefined): string | undefined {
-    if (!url) return undefined;
-    const trimmed = url.trim();
-    if (!trimmed) return undefined;
-
-    // Block javascript:, vbscript:, and other dangerous schemes
-    const schemeLower = trimmed.toLowerCase().replace(/[\s\x00-\x1f]/g, '');
-    if (/^(javascript|vbscript|data(?!:image\/)):/i.test(schemeLower)) {
-      return undefined;
-    }
-
-    // Block path traversal sequences
-    if (/\.\.[\\/]/.test(trimmed) || trimmed.includes('..%2f') || trimmed.includes('..%5c')
-        || trimmed.toLowerCase().includes('..%252f')) {
-      return undefined;
-    }
-
-    // Block HTML/script injection characters that have no place in a URL
-    if (/[<>"'`{}]/.test(trimmed)) {
-      return undefined;
-    }
-
-    // Block hex-encoded control characters (\x00-\x1f) and null bytes
-    if (/\\x[0-9a-fA-F]{2}/.test(trimmed) || /\x00/.test(trimmed) || /%00/.test(trimmed)) {
-      return undefined;
-    }
-
-    // Block punycode in URLs (xn-- encoded domains used for homograph attacks)
-    if (/xn--/i.test(trimmed)) {
-      return undefined;
-    }
-
-    // Allow data:image/* URIs (e.g. data:image/png;base64,...)
-    if (/^data:image\//i.test(trimmed)) {
-      return trimmed;
-    }
-
-    // Allow http/https URLs and relative paths (e.g. /ZLUX/plugins/.../assets/icon.png)
-    if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/')) {
-      return trimmed;
-    }
-
-    // Reject anything else (e.g. ftp:, file:, unknown schemes)
-    return undefined;
+    return sanitizeIconUrl(url);
   }
 
   shortcuts$ = new BehaviorSubject<DesktopShortcut[]>([]);
@@ -189,11 +104,11 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   }
 
   private static generateFolderId(): string {
-    return 'folder-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 8);
+    return generateFolderId();
   }
 
   static generateShortcutId(): string {
-    return 'sc-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 8);
+    return generateShortcutId();
   }
 
   constructor(

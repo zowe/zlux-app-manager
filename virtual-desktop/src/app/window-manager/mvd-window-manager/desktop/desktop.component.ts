@@ -187,7 +187,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
         let appContents = config.contents;
         plugins.forEach((plugin: ZLUX.Plugin) => {
           const id = plugin.getIdentifier();
-          if (appContents[id] && appContents[id].recognizers) { // If config has pre-existing recognizers for this plugin id,
+          if (appContents[id] && Array.isArray(appContents[id].recognizers)) { // If config has pre-existing recognizers for this plugin id,
             appContents[id].recognizers.forEach((recognizerObject: any) => {
               ZoweZLUX.dispatcher.addRecognizerObject(recognizerObject); // register each object with the Dispatcher.
             });
@@ -207,7 +207,7 @@ class AppDispatcherLoader implements MVDHosting.LoginActionInterface {
         let appContents = config.contents;
         plugins.forEach((plugin: ZLUX.Plugin) => {
           const id = plugin.getIdentifier();
-          if (appContents[id] && appContents[id].actions) { // If config has pre-existing actions for this plugin id,
+          if (appContents[id] && Array.isArray(appContents[id].actions)) { // If config has pre-existing actions for this plugin id,
             appContents[id].actions.forEach((actionObject: any) => {
               if (this.isValidAction(actionObject)) {
                 ZoweZLUX.dispatcher.registerAbstractAction(ZoweZLUX.dispatcher.makeActionFromObject(actionObject));

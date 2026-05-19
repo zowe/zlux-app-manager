@@ -177,7 +177,7 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
       // so we return as to not repeat the process and create two Viewports for one instance
       return applicationInstance.instanceId;
     }
-    const injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata, applicationInstance.instanceId, messages, compiled.providers);
+    const injector = this.injectionManager.generateModuleInjector(plugin, launchMetadata, applicationInstance.instanceId, messages);
 
     // this.instantiateApplicationInstance(applicationInstance, compiled.moduleFactory, injector);
     const moduleRef = createNgModule(compiled.ngModule, injector);

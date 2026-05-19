@@ -13,7 +13,7 @@ import { Observable, of, forkJoin, Subject, timer } from 'rxjs';
 import { switchMap, map, catchError, tap, finalize } from 'rxjs/operators';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { UssFileService, UssEntry } from './uss-file.service';
-import { DesktopShortcut, DesktopShortcutAction, DesktopFolder, DesktopShortcutsService } from './desktop-shortcuts.service';
+import { DesktopShortcut, DesktopShortcutAction, DesktopFolder, sanitizeIconUrl, generateShortcutId } from './desktop-shortcuts.types';
 
 declare var ZoweZLUX: any;
 
@@ -284,7 +284,7 @@ export class UssStorageBackend {
     const mappedDirNames = new Set(Object.values(validFolderMap));
     for (const entry of visibleEntries) {
       if (entry.directory && !mappedDirNames.has(entry.name)) {
-        const newId = DesktopShortcutsService.generateShortcutId().replace('sc-', 'folder-');
+        const newId = generateShortcutId().replace('sc-', 'folder-');
         validFolderMap[newId] = entry.name;
         this.logger.info('Auto-discovered folder: ' + entry.name + ' -> ' + newId);
       }
@@ -317,7 +317,7 @@ export class UssStorageBackend {
         gridRow: pos?.gridRow ?? -1,
         gridCol: pos?.gridCol ?? -1,
         displayLabel: ss.displayLabel,
-        displayIcon: DesktopShortcutsService.sanitizeIconUrl(ss.displayIcon),
+        displayIcon: sanitizeIconUrl(ss.displayIcon),
         action: ss.action,
         folderId: ss.folderId
       };
@@ -899,7 +899,7 @@ export class UssStorageBackend {
               gridRow: -1,
               gridCol: -1,
               displayLabel: ss.displayLabel,
-              displayIcon: DesktopShortcutsService.sanitizeIconUrl(ss.displayIcon),
+              displayIcon: sanitizeIconUrl(ss.displayIcon),
               action: ss.action,
               folderId: ss.folderId,
               _system: true
