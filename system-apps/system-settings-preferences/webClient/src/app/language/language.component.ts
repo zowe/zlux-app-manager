@@ -81,6 +81,7 @@ export class LanguageComponent {
   }
 
   restartZowe(): void {
+    window.onbeforeunload = null;
     window.location.reload();
   }
 
