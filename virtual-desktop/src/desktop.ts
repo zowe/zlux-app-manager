@@ -136,9 +136,15 @@ function performBootstrap(): void {
       || MvdModuleFactory.generateModule(WindowManagerModule, MvdComponent), {providers: providers}));
 }
 
-// set baseurl 
+// Align browser URL with the desktop plugin path so <base href> matches location.
+// This prevents the "Leave site?" popup caused by base/location mismatch + onbeforeunload.
+// The bootstrap plugin has finished loading — the page IS the desktop now.
+const desktopUri = ZoweZLUX?.uriBroker.desktopRootUri();
+window.history.replaceState(null, '', desktopUri);
+
+// set baseurl (needed for CSS relative url() resolution — fonts, images, etc.)
 const baseUrl = document.createElement('base');
-baseUrl.setAttribute("href", ZoweZLUX?.uriBroker.desktopRootUri());
+baseUrl.setAttribute("href", desktopUri);
 
 if (document.head) {
   document.head.appendChild(baseUrl);
