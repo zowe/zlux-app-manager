@@ -58,7 +58,7 @@
     <span id="ZAP_DesktopHome_DateLabel">{{date | date:'shortDate':undefined:'en'}}</span>
   </div>
   <div class="clock" *ngIf="!clockTwoRow" [style.font-size]="fontSize" [style.padding-top]="clockOffset">
-    <span>{{date | date:'shortDate'}} {{date | date:'shortTime'}}</span>
+    <span>{{date | date:'shortDate':undefined:'en'}} {{date | date:'shortTime':undefined:'en'}}</span>
   </div>
   <div #notificationicon class="launchbar-tray-icon notification"
        [style.margin-top]="widgetOffset"
