@@ -65,18 +65,6 @@ export interface DesktopRealFile {
 }
 
 // ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-const ZWE_STORE = '.zweStore';
-const ZWE_TRASH = '.zweTrash';
-const SETTINGS_FILE = '.desktop-settings.json';
-const META_FILE = '.desktop-file-meta.json';
-const TRASH_AGE_LIMIT_SECONDS = 30 * 24 * 60 * 60; // 30 days
-const DEFAULT_POLL_INTERVAL = 30000;
-const IDLE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
-
-// ---------------------------------------------------------------------------
 // Service
 // ---------------------------------------------------------------------------
 
@@ -136,7 +124,7 @@ export class UssStorageBackend {
   private lastPurgeCheck: number = 0;
 
   /** Poll interval in milliseconds */
-  private pollInterval: number = DEFAULT_POLL_INTERVAL;
+  private pollInterval: number = 30000;
 
   /** Emits when polling detects external changes */
   readonly externalChange$ = new Subject<void>();
@@ -167,7 +155,7 @@ export class UssStorageBackend {
   }> {
     this.rootPath = rootPath;
     this.systemRootPath = systemRootPath;
-    this.pollInterval = pollInterval || DEFAULT_POLL_INTERVAL;
+    this.pollInterval = pollInterval || 30000;
 
     return this.ensureDirectoryStructure().pipe(
       switchMap(() => this.loadAll()),
@@ -182,8 +170,8 @@ export class UssStorageBackend {
   private ensureDirectoryStructure(): Observable<void> {
     return this.uss.mkdir(this.rootPath, true).pipe(
       switchMap(() => forkJoin([
-        this.uss.mkdir(this.p(ZWE_STORE)).pipe(catchError(() => of(void 0))),
-        this.uss.mkdir(this.p(ZWE_TRASH)).pipe(catchError(() => of(void 0)))
+        this.uss.mkdir(this.p('.zweStore')).pipe(catchError(() => of(void 0))),
+        this.uss.mkdir(this.p('.zweTrash')).pipe(catchError(() => of(void 0)))
       ])),
       map(() => void 0)
     );
@@ -208,9 +196,9 @@ export class UssStorageBackend {
   }> {
     return forkJoin([
       this.uss.listDir(this.rootPath).pipe(catchError(() => of([] as UssEntry[]))),
-      this.uss.listDir(this.p(ZWE_STORE)).pipe(catchError(() => of([] as UssEntry[]))),
-      this.readJsonFile<DesktopSettings>(this.p(SETTINGS_FILE)).pipe(catchError(() => of({} as DesktopSettings))),
-      this.readJsonFile<DesktopFileMeta>(this.p(META_FILE)).pipe(catchError(() => of({} as DesktopFileMeta))),
+      this.uss.listDir(this.p('.zweStore')).pipe(catchError(() => of([] as UssEntry[]))),
+      this.readJsonFile<DesktopSettings>(this.p('.desktop-settings.json')).pipe(catchError(() => of({} as DesktopSettings))),
+      this.readJsonFile<DesktopFileMeta>(this.p('.desktop-file-meta.json')).pipe(catchError(() => of({} as DesktopFileMeta))),
     ]).pipe(
       switchMap(([rootEntries, storeEntries, settings, meta]) => {
         this.settings = settings;
@@ -386,12 +374,12 @@ export class UssStorageBackend {
       folderId: shortcut.folderId
     };
     const filename = this.shortcutFilename(shortcut);
-    return this.uss.writeFile(this.p(ZWE_STORE + '/' + filename), JSON.stringify(store, null, 2));
+    return this.uss.writeFile(this.p('.zweStore/' + filename), JSON.stringify(store, null, 2));
   }
 
   /** Delete a shortcut file from .zweStore/ by finding its filename */
   deleteShortcutFile(shortcutId: string): Observable<void> {
-    return this.uss.listDir(this.p(ZWE_STORE)).pipe(
+    return this.uss.listDir(this.p('.zweStore')).pipe(
       switchMap(entries => {
         const match = entries.find(e => e.name.includes(shortcutId));
         if (match) {
@@ -433,7 +421,7 @@ export class UssStorageBackend {
   /** Write .desktop-file-meta.json with read-merge-write for concurrent safety */
   private writeMetaFile(): Observable<void> {
     if (this.metaDirtyKeys.size === 0) return of(void 0);
-    return this.readJsonFile<DesktopFileMeta>(this.p(META_FILE)).pipe(
+    return this.readJsonFile<DesktopFileMeta>(this.p('.desktop-file-meta.json')).pipe(
       catchError(() => of({} as DesktopFileMeta)),
       switchMap(diskMeta => {
         // Merge: accept all disk entries, overlay our dirty keys
@@ -447,7 +435,7 @@ export class UssStorageBackend {
         }
         this.fileMeta = merged;
         this.metaDirtyKeys.clear();
-        return this.uss.writeFile(this.p(META_FILE), JSON.stringify(merged, null, 2));
+        return this.uss.writeFile(this.p('.desktop-file-meta.json'), JSON.stringify(merged, null, 2));
       })
     );
   }
@@ -468,7 +456,7 @@ export class UssStorageBackend {
   /** Write .desktop-settings.json with read-merge-write for concurrent safety */
   private writeSettings(): Observable<void> {
     if (this.settingsDirtyKeys.size === 0) return of(void 0);
-    return this.readJsonFile<DesktopSettings>(this.p(SETTINGS_FILE)).pipe(
+    return this.readJsonFile<DesktopSettings>(this.p('.desktop-settings.json')).pipe(
       catchError(() => of({} as DesktopSettings)),
       switchMap(diskSettings => {
         // Merge: accept all disk keys, overlay only our dirty keys
@@ -478,7 +466,7 @@ export class UssStorageBackend {
         }
         this.settings = merged;
         this.settingsDirtyKeys.clear();
-        return this.uss.writeFile(this.p(SETTINGS_FILE), JSON.stringify(merged, null, 2));
+        return this.uss.writeFile(this.p('.desktop-settings.json'), JSON.stringify(merged, null, 2));
       })
     );
   }
@@ -525,7 +513,7 @@ export class UssStorageBackend {
     if (new TextEncoder().encode(name).length > 255) {
       throw new Error('Folder name exceeds 255 bytes');
     }
-    const reserved = [ZWE_STORE, ZWE_TRASH, SETTINGS_FILE, META_FILE];
+    const reserved = ['.zweStore', '.zweTrash', '.desktop-settings.json', '.desktop-file-meta.json'];
     if (reserved.includes(name)) {
       throw new Error('Folder name "' + name + '" is reserved');
     }
@@ -545,7 +533,7 @@ export class UssStorageBackend {
   moveToTrash(sourcePath: string, originalName: string): Observable<string> {
     const epoch = Math.floor(Date.now() / 1000);
     const trashName = originalName + '.t' + epoch;
-    const trashPath = this.p(ZWE_TRASH + '/' + trashName);
+    const trashPath = this.p('.zweTrash/' + trashName);
     return this.uss.move(sourcePath, trashPath).pipe(
       tap(() => { this.trashHasEntries = true; }),
       map(() => trashName)
@@ -559,7 +547,7 @@ export class UssStorageBackend {
 
   /** Move a shortcut JSON from .zweStore/ to .zweTrash/ */
   moveShortcutToTrash(shortcutId: string): Observable<string> {
-    return this.uss.listDir(this.p(ZWE_STORE)).pipe(
+    return this.uss.listDir(this.p('.zweStore')).pipe(
       switchMap(entries => {
         const match = entries.find(e => e.name.includes(shortcutId));
         if (!match) {
@@ -573,13 +561,13 @@ export class UssStorageBackend {
 
   /** Restore a file from .zweTrash/ to its original location */
   restoreFromTrash(trashFilename: string, restorePath: string): Observable<void> {
-    const trashPath = this.p(ZWE_TRASH + '/' + trashFilename);
+    const trashPath = this.p('.zweTrash/' + trashFilename);
     return this.uss.move(trashPath, restorePath);
   }
 
   /** Empty the entire trash */
   emptyTrash(): Observable<void> {
-    return this.uss.listDir(this.p(ZWE_TRASH)).pipe(
+    return this.uss.listDir(this.p('.zweTrash')).pipe(
       switchMap(entries => {
         if (entries.length === 0) return of(void 0);
         return forkJoin(entries.map(e => this.uss.delete(e.path).pipe(catchError(() => of(void 0))))).pipe(
@@ -593,14 +581,14 @@ export class UssStorageBackend {
   /** Auto-purge trash entries older than 30 days */
   private autoPurgeTrash(): void {
     this.lastPurgeCheck = Date.now();
-    this.uss.listDir(this.p(ZWE_TRASH)).pipe(
+    this.uss.listDir(this.p('.zweTrash')).pipe(
       catchError(() => of([] as UssEntry[]))
     ).subscribe(entries => {
       this.trashHasEntries = entries.length > 0;
       const now = Math.floor(Date.now() / 1000);
       for (const entry of entries) {
         const epoch = this.parseTrashEpoch(entry.name);
-        if (epoch !== null && (now - epoch) > TRASH_AGE_LIMIT_SECONDS) {
+        if (epoch !== null && (now - epoch) > 2592000) {
           this.uss.delete(entry.path).subscribe(
             () => this.logger.info('Auto-purged trash entry: ' + entry.name),
             (err: any) => this.logger.warn('Failed to purge trash entry: ' + entry.name)
@@ -635,7 +623,7 @@ export class UssStorageBackend {
     this.pollTimerId = setInterval(() => {
       if (this.pollInFlight) return;
       if (document.hidden) return;
-      if (Date.now() - this.lastInteractionTime > IDLE_THRESHOLD_MS) return;
+      if (Date.now() - this.lastInteractionTime > 300000) return;
 
       // Periodic auto-purge check (every 24 hours for long-lived sessions)
       if (Date.now() - this.lastPurgeCheck > 24 * 60 * 60 * 1000) {
@@ -661,7 +649,7 @@ export class UssStorageBackend {
 
     forkJoin([
       this.uss.listDir(this.rootPath).pipe(catchError(() => of([] as UssEntry[]))),
-      this.uss.listDir(this.p(ZWE_STORE)).pipe(catchError(() => of([] as UssEntry[])))
+      this.uss.listDir(this.p('.zweStore')).pipe(catchError(() => of([] as UssEntry[])))
     ]).pipe(
       finalize(() => { this.pollInFlight = false; })
     ).subscribe(([rootEntries, storeEntries]) => {
@@ -683,8 +671,8 @@ export class UssStorageBackend {
       }
 
       // Check metadata file sizes for changes
-      const metaEntry = rootEntries.find(e => e.name === META_FILE);
-      const settingsEntry = rootEntries.find(e => e.name === SETTINGS_FILE);
+      const metaEntry = rootEntries.find(e => e.name === '.desktop-file-meta.json');
+      const settingsEntry = rootEntries.find(e => e.name === '.desktop-settings.json');
       if (metaEntry && metaEntry.size !== this.metaFileSize) {
         changed = true;
         this.metaFileSize = metaEntry.size;
@@ -723,8 +711,8 @@ export class UssStorageBackend {
 
   /** Record metadata file sizes from a root directory listing */
   private recordMetaFileSizes(rootEntries: UssEntry[]): void {
-    const metaEntry = rootEntries.find(e => e.name === META_FILE);
-    const settingsEntry = rootEntries.find(e => e.name === SETTINGS_FILE);
+    const metaEntry = rootEntries.find(e => e.name === '.desktop-file-meta.json');
+    const settingsEntry = rootEntries.find(e => e.name === '.desktop-settings.json');
     this.metaFileSize = metaEntry?.size ?? -1;
     this.settingsFileSize = settingsEntry?.size ?? -1;
   }
@@ -763,7 +751,7 @@ export class UssStorageBackend {
     launchMenuFolderIds: string[]
   ): Observable<boolean> {
     // Check if .zweStore/ already has files (migration already completed)
-    return this.uss.listDir(this.p(ZWE_STORE)).pipe(
+    return this.uss.listDir(this.p('.zweStore')).pipe(
       catchError(() => of([] as UssEntry[])),
       switchMap(entries => {
         const jsonFiles = entries.filter(e => e.name.endsWith('.json'));
@@ -776,7 +764,7 @@ export class UssStorageBackend {
         // Wait 3 seconds and re-check as a race guard.
         if (entries.length > 0) {
           return timer(3000).pipe(
-            switchMap(() => this.uss.listDir(this.p(ZWE_STORE)).pipe(catchError(() => of([] as UssEntry[])))),
+            switchMap(() => this.uss.listDir(this.p('.zweStore')).pipe(catchError(() => of([] as UssEntry[])))),
             switchMap(retryEntries => {
               if (retryEntries.some(e => e.name.endsWith('.json'))) {
                 this.logger.info('Migration skipped after retry -- another tab completed migration');
@@ -825,7 +813,7 @@ export class UssStorageBackend {
       };
       const filename = this.shortcutFilename(shortcut);
       operations.push(
-        this.uss.writeFile(this.p(ZWE_STORE + '/' + filename), JSON.stringify(store, null, 2))
+        this.uss.writeFile(this.p('.zweStore/' + filename), JSON.stringify(store, null, 2))
       );
     }
 
@@ -858,8 +846,8 @@ export class UssStorageBackend {
 
     return forkJoin(operations).pipe(
       switchMap(() => forkJoin([
-        this.uss.writeFile(this.p(META_FILE), JSON.stringify(meta, null, 2)),
-        this.uss.writeFile(this.p(SETTINGS_FILE), JSON.stringify(settings, null, 2))
+        this.uss.writeFile(this.p('.desktop-file-meta.json'), JSON.stringify(meta, null, 2)),
+        this.uss.writeFile(this.p('.desktop-settings.json'), JSON.stringify(settings, null, 2))
       ])),
       map(() => {
         this.logger.info('Migration completed successfully');
@@ -881,7 +869,7 @@ export class UssStorageBackend {
   /** Load shortcuts from the system-level directory */
   private loadSystemShortcuts(): Observable<DesktopShortcut[]> {
     if (!this.systemRootPath) return of([]);
-    return this.uss.listDir(this.systemRootPath + '/' + ZWE_STORE).pipe(
+    return this.uss.listDir(this.systemRootPath + '/.zweStore').pipe(
       catchError(() => of([] as UssEntry[])),
       switchMap(entries => {
         const jsonFiles = entries.filter(e => !e.directory && e.name.endsWith('.json'));
@@ -1014,7 +1002,7 @@ export class UssStorageBackend {
       .replace(/^\./, '_')
       .substring(0, 255);
     if (safe === '.' || safe === '..') safe = '_' + safe;
-    const reserved = [ZWE_STORE, ZWE_TRASH, SETTINGS_FILE, META_FILE];
+    const reserved = ['.zweStore', '.zweTrash', '.desktop-settings.json', '.desktop-file-meta.json'];
     if (reserved.includes(safe)) safe = '_' + safe;
     return safe || 'folder';
   }

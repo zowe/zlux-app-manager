@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { ChangeDetectorRef, Directive, HostListener, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Directive, HostListener, Input, OnInit, OnDestroy } from '@angular/core';
 
 import { DesktopWindow } from './desktop-window';
 import { DraggableDirective } from './draggable.directive';
@@ -23,7 +23,7 @@ const enum Compass {
 @Directive({
   selector: '[rs-com-sizeable]'
 })
-export class SizeableDirective implements OnInit {
+export class SizeableDirective implements OnInit, OnDestroy {
   @Input('rs-com-sizeable-window') desktopWindow: DesktopWindow;
   @Input('rs-com-sizeable-min-width') minWidth: number;
   @Input('rs-com-sizeable-min-height') minHeight: number;
@@ -43,6 +43,7 @@ export class SizeableDirective implements OnInit {
   overshootHeight: number;
   handle: HTMLElement | null;
   handles: Array<HTMLElement>;
+  private detectChangesTimerId: any;
 
   constructor(private ref: ChangeDetectorRef) {
     this.top = 0;
@@ -52,9 +53,16 @@ export class SizeableDirective implements OnInit {
     this.handle = null;
     this.handles = new Array<HTMLElement>(Compass.size);
     ref.detach(); // deactivate change detection
-    setInterval(() => {
+    this.detectChangesTimerId = setInterval(() => {
       this.ref.detectChanges(); // manually trigger change detection
     }, 17);
+  }
+
+  ngOnDestroy(): void {
+    if (this.detectChangesTimerId) {
+      clearInterval(this.detectChangesTimerId);
+      this.detectChangesTimerId = null;
+    }
   }
 
   ngOnInit(): void {

@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { ChangeDetectorRef, Directive, ElementRef, HostListener, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, HostListener, Input, OnInit, OnDestroy } from '@angular/core';
 
 import { DesktopWindow } from './desktop-window';
 //import { BaseLogger } from 'virtual-desktop-logger';
@@ -18,7 +18,7 @@ import { DesktopWindow } from './desktop-window';
 @Directive({
   selector: '[rs-com-draggable]'
 })
-export class DraggableDirective implements OnInit {
+export class DraggableDirective implements OnInit, OnDestroy {
   //private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private static readonly draggleCss = ' cursor-draggable';
 
@@ -28,6 +28,7 @@ export class DraggableDirective implements OnInit {
   topOffset: number;
   leftOffset: number;
   mouseDown: boolean;
+  private detectChangesTimerId: any;
 
   public static topLeft(e: MouseEvent | TouchEvent): {top: number, left: number} {
     let mouseTouch: MouseEvent | Touch;
@@ -48,9 +49,16 @@ export class DraggableDirective implements OnInit {
     this.leftOffset = 0;
     this.mouseDown = false;
     ref.detach(); // deactivate change detection
-    setInterval(() => {
+    this.detectChangesTimerId = setInterval(() => {
       this.ref.detectChanges(); // manually trigger change detection
     }, 17);
+  }
+
+  ngOnDestroy(): void {
+    if (this.detectChangesTimerId) {
+      clearInterval(this.detectChangesTimerId);
+      this.detectChangesTimerId = null;
+    }
   }
 
   // TODO: This is a bit of a mess
