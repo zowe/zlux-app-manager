@@ -13,6 +13,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, Subscription, forkJoin, of } from 'rxjs';
 import { take, catchError } from 'rxjs/operators';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { DesktopPluginDefinitionImpl } from '../../../plugin-manager/shared/desktop-plugin-definition';
 import { UssFileService } from './uss-file.service';
 import { UssStorageBackend, DesktopRealFile } from './uss-storage-backend.service';
 import { DesktopShortcut, DesktopFolder, sanitizeIconUrl, generateShortcutId, generateFolderId } from './desktop-shortcuts.types';
@@ -580,8 +581,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
       // any dispatcher primaryArgument transform that can corrupt the structure.
       const dataType = actionDef.launchMetadata?.data?.type;
       if (dataType === 'openFile') {
-        const targetPluginDef = pluginDef || { basePlugin: targetPlugin, getBasePlugin: () => targetPlugin };
-        applicationManager.spawnApplication(targetPluginDef as any, actionDef.launchMetadata);
+        const targetPluginDef = pluginDef || new DesktopPluginDefinitionImpl(targetPlugin);
+        applicationManager.spawnApplication(targetPluginDef, actionDef.launchMetadata);
       } else {
         const targetMode = (ZoweZLUX.dispatcher.constants.ActionTargetMode as any)[actionDef.targetMode];
         const actionType = (ZoweZLUX.dispatcher.constants.ActionType as any)[actionDef.type];
@@ -1378,16 +1379,16 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     if (assocPluginId) {
       const plugin = ZoweZLUX.pluginManager.getPlugin(assocPluginId);
       if (plugin) {
-        const pluginDef = { basePlugin: plugin, getBasePlugin: () => plugin };
-        applicationManager.spawnApplication(pluginDef as any, { data: { type: 'openFile', name: file.path } });
+        const pluginDef = new DesktopPluginDefinitionImpl(plugin);
+        applicationManager.spawnApplication(pluginDef, { data: { type: 'openFile', name: file.path } });
         return;
       }
     }
     // No association -- try to open with the editor as a default fallback
     const editorPlugin = ZoweZLUX.pluginManager.getPlugin('org.zowe.editor');
     if (editorPlugin) {
-      const pluginDef = { basePlugin: editorPlugin, getBasePlugin: () => editorPlugin };
-      applicationManager.spawnApplication(pluginDef as any, { data: { type: 'openFile', name: file.path } });
+      const pluginDef = new DesktopPluginDefinitionImpl(editorPlugin);
+      applicationManager.spawnApplication(pluginDef, { data: { type: 'openFile', name: file.path } });
     } else {
       this.logger.warn('No file association and no editor available for: ' + file.name);
     }
