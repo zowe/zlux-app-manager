@@ -386,7 +386,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
         }
       },
       () => {
-        this.shortcuts$.next([]);
+        this.shortcuts$.next([]); 
         this.folders$.next([]);
         this.pinnedFolderIds$.next([]);
         this.launchMenuFolderIds$.next([]);
@@ -718,16 +718,21 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /** Create a folder by merging two shortcuts (drag-to-create) */
   createFolderFromShortcuts(targetShortcut: DesktopShortcut, droppedShortcut: DesktopShortcut): DesktopFolder {
-    return this.createFolder(this.getUniqueFolderName('New Folder'), targetShortcut.gridRow, targetShortcut.gridCol, [
-      targetShortcut.id,
-      droppedShortcut.id
-    ]);
+    // If both shortcuts share the same pluginId, only include the target
+    const ids = targetShortcut.pluginId === droppedShortcut.pluginId
+      ? [targetShortcut.id]
+      : [targetShortcut.id, droppedShortcut.id];
+    return this.createFolder(this.getUniqueFolderName('New Folder'), targetShortcut.gridRow, targetShortcut.gridCol, ids);
   }
 
   /** Add an existing shortcut to a folder */
   addShortcutToFolder(folderId: string, shortcutId: string): void {
     const target = this.shortcuts$.value.find(s => s.id === shortcutId && !s.folderId);
     if (!target) return;
+    // Prevent duplicate pluginId in the same folder
+    if (this.shortcuts$.value.some(s => s.id !== shortcutId && s.pluginId === target.pluginId && s.folderId === folderId)) {
+      return;
+    }
     const others = this.shortcuts$.value.filter(s => s !== target);
     const updatedShortcuts = [...others, { ...target, folderId, gridRow: -1, gridCol: -1 }];
     this.saveAll(updatedShortcuts, this.folders$.value);
@@ -736,8 +741,16 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
   /** Add multiple existing shortcuts to a folder atomically in a single save */
   batchAddShortcutsToFolder(folderId: string, shortcutIds: string[]): void {
     const idSet = new Set(shortcutIds);
+    // Collect pluginIds already in the target folder to prevent duplicates
+    const existingPluginIds = new Set(
+      this.shortcuts$.value.filter(s => s.folderId === folderId).map(s => s.pluginId)
+    );
     const updatedShortcuts = this.shortcuts$.value.map(s => {
       if (idSet.has(s.id) && !s.folderId) {
+        if (existingPluginIds.has(s.pluginId)) {
+          return s;
+        }
+        existingPluginIds.add(s.pluginId);
         return { ...s, folderId, gridRow: -1, gridCol: -1 };
       }
       return s;
