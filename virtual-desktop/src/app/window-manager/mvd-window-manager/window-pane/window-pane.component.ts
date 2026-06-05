@@ -372,9 +372,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     return this.topLevelShortcuts.filter(s => s.gridRow < this.maxGridRows && s.gridCol < this.maxGridCols);
   }
 
-  /** Folders within the visible grid bounds */
+  /** Folders within the visible grid bounds (plus the currently open folder) */
   get visibleFolders(): DesktopFolder[] {
-    return this.folders.filter(f => f.gridRow < this.maxGridRows && f.gridCol < this.maxGridCols);
+    return this.folders.filter(f => f.gridRow < this.maxGridRows && f.gridCol < this.maxGridCols || f.id === this.openFolderId);
   }
 
   getShortcutsInFolder(folderId: string): DesktopShortcut[] {
