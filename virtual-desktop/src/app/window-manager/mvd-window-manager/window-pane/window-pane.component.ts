@@ -852,6 +852,17 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       row = pos.row;
       col = pos.col;
     }
+    if (row >= this.maxGridRows || col >= this.maxGridCols) {
+      ZoweZLUX.notificationManager.notify(
+        ZoweZLUX.notificationManager.createNotification(
+          'Desktop Shortcuts',
+          'The desktop is full. Remove some items before creating a new folder.',
+          1,
+          'org.zowe.zlux.ng2desktop'
+        )
+      );
+      return;
+    }
     const folder = this.shortcutsService.createFolder(this.shortcutsService.getUniqueFolderName('New Folder'), row, col, []);
     if (this.shortcutsService.folders$.value.some(f => f.id === folder.id)) {
       this.renameFolderTargetId = folder.id;
