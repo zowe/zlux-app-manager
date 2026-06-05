@@ -852,17 +852,6 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
       row = pos.row;
       col = pos.col;
     }
-    if (row >= this.maxGridRows || col >= this.maxGridCols) {
-      ZoweZLUX.notificationManager.notify(
-        ZoweZLUX.notificationManager.createNotification(
-          'Desktop Shortcuts',
-          'The desktop is full. Remove some items before creating a new folder.',
-          1,
-          'org.zowe.zlux.ng2desktop'
-        )
-      );
-      return;
-    }
     const folder = this.shortcutsService.createFolder(this.shortcutsService.getUniqueFolderName('New Folder'), row, col, []);
     if (this.shortcutsService.folders$.value.some(f => f.id === folder.id)) {
       this.renameFolderTargetId = folder.id;
@@ -881,7 +870,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     // TODO: The wallpaper change is not working properly. The wallpaper is not updated after changing it in the settings.
     // It needs refresh to see the new wallpaper. The solutions that I have tried:
     // 1. Adding delay before calling the replaceWallpaper function.
-    // 2. Using different HTTP methods (GET, POST, PUT) to update the wallpaper.
+    // 2. Using different HTTP methods (GET, POST, PUT) to update the wallpaper.we
     // 3. Checked for browser caching issues by adding cache-control headers.
     // 4. Verified the server-side implementation to ensure it correctly handles the wallpaper update.
     // None of these solutions worked.
