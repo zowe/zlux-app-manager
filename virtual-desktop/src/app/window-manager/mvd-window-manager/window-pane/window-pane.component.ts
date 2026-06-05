@@ -863,6 +863,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
+    this.windowManager.windowCreated.subscribe(() => {
+      this.openFolderId = null;
+    });
 
     // TODO: The wallpaper change is not working properly. The wallpaper is not updated after changing it in the settings.
     // It needs refresh to see the new wallpaper. The solutions that I have tried:
