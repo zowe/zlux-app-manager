@@ -787,6 +787,18 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /** Remove a shortcut from its folder back to the desktop grid */
   removeShortcutFromFolder(folderId: string, shortcutId: string): void {
+    const shortcut = this.shortcuts$.value.find(s => s.id === shortcutId && s.folderId === folderId);
+    if (shortcut && this.shortcuts$.value.some(s => !s.folderId && s.pluginId === shortcut.pluginId)) {
+      ZoweZLUX.notificationManager.notify(
+        ZoweZLUX.notificationManager.createNotification(
+          'Desktop Shortcuts',
+          'This application already has a shortcut on the desktop.',
+          1,
+          'org.zowe.zlux.ng2desktop'
+        )
+      );
+      return;
+    }
     const position = this.findNextAvailablePosition(this.shortcuts$.value);
     const updatedShortcuts = this.shortcuts$.value.map(s => {
       if (s.id === shortcutId && s.folderId === folderId) {
@@ -807,6 +819,18 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   /** Remove a shortcut from its folder and place it at a specific desktop grid position */
   removeShortcutFromFolderToPosition(folderId: string, shortcutId: string, newRow: number, newCol: number): void {
+    const shortcut = this.shortcuts$.value.find(s => s.id === shortcutId && s.folderId === folderId);
+    if (shortcut && this.shortcuts$.value.some(s => !s.folderId && s.pluginId === shortcut.pluginId)) {
+      ZoweZLUX.notificationManager.notify(
+        ZoweZLUX.notificationManager.createNotification(
+          'Desktop Shortcuts',
+          'This application already has a shortcut on the desktop.',
+          1,
+          'org.zowe.zlux.ng2desktop'
+        )
+      );
+      return;
+    }
     const topLevel = this.shortcuts$.value.filter(s => !s.folderId);
     const folders = this.folders$.value;
     const occupied = new Set([

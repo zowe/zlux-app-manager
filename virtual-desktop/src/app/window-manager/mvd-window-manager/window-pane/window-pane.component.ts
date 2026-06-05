@@ -378,9 +378,9 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     return this.topLevelShortcuts.filter(s => s.gridRow < this.maxGridRows && s.gridCol < this.maxGridCols);
   }
 
-  /** Folders within the visible grid bounds */
+  /** Folders within the visible grid bounds (plus the currently open folder) */
   get visibleFolders(): DesktopFolder[] {
-    return this.folders.filter(f => f.gridRow < this.maxGridRows && f.gridCol < this.maxGridCols);
+    return this.folders.filter(f => f.gridRow < this.maxGridRows && f.gridCol < this.maxGridCols || f.id === this.openFolderId);
   }
 
   /** Real USS files within the visible grid bounds */
@@ -400,6 +400,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onFolderOpened(folder: DesktopFolder): void {
+    this.windowManager.contextMenuRequested.next(null);
     if (this.openFolderId === folder.id) {
       this.openFolderId = null;
     } else {
@@ -977,11 +978,14 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
+    this.windowManager.windowCreated.subscribe(() => {
+      this.openFolderId = null;
+    });
 
     // TODO: The wallpaper change is not working properly. The wallpaper is not updated after changing it in the settings.
     // It needs refresh to see the new wallpaper. The solutions that I have tried:
     // 1. Adding delay before calling the replaceWallpaper function.
-    // 2. Using different HTTP methods (GET, POST, PUT) to update the wallpaper.
+    // 2. Using different HTTP methods (GET, POST, PUT) to update the wallpaper.we
     // 3. Checked for browser caching issues by adding cache-control headers.
     // 4. Verified the server-side implementation to ensure it correctly handles the wallpaper update.
     // None of these solutions worked.
