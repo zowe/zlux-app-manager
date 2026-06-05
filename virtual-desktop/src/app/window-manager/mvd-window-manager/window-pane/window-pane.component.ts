@@ -389,7 +389,7 @@ export class WindowPaneComponent implements OnInit, OnDestroy, MVDHosting.LoginA
   }
 
   onFolderOpened(folder: DesktopFolder): void {
-    this.contextMenuDef = null;
+    this.windowManager.contextMenuRequested.next(null);
     if (this.openFolderId === folder.id) {
       this.openFolderId = null;
     } else {

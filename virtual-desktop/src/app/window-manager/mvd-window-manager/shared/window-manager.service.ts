@@ -73,7 +73,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
    */
   private lastWindowPositionMap: Map<String, Map<MVDWindowManagement.WindowId, WindowPosition>>;
 
-  contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
+  contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]} | null>;
   readonly windowDeregisterEmitter: Subject<MVDWindowManagement.WindowId>;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private viewportManager: MVDHosting.ViewportManagerInterface;
