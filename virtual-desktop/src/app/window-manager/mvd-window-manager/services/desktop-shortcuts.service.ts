@@ -708,6 +708,9 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
     // In file-backed mode, also create the USS directory
     if (this.fileBackedMode && this.ussBackend) {
+      // Optimistic update so folder appears in UI immediately (enables inline rename)
+      this.shortcuts$.next(updatedShortcuts);
+      this.folders$.next(updatedFolders);
       this.ussBackend.createFolderDir(name).subscribe(
         () => this.saveAll(updatedShortcuts, updatedFolders),
         (err) => {
