@@ -565,6 +565,18 @@ export class UssStorageBackend {
     return this.uss.move(trashPath, restorePath);
   }
 
+  /** Restore a shortcut file from .zweTrash/ back to .zweStore/ */
+  restoreShortcutFromTrash(trashFilename: string): Observable<void> {
+    const originalName = trashFilename.replace(/\.t\d+$/, '');
+    return this.restoreFromTrash(trashFilename, this.p('.zweStore/' + originalName));
+  }
+
+  /** Restore a folder directory from .zweTrash/ back to root */
+  restoreFolderFromTrash(trashFilename: string): Observable<void> {
+    const originalName = trashFilename.replace(/\.t\d+$/, '');
+    return this.restoreFromTrash(trashFilename, this.p(originalName));
+  }
+
   /** Empty the entire trash */
   emptyTrash(): Observable<void> {
     return this.uss.listDir(this.p('.zweTrash')).pipe(

@@ -28,6 +28,8 @@ export interface DeletionUndoSnapshot {
   removedLaunchMenuFolderIds: string[];
   /** Shortcuts that were released from deleted folders and need to be moved back on undo */
   releasedFromFolder: { shortcutId: string; folderId: string }[];
+  /** Maps item ID (shortcut ID or folder ID) to its .zweTrash/ filename for restore */
+  trashFilenames: Map<string, string>;
 }
 
 @Injectable()
@@ -480,8 +482,9 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
   removeShortcutById(shortcutId: string): void {
     const deleted = this.shortcuts$.value.find(s => s.id === shortcutId);
+    let snapshot: DeletionUndoSnapshot | null = null;
     if (deleted) {
-      this.pushDeletionDiff([deleted], [], [], [], []);
+      snapshot = this.pushDeletionDiff([deleted], [], [], [], []);
     }
     const updated = this.shortcuts$.value.filter(s => s.id !== shortcutId);
     this.shortcuts$.next(updated);
@@ -489,7 +492,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     if (this.fileBackedMode && this.ussBackend) {
       // Move shortcut file to .zweTrash/
       this.ussBackend.moveShortcutToTrash(shortcutId).subscribe(
-        () => {
+        (trashName) => {
+          if (trashName && snapshot) snapshot.trashFilenames.set(shortcutId, trashName);
           this.trashHasEntries$.next(true);
           this.ussBackend!.removePosition(shortcutId);
           this.ussBackend!.updatePositions([]).subscribe();
@@ -971,7 +975,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
         releasedFromFolder.push({ shortcutId: s.id, folderId });
       }
     }
-    this.pushDeletionDiff(deletedShortcuts, deletedFolders, removedPinned, removedLaunchMenu, releasedFromFolder);
+    const snapshot = this.pushDeletionDiff(deletedShortcuts, deletedFolders, removedPinned, removedLaunchMenu, releasedFromFolder);
 
     // Remove the targeted shortcuts
     let updatedShortcuts = this.shortcuts$.value.filter(s => !shortcutIdSet.has(s.id));
@@ -990,16 +994,22 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
 
     // In file-backed mode, move items to trash before saving state
     if (this.fileBackedMode && this.ussBackend) {
-      const trashOps: Observable<any>[] = [];
+      const trashKeys: string[] = [];
+      const trashOps: Observable<string>[] = [];
       for (const s of deletedShortcuts) {
+        trashKeys.push(s.id);
         trashOps.push(this.ussBackend.moveShortcutToTrash(s.id).pipe(catchError(() => of(''))));
       }
       for (const f of deletedFolders) {
+        trashKeys.push(f.id);
         trashOps.push(this.ussBackend.moveFolderToTrash(f.name).pipe(catchError(() => of(''))));
       }
       if (trashOps.length > 0) {
         forkJoin(trashOps).subscribe(
-          () => {
+          (trashNames) => {
+            for (let i = 0; i < trashNames.length; i++) {
+              if (trashNames[i]) snapshot.trashFilenames.set(trashKeys[i], trashNames[i]);
+            }
             this.trashHasEntries$.next(true);
             this.saveAll(updatedShortcuts, updatedFolders);
           },
@@ -1020,7 +1030,7 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     const releasedFromFolder = this.shortcuts$.value
       .filter(s => s.folderId === folderId)
       .map(s => ({ shortcutId: s.id, folderId }));
-    this.pushDeletionDiff([], deletedFolder ? [deletedFolder] : [], removedPinned, removedLaunchMenu, releasedFromFolder);
+    const snapshot = this.pushDeletionDiff([], deletedFolder ? [deletedFolder] : [], removedPinned, removedLaunchMenu, releasedFromFolder);
 
     const updatedFolders = this.folders$.value.filter(f => f.id !== folderId);
     const updatedShortcuts = this.releaseShortcutsFromFolder([...this.shortcuts$.value], folderId);
@@ -1032,7 +1042,8 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     // In file-backed mode, move the folder directory to trash
     if (this.fileBackedMode && this.ussBackend && deletedFolder) {
       this.ussBackend.moveFolderToTrash(deletedFolder.name).subscribe(
-        () => {
+        (trashName) => {
+          if (trashName) snapshot.trashFilenames.set(folderId, trashName);
           this.trashHasEntries$.next(true);
           this.saveAll(updatedShortcuts, updatedFolders);
         },
@@ -1242,17 +1253,20 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     removedPinnedFolderIds: string[],
     removedLaunchMenuFolderIds: string[],
     releasedFromFolder: { shortcutId: string; folderId: string }[]
-  ): void {
-    this.deletionUndoStack.push({
+  ): DeletionUndoSnapshot {
+    const snapshot: DeletionUndoSnapshot = {
       deletedShortcuts: JSON.parse(JSON.stringify(deletedShortcuts)),
       deletedFolders: JSON.parse(JSON.stringify(deletedFolders)),
       removedPinnedFolderIds: [...removedPinnedFolderIds],
       removedLaunchMenuFolderIds: [...removedLaunchMenuFolderIds],
-      releasedFromFolder: [...releasedFromFolder]
-    });
+      releasedFromFolder: [...releasedFromFolder],
+      trashFilenames: new Map()
+    };
+    this.deletionUndoStack.push(snapshot);
     if (this.deletionUndoStack.length > DesktopShortcutsService.MAX_UNDO_DEPTH) {
       this.deletionUndoStack.shift();
     }
+    return snapshot;
   }
 
   get canUndoDelete(): boolean {
@@ -1324,7 +1338,42 @@ export class DesktopShortcutsService implements MVDHosting.LogoutActionInterface
     }
     this.launchMenuFolderIds$.next(updatedLaunchMenu);
 
-    this.saveAll(currentShortcuts, currentFolders);
+    // In file-backed mode, restore files from .zweTrash/ before saving state
+    if (this.fileBackedMode && this.ussBackend && snapshot.trashFilenames.size > 0) {
+      const restoreOps: Observable<void>[] = [];
+      for (const shortcut of snapshot.deletedShortcuts) {
+        const trashName = snapshot.trashFilenames.get(shortcut.id);
+        if (trashName) {
+          restoreOps.push(this.ussBackend.restoreShortcutFromTrash(trashName).pipe(
+            catchError((err) => {
+              this.logger.warn('Failed to restore shortcut from trash: ' + err);
+              return of(void 0);
+            })
+          ));
+        }
+      }
+      for (const folder of snapshot.deletedFolders) {
+        const trashName = snapshot.trashFilenames.get(folder.id);
+        if (trashName) {
+          restoreOps.push(this.ussBackend.restoreFolderFromTrash(trashName).pipe(
+            catchError((err) => {
+              this.logger.warn('Failed to restore folder from trash: ' + err);
+              return of(void 0);
+            })
+          ));
+        }
+      }
+      if (restoreOps.length > 0) {
+        forkJoin(restoreOps).subscribe(
+          () => this.saveAll(currentShortcuts, currentFolders),
+          () => this.saveAll(currentShortcuts, currentFolders)
+        );
+      } else {
+        this.saveAll(currentShortcuts, currentFolders);
+      }
+    } else {
+      this.saveAll(currentShortcuts, currentFolders);
+    }
     return true;
   }
 
