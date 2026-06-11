@@ -182,16 +182,26 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   }
 
   rebuildCombinedEntries(): void {
+    const filter = this.appFilter ? this.appFilter.toLowerCase() : '';
+
     const appEntries: MenuEntry[] = (this.displayItems || [])
       .slice()
       .sort((a, b) => a.label.localeCompare(b.label))
       .map(item => ({ kind: 'app' as const, item }));
 
-    const userFolderEntries: MenuEntry[] = this.launchMenuFolders
+    const filteredLaunchMenuFolders = filter
+      ? this.launchMenuFolders.filter(f => f.name.toLowerCase().includes(filter))
+      : this.launchMenuFolders;
+    const userFolderEntries: MenuEntry[] = filteredLaunchMenuFolders
       .map(folder => ({ kind: 'userFolder' as const, folder }));
 
     const shippedFolderEntries: MenuEntry[] = [];
     for (const folder of this.shippedFolders) {
+      const folderMatches = !filter || folder.name.toLowerCase().includes(filter);
+      const matchingItems = filter
+        ? (folder.items || []).filter(item => item.title && item.title.toLowerCase().includes(filter))
+        : folder.items || [];
+      if (!folderMatches && matchingItems.length === 0) continue;
       shippedFolderEntries.push({ kind: 'shippedFolder' as const, folder });
       if (this.expandedShippedFolderName === folder.name) {
         for (const item of folder.items) {
