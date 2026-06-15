@@ -22,6 +22,15 @@ import { DesktopPluginDefinitionImpl } from "app/plugin-manager/shared/desktop-p
 import { generateInstanceActions } from '../shared/context-utils';
 import { KeybindingService } from '../../shared/keybinding.service';
 import { KeyCode } from '../../shared/keycode-enum';
+import { DesktopShortcutsService } from '../../services/desktop-shortcuts.service';
+import { DesktopFolder } from '../../services/desktop-shortcuts.service';
+import { StartMenuFoldersService, StartMenuFolder, StartMenuFolderItem } from '../../services/start-menu-folders.service';
+
+export type MenuEntry =
+  | { kind: 'app'; item: LaunchbarItem }
+  | { kind: 'userFolder'; folder: DesktopFolder }
+  | { kind: 'shippedFolder'; folder: StartMenuFolder }
+  | { kind: 'shippedItem'; item: StartMenuFolderItem; parentFolder: StartMenuFolder; resolvedIcon?: string };
 
 const FONT_SIZE=12;
 
@@ -57,11 +66,17 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   public appFilter:string="";
   public activeIndex:number;  
   private isContextMenuPresent:boolean;
+  public folders: DesktopFolder[] = [];
+  public launchMenuFolders: DesktopFolder[] = [];
+  public shippedFolders: StartMenuFolder[] = [];
+  public expandedShippedFolderName: string | null = null;
+  public combinedEntries: MenuEntry[] = [];
 
   @Input() set menuItems(items: LaunchbarItem[]) {
     this._menuItems = items;
     this.displayItems = items;
     this.filterMenuItems();
+    this.rebuildCombinedEntries();
   }
  
   @Input() set theme(newTheme: DesktopTheme) {
@@ -120,6 +135,8 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     private translation: L10nTranslationService,
     private desktopComponent: DesktopComponent,
     private appKeyboard: KeybindingService,
+    private shortcutsService: DesktopShortcutsService,
+    private startMenuFoldersService: StartMenuFoldersService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
@@ -132,6 +149,22 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     
     this.activeIndex = 0;
     this.isContextMenuPresent = false;
+
+    this.shortcutsService.folders$.subscribe(folders => {
+      this.folders = folders;
+      this.updateLaunchMenuFolders();
+      this.rebuildCombinedEntries();
+    });
+
+    this.shortcutsService.launchMenuFolderIds$.subscribe(() => {
+      this.updateLaunchMenuFolders();
+      this.rebuildCombinedEntries();
+    });
+
+    this.startMenuFoldersService.shippedFolders$.subscribe(folders => {
+      this.shippedFolders = folders;
+      this.rebuildCombinedEntries();
+    });
   }
 
   onLogin(plugins:any): boolean {
@@ -139,7 +172,55 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
       const pluginImpl:DesktopPluginDefinitionImpl = viewerPlugin as DesktopPluginDefinitionImpl;
       this.propertyWindowPluginDef=pluginImpl;
     })
+    this.startMenuFoldersService.loadShippedFolders();
     return true;
+  }
+
+  private updateLaunchMenuFolders(): void {
+    const pinnedIds = this.shortcutsService.launchMenuFolderIds$.value;
+    this.launchMenuFolders = this.folders.filter(f => pinnedIds.includes(f.id));
+  }
+
+  rebuildCombinedEntries(): void {
+    const filter = this.appFilter ? this.appFilter.toLowerCase() : '';
+
+    const appEntries: MenuEntry[] = (this.displayItems || [])
+      .slice()
+      .sort((a, b) => a.label.localeCompare(b.label))
+      .map(item => ({ kind: 'app' as const, item }));
+
+    const filteredLaunchMenuFolders = filter
+      ? this.launchMenuFolders.filter(f => f.name.toLowerCase().includes(filter))
+      : this.launchMenuFolders;
+    const userFolderEntries: MenuEntry[] = filteredLaunchMenuFolders
+      .map(folder => ({ kind: 'userFolder' as const, folder }));
+
+    const shippedFolderEntries: MenuEntry[] = [];
+    for (const folder of this.shippedFolders) {
+      const folderMatches = !filter || folder.name.toLowerCase().includes(filter);
+      const matchingItems = filter
+        ? (folder.items || []).filter(item => item.title && item.title.toLowerCase().includes(filter))
+        : folder.items || [];
+      if (!folderMatches && matchingItems.length === 0) continue;
+      shippedFolderEntries.push({ kind: 'shippedFolder' as const, folder });
+      if (this.expandedShippedFolderName === folder.name) {
+        for (const item of folder.items) {
+          const entry: MenuEntry = { kind: 'shippedItem' as const, item, parentFolder: folder };
+          if (item.type === 'app' && item.id) {
+            const plugin = ZoweZLUX.pluginManager.getPlugin(item.id);
+            if (plugin) {
+              const webContent = plugin.getWebContent();
+              if (webContent && webContent.launchDefinition && webContent.launchDefinition.imageSrc) {
+                entry.resolvedIcon = ZoweZLUX.uriBroker.pluginResourceUri(plugin, webContent.launchDefinition.imageSrc);
+              }
+            }
+          }
+          shippedFolderEntries.push(entry);
+        }
+      }
+    }
+
+    this.combinedEntries = [...appEntries, ...userFolderEntries, ...shippedFolderEntries];
   }
 
   ngOnInit(): void {
@@ -195,6 +276,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   resetMenu(): void {
     this.appFilter = '';
     this.displayItems = this._menuItems;
+    this.rebuildCombinedEntries();
   }
 
   filterMenuItems(): void {
@@ -208,6 +290,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     } else {
       this.displayItems = this._menuItems;
     }
+    this.rebuildCombinedEntries();
   }
 
   clicked(item: LaunchbarItem): void {
@@ -257,14 +340,17 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
         break;
       } 
       case KeyCode.ENTER: {
-          if(this.activeIndex<this.displayItems.length) {
-            this.clicked(this.displayItems[this.activeIndex]);
+          if(this.activeIndex < this.combinedEntries.length) {
+            this.activateEntry(this.combinedEntries[this.activeIndex]);
           }
           break;
       }
       case KeyCode.RIGHT_ARROW: {
-        if(this.activeIndex<this.displayItems.length) {
-          this.getContextMenu(this.displayItems[this.activeIndex]);
+        if(this.activeIndex < this.combinedEntries.length) {
+          const entry = this.combinedEntries[this.activeIndex];
+          if (entry.kind === 'app') {
+            this.getContextMenu(entry.item);
+          }
         }
         break;
       }
@@ -279,7 +365,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
         break;
       }
       case KeyCode.DOWN_ARROW: {
-        if(this.activeIndex < this.displayItems.length-1) {
+        if(this.activeIndex < this.combinedEntries.length-1) {
           this.activeIndex++;
         } 
         this.scrollToActiveMenuItem();
@@ -296,7 +382,7 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
     const elm = this.getActiveMenuItem();
     if(elm) {
       const pos = this.getElementPosition(elm);
-      let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
+      let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager, this.shortcutsService);    
       this.windowManager.contextMenuRequested.next({ xPos: pos.x, yPos: pos.y - 20, items: menuItems });
       this.isContextMenuPresent = true;
     }
@@ -329,7 +415,58 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
 
   onRightClick(event: MouseEvent, item: LaunchbarItem): boolean {
     event.stopPropagation();
-    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager);    
+    let menuItems: ContextMenuItem[] = generateInstanceActions(item, this.pluginsDataService, this.translation, this.applicationManager, this.windowManager, this.shortcutsService);
+    // Add "Add to Folder" submenu items if folders exist
+    const visibleFolders = this.folders.filter(f => f.gridRow < this.shortcutsService.maxGridRows && f.gridCol < this.shortcutsService.maxGridCols);
+    if (visibleFolders.length > 0) {
+      const sortedFolders = [...visibleFolders].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+      const addToFolderItems: ContextMenuItem[] = sortedFolders.map(folder => ({
+        text: folder.name,
+        action: () => {
+          this.shortcutsService.addShortcutDirectlyToFolder(
+            item.plugin.getBasePlugin().getIdentifier(),
+            folder.id
+          );
+        }
+      }));
+      menuItems.splice(menuItems.length - 1, 0, {
+        text: this.translation.translate('Add to Folder'),
+        children: addToFolderItems
+      });
+    }
+    this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
+    this.isContextMenuPresent = true;
+    return false;
+  }
+
+  folderClicked(folder: DesktopFolder): void {
+    window.dispatchEvent(new CustomEvent('zlux_desktop-open-folder', { detail: { folderId: folder.id } }));
+    this.isActive = false;
+    this.emitState();
+  }
+
+  onFolderRightClick(event: MouseEvent, folder: DesktopFolder): boolean {
+    event.preventDefault();
+    event.stopPropagation();
+    const isPinned = this.shortcutsService.isFolderPinned(folder.id);
+    const menuItems: ContextMenuItem[] = [
+      {
+        text: this.translation.translate('Open Folder'),
+        action: () => this.folderClicked(folder)
+      },
+      {
+        text: isPinned ? this.translation.translate('Unpin from Taskbar') : this.translation.translate('Pin to Taskbar'),
+        action: () => isPinned ? this.shortcutsService.unpinFolder(folder.id) : this.shortcutsService.pinFolder(folder.id)
+      },
+      {
+        text: this.translation.translate('Unpin from Launch Menu'),
+        action: () => this.shortcutsService.unpinFromLaunchMenu(folder.id)
+      },
+      {
+        text: this.translation.translate('Delete Folder'),
+        action: () => this.shortcutsService.deleteFolder(folder.id)
+      }
+    ];
     this.windowManager.contextMenuRequested.next({ xPos: event.clientX, yPos: event.clientY - 20, items: menuItems });
     this.isContextMenuPresent = true;
     return false;
@@ -338,6 +475,58 @@ export class LaunchbarMenuComponent implements MVDHosting.LoginActionInterface{
   personalizationPanelToggle() {
     this.desktopComponent.personalizationPanelToggle();
     //this.activeToggle();
+  }
+
+  toggleShippedFolder(folder: StartMenuFolder): void {
+    this.expandedShippedFolderName = this.expandedShippedFolderName === folder.name ? null : folder.name;
+    this.rebuildCombinedEntries();
+  }
+
+  activateEntry(entry: MenuEntry): void {
+    switch (entry.kind) {
+      case 'app':
+        this.clicked(entry.item);
+        break;
+      case 'userFolder':
+        this.folderClicked(entry.folder);
+        break;
+      case 'shippedFolder':
+        this.toggleShippedFolder(entry.folder);
+        break;
+      case 'shippedItem':
+        this.onShippedFolderItemClicked(entry.item);
+        break;
+    }
+  }
+
+  onShippedFolderItemClicked(item: StartMenuFolderItem): void {
+    if (item.type === 'link' && item.dest) {
+      window.open(item.dest, '_blank', 'noopener,noreferrer');
+      this.isActive = false;
+      this.emitState();
+    } else if (item.type === 'app' && item.id) {
+      this.pluginManager.findPluginDefinition(item.id, false).then((plugin: any) => {
+        if (plugin) {
+          const launchMetadata = item.app2app ? item.app2app : undefined;
+          this.applicationManager.spawnApplication(plugin, launchMetadata);
+        }
+      });
+      this.isActive = false;
+      this.emitState();
+    }
+    window.dispatchEvent(new Event('zlux_desktop-close-folder'));
+  }
+
+  getShippedFolderItemIcon(item: StartMenuFolderItem): string {
+    if (item.type === 'link') {
+      return 'fa fa-external-link';
+    }
+    return 'fa fa-rocket';
+  }
+
+  isLastShippedItem(index: number): boolean {
+    const next = this.combinedEntries[index + 1];
+    return !next || next.kind !== 'shippedItem';
   }
 }
 
