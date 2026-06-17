@@ -1,6 +1,8 @@
 # Zlux App Manager Changelog
 
 All notable changes to the Zlux App Manager will be documented in this file.
+## `3.6.0`
+- Security: Removed web-browser-app (org.zowe.zlux.ng2desktop.webbrowser) to address vulnerability in its proxy service.
 
 ## `3.5.0`
 - Enhancement: i18n functionality from the Zowe v2 Desktop has been added to v3. ([#684](https://github.com/zowe/zlux-app-manager/pull/684))
