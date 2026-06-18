@@ -8,14 +8,14 @@
   },
   "private": false,
   "dependencies": {
-    "@rocketsoftware/carbon-components": "0.0.5",
-    "@rocketsoftware/carbon-components-angular": "0.0.6",
-    "@rocketsoftware/icons-angular": "0.0.3",
-    "sass": "~1.26.0",
-    "sass-loader": "^8.0.0",
-    "style-loader": "^1.3.0"
+    "@rocketsoftware/carbon-components-angular": "0.0.6"
   },
   "devDependencies": {
+    "@rocketsoftware/carbon-components": "0.0.5",
+    "@rocketsoftware/icons-angular": "0.0.3",
+    "sass": "~1.93.2",
+    "sass-loader": "^8.0.0",
+    "style-loader": "^1.3.0",
     "@angular/animations": "~12.0.0",
     "@angular/common": "~12.0.0",
     "@angular/compiler": "~12.0.0",

@@ -2,6 +2,15 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `2.18.5`
+
+- Security: Removed web-browser-app (org.zowe.zlux.ng2desktop.webbrowser) to address vulnerability in its proxy service.
+
+## `2.18.4`
+
+- Enhancement: Upgraded dependency `sass` to version `1.93.2` to avoid some security risks. ([#677](https://github.com/zowe/zlux-app-manager/pull/677))
+- Enhancement: Exclude development-only npm packages from production builds. ([#678](https://github.com/zowe/zlux-app-manager/pull/678))
+
 ## `2.10.0`
  
 - Bugfix: Fixed a timing issue with the iframe-adapter for Firefox (#532)
