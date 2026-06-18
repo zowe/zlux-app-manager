@@ -36,6 +36,8 @@ import { DesktopFolderComponent } from './desktop-folder/desktop-folder.componen
 import { ShortcutPropertiesComponent } from './shortcut-properties/shortcut-properties.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { IncludeExternalCssComponent } from 'app/shared/include-external-css.component';
+import { SpotlightLauncherComponent } from './spotlight/spotlight-launcher.component';
+import { SpotlightSearchService } from './spotlight/spotlight-search.service';
 
 
 @NgModule({
@@ -48,7 +50,8 @@ import { IncludeExternalCssComponent } from 'app/shared/include-external-css.com
     LaunchbarModule,
     NgxFileDropModule,
     MatSnackBarModule,
-    IncludeExternalCssComponent
+    IncludeExternalCssComponent,
+    SpotlightLauncherComponent
   ],
   declarations: [
     DesktopComponent,
@@ -74,7 +77,8 @@ import { IncludeExternalCssComponent } from 'app/shared/include-external-css.com
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
     { provide: MVDHosting.Tokens.ThemeEmitterToken, useExisting: ThemeEmitterService },
-    KeybindingService
+    KeybindingService,
+    SpotlightSearchService
   ]
 })
 export class WindowManagerModule {
