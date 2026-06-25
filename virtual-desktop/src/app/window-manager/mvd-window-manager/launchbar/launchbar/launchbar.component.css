@@ -10,6 +10,11 @@
   Copyright Contributors to the Zowe Project.
 */
 
+rs-com-launchbar-icon{
+  width: 2.6rem;
+  padding: 0;
+}
+
 .launchbar-container {
   box-sizing: border-box;
   position: absolute;
