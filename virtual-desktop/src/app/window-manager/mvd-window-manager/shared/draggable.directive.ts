@@ -21,7 +21,7 @@ import { DesktopWindow } from './desktop-window';
 export class DraggableDirective implements OnInit {
   //private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private static readonly draggleCss = ' cursor-draggable';
-
+  
   @Input('rs-com-draggable-window') desktopWindow: DesktopWindow;
   @Input('rs-com-draggable-handle') handle: HTMLElement;
   @Input('rs-com-draggable-enabled') draggable: boolean;
@@ -47,10 +47,7 @@ export class DraggableDirective implements OnInit {
     this.topOffset = 0;
     this.leftOffset = 0;
     this.mouseDown = false;
-    ref.detach(); // deactivate change detection
-    setInterval(() => {
-      this.ref.detectChanges(); // manually trigger change detection
-    }, 17);
+    this.ref.detach(); // deactivate change detection
   }
 
   // TODO: This is a bit of a mess

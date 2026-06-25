@@ -10,7 +10,7 @@
   Copyright Contributors to the Zowe Project.
 */
 
-import { Component, OnInit, Injector, Input } from '@angular/core';
+import { Component, OnInit, Injector, Input, AfterViewInit } from '@angular/core';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { DesktopTheme } from "../desktop/desktop.component";
 import { HttpClient, HttpResponse } from '@angular/common/http';
@@ -30,11 +30,13 @@ const DESKTOP_WALLPAPER_MAX_SIZE = 3;
   templateUrl: 'window-pane.component.html',
   styleUrls: ['window-pane.component.css']
 })
-export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterface, MVDHosting.LogoutActionInterface {
+export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterface, MVDHosting.LogoutActionInterface, AfterViewInit {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   public contextMenuDef: {xPos: number, yPos: number, items: ContextMenuItem[]} | null;
   public wallpaper: any = { };
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
+
+  public refresh: number = 0;
 
   @Input() theme: DesktopTheme;
   
@@ -70,6 +72,12 @@ export class WindowPaneComponent implements OnInit, MVDHosting.LoginActionInterf
   onLogin(username:string, plugins:ZLUX.Plugin[]):boolean {
     this.replaceWallpaper(DESKTOP_WALLPAPER_URI);
     return true;
+  }
+
+  ngAfterViewInit(): void {
+    setInterval(()=> {
+      this.refresh = Date.now();
+    }, 17);
   }
 
   ngOnInit(): void {
