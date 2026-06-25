@@ -50,6 +50,7 @@ export class SpotlightSearchService {
   private mvsHistory: string[] = [];
   private readonly MAX_HISTORY = 20;
   private userHomeDir: string = '';
+  private historySaveDebounce: any = null;
 
   constructor(
     private http: HttpClient,
@@ -95,6 +96,7 @@ export class SpotlightSearchService {
       });
     });
     this.fetchHomeDir();
+    this.loadHistory();
   }
 
   private fetchHomeDir(): void {
@@ -145,10 +147,7 @@ export class SpotlightSearchService {
     if (parsed) {
       // Prefix-only (no space, empty query) that could match a USS directory:
       // merge category results (e.g. history) with USS file results.
-      // Only do this for non-command categories to avoid unnecessary HTTP calls
-      // for prefixes like /tso, /mvs, /api that are clearly not USS paths.
-      const commandCategories = ['tso', 'console', 'api'];
-      if (parsed.query === '' && q.startsWith('/') && !commandCategories.includes(parsed.category)) {
+      if (parsed.query === '' && q.startsWith('/')) {
         return combineLatest([
           this.searchCategory(parsed.category, parsed.query),
           this.searchUssFiles(q)
@@ -690,6 +689,7 @@ export class SpotlightSearchService {
     if (history.length > this.MAX_HISTORY) {
       history.length = this.MAX_HISTORY;
     }
+    this.scheduleSaveHistory();
   }
 
   private buildHistory(category: string, prefix: string, history: string[]): SpotlightResult[] {
@@ -709,6 +709,7 @@ export class SpotlightSearchService {
     } else {
       this.mvsHistory.length = 0;
     }
+    this.scheduleSaveHistory();
   }
 
   removeHistoryItem(category: 'tso' | 'mvs', cmd: string): void {
@@ -717,6 +718,63 @@ export class SpotlightSearchService {
     if (idx !== -1) {
       history.splice(idx, 1);
     }
+    this.scheduleSaveHistory();
+  }
+
+  // ----------------------------------------------------------------
+  // History persistence (Zowe config dataservice)
+  // ----------------------------------------------------------------
+
+  private historyConfigUri(): string {
+    return ZoweZLUX.uriBroker.pluginConfigForScopeUri(
+      ZoweZLUX.pluginManager.getDesktopPlugin(), 'user', 'spotlight', 'history.json'
+    );
+  }
+
+  private loadHistory(): void {
+    const uri = this.historyConfigUri();
+    this.http.get<any>(uri).pipe(
+      catchError(() => of(null))
+    ).subscribe(resp => {
+      const data = resp?.contents || resp;
+      if (data) {
+        if (Array.isArray(data.tso)) {
+          this.tsoHistory = data.tso.slice(0, this.MAX_HISTORY);
+        }
+        if (Array.isArray(data.mvs)) {
+          this.mvsHistory = data.mvs.slice(0, this.MAX_HISTORY);
+        }
+      }
+      this.logger.debug('Spotlight: command history loaded');
+    });
+  }
+
+  private scheduleSaveHistory(): void {
+    if (this.historySaveDebounce !== null) {
+      clearTimeout(this.historySaveDebounce);
+    }
+    this.historySaveDebounce = setTimeout(() => {
+      this.historySaveDebounce = null;
+      this.saveHistory();
+    }, 1000);
+  }
+
+  private saveHistory(): void {
+    const uri = this.historyConfigUri();
+    const payload = {
+      _objectType: 'org.zowe.zlux.ng2desktop.spotlight.history',
+      _metaDataVersion: '1.0.0',
+      tso: this.tsoHistory,
+      mvs: this.mvsHistory
+    };
+    this.http.put(uri, payload).pipe(
+      catchError(err => {
+        this.logger.warn('Spotlight: failed to save command history', err);
+        return of(null);
+      })
+    ).subscribe(() => {
+      this.logger.debug('Spotlight: command history saved');
+    });
   }
 
 }

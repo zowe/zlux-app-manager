@@ -194,7 +194,13 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
       })
     ).subscribe(results => {
       this.isLoading = false;
-      this.hasSearched = true;
+      // Don't show "No results" for bare command prefixes (e.g. /tso, /mvs)
+      const bare = this.query.trim().toLowerCase();
+      const isBareCommandPrefix = bare === '/tso' || bare === '/tso '
+        || bare === '/mvs' || bare === '/mvs '
+        || bare === '/console' || bare === '/console '
+        || bare === '/cmd' || bare === '/cmd ';
+      this.hasSearched = results.length > 0 || !isBareCommandPrefix;
       this.buildGroups(results);
     });
 
@@ -359,9 +365,11 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
         }
         break;
       case 'ArrowRight':
-        if (this.flatResults.length > 0 && this.activeIndex < this.flatResults.length) {
+        if (this.activeIndex >= 0 && this.activeIndex < this.flatResults.length) {
           const result = this.flatResults[this.activeIndex];
-          this.autocompleteFromResult(result);
+          if (!result.output) {
+            this.autocompleteFromResult(result);
+          }
         }
         break;
       case 'Enter':
@@ -546,6 +554,15 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
     // For datasets, use the dataset name directly
     if (result.category === 'Dataset') {
       return result.label;
+    }
+    // For TSO/MVS pending commands, convert label back to prefixed form
+    if (result.category === 'TSO Command' && result.pendingExecution) {
+      const cmd = result.label.replace(/^TSO>\s*/, '');
+      return '/tso ' + cmd;
+    }
+    if (result.category === 'MVS Console' && result.pendingExecution) {
+      const cmd = result.label.replace(/^MVS>\s*/, '');
+      return '/mvs ' + cmd;
     }
     return result.label;
   }
