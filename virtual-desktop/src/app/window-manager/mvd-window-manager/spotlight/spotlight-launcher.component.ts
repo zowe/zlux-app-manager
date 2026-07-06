@@ -26,31 +26,10 @@ import { debounceTime, switchMap, take } from 'rxjs/operators';
 import { SpotlightSearchService, SpotlightResult, SpotlightResultCategory } from './spotlight-search.service';
 
 interface CategoryGroup {
-  category: SpotlightResultCategory;
+  category: string;
   results: SpotlightResult[];
   icon: string;
 }
-
-const CATEGORY_ICONS: Record<SpotlightResultCategory, string> = {
-  'Installed App': 'fa fa-th',
-  'z/OS Job': 'fa fa-cogs',
-  'Dataset': 'fa fa-database',
-  'USS File': 'fa fa-file-o',
-  'TSO Command': 'fa fa-terminal',
-  'MVS Console': 'fa fa-desktop',
-  'APIML Service': 'fa fa-cloud'
-};
-
-// Order in which categories appear
-const CATEGORY_ORDER: SpotlightResultCategory[] = [
-  'Installed App',
-  'z/OS Job',
-  'Dataset',
-  'USS File',
-  'TSO Command',
-  'MVS Console',
-  'APIML Service'
-];
 
 @Component({
   selector: 'rs-com-spotlight-launcher',
@@ -195,11 +174,7 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
     ).subscribe(results => {
       this.isLoading = false;
       // Don't show "No results" for bare command prefixes (e.g. /tso, /mvs)
-      const bare = this.query.trim().toLowerCase();
-      const isBareCommandPrefix = bare === '/tso' || bare === '/tso '
-        || bare === '/mvs' || bare === '/mvs '
-        || bare === '/console' || bare === '/console '
-        || bare === '/cmd' || bare === '/cmd ';
+      const isBareCommandPrefix = this.searchService.isBareCommandPrefix(this.query);
       this.hasSearched = results.length > 0 || !isBareCommandPrefix;
       this.buildGroups(results);
     });
@@ -387,15 +362,13 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
 
   selectResult(result: SpotlightResult): void {
     if (result.pendingExecution) {
-      const cmd = result.label.replace(/^(TSO|MVS)>\s*/, '');
-      this.isLoading = true;
-      const submit$ = result.category === 'MVS Console'
-        ? this.searchService.submitConsoleCommand(cmd)
-        : this.searchService.submitTsoCommand(cmd);
-      submit$.pipe(take(1)).subscribe(results => {
-        this.isLoading = false;
-        this.buildGroups(results);
-      });
+      if (result.execute) {
+        this.isLoading = true;
+        result.execute().pipe(take(1)).subscribe(results => {
+          this.isLoading = false;
+          this.buildGroups(results);
+        });
+      }
       return;
     }
     // Command output results -- copy and stay open
@@ -403,8 +376,8 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
       result.action();
       return;
     }
-    // History items (TSO/MVS with no output, no pendingExecution) -- fill input
-    if (result.category === 'TSO Command' || result.category === 'MVS Console') {
+    // History items -- fill input with the command
+    if (result.historyItem) {
       this.query = result.label;
       this.syncInputValue();
       this.updateGhostText();
@@ -429,11 +402,11 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
   }
 
   getCategoryIcon(category: SpotlightResultCategory): string {
-    return CATEGORY_ICONS[category] || 'fa fa-search';
+    return this.searchService.getCategoryIcon(category);
   }
 
   getCategoryIconClass(category: SpotlightResultCategory): Record<string, boolean> {
-    const icon = CATEGORY_ICONS[category] || 'fa fa-search';
+    const icon = this.searchService.getCategoryIcon(category);
     const classes: Record<string, boolean> = {};
     icon.split(' ').forEach(c => classes[c] = true);
     return classes;
@@ -452,37 +425,57 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
   }
 
   clearAllHistory(group: CategoryGroup): void {
-    const cat = group.category === 'TSO Command' ? 'tso' : 'mvs';
-    this.searchService.clearHistory(cat as 'tso' | 'mvs');
-    // Re-trigger search to refresh results
+    const provider = this.searchService.getProviderForCategory(group.category);
+    if (provider?.clearHistory) {
+      provider.clearHistory();
+    }
     this.searchSubject.next(this.query);
   }
 
   removeHistoryItem(result: SpotlightResult): void {
+    if (result.providerId && result.historyCommand !== undefined) {
+      const provider = this.searchService.getProvider(result.providerId);
+      if (provider?.removeHistoryItem) {
+        provider.removeHistoryItem(result.historyCommand);
+        this.searchSubject.next(this.query);
+        return;
+      }
+    }
+    // Fallback for results without provider metadata
     const cat = result.category === 'TSO Command' ? 'tso' : 'mvs';
-    // Extract command from label (strip "/tso " or "/mvs " prefix)
     const cmd = result.label.replace(/^\/(tso|mvs)\s+/i, '');
     this.searchService.removeHistoryItem(cat as 'tso' | 'mvs', cmd);
-    // Re-trigger search to refresh results
     this.searchSubject.next(this.query);
   }
 
   private buildGroups(results: SpotlightResult[]): void {
-    const map = new Map<SpotlightResultCategory, SpotlightResult[]>();
+    const resultMap = new Map<string, SpotlightResult[]>();
     results.forEach(r => {
-      if (!map.has(r.category)) {
-        map.set(r.category, []);
+      if (!resultMap.has(r.category)) {
+        resultMap.set(r.category, []);
       }
-      map.get(r.category)!.push(r);
+      resultMap.get(r.category)!.push(r);
     });
 
-    this.groups = CATEGORY_ORDER
-      .filter(cat => map.has(cat))
+    const categoryOrder = this.searchService.getCategoryOrder();
+    this.groups = categoryOrder
+      .filter(cat => resultMap.has(cat))
       .map(cat => ({
         category: cat,
-        results: map.get(cat)!,
-        icon: CATEGORY_ICONS[cat]
+        results: resultMap.get(cat)!,
+        icon: this.searchService.getCategoryIcon(cat)
       }));
+
+    // Include any categories from results not in the registered order (external providers)
+    resultMap.forEach((catResults, cat) => {
+      if (!categoryOrder.includes(cat)) {
+        this.groups.push({
+          category: cat,
+          results: catResults,
+          icon: this.searchService.getCategoryIcon(cat)
+        });
+      }
+    });
 
     // Build flat list for keyboard nav
     this.flatResults = [];

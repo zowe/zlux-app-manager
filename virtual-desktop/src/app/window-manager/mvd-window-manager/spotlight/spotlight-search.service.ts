@@ -15,14 +15,8 @@ import { map, catchError, tap, take } from 'rxjs/operators';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { BaseLogger } from 'virtual-desktop-logger';
 
-export type SpotlightResultCategory =
-  | 'Installed App'
-  | 'z/OS Job'
-  | 'Dataset'
-  | 'USS File'
-  | 'TSO Command'
-  | 'MVS Console'
-  | 'APIML Service';
+// Category is a plain string so external providers can define their own categories
+export type SpotlightResultCategory = string;
 
 export interface SpotlightResult {
   category: SpotlightResultCategory;
@@ -32,7 +26,44 @@ export interface SpotlightResult {
   output?: string;
   pendingExecution?: boolean;
   historyItem?: boolean;
+  /** Raw command string for history items, used by provider.removeHistoryItem() */
+  historyCommand?: string;
   action: () => void;
+  /** For pendingExecution results -- called when the user confirms execution */
+  execute?: () => Observable<SpotlightResult[]>;
+  /** ID of the provider that created this result */
+  providerId?: string;
+}
+
+/**
+ * Interface for spotlight search providers.
+ * Apps and plugins can implement this to add custom search categories.
+ *
+ * Register via SpotlightSearchService.registerProvider().
+ */
+export interface SpotlightProvider {
+  /** Unique identifier for this provider */
+  id: string;
+  /** Display name shown as the category header */
+  category: string;
+  /** Font Awesome icon class (e.g. 'fa fa-cogs') */
+  icon: string;
+  /** Slash-prefixed commands that route to this provider (e.g. ['/job', '/jobs']) */
+  prefixes: string[];
+  /** Display order -- lower numbers appear first */
+  order: number;
+  /** Whether this provider should participate in unprefixed (global) search */
+  canSearch(query: string): boolean;
+  /** Execute a search and return results */
+  search(query: string): Observable<SpotlightResult[]>;
+  /** Return history items when prefix is typed with no query */
+  getHistory?(): SpotlightResult[];
+  /** Clear all history for this provider */
+  clearHistory?(): void;
+  /** Remove a specific item from history */
+  removeHistoryItem?(cmd: string): void;
+  /** When true, bare prefix (no query) suppresses the 'no results' message */
+  suppressNoResults?: boolean;
 }
 
 @Injectable()
@@ -51,6 +82,7 @@ export class SpotlightSearchService {
   private readonly MAX_HISTORY = 20;
   private userHomeDir: string = '';
   private historySaveDebounce: any = null;
+  private providers = new Map<string, SpotlightProvider>();
 
   constructor(
     private http: HttpClient,
@@ -88,6 +120,64 @@ export class SpotlightSearchService {
     this._lastTsoQuery = '';
   }
 
+  // ----------------------------------------------------------------
+  // Provider registry
+  // ----------------------------------------------------------------
+
+  /** Register a spotlight provider. Replaces any existing provider with the same ID. */
+  registerProvider(provider: SpotlightProvider): void {
+    this.providers.set(provider.id, provider);
+  }
+
+  /** Unregister a spotlight provider by ID. */
+  unregisterProvider(id: string): void {
+    this.providers.delete(id);
+  }
+
+  /** Get all registered providers, sorted by display order. */
+  getProviders(): SpotlightProvider[] {
+    return Array.from(this.providers.values()).sort((a, b) => a.order - b.order);
+  }
+
+  /** Get a provider by its ID. */
+  getProvider(id: string): SpotlightProvider | undefined {
+    return this.providers.get(id);
+  }
+
+  /** Get the provider that owns a given category name. */
+  getProviderForCategory(category: string): SpotlightProvider | undefined {
+    const providers = Array.from(this.providers.values());
+    for (let i = 0; i < providers.length; i++) {
+      if (providers[i].category === category) return providers[i];
+    }
+    return undefined;
+  }
+
+  /** Get the icon class string for a category name. */
+  getCategoryIcon(category: string): string {
+    const provider = this.getProviderForCategory(category);
+    return provider?.icon || 'fa fa-search';
+  }
+
+  /** Get category names in display order (derived from registered providers). */
+  getCategoryOrder(): string[] {
+    return this.getProviders().map(p => p.category);
+  }
+
+  /** Check if a query is a bare command prefix that should suppress 'no results'. */
+  isBareCommandPrefix(query: string): boolean {
+    const q = query.trim().toLowerCase();
+    const providers = Array.from(this.providers.values());
+    for (let i = 0; i < providers.length; i++) {
+      const provider = providers[i];
+      if (!provider.suppressNoResults) continue;
+      for (let j = 0; j < provider.prefixes.length; j++) {
+        if (q === provider.prefixes[j]) return true;
+      }
+    }
+    return false;
+  }
+
   loadPlugins(): void {
     this.pluginManager.loadApplicationPluginDefinitions().then((defs: any[]) => {
       this.pluginDefs = defs.filter(d => {
@@ -97,6 +187,148 @@ export class SpotlightSearchService {
     });
     this.fetchHomeDir();
     this.loadHistory();
+    this.registerBuiltinProviders();
+  }
+
+  private registerBuiltinProviders(): void {
+    this.registerProvider({
+      id: 'app',
+      category: 'Installed App',
+      icon: 'fa fa-th',
+      prefixes: ['/app', '/apps'],
+      order: 10,
+      canSearch: (_q: string) => true,
+      search: (q: string) => of(this.searchInstalledApps(q)),
+    });
+
+    this.registerProvider({
+      id: 'job',
+      category: 'z/OS Job',
+      icon: 'fa fa-cogs',
+      prefixes: ['/job', '/jobs'],
+      order: 20,
+      canSearch: (q: string) => this.proxyMode && this.looksLikeJobFilter(q),
+      search: (q: string) => {
+        if (!this.proxyMode) {
+          this.logger.warn('Spotlight: Job search requires the API ML gateway');
+          return of([]);
+        }
+        return this.searchJobs(q);
+      },
+    });
+
+    this.registerProvider({
+      id: 'dataset',
+      category: 'Dataset',
+      icon: 'fa fa-database',
+      prefixes: ['/dataset', '/datasets', '/ds'],
+      order: 30,
+      canSearch: (q: string) => this.looksLikeDataset(q),
+      search: (q: string) => this.searchDatasets(q),
+    });
+
+    this.registerProvider({
+      id: 'uss',
+      category: 'USS File',
+      icon: 'fa fa-file-o',
+      prefixes: ['/uss'],
+      order: 40,
+      canSearch: (q: string) => q.startsWith('/') || q.startsWith('~/'),
+      search: (q: string) => {
+        if (q.startsWith('~/')) {
+          return this.searchUssFiles(this.resolveHomePath(q));
+        }
+        return this.searchUssFiles(q.startsWith('/') ? q : '/' + q);
+      },
+    });
+
+    this.registerProvider({
+      id: 'tso',
+      category: 'TSO Command',
+      icon: 'fa fa-terminal',
+      prefixes: ['/tso'],
+      order: 50,
+      suppressNoResults: true,
+      canSearch: (_q: string) => false,
+      search: (q: string) => {
+        if (!this.proxyMode) {
+          this.logger.warn('Spotlight: TSO commands require the API ML gateway');
+          return of([]);
+        }
+        if (!q) return of(this.buildHistory('TSO Command', '/tso', this.tsoHistory, 'tso'));
+        return of([{
+          category: 'TSO Command' as SpotlightResultCategory,
+          label: `TSO> ${q}`,
+          description: 'Press Enter to execute',
+          pendingExecution: true,
+          providerId: 'tso',
+          execute: () => this.submitTsoCommand(q),
+          action: () => {}
+        }]);
+      },
+      getHistory: () => this.buildHistory('TSO Command', '/tso', this.tsoHistory, 'tso'),
+      clearHistory: () => {
+        this.tsoHistory.length = 0;
+        this.scheduleSaveHistory();
+      },
+      removeHistoryItem: (cmd: string) => {
+        const idx = this.tsoHistory.indexOf(cmd);
+        if (idx !== -1) this.tsoHistory.splice(idx, 1);
+        this.scheduleSaveHistory();
+      },
+    });
+
+    this.registerProvider({
+      id: 'console',
+      category: 'MVS Console',
+      icon: 'fa fa-desktop',
+      prefixes: ['/mvs', '/console', '/cmd'],
+      order: 60,
+      suppressNoResults: true,
+      canSearch: (_q: string) => false,
+      search: (q: string) => {
+        if (!this.proxyMode) {
+          this.logger.warn('Spotlight: MVS console commands require the API ML gateway');
+          return of([]);
+        }
+        if (!q) return of(this.buildHistory('MVS Console', '/mvs', this.mvsHistory, 'console'));
+        return of([{
+          category: 'MVS Console' as SpotlightResultCategory,
+          label: `MVS> ${q}`,
+          description: 'Press Enter to execute',
+          pendingExecution: true,
+          providerId: 'console',
+          execute: () => this.submitConsoleCommand(q),
+          action: () => {}
+        }]);
+      },
+      getHistory: () => this.buildHistory('MVS Console', '/mvs', this.mvsHistory, 'console'),
+      clearHistory: () => {
+        this.mvsHistory.length = 0;
+        this.scheduleSaveHistory();
+      },
+      removeHistoryItem: (cmd: string) => {
+        const idx = this.mvsHistory.indexOf(cmd);
+        if (idx !== -1) this.mvsHistory.splice(idx, 1);
+        this.scheduleSaveHistory();
+      },
+    });
+
+    this.registerProvider({
+      id: 'api',
+      category: 'APIML Service',
+      icon: 'fa fa-cloud',
+      prefixes: ['/api', '/apiml'],
+      order: 70,
+      canSearch: (q: string) => this.proxyMode && this.looksLikeServiceName(q),
+      search: (q: string) => {
+        if (!this.proxyMode) {
+          this.logger.warn('Spotlight: APIML search requires the API ML gateway');
+          return of([]);
+        }
+        return this.searchApimlServices(q);
+      },
+    });
   }
 
   private fetchHomeDir(): void {
@@ -148,134 +380,57 @@ export class SpotlightSearchService {
       // Prefix-only (no space, empty query) that could match a USS directory:
       // merge category results (e.g. history) with USS file results.
       if (parsed.query === '' && q.startsWith('/')) {
-        return combineLatest([
-          this.searchCategory(parsed.category, parsed.query),
-          this.searchUssFiles(q)
-        ]).pipe(
-          take(1),
-          map(([catResults, ussResults]) => [...catResults, ...ussResults]),
-          catchError(() => this.searchCategory(parsed.category, parsed.query))
-        );
+        const ussProvider = this.providers.get('uss');
+        if (ussProvider) {
+          return combineLatest([
+            this.searchByProvider(parsed.providerId, parsed.query),
+            ussProvider.search(q)
+          ]).pipe(
+            take(1),
+            map(([catResults, ussResults]) => [...catResults, ...ussResults]),
+            catchError(() => this.searchByProvider(parsed.providerId, parsed.query))
+          );
+        }
       }
-      return this.searchCategory(parsed.category, parsed.query);
+      return this.searchByProvider(parsed.providerId, parsed.query);
     }
 
     // Global search -- fan out to all applicable providers
     return this.globalSearch(q);
   }
 
-  private parsePrefix(q: string): { category: string; query: string } | null {
-    const prefixMap: Record<string, string> = {
-      '/job': 'job',
-      '/jobs': 'job',
-      '/dataset': 'dataset',
-      '/datasets': 'dataset',
-      '/ds': 'dataset',
-      '/uss': 'uss',
-      '/app': 'app',
-      '/apps': 'app',
-      '/tso': 'tso',
-      '/api': 'api',
-      '/apiml': 'api',
-      '/mvs': 'console',
-      '/console': 'console',
-      '/cmd': 'console'
-    };
+  private parsePrefix(q: string): { providerId: string; query: string } | null {
+    const lowerQ = q.toLowerCase();
     const spaceIdx = q.indexOf(' ');
-    if (spaceIdx === -1) {
-      // If the entire query is an exact prefix, treat it as that category with empty query
-      const category = prefixMap[q.toLowerCase()];
-      if (category) return { category, query: '' };
-      return null;
+    const prefixPart = spaceIdx === -1 ? lowerQ : lowerQ.substring(0, spaceIdx);
+    const rest = spaceIdx === -1 ? '' : q.substring(spaceIdx + 1).trim();
+
+    const providers = Array.from(this.providers.values());
+    for (let i = 0; i < providers.length; i++) {
+      const provider = providers[i];
+      for (let j = 0; j < provider.prefixes.length; j++) {
+        if (prefixPart === provider.prefixes[j]) {
+          return { providerId: provider.id, query: rest };
+        }
+      }
     }
-    const prefix = q.substring(0, spaceIdx).toLowerCase();
-    const rest = q.substring(spaceIdx + 1).trim();
-    const category = prefixMap[prefix];
-    if (!category) return null;
-    return { category, query: rest };
+    return null;
   }
 
-  private searchCategory(category: string, q: string): Observable<SpotlightResult[]> {
-    switch (category) {
-      case 'job':
-        if (!this.proxyMode) {
-          this.logger.warn('Spotlight: Job search requires the API ML gateway');
-          return of([]);
-        }
-        return this.searchJobs(q);
-      case 'dataset':
-        return this.searchDatasets(q);
-      case 'uss':
-        // Allow both absolute paths, ~/ home-relative, and relative searches
-        if (q.startsWith('~/')) {
-          return this.searchUssFiles(this.resolveHomePath(q));
-        }
-        return this.searchUssFiles(q.startsWith('/') ? q : '/' + q);
-      case 'app':
-        return of(this.searchInstalledApps(q));
-      case 'tso':
-        if (!this.proxyMode) {
-          this.logger.warn('Spotlight: TSO commands require the API ML gateway');
-          return of([]);
-        }
-        if (!q) return of(this.buildHistory('TSO Command', '/tso', this.tsoHistory));
-        return of([{
-          category: 'TSO Command' as SpotlightResultCategory,
-          label: `TSO> ${q}`,
-          description: 'Press Enter to execute',
-          pendingExecution: true,
-          action: () => {}
-        }]);
-      case 'console':
-        if (!this.proxyMode) {
-          this.logger.warn('Spotlight: MVS console commands require the API ML gateway');
-          return of([]);
-        }
-        if (!q) return of(this.buildHistory('MVS Console', '/mvs', this.mvsHistory));
-        return of([{
-          category: 'MVS Console' as SpotlightResultCategory,
-          label: `MVS> ${q}`,
-          description: 'Press Enter to execute',
-          pendingExecution: true,
-          action: () => {}
-        }]);
-      case 'api':
-        if (!this.proxyMode) {
-          this.logger.warn('Spotlight: APIML search requires the API ML gateway');
-          return of([]);
-        }
-        return this.searchApimlServices(q);
-      default:
-        return of([]);
-    }
+  private searchByProvider(providerId: string, q: string): Observable<SpotlightResult[]> {
+    const provider = this.providers.get(providerId);
+    if (!provider) return of([]);
+    return provider.search(q);
   }
 
   private globalSearch(q: string): Observable<SpotlightResult[]> {
-    const searches: Observable<SpotlightResult[]>[] = [
-      of(this.searchInstalledApps(q)),
-    ];
-
-    // Dataset search: if input looks like a dataset qualifier (uppercase, dots)
-    if (this.looksLikeDataset(q)) {
-      searches.push(this.searchDatasets(q));
-    }
-
-    // USS path: starts with / or ~/
-    if (q.startsWith('/')) {
-      searches.push(this.searchUssFiles(q));
-    } else if (q.startsWith('~/')) {
-      searches.push(this.searchUssFiles(this.resolveHomePath(q)));
-    }
-
-    // Job search and APIML services require gateway (z/OSMF + API catalog)
-    if (this.proxyMode) {
-      if (this.looksLikeJobFilter(q)) {
-        searches.push(this.searchJobs(q));
-      }
-      if (this.looksLikeServiceName(q)) {
-        searches.push(this.searchApimlServices(q));
+    const searches: Observable<SpotlightResult[]>[] = [];
+    for (const provider of this.getProviders()) {
+      if (provider.canSearch(q)) {
+        searches.push(provider.search(q));
       }
     }
+    if (searches.length === 0) return of([]);
 
     return combineLatest(searches).pipe(
       take(1),
@@ -692,13 +847,15 @@ export class SpotlightSearchService {
     this.scheduleSaveHistory();
   }
 
-  private buildHistory(category: string, prefix: string, history: string[]): SpotlightResult[] {
+  private buildHistory(category: string, prefix: string, history: string[], providerId: string): SpotlightResult[] {
     const cat = category as SpotlightResultCategory;
     return history.map(cmd => ({
       category: cat,
       label: prefix + ' ' + cmd,
       description: 'Recent command',
       historyItem: true,
+      historyCommand: cmd,
+      providerId: providerId,
       action: () => {}
     }));
   }
