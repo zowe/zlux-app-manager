@@ -77,6 +77,7 @@ import { SpotlightSearchService } from './spotlight/spotlight-search.service';
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
     { provide: MVDHosting.Tokens.ThemeEmitterToken, useExisting: ThemeEmitterService },
+    { provide: MVDHosting.Tokens.SpotlightSearchToken, useExisting: SpotlightSearchService },
     KeybindingService,
     SpotlightSearchService
   ]

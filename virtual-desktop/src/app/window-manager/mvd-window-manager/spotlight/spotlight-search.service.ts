@@ -29,10 +29,32 @@ export interface SpotlightResult {
   /** Raw command string for history items, used by provider.removeHistoryItem() */
   historyCommand?: string;
   action: () => void;
+  /** Structured metadata describing the action -- apps can inspect/extend this */
+  actionMetadata?: SpotlightResultAction;
   /** For pendingExecution results -- called when the user confirms execution */
   execute?: () => Observable<SpotlightResult[]>;
   /** ID of the provider that created this result */
   providerId?: string;
+}
+
+/**
+ * Structured metadata describing a spotlight result's action.
+ * External providers can populate this so that the component and other
+ * consumers can inspect result actions without calling the opaque action()
+ * closure -- for example, to decide which icon to show, to log which plugin
+ * was launched, or to re-route a result to a different target plugin.
+ */
+export interface SpotlightResultAction {
+  /** The kind of action this result performs */
+  type: 'launch-app' | 'open-file' | 'open-dataset' | 'copy' | 'execute-command' | 'none' | string;
+  /** Plugin identifier of the target app (for launch-app, open-file, open-dataset) */
+  targetPluginId?: string;
+  /** Data payload passed to the target app */
+  data?: any;
+  /** File or resource path (for open-file, open-dataset) */
+  path?: string;
+  /** Text content (for copy actions) */
+  text?: string;
 }
 
 /**
@@ -67,7 +89,7 @@ export interface SpotlightProvider {
 }
 
 @Injectable()
-export class SpotlightSearchService {
+export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
@@ -263,6 +285,7 @@ export class SpotlightSearchService {
           pendingExecution: true,
           providerId: 'tso',
           execute: () => this.submitTsoCommand(q),
+          actionMetadata: { type: 'execute-command' as const, data: { command: q, commandType: 'tso' } },
           action: () => {}
         }]);
       },
@@ -299,6 +322,7 @@ export class SpotlightSearchService {
           pendingExecution: true,
           providerId: 'console',
           execute: () => this.submitConsoleCommand(q),
+          actionMetadata: { type: 'execute-command' as const, data: { command: q, commandType: 'mvs' } },
           action: () => {}
         }]);
       },
@@ -460,6 +484,10 @@ export class SpotlightSearchService {
           label: p.label || baseDef?.identifier || 'Unknown',
           description: baseDef?.identifier,
           icon: p.image || undefined,
+          actionMetadata: {
+            type: 'launch-app',
+            targetPluginId: baseDef?.identifier,
+          },
           action: () => {
             this.applicationManager.spawnApplication(p as any, null);
           }
@@ -490,6 +518,11 @@ export class SpotlightSearchService {
           category: 'z/OS Job' as SpotlightResultCategory,
           label: `${job.jobname} (${job.jobid})`,
           description: `Owner: ${job.owner} | Status: ${job.status || 'UNKNOWN'}`,
+          actionMetadata: {
+            type: 'launch-app' as const,
+            targetPluginId: 'org.zowe.explorer-jes',
+            data: { owner: job.owner, prefix: job.jobname, jobId: job.jobid },
+          },
           action: () => this.openJobInJes(job)
         }));
       }),
@@ -538,6 +571,12 @@ export class SpotlightSearchService {
           category: 'Dataset' as SpotlightResultCategory,
           label: ds.name || ds.dsname || dsname,
           description: `Type: ${ds.dsorg || ds.type || 'N/A'} | Vol: ${ds.volser || 'N/A'}`,
+          actionMetadata: {
+            type: 'open-dataset' as const,
+            targetPluginId: 'org.zowe.editor',
+            path: ds.name || ds.dsname || dsname,
+            data: { type: 'openDataset', name: `//'${ds.name || ds.dsname || dsname}'` },
+          },
           action: () => this.openDatasetInEditor(ds.name || ds.dsname || dsname)
         }));
       }),
@@ -586,6 +625,14 @@ export class SpotlightSearchService {
           category: 'USS File' as SpotlightResultCategory,
           label: entry.name,
           description: `${dirPath}/${entry.name} | ${entry.directory ? 'Directory' : 'File'}`,
+          actionMetadata: {
+            type: 'open-file' as const,
+            targetPluginId: entry.directory ? 'com.rs.file-manager' : 'org.zowe.editor',
+            path: `${dirPath}/${entry.name}`,
+            data: entry.directory
+              ? { type: 'opennewwindow', name: `${dirPath}/${entry.name}` }
+              : { type: 'openFile', name: `${dirPath}/${entry.name}` },
+          },
           action: () => {
             const fullPath = `${dirPath}/${entry.name}`;
             if (entry.directory) {
@@ -659,6 +706,10 @@ export class SpotlightSearchService {
           label: `TSO> ${cmd}`,
           description: lines.length > 0 ? lines[0] : '(no output)',
           output: output,
+          actionMetadata: {
+            type: 'copy' as const,
+            text: output,
+          },
           action: () => {
             // Copy output to clipboard
             if (navigator.clipboard) {
@@ -677,6 +728,7 @@ export class SpotlightSearchService {
           label: `TSO> ${cmd}`,
           description: `Error: ${errMsg}`,
           output: `Error: ${errMsg}`,
+          actionMetadata: { type: 'none' as const },
           action: () => {}
         }]);
       }),
@@ -724,6 +776,10 @@ export class SpotlightSearchService {
           label: `MVS> ${cmd}`,
           description: firstLine,
           output: output,
+          actionMetadata: {
+            type: 'copy' as const,
+            text: output,
+          },
           action: () => {
             if (navigator.clipboard) {
               navigator.clipboard.writeText(output);
@@ -742,6 +798,7 @@ export class SpotlightSearchService {
           label: `MVS> ${cmd}`,
           description: `Error: ${errMsg}`,
           output: `Error: ${errMsg}`,
+          actionMetadata: { type: 'none' as const },
           action: () => {}
         }]);
       }),
@@ -785,6 +842,11 @@ export class SpotlightSearchService {
                 category: 'APIML Service' as SpotlightResultCategory,
                 label: svc.title || svc.serviceId,
                 description: `Service: ${svc.serviceId} | Status: ${svc.status || 'N/A'}`,
+                actionMetadata: {
+                  type: 'launch-app' as const,
+                  targetPluginId: 'org.zowe.api.catalog',
+                  data: { serviceId: svc.serviceId || svc.id },
+                },
                 action: () => this.openApiCatalog(svc)
               });
             }
@@ -856,6 +918,7 @@ export class SpotlightSearchService {
       historyItem: true,
       historyCommand: cmd,
       providerId: providerId,
+      actionMetadata: { type: 'none' as const },
       action: () => {}
     }));
   }
