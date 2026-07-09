@@ -12,8 +12,11 @@
 
 import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
+import { KeybindingService } from '../shared/keybinding.service';
+import { KeyCode } from '../shared/keycode-enum';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { AuthenticationManager } from '../../../authentication-manager/authentication-manager.service';
 import { L10nTranslationService } from 'angular-l10n';
@@ -33,7 +36,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface, OnInit
   public isPersonalizationPanelVisible: boolean;
   public isSpotlightVisible: boolean = false;
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
-  private spotlightShortcutHandler: (event: KeyboardEvent) => void;
+  private keyDownSub: Subscription;
 
   /* Default theme is a dark grey, with white text, on medium size desktop */
   public _theme: DesktopTheme = {
@@ -59,7 +62,8 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface, OnInit
     private authenticationService: AuthenticationManager,
     private http: HttpClient,
     private injector: Injector,
-    private translation: L10nTranslationService
+    private translation: L10nTranslationService,
+    private keybindingService: KeybindingService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
@@ -84,21 +88,23 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface, OnInit
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
-    this.spotlightShortcutHandler = (event: KeyboardEvent) => {
+    this.keybindingService.registerKeyDownEvent();
+    this.keyDownSub = this.keybindingService.keyDownEvent.subscribe((event: KeyboardEvent) => {
       if (!this.authenticationManager.getUsername()) {
         return;
       }
-      if (event.shiftKey && event.code === 'Space' && (event.ctrlKey || event.metaKey)) {
+      if (event.which === KeyCode.SPACE || event.code === 'Space') {
         event.preventDefault();
         event.stopPropagation();
         this.isSpotlightVisible = !this.isSpotlightVisible;
       }
-    };
-    document.addEventListener('keydown', this.spotlightShortcutHandler, true);
+    });
   }
 
   ngOnDestroy(): void {
-    document.removeEventListener('keydown', this.spotlightShortcutHandler, true);
+    if (this.keyDownSub) {
+      this.keyDownSub.unsubscribe();
+    }
   }
 
   onLogin(username: string, plugins: ZLUX.Plugin[]): boolean {

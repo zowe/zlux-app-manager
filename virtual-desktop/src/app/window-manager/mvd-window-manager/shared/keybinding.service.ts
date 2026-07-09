@@ -15,18 +15,31 @@ import { Injectable, EventEmitter } from '@angular/core';
 @Injectable()
 export class KeybindingService {
   public keyUpEvent = new EventEmitter<KeyboardEvent>();
+  public keyDownEvent = new EventEmitter<KeyboardEvent>();
   constructor() {
     this.keyUpHandler = this.keyUpHandler.bind(this);
+    this.keyDownHandler = this.keyDownHandler.bind(this);
   }
 
   registerKeyUpEvent() {
     document.addEventListener('keyup', this.keyUpHandler, true);
   }
 
+  registerKeyDownEvent() {
+    document.addEventListener('keydown', this.keyDownHandler, true);
+  }
+
   keyUpHandler(event: KeyboardEvent) {
     if(event.altKey && event.ctrlKey) {
       event.stopImmediatePropagation();
       this.keyUpEvent.emit(event);
+    }
+  }
+
+  keyDownHandler(event: KeyboardEvent) {
+    // Emit for Ctrl+Shift or Meta+Shift combos (used by spotlight toggle, etc.)
+    if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
+      this.keyDownEvent.emit(event);
     }
   }
 }
