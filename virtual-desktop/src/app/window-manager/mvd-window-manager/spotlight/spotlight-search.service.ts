@@ -9,11 +9,12 @@
 */
 
 import { Injectable, Injector } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of, combineLatest } from 'rxjs';
-import { map, catchError, tap, take } from 'rxjs/operators';
+import { map, catchError, take } from 'rxjs/operators';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { BaseLogger } from 'virtual-desktop-logger';
+import { SpotlightHistoryService, HistoryCategory } from './spotlight-history.service';
 
 // Category is a plain string so external providers can define their own categories
 export type SpotlightResultCategory = string;
@@ -94,25 +95,17 @@ export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterfa
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
   private pluginDefs: DesktopPluginDefinitionImpl[] = [];
-  private readonly proxyMode: boolean;
-  private readonly gatewayPrefix: string;
   private _spotlightVisible = false;
   private _lastTsoResult: SpotlightResult[] | null = null;
   private _lastTsoQuery: string = '';
-  private tsoHistory: string[] = [];
-  private mvsHistory: string[] = [];
-  private readonly MAX_HISTORY = 20;
   private userHomeDir: string = '';
-  private historySaveDebounce: any = null;
   private providers = new Map<string, SpotlightProvider>();
 
   constructor(
     private http: HttpClient,
-    private injector: Injector
+    private injector: Injector,
+    private historyService: SpotlightHistoryService
   ) {
-    const uriPrefix = window.location.pathname.split('ZLUX/plugins/')[0];
-    this.proxyMode = uriPrefix !== '/';
-    this.gatewayPrefix = this.proxyMode ? uriPrefix.split('/zlux/')[0] + '/' : '/';
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
     this.pluginManager.pluginsAdded.subscribe((plugins: DesktopPluginDefinitionImpl[]) => {
@@ -125,9 +118,21 @@ export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterfa
     });
   }
 
+  // ----------------------------------------------------------------
+  // Visibility state
+  // ----------------------------------------------------------------
+
   setVisible(visible: boolean): void {
     this._spotlightVisible = visible;
   }
+
+  isVisible(): boolean {
+    return this._spotlightVisible;
+  }
+
+  // ----------------------------------------------------------------
+  // Last TSO result cache (set by SpotlightZosmfService)
+  // ----------------------------------------------------------------
 
   getLastTsoResult(): SpotlightResult[] | null {
     return this._lastTsoResult;
@@ -135,6 +140,11 @@ export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterfa
 
   getLastTsoQuery(): string {
     return this._lastTsoQuery;
+  }
+
+  setLastTsoResult(results: SpotlightResult[], query: string): void {
+    this._lastTsoResult = results;
+    this._lastTsoQuery = query;
   }
 
   clearLastTsoResult(): void {
@@ -200,6 +210,18 @@ export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterfa
     return false;
   }
 
+  // ----------------------------------------------------------------
+  // History convenience (delegates to SpotlightHistoryService)
+  // ----------------------------------------------------------------
+
+  removeHistoryItem(category: HistoryCategory, cmd: string): void {
+    this.historyService.removeHistoryItem(category, cmd);
+  }
+
+  // ----------------------------------------------------------------
+  // Initialization
+  // ----------------------------------------------------------------
+
   loadPlugins(): void {
     this.pluginManager.loadApplicationPluginDefinitions().then((defs: any[]) => {
       this.pluginDefs = defs.filter(d => {
@@ -208,8 +230,12 @@ export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterfa
       });
     });
     this.fetchHomeDir();
-    this.loadHistory();
+    this.historyService.loadHistory();
     this.registerBuiltinProviders();
+    // Lazy-load SpotlightZosmfService to avoid circular DI
+    const { SpotlightZosmfService } = require('./spotlight-zosmf.service');
+    const zosmfService = this.injector.get(SpotlightZosmfService);
+    zosmfService.registerProviders();
   }
 
   private registerBuiltinProviders(): void {
@@ -221,22 +247,6 @@ export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterfa
       order: 10,
       canSearch: (_q: string) => true,
       search: (q: string) => of(this.searchInstalledApps(q)),
-    });
-
-    this.registerProvider({
-      id: 'job',
-      category: 'z/OS Job',
-      icon: 'fa fa-cogs',
-      prefixes: ['/job', '/jobs'],
-      order: 20,
-      canSearch: (q: string) => this.proxyMode && this.looksLikeJobFilter(q),
-      search: (q: string) => {
-        if (!this.proxyMode) {
-          this.logger.warn('Spotlight: Job search requires the API ML gateway');
-          return of([]);
-        }
-        return this.searchJobs(q);
-      },
     });
 
     this.registerProvider({
@@ -263,96 +273,6 @@ export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterfa
         return this.searchUssFiles(q.startsWith('/') ? q : '/' + q);
       },
     });
-
-    this.registerProvider({
-      id: 'tso',
-      category: 'TSO Command',
-      icon: 'fa fa-terminal',
-      prefixes: ['/tso'],
-      order: 50,
-      suppressNoResults: true,
-      canSearch: (_q: string) => false,
-      search: (q: string) => {
-        if (!this.proxyMode) {
-          this.logger.warn('Spotlight: TSO commands require the API ML gateway');
-          return of([]);
-        }
-        if (!q) return of(this.buildHistory('TSO Command', '/tso', this.tsoHistory, 'tso'));
-        return of([{
-          category: 'TSO Command' as SpotlightResultCategory,
-          label: `TSO> ${q}`,
-          description: 'Press Enter to execute',
-          pendingExecution: true,
-          providerId: 'tso',
-          execute: () => this.submitTsoCommand(q),
-          actionMetadata: { type: 'execute-command' as const, data: { command: q, commandType: 'tso' } },
-          action: () => {}
-        }]);
-      },
-      getHistory: () => this.buildHistory('TSO Command', '/tso', this.tsoHistory, 'tso'),
-      clearHistory: () => {
-        this.tsoHistory.length = 0;
-        this.scheduleSaveHistory();
-      },
-      removeHistoryItem: (cmd: string) => {
-        const idx = this.tsoHistory.indexOf(cmd);
-        if (idx !== -1) this.tsoHistory.splice(idx, 1);
-        this.scheduleSaveHistory();
-      },
-    });
-
-    this.registerProvider({
-      id: 'console',
-      category: 'MVS Console',
-      icon: 'fa fa-desktop',
-      prefixes: ['/mvs', '/console', '/cmd'],
-      order: 60,
-      suppressNoResults: true,
-      canSearch: (_q: string) => false,
-      search: (q: string) => {
-        if (!this.proxyMode) {
-          this.logger.warn('Spotlight: MVS console commands require the API ML gateway');
-          return of([]);
-        }
-        if (!q) return of(this.buildHistory('MVS Console', '/mvs', this.mvsHistory, 'console'));
-        return of([{
-          category: 'MVS Console' as SpotlightResultCategory,
-          label: `MVS> ${q}`,
-          description: 'Press Enter to execute',
-          pendingExecution: true,
-          providerId: 'console',
-          execute: () => this.submitConsoleCommand(q),
-          actionMetadata: { type: 'execute-command' as const, data: { command: q, commandType: 'mvs' } },
-          action: () => {}
-        }]);
-      },
-      getHistory: () => this.buildHistory('MVS Console', '/mvs', this.mvsHistory, 'console'),
-      clearHistory: () => {
-        this.mvsHistory.length = 0;
-        this.scheduleSaveHistory();
-      },
-      removeHistoryItem: (cmd: string) => {
-        const idx = this.mvsHistory.indexOf(cmd);
-        if (idx !== -1) this.mvsHistory.splice(idx, 1);
-        this.scheduleSaveHistory();
-      },
-    });
-
-    this.registerProvider({
-      id: 'api',
-      category: 'APIML Service',
-      icon: 'fa fa-cloud',
-      prefixes: ['/api', '/apiml'],
-      order: 70,
-      canSearch: (q: string) => this.proxyMode && this.looksLikeServiceName(q),
-      search: (q: string) => {
-        if (!this.proxyMode) {
-          this.logger.warn('Spotlight: APIML search requires the API ML gateway');
-          return of([]);
-        }
-        return this.searchApimlServices(q);
-      },
-    });
   }
 
   private fetchHomeDir(): void {
@@ -377,6 +297,10 @@ export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterfa
     }
     return path;
   }
+
+  // ----------------------------------------------------------------
+  // Search orchestration
+  // ----------------------------------------------------------------
 
   /**
    * Master search -- fan out to all providers and merge results.
@@ -493,58 +417,6 @@ export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterfa
           }
         };
       });
-  }
-
-  // ------------------------------------------------------------------
-  // z/OS Jobs (via z/OSMF REST API through the gateway)
-  // ------------------------------------------------------------------
-  private searchJobs(query: string): Observable<SpotlightResult[]> {
-    const prefix = query.toUpperCase().replace(/[^A-Z0-9*]/g, '');
-    // z/OSMF is registered in APIML as 'ibmzosmf' -- route via gateway
-    const uri = `${this.gatewayPrefix}ibmzosmf/api/v1/zosmf/restjobs/jobs`;
-    const params = new HttpParams()
-      .set('prefix', prefix || '*')
-      .set('owner', '*')
-      .set('max-jobs', '20');
-    const headers = new HttpHeaders({
-      'Accept': 'application/json',
-      'X-CSRF-ZOSMF-HEADER': '*'
-    });
-
-    return this.http.get<any[]>(uri, { params, headers }).pipe(
-      map(jobs => {
-        if (!Array.isArray(jobs)) return [];
-        return jobs.map(job => ({
-          category: 'z/OS Job' as SpotlightResultCategory,
-          label: `${job.jobname} (${job.jobid})`,
-          description: `Owner: ${job.owner} | Status: ${job.status || 'UNKNOWN'}`,
-          actionMetadata: {
-            type: 'launch-app' as const,
-            targetPluginId: 'org.zowe.explorer-jes',
-            data: { owner: job.owner, prefix: job.jobname, jobId: job.jobid },
-          },
-          action: () => this.openJobInJes(job)
-        }));
-      }),
-      catchError(err => {
-        this.logger.warn('Spotlight: job search failed', err);
-        return of([]);
-      })
-    );
-  }
-
-  private openJobInJes(job: any): void {
-    const jesDef = this.pluginDefs.find(p => {
-      const baseDef = p.getBasePlugin?.()?.getBasePlugin?.();
-      return baseDef?.identifier === 'org.zowe.explorer-jes';
-    });
-    if (jesDef) {
-      this.applicationManager.spawnApplication(jesDef as any, {
-        data: { owner: job.owner, prefix: job.jobname, jobId: job.jobid }
-      });
-    } else {
-      this.logger.warn('Spotlight: JES Explorer not installed');
-    }
   }
 
   // ------------------------------------------------------------------
@@ -680,202 +552,6 @@ export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterfa
   }
 
   // ------------------------------------------------------------------
-  // TSO Commands (via z/OSMF stateless REST API through gateway)
-  // ------------------------------------------------------------------
-  submitTsoCommand(cmd: string): Observable<SpotlightResult[]> {
-    if (!cmd) return of([]);
-    // z/OSMF TSO stateless API (z/OS 2.4+) through APIML gateway
-    const uri = `${this.gatewayPrefix}ibmzosmf/api/v1/zosmf/tsoApp/v1/tso`;
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'X-CSRF-ZOSMF-HEADER': '*'
-    });
-    const body = {
-      tsoCmd: cmd,
-      cmdState: 'stateless'
-    };
-
-    return this.http.put<any>(uri, body, { headers }).pipe(
-      map(resp => {
-        const lines: string[] = (resp?.cmdResponse || [])
-          .map((item: any) => item.message || '')
-          .filter((line: string) => line.trim().length > 0);
-        const output = lines.join('\n') || '(no output)';
-        return [{
-          category: 'TSO Command' as SpotlightResultCategory,
-          label: `TSO> ${cmd}`,
-          description: lines.length > 0 ? lines[0] : '(no output)',
-          output: output,
-          actionMetadata: {
-            type: 'copy' as const,
-            text: output,
-          },
-          action: () => {
-            // Copy output to clipboard
-            if (navigator.clipboard) {
-              navigator.clipboard.writeText(output);
-            }
-          }
-        }];
-      }),
-      catchError(err => {
-        this.logger.warn('Spotlight: TSO command failed', err);
-        const errMsg = err?.error?.msgData?.[0]?.messageText
-          || err?.message
-          || 'Command failed';
-        return of([{
-          category: 'TSO Command' as SpotlightResultCategory,
-          label: `TSO> ${cmd}`,
-          description: `Error: ${errMsg}`,
-          output: `Error: ${errMsg}`,
-          actionMetadata: { type: 'none' as const },
-          action: () => {}
-        }]);
-      }),
-      tap(results => {
-        this._lastTsoResult = results;
-        this._lastTsoQuery = cmd;
-        this.addToHistory(this.tsoHistory, cmd);
-        if (!this._spotlightVisible) {
-          this.fireTsoNotification(cmd, results);
-        }
-      })
-    );
-  }
-
-  private fireTsoNotification(cmd: string, results: SpotlightResult[]): void {
-    const nm = ZoweZLUX.notificationManager;
-    if (!nm) return;
-    const isError = results.length > 0 && results[0].output?.startsWith('Error:');
-    const title = isError ? 'TSO Command Failed' : 'TSO Command Complete';
-    const firstLine = results[0]?.description || cmd;
-    const message = `${cmd} -- ${firstLine}`;
-    nm.notify(nm.createNotification(title, message, 1, 'org.zowe.zlux.ng2desktop'));
-  }
-
-  // ------------------------------------------------------------------
-  // MVS Console Commands (via z/OSMF REST Console API through gateway)
-  // ------------------------------------------------------------------
-  submitConsoleCommand(cmd: string): Observable<SpotlightResult[]> {
-    if (!cmd) return of([]);
-    // z/OSMF console API -- use default console name "defcn"
-    const uri = `${this.gatewayPrefix}ibmzosmf/api/v1/zosmf/restconsoles/consoles/defcn`;
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'X-CSRF-ZOSMF-HEADER': '*'
-    });
-    const body = { cmd: cmd };
-
-    return this.http.put<any>(uri, body, { headers }).pipe(
-      map(resp => {
-        const raw = resp?.['cmd-response'] || '';
-        const output = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim() || '(no output)';
-        const firstLine = output.split('\n')[0];
-        return [{
-          category: 'MVS Console' as SpotlightResultCategory,
-          label: `MVS> ${cmd}`,
-          description: firstLine,
-          output: output,
-          actionMetadata: {
-            type: 'copy' as const,
-            text: output,
-          },
-          action: () => {
-            if (navigator.clipboard) {
-              navigator.clipboard.writeText(output);
-            }
-          }
-        }];
-      }),
-      catchError(err => {
-        this.logger.warn('Spotlight: MVS console command failed', err);
-        const errMsg = err?.error?.msgData?.[0]?.messageText
-          || err?.error?.message
-          || err?.message
-          || 'Command failed';
-        return of([{
-          category: 'MVS Console' as SpotlightResultCategory,
-          label: `MVS> ${cmd}`,
-          description: `Error: ${errMsg}`,
-          output: `Error: ${errMsg}`,
-          actionMetadata: { type: 'none' as const },
-          action: () => {}
-        }]);
-      }),
-      tap(results => {
-        this.addToHistory(this.mvsHistory, cmd);
-        if (!this._spotlightVisible) {
-          this.fireConsoleNotification(cmd, results);
-        }
-      })
-    );
-  }
-
-  private fireConsoleNotification(cmd: string, results: SpotlightResult[]): void {
-    const nm = ZoweZLUX.notificationManager;
-    if (!nm) return;
-    const isError = results.length > 0 && results[0].output?.startsWith('Error:');
-    const title = isError ? 'MVS Console Command Failed' : 'MVS Console Command Complete';
-    const firstLine = results[0]?.description || cmd;
-    const message = `${cmd} -- ${firstLine}`;
-    nm.notify(nm.createNotification(title, message, 1, 'org.zowe.zlux.ng2desktop'));
-  }
-
-  // ------------------------------------------------------------------
-  // APIML Services (via API Catalog gateway)
-  // ------------------------------------------------------------------
-  private searchApimlServices(query: string): Observable<SpotlightResult[]> {
-    // API Catalog containers endpoint -- only available via gateway
-    const gatewayUri = `${this.gatewayPrefix}apicatalog/api/v1/containers`;
-    return this.http.get<any[]>(gatewayUri).pipe(
-      map(containers => {
-        if (!Array.isArray(containers)) return [];
-        const q = query.toLowerCase();
-        const results: SpotlightResult[] = [];
-        for (const container of containers) {
-          const services = container.services || [];
-          for (const svc of services) {
-            const id = (svc.serviceId || '').toLowerCase();
-            const title = (svc.title || '').toLowerCase();
-            if (id.includes(q) || title.includes(q)) {
-              results.push({
-                category: 'APIML Service' as SpotlightResultCategory,
-                label: svc.title || svc.serviceId,
-                description: `Service: ${svc.serviceId} | Status: ${svc.status || 'N/A'}`,
-                actionMetadata: {
-                  type: 'launch-app' as const,
-                  targetPluginId: 'org.zowe.api.catalog',
-                  data: { serviceId: svc.serviceId || svc.id },
-                },
-                action: () => this.openApiCatalog(svc)
-              });
-            }
-          }
-        }
-        return results.slice(0, 10);
-      }),
-      catchError(err => {
-        this.logger.warn('Spotlight: APIML service search failed', err);
-        return of([]);
-      })
-    );
-  }
-
-  private openApiCatalog(service: any): void {
-    const catalogDef = this.pluginDefs.find(p => {
-      const baseDef = p.getBasePlugin?.()?.getBasePlugin?.();
-      return baseDef?.identifier === 'org.zowe.api.catalog';
-    });
-    if (catalogDef) {
-      this.applicationManager.spawnApplication(catalogDef as any, {
-        data: { serviceId: service.serviceId || service.id }
-      });
-    } else {
-      this.logger.info('Spotlight: API Catalog not installed');
-    }
-  }
-
-  // ------------------------------------------------------------------
   // Helpers
   // ------------------------------------------------------------------
   private looksLikeDataset(q: string): boolean {
@@ -883,120 +559,6 @@ export class SpotlightSearchService implements MVDHosting.SpotlightSearchInterfa
     // Match patterns like "SYS1.PARM*", "USER.DATA", "IBMUSER.*"
     return /^[A-Z$#@][A-Z0-9$#@.*()\-]{1,43}$/i.test(q) && q.includes('.');
   }
-
-  private looksLikeJobFilter(q: string): boolean {
-    // Job names are 1-8 alphanumeric chars, possibly with wildcards
-    return /^[A-Z0-9*?]{1,8}$/i.test(q) && !q.includes('.');
-  }
-
-  private looksLikeServiceName(q: string): boolean {
-    // Service names are alphanumeric with hyphens/dots, not USS paths or dataset qualifiers
-    return !q.startsWith('/') && /^[A-Za-z][A-Za-z0-9._-]*$/.test(q);
-  }
-
-  private addToHistory(history: string[], cmd: string): void {
-    // Remove duplicate if already in history
-    const idx = history.indexOf(cmd);
-    if (idx !== -1) {
-      history.splice(idx, 1);
-    }
-    // Add to front (most recent first)
-    history.unshift(cmd);
-    // Trim to max
-    if (history.length > this.MAX_HISTORY) {
-      history.length = this.MAX_HISTORY;
-    }
-    this.scheduleSaveHistory();
-  }
-
-  private buildHistory(category: string, prefix: string, history: string[], providerId: string): SpotlightResult[] {
-    const cat = category as SpotlightResultCategory;
-    return history.map(cmd => ({
-      category: cat,
-      label: prefix + ' ' + cmd,
-      description: 'Recent command',
-      historyItem: true,
-      historyCommand: cmd,
-      providerId: providerId,
-      actionMetadata: { type: 'none' as const },
-      action: () => {}
-    }));
-  }
-
-  clearHistory(category: 'tso' | 'mvs'): void {
-    if (category === 'tso') {
-      this.tsoHistory.length = 0;
-    } else {
-      this.mvsHistory.length = 0;
-    }
-    this.scheduleSaveHistory();
-  }
-
-  removeHistoryItem(category: 'tso' | 'mvs', cmd: string): void {
-    const history = category === 'tso' ? this.tsoHistory : this.mvsHistory;
-    const idx = history.indexOf(cmd);
-    if (idx !== -1) {
-      history.splice(idx, 1);
-    }
-    this.scheduleSaveHistory();
-  }
-
-  // ----------------------------------------------------------------
-  // History persistence (Zowe config dataservice)
-  // ----------------------------------------------------------------
-
-  private historyConfigUri(): string {
-    return ZoweZLUX.uriBroker.pluginConfigForScopeUri(
-      ZoweZLUX.pluginManager.getDesktopPlugin(), 'user', 'spotlight', 'history.json'
-    );
-  }
-
-  private loadHistory(): void {
-    const uri = this.historyConfigUri();
-    this.http.get<any>(uri).pipe(
-      catchError(() => of(null))
-    ).subscribe(resp => {
-      const data = resp?.contents || resp;
-      if (data) {
-        if (Array.isArray(data.tso)) {
-          this.tsoHistory = data.tso.slice(0, this.MAX_HISTORY);
-        }
-        if (Array.isArray(data.mvs)) {
-          this.mvsHistory = data.mvs.slice(0, this.MAX_HISTORY);
-        }
-      }
-      this.logger.debug('Spotlight: command history loaded');
-    });
-  }
-
-  private scheduleSaveHistory(): void {
-    if (this.historySaveDebounce !== null) {
-      clearTimeout(this.historySaveDebounce);
-    }
-    this.historySaveDebounce = setTimeout(() => {
-      this.historySaveDebounce = null;
-      this.saveHistory();
-    }, 1000);
-  }
-
-  private saveHistory(): void {
-    const uri = this.historyConfigUri();
-    const payload = {
-      _objectType: 'org.zowe.zlux.ng2desktop.spotlight.history',
-      _metaDataVersion: '1.0.0',
-      tso: this.tsoHistory,
-      mvs: this.mvsHistory
-    };
-    this.http.put(uri, payload).pipe(
-      catchError(err => {
-        this.logger.warn('Spotlight: failed to save command history', err);
-        return of(null);
-      })
-    ).subscribe(() => {
-      this.logger.debug('Spotlight: command history saved');
-    });
-  }
-
 }
 
 

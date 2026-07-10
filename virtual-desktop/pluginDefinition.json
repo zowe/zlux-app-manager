@@ -16,6 +16,9 @@
       "actions": {
         "aggregationPolicy": "none"
       },
+      "spotlight": {
+        "aggregationPolicy": "none"
+      },
       "ui": {
         "subResources":{
           "launchbar": {

@@ -38,6 +38,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { IncludeExternalCssComponent } from 'app/shared/include-external-css.component';
 import { SpotlightLauncherComponent } from './spotlight/spotlight-launcher.component';
 import { SpotlightSearchService } from './spotlight/spotlight-search.service';
+import { SpotlightHistoryService } from './spotlight/spotlight-history.service';
+import { SpotlightZosmfService } from './spotlight/spotlight-zosmf.service';
 
 
 @NgModule({
@@ -79,7 +81,9 @@ import { SpotlightSearchService } from './spotlight/spotlight-search.service';
     { provide: MVDHosting.Tokens.ThemeEmitterToken, useExisting: ThemeEmitterService },
     { provide: MVDHosting.Tokens.SpotlightSearchToken, useExisting: SpotlightSearchService },
     KeybindingService,
-    SpotlightSearchService
+    SpotlightHistoryService,
+    SpotlightSearchService,
+    SpotlightZosmfService
   ]
 })
 export class WindowManagerModule {
