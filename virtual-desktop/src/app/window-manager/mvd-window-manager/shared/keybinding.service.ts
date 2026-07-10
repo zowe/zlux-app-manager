@@ -37,7 +37,7 @@ export class KeybindingService {
   }
 
   keyDownHandler(event: KeyboardEvent) {
-    // Emit for Ctrl+Shift or Meta+Shift combos (used by spotlight toggle, etc.)
+    // Emit for Ctrl+Shift or Meta+Shift combos (used by quick search toggle, etc.)
     if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
       this.keyDownEvent.emit(event);
     }

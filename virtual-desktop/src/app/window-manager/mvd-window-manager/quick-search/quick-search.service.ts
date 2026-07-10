@@ -14,7 +14,7 @@ import { Observable, of, combineLatest } from 'rxjs';
 import { map, catchError, take } from 'rxjs/operators';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { QuickSearchHistoryService, HistoryCategory } from './spotlight-history.service';
+import { QuickSearchHistoryService, HistoryCategory } from './quick-search-history.service';
 
 // Category is a plain string so external providers can define their own categories
 export type QuickSearchResultCategory = string;
@@ -39,7 +39,7 @@ export interface QuickSearchResult {
 }
 
 /**
- * Structured metadata describing a spotlight result's action.
+ * Structured metadata describing a quick search result's action.
  * External providers can populate this so that the component and other
  * consumers can inspect result actions without calling the opaque action()
  * closure -- for example, to decide which icon to show, to log which plugin
@@ -59,7 +59,7 @@ export interface QuickSearchResultAction {
 }
 
 /**
- * Interface for spotlight search providers.
+ * Interface for quick search providers.
  * Apps and plugins can implement this to add custom search categories.
  *
  * Register via QuickSearchService.registerProvider().
@@ -95,7 +95,7 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
   private pluginDefs: DesktopPluginDefinitionImpl[] = [];
-  private _spotlightVisible = false;
+  private _quickSearchVisible = false;
   private _lastTsoResult: QuickSearchResult[] | null = null;
   private _lastTsoQuery: string = '';
   private userHomeDir: string = '';
@@ -123,11 +123,11 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
   // ----------------------------------------------------------------
 
   setVisible(visible: boolean): void {
-    this._spotlightVisible = visible;
+    this._quickSearchVisible = visible;
   }
 
   isVisible(): boolean {
-    return this._spotlightVisible;
+    return this._quickSearchVisible;
   }
 
   // ----------------------------------------------------------------
@@ -156,12 +156,12 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
   // Provider registry
   // ----------------------------------------------------------------
 
-  /** Register a spotlight provider. Replaces any existing provider with the same ID. */
+  /** Register a quick search provider. Replaces any existing provider with the same ID. */
   registerProvider(provider: QuickSearchProvider): void {
     this.providers.set(provider.id, provider);
   }
 
-  /** Unregister a spotlight provider by ID. */
+  /** Unregister a quick search provider by ID. */
   unregisterProvider(id: string): void {
     this.providers.delete(id);
   }
@@ -233,7 +233,7 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
     this.historyService.loadHistory();
     this.registerBuiltinProviders();
     // Lazy-load QuickSearchZosmfService to avoid circular DI
-    const { QuickSearchZosmfService } = require('./spotlight-zosmf.service');
+    const { QuickSearchZosmfService } = require('./quick-search-zosmf.service');
     const zosmfService = this.injector.get(QuickSearchZosmfService);
     zosmfService.registerProviders();
   }
@@ -453,7 +453,7 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
         }));
       }),
       catchError(err => {
-        this.logger.warn('Spotlight: dataset search failed', err);
+        this.logger.warn('Quick search: dataset search failed', err);
         return of([]);
       })
     );
@@ -469,7 +469,7 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
         data: { type: 'openDataset', name: `//'${dsname}'` }
       });
     } else {
-      this.logger.warn('Spotlight: Editor not installed');
+      this.logger.warn('Quick search: Editor not installed');
     }
   }
 
@@ -516,7 +516,7 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
         }));
       }),
       catchError(err => {
-        this.logger.warn('Spotlight: USS search failed', err);
+        this.logger.warn('Quick search: USS search failed', err);
         return of([]);
       })
     );
@@ -532,7 +532,7 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
         data: { type: 'openFile', name: path }
       });
     } else {
-      this.logger.warn('Spotlight: Editor not installed');
+      this.logger.warn('Quick search: Editor not installed');
     }
   }
 

@@ -23,31 +23,31 @@ import {
 import { CommonModule } from '@angular/common';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, switchMap, take } from 'rxjs/operators';
-import { SpotlightSearchService, SpotlightResult, SpotlightResultCategory } from './spotlight-search.service';
+import { QuickSearchService, QuickSearchResult, QuickSearchResultCategory } from './quick-search.service';
 
 interface CategoryGroup {
   category: string;
-  results: SpotlightResult[];
+  results: QuickSearchResult[];
   icon: string;
 }
 
 @Component({
-  selector: 'rs-com-spotlight-launcher',
+  selector: 'rs-com-quick-search-launcher',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './spotlight-launcher.component.html',
-  styleUrls: ['./spotlight-launcher.component.css']
+  templateUrl: './quick-search-launcher.component.html',
+  styleUrls: ['./quick-search-launcher.component.css']
 })
-export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges {
+export class QuickSearchLauncherComponent implements OnInit, OnDestroy, OnChanges {
   @Input() visible: boolean = false;
   @Output() closed = new EventEmitter<void>();
 
   @ViewChild('searchInput') searchInputRef: ElementRef;
-  @ViewChild('spotlightPanel') panelRef: ElementRef;
+  @ViewChild('quickSearchPanel') panelRef: ElementRef;
 
   query: string = '';
   groups: CategoryGroup[] = [];
-  flatResults: SpotlightResult[] = [];
+  flatResults: QuickSearchResult[] = [];
   activeIndex: number = -1;
   isLoading: boolean = false;
   hasSearched: boolean = false;
@@ -158,7 +158,7 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
   private mvsExampleIdx = 0;
 
   constructor(
-    private searchService: SpotlightSearchService,
+    private searchService: QuickSearchService,
     private elRef: ElementRef
   ) {}
 
@@ -187,7 +187,7 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
     if (changes['visible']) {
       if (changes['visible'].currentValue) {
         this.searchService.setVisible(true);
-        // Restore cached TSO result if spotlight was reopened with no current results
+        // Restore cached TSO result if quick search was reopened with no current results
         const cached = this.searchService.getLastTsoResult();
         if (cached && this.flatResults.length === 0) {
           this.query = '/tso ' + this.searchService.getLastTsoQuery();
@@ -218,11 +218,11 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
     if (event.button !== 0) return;
     const target = event.target as HTMLElement;
     // Allow drag from input area when query is empty (input is already focused)
-    if (target.classList.contains('spotlight-input') && this.query.length > 0) return;
-    if (target.closest('.spotlight-resize-handle')) return;
+    if (target.classList.contains('quick-search-input') && this.query.length > 0) return;
+    if (target.closest('.quick-search-resize-handle')) return;
     // Don't drag from clickable result items (but allow from output results)
-    const resultItem = target.closest('.spotlight-result-item') as HTMLElement;
-    if (resultItem && !resultItem.querySelector('.spotlight-tso-output')) return;
+    const resultItem = target.closest('.quick-search-result-item') as HTMLElement;
+    if (resultItem && !resultItem.querySelector('.quick-search-tso-output')) return;
 
     event.preventDefault();
     this.isDragging = true;
@@ -360,7 +360,7 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
     }
   }
 
-  selectResult(result: SpotlightResult): void {
+  selectResult(result: QuickSearchResult): void {
     if (result.pendingExecution) {
       if (result.execute) {
         this.isLoading = true;
@@ -394,29 +394,29 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
   }
 
   onBackdropClick(event: MouseEvent): void {
-    // Close if clicking outside the spotlight panel
-    const panel = this.elRef.nativeElement.querySelector('.spotlight-panel');
+    // Close if clicking outside the quick search panel
+    const panel = this.elRef.nativeElement.querySelector('.quick-search-panel');
     if (panel && !panel.contains(event.target)) {
       this.dismiss();
     }
   }
 
-  getCategoryIcon(category: SpotlightResultCategory): string {
+  getCategoryIcon(category: QuickSearchResultCategory): string {
     return this.searchService.getCategoryIcon(category);
   }
 
-  getCategoryIconClass(category: SpotlightResultCategory): Record<string, boolean> {
+  getCategoryIconClass(category: QuickSearchResultCategory): Record<string, boolean> {
     const icon = this.searchService.getCategoryIcon(category);
     const classes: Record<string, boolean> = {};
     icon.split(' ').forEach(c => classes[c] = true);
     return classes;
   }
 
-  isActive(result: SpotlightResult): boolean {
+  isActive(result: QuickSearchResult): boolean {
     return this.activeIndex >= 0 && this.flatResults.indexOf(result) === this.activeIndex;
   }
 
-  getResultIndex(result: SpotlightResult): number {
+  getResultIndex(result: QuickSearchResult): number {
     return this.flatResults.indexOf(result);
   }
 
@@ -432,7 +432,7 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
     this.searchSubject.next(this.query);
   }
 
-  removeHistoryItem(result: SpotlightResult): void {
+  removeHistoryItem(result: QuickSearchResult): void {
     if (result.providerId && result.historyCommand !== undefined) {
       const provider = this.searchService.getProvider(result.providerId);
       if (provider?.removeHistoryItem) {
@@ -448,8 +448,8 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
     this.searchSubject.next(this.query);
   }
 
-  private buildGroups(results: SpotlightResult[]): void {
-    const resultMap = new Map<string, SpotlightResult[]>();
+  private buildGroups(results: QuickSearchResult[]): void {
+    const resultMap = new Map<string, QuickSearchResult[]>();
     results.forEach(r => {
       if (!resultMap.has(r.category)) {
         resultMap.set(r.category, []);
@@ -499,7 +499,7 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
 
   private scrollActiveIntoView(): void {
     setTimeout(() => {
-      const el = this.elRef.nativeElement.querySelector('.spotlight-result-item.active');
+      const el = this.elRef.nativeElement.querySelector('.quick-search-result-item.active');
       if (el) {
         el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       }
@@ -526,7 +526,7 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
     }
   }
 
-  private autocompleteFromResult(result: SpotlightResult): void {
+  private autocompleteFromResult(result: QuickSearchResult): void {
     const value = this.getAutocompleteValue(result);
     if (value !== this.query) {
       this.query = value;
@@ -536,7 +536,7 @@ export class SpotlightLauncherComponent implements OnInit, OnDestroy, OnChanges 
     }
   }
 
-  private getAutocompleteValue(result: SpotlightResult): string {
+  private getAutocompleteValue(result: QuickSearchResult): string {
     // For USS files, use the full path from the description
     if (result.category === 'USS File' && result.description) {
       const fullPath = result.description.split(' | ')[0];

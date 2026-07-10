@@ -34,7 +34,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface, OnInit
   contextMenuDef: { xPos: number, yPos: number, items: ContextMenuItem[] } | null;
   private authenticationManager: MVDHosting.AuthenticationManagerInterface;
   public isPersonalizationPanelVisible: boolean;
-  public isSpotlightVisible: boolean = false;
+  public isQuickSearchVisible: boolean = false;
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
   private keyDownSub: Subscription;
 
@@ -96,7 +96,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface, OnInit
       if (event.which === KeyCode.SPACE || event.code === 'Space') {
         event.preventDefault();
         event.stopPropagation();
-        this.isSpotlightVisible = !this.isSpotlightVisible;
+        this.isQuickSearchVisible = !this.isQuickSearchVisible;
       }
     });
   }
@@ -157,12 +157,12 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface, OnInit
     this.contextMenuDef = null;
   }
 
-  toggleSpotlight(): void {
-    this.isSpotlightVisible = !this.isSpotlightVisible;
+  toggleQuickSearch(): void {
+    this.isQuickSearchVisible = !this.isQuickSearchVisible;
   }
 
-  hideSpotlight(): void {
-    this.isSpotlightVisible = false;
+  hideQuickSearch(): void {
+    this.isQuickSearchVisible = false;
   }
 }
 

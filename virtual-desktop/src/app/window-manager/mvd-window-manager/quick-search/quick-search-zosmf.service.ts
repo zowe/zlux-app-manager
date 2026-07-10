@@ -14,16 +14,16 @@ import { Observable, of } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { SpotlightResult, SpotlightResultCategory, SpotlightSearchService } from './spotlight-search.service';
-import { SpotlightHistoryService } from './spotlight-history.service';
+import { QuickSearchResult, QuickSearchResultCategory, QuickSearchService } from './quick-search.service';
+import { QuickSearchHistoryService } from './quick-search-history.service';
 
 /**
- * Self-contained z/OSMF spotlight provider service.
+ * Self-contained z/OSMF quick search provider service.
  * Registers providers for z/OS Jobs, TSO commands, MVS console commands, and APIML services.
  * All HTTP calls go through the API ML gateway.
  */
 @Injectable()
-export class SpotlightZosmfService {
+export class QuickSearchZosmfService {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
@@ -34,8 +34,8 @@ export class SpotlightZosmfService {
   constructor(
     private http: HttpClient,
     private injector: Injector,
-    private searchService: SpotlightSearchService,
-    private historyService: SpotlightHistoryService
+    private searchService: QuickSearchService,
+    private historyService: QuickSearchHistoryService
   ) {
     const uriPrefix = window.location.pathname.split('ZLUX/plugins/')[0];
     this.proxyMode = uriPrefix !== '/';
@@ -52,7 +52,7 @@ export class SpotlightZosmfService {
     });
   }
 
-  /** Register all z/OSMF-based providers with the spotlight search service. */
+  /** Register all z/OSMF-based providers with the quick search service. */
   registerProviders(): void {
     this.searchService.registerProvider({
       id: 'job',
@@ -63,7 +63,7 @@ export class SpotlightZosmfService {
       canSearch: (q: string) => this.proxyMode && this.looksLikeJobFilter(q),
       search: (q: string) => {
         if (!this.proxyMode) {
-          this.logger.warn('Spotlight: Job search requires the API ML gateway');
+          this.logger.warn('Quick search: Job search requires the API ML gateway');
           return of([]);
         }
         return this.searchJobs(q);
@@ -80,12 +80,12 @@ export class SpotlightZosmfService {
       canSearch: (_q: string) => false,
       search: (q: string) => {
         if (!this.proxyMode) {
-          this.logger.warn('Spotlight: TSO commands require the API ML gateway');
+          this.logger.warn('Quick search: TSO commands require the API ML gateway');
           return of([]);
         }
         if (!q) return of(this.historyService.buildHistoryResults('TSO Command', '/tso', 'tso', 'tso'));
         return of([{
-          category: 'TSO Command' as SpotlightResultCategory,
+          category: 'TSO Command' as QuickSearchResultCategory,
           label: `TSO> ${q}`,
           description: 'Press Enter to execute',
           pendingExecution: true,
@@ -110,12 +110,12 @@ export class SpotlightZosmfService {
       canSearch: (_q: string) => false,
       search: (q: string) => {
         if (!this.proxyMode) {
-          this.logger.warn('Spotlight: MVS console commands require the API ML gateway');
+          this.logger.warn('Quick search: MVS console commands require the API ML gateway');
           return of([]);
         }
         if (!q) return of(this.historyService.buildHistoryResults('MVS Console', '/mvs', 'mvs', 'console'));
         return of([{
-          category: 'MVS Console' as SpotlightResultCategory,
+          category: 'MVS Console' as QuickSearchResultCategory,
           label: `MVS> ${q}`,
           description: 'Press Enter to execute',
           pendingExecution: true,
@@ -139,7 +139,7 @@ export class SpotlightZosmfService {
       canSearch: (q: string) => this.proxyMode && this.looksLikeServiceName(q),
       search: (q: string) => {
         if (!this.proxyMode) {
-          this.logger.warn('Spotlight: APIML search requires the API ML gateway');
+          this.logger.warn('Quick search: APIML search requires the API ML gateway');
           return of([]);
         }
         return this.searchApimlServices(q);
@@ -150,7 +150,7 @@ export class SpotlightZosmfService {
   // ------------------------------------------------------------------
   // z/OS Jobs (via z/OSMF REST API through the gateway)
   // ------------------------------------------------------------------
-  private searchJobs(query: string): Observable<SpotlightResult[]> {
+  private searchJobs(query: string): Observable<QuickSearchResult[]> {
     const prefix = query.toUpperCase().replace(/[^A-Z0-9*]/g, '');
     const uri = `${this.gatewayPrefix}ibmzosmf/api/v1/zosmf/restjobs/jobs`;
     const params = new HttpParams()
@@ -166,7 +166,7 @@ export class SpotlightZosmfService {
       map(jobs => {
         if (!Array.isArray(jobs)) return [];
         return jobs.map(job => ({
-          category: 'z/OS Job' as SpotlightResultCategory,
+          category: 'z/OS Job' as QuickSearchResultCategory,
           label: `${job.jobname} (${job.jobid})`,
           description: `Owner: ${job.owner} | Status: ${job.status || 'UNKNOWN'}`,
           actionMetadata: {
@@ -178,7 +178,7 @@ export class SpotlightZosmfService {
         }));
       }),
       catchError(err => {
-        this.logger.warn('Spotlight: job search failed', err);
+        this.logger.warn('Quick search: job search failed', err);
         return of([]);
       })
     );
@@ -194,14 +194,14 @@ export class SpotlightZosmfService {
         data: { owner: job.owner, prefix: job.jobname, jobId: job.jobid }
       });
     } else {
-      this.logger.warn('Spotlight: JES Explorer not installed');
+      this.logger.warn('Quick search: JES Explorer not installed');
     }
   }
 
   // ------------------------------------------------------------------
   // TSO Commands (via z/OSMF stateless REST API through gateway)
   // ------------------------------------------------------------------
-  submitTsoCommand(cmd: string): Observable<SpotlightResult[]> {
+  submitTsoCommand(cmd: string): Observable<QuickSearchResult[]> {
     if (!cmd) return of([]);
     const uri = `${this.gatewayPrefix}ibmzosmf/api/v1/zosmf/tsoApp/v1/tso`;
     const headers = new HttpHeaders({
@@ -220,7 +220,7 @@ export class SpotlightZosmfService {
           .filter((line: string) => line.trim().length > 0);
         const output = lines.join('\n') || '(no output)';
         return [{
-          category: 'TSO Command' as SpotlightResultCategory,
+          category: 'TSO Command' as QuickSearchResultCategory,
           label: `TSO> ${cmd}`,
           description: lines.length > 0 ? lines[0] : '(no output)',
           output: output,
@@ -236,12 +236,12 @@ export class SpotlightZosmfService {
         }];
       }),
       catchError(err => {
-        this.logger.warn('Spotlight: TSO command failed', err);
+        this.logger.warn('Quick search: TSO command failed', err);
         const errMsg = err?.error?.msgData?.[0]?.messageText
           || err?.message
           || 'Command failed';
         return of([{
-          category: 'TSO Command' as SpotlightResultCategory,
+          category: 'TSO Command' as QuickSearchResultCategory,
           label: `TSO> ${cmd}`,
           description: `Error: ${errMsg}`,
           output: `Error: ${errMsg}`,
@@ -259,7 +259,7 @@ export class SpotlightZosmfService {
     );
   }
 
-  private fireTsoNotification(cmd: string, results: SpotlightResult[]): void {
+  private fireTsoNotification(cmd: string, results: QuickSearchResult[]): void {
     const nm = ZoweZLUX.notificationManager;
     if (!nm) return;
     const isError = results.length > 0 && results[0].output?.startsWith('Error:');
@@ -272,7 +272,7 @@ export class SpotlightZosmfService {
   // ------------------------------------------------------------------
   // MVS Console Commands (via z/OSMF REST Console API through gateway)
   // ------------------------------------------------------------------
-  submitConsoleCommand(cmd: string): Observable<SpotlightResult[]> {
+  submitConsoleCommand(cmd: string): Observable<QuickSearchResult[]> {
     if (!cmd) return of([]);
     const uri = `${this.gatewayPrefix}ibmzosmf/api/v1/zosmf/restconsoles/consoles/defcn`;
     const headers = new HttpHeaders({
@@ -287,7 +287,7 @@ export class SpotlightZosmfService {
         const output = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim() || '(no output)';
         const firstLine = output.split('\n')[0];
         return [{
-          category: 'MVS Console' as SpotlightResultCategory,
+          category: 'MVS Console' as QuickSearchResultCategory,
           label: `MVS> ${cmd}`,
           description: firstLine,
           output: output,
@@ -303,13 +303,13 @@ export class SpotlightZosmfService {
         }];
       }),
       catchError(err => {
-        this.logger.warn('Spotlight: MVS console command failed', err);
+        this.logger.warn('Quick search: MVS console command failed', err);
         const errMsg = err?.error?.msgData?.[0]?.messageText
           || err?.error?.message
           || err?.message
           || 'Command failed';
         return of([{
-          category: 'MVS Console' as SpotlightResultCategory,
+          category: 'MVS Console' as QuickSearchResultCategory,
           label: `MVS> ${cmd}`,
           description: `Error: ${errMsg}`,
           output: `Error: ${errMsg}`,
@@ -326,7 +326,7 @@ export class SpotlightZosmfService {
     );
   }
 
-  private fireConsoleNotification(cmd: string, results: SpotlightResult[]): void {
+  private fireConsoleNotification(cmd: string, results: QuickSearchResult[]): void {
     const nm = ZoweZLUX.notificationManager;
     if (!nm) return;
     const isError = results.length > 0 && results[0].output?.startsWith('Error:');
@@ -339,13 +339,13 @@ export class SpotlightZosmfService {
   // ------------------------------------------------------------------
   // APIML Services (via API Catalog gateway)
   // ------------------------------------------------------------------
-  private searchApimlServices(query: string): Observable<SpotlightResult[]> {
+  private searchApimlServices(query: string): Observable<QuickSearchResult[]> {
     const gatewayUri = `${this.gatewayPrefix}apicatalog/api/v1/containers`;
     return this.http.get<any[]>(gatewayUri).pipe(
       map(containers => {
         if (!Array.isArray(containers)) return [];
         const q = query.toLowerCase();
-        const results: SpotlightResult[] = [];
+        const results: QuickSearchResult[] = [];
         for (const container of containers) {
           const services = container.services || [];
           for (const svc of services) {
@@ -353,7 +353,7 @@ export class SpotlightZosmfService {
             const title = (svc.title || '').toLowerCase();
             if (id.includes(q) || title.includes(q)) {
               results.push({
-                category: 'APIML Service' as SpotlightResultCategory,
+                category: 'APIML Service' as QuickSearchResultCategory,
                 label: svc.title || svc.serviceId,
                 description: `Service: ${svc.serviceId} | Status: ${svc.status || 'N/A'}`,
                 actionMetadata: {
@@ -369,7 +369,7 @@ export class SpotlightZosmfService {
         return results.slice(0, 10);
       }),
       catchError(err => {
-        this.logger.warn('Spotlight: APIML service search failed', err);
+        this.logger.warn('Quick search: APIML service search failed', err);
         return of([]);
       })
     );
@@ -385,7 +385,7 @@ export class SpotlightZosmfService {
         data: { serviceId: service.serviceId || service.id }
       });
     } else {
-      this.logger.info('Spotlight: API Catalog not installed');
+      this.logger.info('Quick search: API Catalog not installed');
     }
   }
 

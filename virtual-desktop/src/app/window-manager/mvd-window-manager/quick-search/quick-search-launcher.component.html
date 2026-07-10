@@ -8,9 +8,9 @@
   Copyright Contributors to the Zowe Project.
 -->
 
-<div class="spotlight-backdrop" (click)="onBackdropClick($event)">
-  <div class="spotlight-panel"
-    #spotlightPanel
+<div class="quick-search-backdrop" (click)="onBackdropClick($event)">
+  <div class="quick-search-panel"
+    #quickSearchPanel
     [class.is-dragging]="isDragging"
     [class.is-resizing]="isResizing"
     [style.left.px]="panelX"
@@ -21,13 +21,13 @@
     (mousedown)="onDragStart($event)"
   >
     <!-- Search Input -->
-    <div class="spotlight-input-wrapper">
-      <i class="fa fa-search spotlight-search-icon"></i>
-      <div class="spotlight-input-container">
+    <div class="quick-search-input-wrapper">
+      <i class="fa fa-search quick-search-icon"></i>
+      <div class="quick-search-input-container">
         <input
           #searchInput
           type="text"
-          class="spotlight-input"
+          class="quick-search-input"
           [class.has-query]="query.length > 0"
           [style.width]="query.length > 0 ? (query.length + 1) + 'ch' : ''"
           [value]="query"
@@ -37,22 +37,22 @@
           autocomplete="off"
           spellcheck="false"
         />
-        <span class="spotlight-ghost-text" *ngIf="ghostText"><span class="spotlight-ghost-typed">{{query}}</span>{{ghostText}}</span>
+        <span class="quick-search-ghost-text" *ngIf="ghostText"><span class="quick-search-ghost-typed">{{query}}</span>{{ghostText}}</span>
       </div>
-      <span class="spotlight-shortcut-hint" *ngIf="!query">
+      <span class="quick-search-shortcut-hint" *ngIf="!query">
         <kbd>Esc</kbd> to close
       </span>
-      <i class="fa fa-spinner fa-spin spotlight-spinner" *ngIf="isLoading"></i>
+      <i class="fa fa-spinner fa-spin quick-search-spinner" *ngIf="isLoading"></i>
     </div>
 
     <!-- Results -->
-    <div class="spotlight-results" *ngIf="flatResults.length > 0 || (hasSearched && !isLoading)">
+    <div class="quick-search-results" *ngIf="flatResults.length > 0 || (hasSearched && !isLoading)">
       <ng-container *ngIf="flatResults.length > 0">
-        <div class="spotlight-category-group" *ngFor="let group of groups">
-          <div class="spotlight-category-header">
+        <div class="quick-search-category-group" *ngFor="let group of groups">
+          <div class="quick-search-category-header">
             <i [class]="group.icon"></i>
             <span>{{ group.category }}</span>
-            <span class="spotlight-clear-all"
+            <span class="quick-search-clear-all"
               *ngIf="isHistoryGroup(group)"
               (click)="clearAllHistory(group); $event.stopPropagation()">
               Clear history
@@ -60,7 +60,7 @@
           </div>
           <div
             *ngFor="let result of group.results"
-            class="spotlight-result-item"
+            class="quick-search-result-item"
             [class.active]="isActive(result)"
             (click)="selectResult(result)"
             (mouseenter)="activeIndex = getResultIndex(result)"
@@ -68,16 +68,16 @@
             <img
               *ngIf="result.icon"
               [src]="result.icon"
-              class="spotlight-result-icon-img"
+              class="quick-search-result-icon-img"
               (error)="result.icon = undefined"
             />
-            <i *ngIf="!result.icon" class="spotlight-result-icon" [ngClass]="getCategoryIconClass(result.category)"></i>
-            <div class="spotlight-result-text">
-              <span class="spotlight-result-label">{{ result.label }}</span>
-              <span class="spotlight-result-desc" *ngIf="result.description && !result.output">{{ result.description }}</span>
-              <pre class="spotlight-tso-output" *ngIf="result.output">{{ result.output }}</pre>
+            <i *ngIf="!result.icon" class="quick-search-result-icon" [ngClass]="getCategoryIconClass(result.category)"></i>
+            <div class="quick-search-result-text">
+              <span class="quick-search-result-label">{{ result.label }}</span>
+              <span class="quick-search-result-desc" *ngIf="result.description && !result.output">{{ result.description }}</span>
+              <pre class="quick-search-tso-output" *ngIf="result.output">{{ result.output }}</pre>
             </div>
-            <i class="fa fa-times spotlight-history-remove"
+            <i class="fa fa-times quick-search-history-remove"
               *ngIf="result.historyItem"
               title="Remove from history"
               (click)="removeHistoryItem(result); $event.stopPropagation()">
@@ -86,14 +86,14 @@
         </div>
       </ng-container>
 
-      <div class="spotlight-no-results" *ngIf="flatResults.length === 0 && hasSearched && !isLoading">
+      <div class="quick-search-no-results" *ngIf="flatResults.length === 0 && hasSearched && !isLoading">
         <i class="fa fa-info-circle"></i>
         <span>No results found for "{{ query }}"</span>
       </div>
     </div>
 
     <!-- Hints footer -->
-    <div class="spotlight-footer" *ngIf="flatResults.length > 0">
+    <div class="quick-search-footer" *ngIf="flatResults.length > 0">
       <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
       <span *ngIf="flatResults[activeIndex]?.pendingExecution"><kbd>Enter</kbd> Execute</span>
       <span *ngIf="flatResults[activeIndex]?.output"><kbd>Enter</kbd> Copy output</span>
@@ -102,7 +102,7 @@
     </div>
 
     <!-- Resize handles -->
-    <div class="spotlight-resize-handle spotlight-resize-br" (mousedown)="onResizeStart($event, 'br')"></div>
-    <div class="spotlight-resize-handle spotlight-resize-bl" (mousedown)="onResizeStart($event, 'bl')"></div>
+    <div class="quick-search-resize-handle quick-search-resize-br" (mousedown)="onResizeStart($event, 'br')"></div>
+    <div class="quick-search-resize-handle quick-search-resize-bl" (mousedown)="onResizeStart($event, 'bl')"></div>
   </div>
 </div>

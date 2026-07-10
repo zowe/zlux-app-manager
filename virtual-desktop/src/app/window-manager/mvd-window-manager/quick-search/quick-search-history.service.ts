@@ -12,17 +12,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { SpotlightResult, SpotlightResultCategory } from './spotlight-search.service';
+import { QuickSearchResult, QuickSearchResultCategory } from './quick-search.service';
 import { BaseLogger } from 'virtual-desktop-logger';
 
 export type HistoryCategory = 'tso' | 'mvs';
 
 /**
- * Manages spotlight command history persistence via the Zowe config dataservice.
- * Self-contained -- no dependency on SpotlightSearchService.
+ * Manages quick search command history persistence via the Zowe config dataservice.
+ * Self-contained -- no dependency on QuickSearchService.
  */
 @Injectable()
-export class SpotlightHistoryService {
+export class QuickSearchHistoryService {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private readonly MAX_HISTORY = 20;
   private tsoHistory: string[] = [];
@@ -46,7 +46,7 @@ export class SpotlightHistoryService {
           this.mvsHistory = data.mvs.slice(0, this.MAX_HISTORY);
         }
       }
-      this.logger.debug('Spotlight: command history loaded');
+      this.logger.debug('Quick search: command history loaded');
     });
   }
 
@@ -86,12 +86,12 @@ export class SpotlightHistoryService {
   }
 
   /**
-   * Build SpotlightResult[] for the history of a given category.
+   * Build QuickSearchResult[] for the history of a given category.
    * Used by providers to return history when a bare prefix is typed.
    */
-  buildHistoryResults(category: string, prefix: string, historyCategory: HistoryCategory, providerId: string): SpotlightResult[] {
+  buildHistoryResults(category: string, prefix: string, historyCategory: HistoryCategory, providerId: string): QuickSearchResult[] {
     const history = this.getHistoryArray(historyCategory);
-    const cat = category as SpotlightResultCategory;
+    const cat = category as QuickSearchResultCategory;
     return history.map(cmd => ({
       category: cat,
       label: prefix + ' ' + cmd,
@@ -114,7 +114,7 @@ export class SpotlightHistoryService {
 
   private historyConfigUri(): string {
     return ZoweZLUX.uriBroker.pluginConfigForScopeUri(
-      ZoweZLUX.pluginManager.getDesktopPlugin(), 'user', 'spotlight', 'history.json'
+      ZoweZLUX.pluginManager.getDesktopPlugin(), 'user', 'quickSearch', 'history.json'
     );
   }
 
@@ -131,18 +131,18 @@ export class SpotlightHistoryService {
   private saveHistory(): void {
     const uri = this.historyConfigUri();
     const payload = {
-      _objectType: 'org.zowe.zlux.ng2desktop.spotlight.history',
+      _objectType: 'org.zowe.zlux.ng2desktop.quickSearch.history',
       _metaDataVersion: '1.0.0',
       tso: this.tsoHistory,
       mvs: this.mvsHistory
     };
     this.http.put(uri, payload).pipe(
       catchError(err => {
-        this.logger.warn('Spotlight: failed to save command history', err);
+        this.logger.warn('Quick search: failed to save command history', err);
         return of(null);
       })
     ).subscribe(() => {
-      this.logger.debug('Spotlight: command history saved');
+      this.logger.debug('Quick search: command history saved');
     });
   }
 }

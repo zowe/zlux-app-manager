@@ -36,10 +36,10 @@ import { DesktopFolderComponent } from './desktop-folder/desktop-folder.componen
 import { ShortcutPropertiesComponent } from './shortcut-properties/shortcut-properties.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { IncludeExternalCssComponent } from 'app/shared/include-external-css.component';
-import { SpotlightLauncherComponent } from './spotlight/spotlight-launcher.component';
-import { SpotlightSearchService } from './spotlight/spotlight-search.service';
-import { SpotlightHistoryService } from './spotlight/spotlight-history.service';
-import { SpotlightZosmfService } from './spotlight/spotlight-zosmf.service';
+import { QuickSearchLauncherComponent } from './quick-search/quick-search-launcher.component';
+import { QuickSearchService } from './quick-search/quick-search.service';
+import { QuickSearchHistoryService } from './quick-search/quick-search-history.service';
+import { QuickSearchZosmfService } from './quick-search/quick-search-zosmf.service';
 
 
 @NgModule({
@@ -53,7 +53,7 @@ import { SpotlightZosmfService } from './spotlight/spotlight-zosmf.service';
     NgxFileDropModule,
     MatSnackBarModule,
     IncludeExternalCssComponent,
-    SpotlightLauncherComponent
+    QuickSearchLauncherComponent
   ],
   declarations: [
     DesktopComponent,
@@ -79,11 +79,11 @@ import { SpotlightZosmfService } from './spotlight/spotlight-zosmf.service';
     /* Expose to the rest of the desktop */
     { provide: MVDWindowManagement.Tokens.WindowManagerToken, useExisting: WindowManagerService },
     { provide: MVDHosting.Tokens.ThemeEmitterToken, useExisting: ThemeEmitterService },
-    { provide: MVDHosting.Tokens.SpotlightSearchToken, useExisting: SpotlightSearchService },
+    { provide: MVDHosting.Tokens.QuickSearchToken, useExisting: QuickSearchService },
     KeybindingService,
-    SpotlightHistoryService,
-    SpotlightSearchService,
-    SpotlightZosmfService
+    QuickSearchHistoryService,
+    QuickSearchService,
+    QuickSearchZosmfService
   ]
 })
 export class WindowManagerModule {

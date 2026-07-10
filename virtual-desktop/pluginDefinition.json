@@ -16,7 +16,7 @@
       "actions": {
         "aggregationPolicy": "none"
       },
-      "spotlight": {
+      "quickSearch": {
         "aggregationPolicy": "none"
       },
       "ui": {
