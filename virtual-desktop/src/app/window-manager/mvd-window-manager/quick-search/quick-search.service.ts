@@ -220,6 +220,22 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
   }
 
   // ----------------------------------------------------------------
+  // Plugin discovery
+  // ----------------------------------------------------------------
+
+  /**
+   * Find a loaded application plugin definition by its identifier.
+   * Returns undefined if the plugin is not installed, so callers can verify
+   * a target app exists before offering or performing an action.
+   */
+  resolvePlugin(identifier: string): DesktopPluginDefinitionImpl | undefined {
+    return this.pluginDefs.find(p => {
+      const baseDef = p.getBasePlugin?.()?.getBasePlugin?.();
+      return baseDef?.identifier === identifier;
+    });
+  }
+
+  // ----------------------------------------------------------------
   // Initialization
   // ----------------------------------------------------------------
 
@@ -461,10 +477,7 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
   }
 
   private openDatasetInEditor(dsname: string): void {
-    const editorDef = this.pluginDefs.find(p => {
-      const baseDef = p.getBasePlugin?.()?.getBasePlugin?.();
-      return baseDef?.identifier === 'org.zowe.editor';
-    });
+    const editorDef = this.resolvePlugin('org.zowe.editor');
     if (editorDef) {
       this.applicationManager.spawnApplication(editorDef as any, {
         data: { type: 'openDataset', name: `//'${dsname}'` }
@@ -524,10 +537,7 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
   }
 
   private openUssInEditor(path: string): void {
-    const editorDef = this.pluginDefs.find(p => {
-      const baseDef = p.getBasePlugin?.()?.getBasePlugin?.();
-      return baseDef?.identifier === 'org.zowe.editor';
-    });
+    const editorDef = this.resolvePlugin('org.zowe.editor');
     if (editorDef) {
       this.applicationManager.spawnApplication(editorDef as any, {
         data: { type: 'openFile', name: path }
@@ -538,10 +548,7 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
   }
 
   private openUssInFileManager(path: string): void {
-    const fmDef = this.pluginDefs.find(p => {
-      const baseDef = p.getBasePlugin?.()?.getBasePlugin?.();
-      return baseDef?.identifier === 'com.rs.file-manager';
-    });
+    const fmDef = this.resolvePlugin('com.rs.file-manager');
     if (fmDef) {
       this.applicationManager.spawnApplication(fmDef as any, {
         data: { type: 'opennewwindow', name: path }

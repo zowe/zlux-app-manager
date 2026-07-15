@@ -12,7 +12,6 @@ import { Injectable, Injector } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
-import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { QuickSearchResult, QuickSearchResultCategory, QuickSearchService } from './quick-search.service';
 import { QuickSearchHistoryService } from './quick-search-history.service';
@@ -20,16 +19,28 @@ import { QuickSearchHistoryService } from './quick-search-history.service';
 /**
  * Self-contained z/OSMF quick search provider service.
  * Registers providers for z/OS Jobs, TSO commands, MVS console commands, and APIML services.
- * All HTTP calls go through the API ML gateway.
+ * z/OSMF calls route through the API ML gateway when the desktop is served behind it,
+ * otherwise they are sent directly to z/OSMF via the app-server origin.
  */
 @Injectable()
 export class QuickSearchZosmfService {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
-  private pluginManager: MVDHosting.PluginManagerInterface;
-  private pluginDefs: DesktopPluginDefinitionImpl[] = [];
-  private readonly proxyMode: boolean;
-  private readonly gatewayPrefix: string;
+
+  /** True when the desktop is served through the API ML gateway. */
+  private behindGateway = false;
+  /** Path prefix to the API ML gateway root (e.g. '/' or '/mygateway/'). */
+  private gatewayPrefix = '/';
+  /**
+   * Base URL for direct (non-gateway) z/OSMF REST calls, used when the desktop
+   * is connected to the app-server without the gateway. Defaults to the
+   * app-server origin; overridable via config for an off-host z/OSMF.
+   */
+  private zosmfDirectBaseUrl = '/';
+  /** APIML service id under which z/OSMF is registered (gateway mode). Overridable via config. */
+  private zosmfServiceId = QuickSearchZosmfService.DEFAULT_ZOSMF_SERVICE_ID;
+
+  private static readonly DEFAULT_ZOSMF_SERVICE_ID = 'ibmzosmf';
 
   constructor(
     private http: HttpClient,
@@ -37,37 +48,85 @@ export class QuickSearchZosmfService {
     private searchService: QuickSearchService,
     private historyService: QuickSearchHistoryService
   ) {
-    const uriPrefix = window.location.pathname.split('ZLUX/plugins/')[0];
-    this.proxyMode = uriPrefix !== '/';
-    this.gatewayPrefix = this.proxyMode ? uriPrefix.split('/zlux/')[0] + '/' : '/';
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
-    this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
-    this.pluginManager.pluginsAdded.subscribe((plugins: DesktopPluginDefinitionImpl[]) => {
-      plugins.forEach(p => {
-        const baseDef = p.getBasePlugin?.()?.getBasePlugin?.();
-        if (baseDef && baseDef.webContent && !baseDef.isSystemPlugin) {
-          this.pluginDefs.push(p);
-        }
-      });
+    // Derive the gateway location from the framework's already-computed server
+    // root rather than re-parsing window.location with hardcoded markers.
+    const serverRoot = ZoweZLUX.uriBroker.serverRootUri('');
+    this.behindGateway = !!serverRoot && serverRoot !== '/';
+    this.gatewayPrefix = this.deriveGatewayPrefix(serverRoot);
+    // Default direct base is the app-server origin (same host serving the desktop).
+    this.zosmfDirectBaseUrl = serverRoot || '/';
+  }
+
+  /**
+   * Compute the path to the API ML gateway root from the app-server's server
+   * root URI. Behind the gateway the app-server is registered under the 'zlux'
+   * service, so everything preceding that segment is the gateway root.
+   */
+  private deriveGatewayPrefix(serverRoot: string): string {
+    if (!serverRoot || serverRoot === '/') {
+      return '/';
+    }
+    const marker = '/zlux/';
+    const idx = serverRoot.indexOf(marker);
+    if (idx >= 0) {
+      return serverRoot.substring(0, idx) + '/';
+    }
+    // Unexpected layout -- fall back to the server root itself.
+    return serverRoot.endsWith('/') ? serverRoot : serverRoot + '/';
+  }
+
+  /**
+   * Build a z/OSMF REST API URI. When the desktop is behind the API ML gateway
+   * the request is routed through APIML; otherwise it is sent directly to
+   * z/OSMF via the app-server origin (or a configured base URL).
+   */
+  private zosmfApiUri(path: string): string {
+    if (this.behindGateway) {
+      return `${this.gatewayPrefix}${this.zosmfServiceId}/api/v1/zosmf/${path}`;
+    }
+    return `${this.zosmfDirectBaseUrl}zosmf/${path}`;
+  }
+
+  /**
+   * Load overridable settings from the desktop plugin config so the z/OSMF
+   * location is not hardcoded:
+   *   - zosmfServiceId: APIML service id used for gateway routing.
+   *   - zosmfDirectBaseUrl: base URL for direct (non-gateway) z/OSMF calls.
+   * Both fall back to sensible defaults when no config is present.
+   */
+  private loadConfig(): void {
+    const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
+      ZoweZLUX.pluginManager.getDesktopPlugin(), 'instance', 'quickSearch', 'config.json'
+    );
+    this.http.get<any>(uri).pipe(catchError(() => of(null))).subscribe(resp => {
+      const data = resp?.contents || resp;
+      const id = data?.zosmfServiceId;
+      if (typeof id === 'string' && id.trim().length > 0) {
+        this.zosmfServiceId = id.trim();
+        this.logger.debug(`Quick search: using configured z/OSMF service id '${this.zosmfServiceId}'`);
+      }
+      const directBase = data?.zosmfDirectBaseUrl;
+      if (typeof directBase === 'string' && directBase.trim().length > 0) {
+        const trimmed = directBase.trim();
+        this.zosmfDirectBaseUrl = trimmed.endsWith('/') ? trimmed : trimmed + '/';
+        this.logger.debug(`Quick search: using configured direct z/OSMF base URL '${this.zosmfDirectBaseUrl}'`);
+      }
     });
   }
 
   /** Register all z/OSMF-based providers with the quick search service. */
   registerProviders(): void {
+    this.loadConfig();
+
     this.searchService.registerProvider({
       id: 'job',
       category: 'z/OS Job',
       icon: 'fa fa-cogs',
       prefixes: ['/job', '/jobs'],
       order: 20,
-      canSearch: (q: string) => this.proxyMode && this.looksLikeJobFilter(q),
-      search: (q: string) => {
-        if (!this.proxyMode) {
-          this.logger.warn('Quick search: Job search requires the API ML gateway');
-          return of([]);
-        }
-        return this.searchJobs(q);
-      },
+      canSearch: (q: string) => this.looksLikeJobFilter(q),
+      search: (q: string) => this.searchJobs(q),
     });
 
     this.searchService.registerProvider({
@@ -79,10 +138,6 @@ export class QuickSearchZosmfService {
       suppressNoResults: true,
       canSearch: (_q: string) => false,
       search: (q: string) => {
-        if (!this.proxyMode) {
-          this.logger.warn('Quick search: TSO commands require the API ML gateway');
-          return of([]);
-        }
         if (!q) return of(this.historyService.buildHistoryResults('TSO Command', '/tso', 'tso', 'tso'));
         return of([{
           category: 'TSO Command' as QuickSearchResultCategory,
@@ -109,10 +164,6 @@ export class QuickSearchZosmfService {
       suppressNoResults: true,
       canSearch: (_q: string) => false,
       search: (q: string) => {
-        if (!this.proxyMode) {
-          this.logger.warn('Quick search: MVS console commands require the API ML gateway');
-          return of([]);
-        }
         if (!q) return of(this.historyService.buildHistoryResults('MVS Console', '/mvs', 'mvs', 'console'));
         return of([{
           category: 'MVS Console' as QuickSearchResultCategory,
@@ -136,10 +187,10 @@ export class QuickSearchZosmfService {
       icon: 'fa fa-cloud',
       prefixes: ['/api', '/apiml'],
       order: 70,
-      canSearch: (q: string) => this.proxyMode && this.looksLikeServiceName(q),
+      canSearch: (q: string) => this.behindGateway && this.looksLikeServiceName(q),
       search: (q: string) => {
-        if (!this.proxyMode) {
-          this.logger.warn('Quick search: APIML search requires the API ML gateway');
+        if (!this.behindGateway) {
+          this.logger.warn('Quick search: APIML service search requires the API ML gateway');
           return of([]);
         }
         return this.searchApimlServices(q);
@@ -152,7 +203,7 @@ export class QuickSearchZosmfService {
   // ------------------------------------------------------------------
   private searchJobs(query: string): Observable<QuickSearchResult[]> {
     const prefix = query.toUpperCase().replace(/[^A-Z0-9*]/g, '');
-    const uri = `${this.gatewayPrefix}ibmzosmf/api/v1/zosmf/restjobs/jobs`;
+    const uri = this.zosmfApiUri('restjobs/jobs');
     const params = new HttpParams()
       .set('prefix', prefix || '*')
       .set('owner', '*')
@@ -185,10 +236,7 @@ export class QuickSearchZosmfService {
   }
 
   private openJobInJes(job: any): void {
-    const jesDef = this.pluginDefs.find(p => {
-      const baseDef = p.getBasePlugin?.()?.getBasePlugin?.();
-      return baseDef?.identifier === 'org.zowe.explorer-jes';
-    });
+    const jesDef = this.searchService.resolvePlugin('org.zowe.explorer-jes');
     if (jesDef) {
       this.applicationManager.spawnApplication(jesDef as any, {
         data: { owner: job.owner, prefix: job.jobname, jobId: job.jobid }
@@ -203,7 +251,7 @@ export class QuickSearchZosmfService {
   // ------------------------------------------------------------------
   submitTsoCommand(cmd: string): Observable<QuickSearchResult[]> {
     if (!cmd) return of([]);
-    const uri = `${this.gatewayPrefix}ibmzosmf/api/v1/zosmf/tsoApp/v1/tso`;
+    const uri = this.zosmfApiUri('tsoApp/v1/tso');
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'X-CSRF-ZOSMF-HEADER': '*'
@@ -274,7 +322,7 @@ export class QuickSearchZosmfService {
   // ------------------------------------------------------------------
   submitConsoleCommand(cmd: string): Observable<QuickSearchResult[]> {
     if (!cmd) return of([]);
-    const uri = `${this.gatewayPrefix}ibmzosmf/api/v1/zosmf/restconsoles/consoles/defcn`;
+    const uri = this.zosmfApiUri('restconsoles/consoles/defcn');
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'X-CSRF-ZOSMF-HEADER': '*'
@@ -376,10 +424,7 @@ export class QuickSearchZosmfService {
   }
 
   private openApiCatalog(service: any): void {
-    const catalogDef = this.pluginDefs.find(p => {
-      const baseDef = p.getBasePlugin?.()?.getBasePlugin?.();
-      return baseDef?.identifier === 'org.zowe.api.catalog';
-    });
+    const catalogDef = this.searchService.resolvePlugin('org.zowe.api.catalog');
     if (catalogDef) {
       this.applicationManager.spawnApplication(catalogDef as any, {
         data: { serviceId: service.serviceId || service.id }
