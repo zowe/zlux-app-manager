@@ -15,6 +15,7 @@ import { map, catchError, take } from 'rxjs/operators';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { QuickSearchHistoryService, HistoryCategory } from './quick-search-history.service';
+import { QuickSearchZosmfService } from './quick-search-zosmf.service';
 
 // Category is a plain string so external providers can define their own categories
 export type QuickSearchResultCategory = string;
@@ -232,8 +233,8 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
     this.fetchHomeDir();
     this.historyService.loadHistory();
     this.registerBuiltinProviders();
-    // Lazy-load QuickSearchZosmfService to avoid circular DI
-    const { QuickSearchZosmfService } = require('./quick-search-zosmf.service');
+    // Resolve via injector to break circular constructor dependency
+    // (QuickSearchZosmfService injects QuickSearchService)
     const zosmfService = this.injector.get(QuickSearchZosmfService);
     zosmfService.registerProviders();
   }

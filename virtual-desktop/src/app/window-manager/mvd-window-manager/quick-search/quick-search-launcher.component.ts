@@ -74,6 +74,7 @@ export class QuickSearchLauncherComponent implements OnInit, OnDestroy, OnChange
 
   private boundOnMouseMove = this.onMouseMove.bind(this);
   private boundOnMouseUp = this.onMouseUp.bind(this);
+  private boundOnWindowResize = this.onWindowResize.bind(this);
 
   private searchSubject = new Subject<string>();
   private searchSub: Subscription;
@@ -165,6 +166,7 @@ export class QuickSearchLauncherComponent implements OnInit, OnDestroy, OnChange
   ngOnInit(): void {
     this.searchService.loadPlugins();
     this.centerPanel();
+    window.addEventListener('resize', this.boundOnWindowResize);
     this.searchSub = this.searchSubject.pipe(
       debounceTime(250),
       switchMap(q => {
@@ -209,6 +211,7 @@ export class QuickSearchLauncherComponent implements OnInit, OnDestroy, OnChange
     }
     document.removeEventListener('mousemove', this.boundOnMouseMove);
     document.removeEventListener('mouseup', this.boundOnMouseUp);
+    window.removeEventListener('resize', this.boundOnWindowResize);
   }
 
   // ---------------------------------------------------------------
@@ -277,6 +280,7 @@ export class QuickSearchLauncherComponent implements OnInit, OnDestroy, OnChange
   private onMouseUp(): void {
     this.isDragging = false;
     this.isResizing = false;
+    this.clampToViewport();
     document.removeEventListener('mousemove', this.boundOnMouseMove);
     document.removeEventListener('mouseup', this.boundOnMouseUp);
   }
@@ -287,6 +291,42 @@ export class QuickSearchLauncherComponent implements OnInit, OnDestroy, OnChange
     this.panelY = Math.round(window.innerHeight * 0.18);
     this.panelH = 0; // auto
     this.maxAutoHeight = window.innerHeight - this.panelY - 16;
+  }
+
+  private onWindowResize(): void {
+    this.clampToViewport();
+  }
+
+  /** Ensure the panel stays within the visible viewport. */
+  private clampToViewport(): void {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const minVisible = 100; // px that must remain visible
+
+    // Clamp width so it never exceeds viewport
+    if (this.panelW > vw - 16) {
+      this.panelW = Math.max(320, vw - 16);
+    }
+
+    // Clamp horizontal: keep at least minVisible px on-screen
+    if (this.panelX + this.panelW < minVisible) {
+      this.panelX = minVisible - this.panelW;
+    }
+    if (this.panelX > vw - minVisible) {
+      this.panelX = vw - minVisible;
+    }
+
+    // Clamp vertical: don't let top go above 0 or panel disappear below viewport
+    if (this.panelY < 0) {
+      this.panelY = 0;
+    }
+    const panelBottom = this.panelY + (this.panelH > 0 ? this.panelH : 200);
+    if (panelBottom > vh && this.panelY > 0) {
+      this.panelY = Math.max(0, vh - (this.panelH > 0 ? this.panelH : 200));
+    }
+
+    // Update max auto-height so content doesn't overflow below viewport
+    this.maxAutoHeight = Math.max(200, vh - this.panelY - 16);
   }
 
   onInputChange(event: Event): void {
