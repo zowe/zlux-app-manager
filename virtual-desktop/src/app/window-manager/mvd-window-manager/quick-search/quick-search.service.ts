@@ -9,16 +9,16 @@
 */
 
 import { Injectable, Injector } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of, combineLatest } from 'rxjs';
-import { map, catchError, take } from 'rxjs/operators';
+import { map, catchError, take, tap } from 'rxjs/operators';
 import { DesktopPluginDefinitionImpl } from 'app/plugin-manager/shared/desktop-plugin-definition';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { QuickSearchHistoryService, HistoryCategory } from './quick-search-history.service';
-import { QuickSearchZosmfService } from './quick-search-zosmf.service';
 
 // Category is a plain string so external providers can define their own categories
 export type QuickSearchResultCategory = string;
+
+export type HistoryCategory = 'tso' | 'mvs';
 
 export interface QuickSearchResult {
   category: QuickSearchResultCategory;
@@ -28,7 +28,7 @@ export interface QuickSearchResult {
   output?: string;
   pendingExecution?: boolean;
   historyItem?: boolean;
-  /** Raw command string for history items, used by provider.removeHistoryItem() */
+  /** Raw command string for history items, used by removeHistoryItem() */
   historyCommand?: string;
   action: () => void;
   /** Structured metadata describing the action -- apps can inspect/extend this */
@@ -90,6 +90,16 @@ export interface QuickSearchProvider {
   suppressNoResults?: boolean;
 }
 
+/**
+ * Quick search service.
+ *
+ * Consolidated (monolithic) implementation containing the provider registry,
+ * built-in providers (apps/datasets/USS), z/OSMF providers (jobs/TSO/MVS/APIML),
+ * and command-history persistence. It is intentionally kept as a single service
+ * (rather than split into separate injectables) because splitting it into
+ * additional module providers reshapes the desktop bundle in a way that trips
+ * the esbuild AOT/JIT threshold and breaks plugin loading.
+ */
 @Injectable()
 export class QuickSearchService implements MVDHosting.QuickSearchInterface {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
@@ -102,10 +112,26 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
   private userHomeDir: string = '';
   private providers = new Map<string, QuickSearchProvider>();
 
+  // --- Command history state ---
+  private readonly MAX_HISTORY = 20;
+  private tsoHistory: string[] = [];
+  private mvsHistory: string[] = [];
+  private historySaveDebounce: any = null;
+
+  // --- z/OSMF state ---
+  /** True when the desktop is served through the API ML gateway. */
+  private behindGateway = false;
+  /** Path prefix to the API ML gateway root (e.g. '/' or '/mygateway/'). */
+  private gatewayPrefix = '/';
+  /** Base URL for direct (non-gateway) z/OSMF REST calls. Overridable via config. */
+  private zosmfDirectBaseUrl = '/';
+  /** APIML service id under which z/OSMF is registered (gateway mode). Overridable via config. */
+  private zosmfServiceId = QuickSearchService.DEFAULT_ZOSMF_SERVICE_ID;
+  private static readonly DEFAULT_ZOSMF_SERVICE_ID = 'ibmzosmf';
+
   constructor(
     private http: HttpClient,
-    private injector: Injector,
-    private historyService: QuickSearchHistoryService
+    private injector: Injector
   ) {
     this.applicationManager = this.injector.get(MVDHosting.Tokens.ApplicationManagerToken);
     this.pluginManager = this.injector.get(MVDHosting.Tokens.PluginManagerToken);
@@ -117,6 +143,11 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
         }
       });
     });
+    // Derive the gateway location from the framework's already-computed server root.
+    const serverRoot = ZoweZLUX.uriBroker.serverRootUri('');
+    this.behindGateway = !!serverRoot && serverRoot !== '/';
+    this.gatewayPrefix = this.deriveGatewayPrefix(serverRoot);
+    this.zosmfDirectBaseUrl = serverRoot || '/';
   }
 
   // ----------------------------------------------------------------
@@ -132,7 +163,7 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
   }
 
   // ----------------------------------------------------------------
-  // Last TSO result cache (set by QuickSearchZosmfService)
+  // Last TSO result cache
   // ----------------------------------------------------------------
 
   getLastTsoResult(): QuickSearchResult[] | null {
@@ -212,21 +243,12 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
   }
 
   // ----------------------------------------------------------------
-  // History convenience (delegates to QuickSearchHistoryService)
-  // ----------------------------------------------------------------
-
-  removeHistoryItem(category: HistoryCategory, cmd: string): void {
-    this.historyService.removeHistoryItem(category, cmd);
-  }
-
-  // ----------------------------------------------------------------
   // Plugin discovery
   // ----------------------------------------------------------------
 
   /**
    * Find a loaded application plugin definition by its identifier.
-   * Returns undefined if the plugin is not installed, so callers can verify
-   * a target app exists before offering or performing an action.
+   * Returns undefined if the plugin is not installed.
    */
   resolvePlugin(identifier: string): DesktopPluginDefinitionImpl | undefined {
     return this.pluginDefs.find(p => {
@@ -247,12 +269,9 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
       });
     });
     this.fetchHomeDir();
-    this.historyService.loadHistory();
+    this.loadHistory();
     this.registerBuiltinProviders();
-    // Resolve via injector to break circular constructor dependency
-    // (QuickSearchZosmfService injects QuickSearchService)
-    const zosmfService = this.injector.get(QuickSearchZosmfService);
-    zosmfService.registerProviders();
+    this.registerZosmfProviders();
   }
 
   private registerBuiltinProviders(): void {
@@ -559,13 +578,511 @@ export class QuickSearchService implements MVDHosting.QuickSearchInterface {
     }
   }
 
+  // ==================================================================
+  // z/OSMF providers (jobs / TSO / MVS console / APIML)
+  // ==================================================================
+
+  /** Register all z/OSMF-based providers. */
+  private registerZosmfProviders(): void {
+    this.loadConfig();
+
+    this.registerProvider({
+      id: 'job',
+      category: 'z/OS Job',
+      icon: 'fa fa-cogs',
+      prefixes: ['/job', '/jobs'],
+      order: 20,
+      canSearch: (q: string) => this.looksLikeJobFilter(q),
+      search: (q: string) => this.searchJobs(q),
+    });
+
+    this.registerProvider({
+      id: 'tso',
+      category: 'TSO Command',
+      icon: 'fa fa-terminal',
+      prefixes: ['/tso'],
+      order: 50,
+      suppressNoResults: true,
+      canSearch: (_q: string) => false,
+      search: (q: string) => {
+        if (!q) return of(this.buildHistoryResults('TSO Command', '/tso', 'tso', 'tso'));
+        return of([{
+          category: 'TSO Command' as QuickSearchResultCategory,
+          label: `TSO> ${q}`,
+          description: 'Press Enter to execute',
+          pendingExecution: true,
+          providerId: 'tso',
+          execute: () => this.submitTsoCommand(q),
+          actionMetadata: { type: 'execute-command' as const, data: { command: q, commandType: 'tso' } },
+          action: () => {}
+        }]);
+      },
+      getHistory: () => this.buildHistoryResults('TSO Command', '/tso', 'tso', 'tso'),
+      clearHistory: () => this.clearHistory('tso'),
+      removeHistoryItem: (cmd: string) => this.removeHistoryItem('tso', cmd),
+    });
+
+    this.registerProvider({
+      id: 'console',
+      category: 'MVS Console',
+      icon: 'fa fa-desktop',
+      prefixes: ['/mvs', '/console', '/cmd'],
+      order: 60,
+      suppressNoResults: true,
+      canSearch: (_q: string) => false,
+      search: (q: string) => {
+        if (!q) return of(this.buildHistoryResults('MVS Console', '/mvs', 'mvs', 'console'));
+        return of([{
+          category: 'MVS Console' as QuickSearchResultCategory,
+          label: `MVS> ${q}`,
+          description: 'Press Enter to execute',
+          pendingExecution: true,
+          providerId: 'console',
+          execute: () => this.submitConsoleCommand(q),
+          actionMetadata: { type: 'execute-command' as const, data: { command: q, commandType: 'mvs' } },
+          action: () => {}
+        }]);
+      },
+      getHistory: () => this.buildHistoryResults('MVS Console', '/mvs', 'mvs', 'console'),
+      clearHistory: () => this.clearHistory('mvs'),
+      removeHistoryItem: (cmd: string) => this.removeHistoryItem('mvs', cmd),
+    });
+
+    this.registerProvider({
+      id: 'api',
+      category: 'APIML Service',
+      icon: 'fa fa-cloud',
+      prefixes: ['/api', '/apiml'],
+      order: 70,
+      canSearch: (q: string) => this.behindGateway && this.looksLikeServiceName(q),
+      search: (q: string) => {
+        if (!this.behindGateway) {
+          this.logger.warn('Quick search: APIML service search requires the API ML gateway');
+          return of([]);
+        }
+        return this.searchApimlServices(q);
+      },
+    });
+  }
+
+  /**
+   * Load overridable settings from the desktop plugin config so the z/OSMF
+   * location is not hardcoded (zosmfServiceId, zosmfDirectBaseUrl).
+   */
+  private loadConfig(): void {
+    const uri = ZoweZLUX.uriBroker.pluginConfigForScopeUri(
+      ZoweZLUX.pluginManager.getDesktopPlugin(), 'instance', 'quickSearch', 'config.json'
+    );
+    this.http.get<any>(uri).pipe(catchError(() => of(null))).subscribe(resp => {
+      const data = resp?.contents || resp;
+      const id = data?.zosmfServiceId;
+      if (typeof id === 'string' && id.trim().length > 0) {
+        this.zosmfServiceId = id.trim();
+        this.logger.debug(`Quick search: using configured z/OSMF service id '${this.zosmfServiceId}'`);
+      }
+      const directBase = data?.zosmfDirectBaseUrl;
+      if (typeof directBase === 'string' && directBase.trim().length > 0) {
+        const trimmed = directBase.trim();
+        this.zosmfDirectBaseUrl = trimmed.endsWith('/') ? trimmed : trimmed + '/';
+        this.logger.debug(`Quick search: using configured direct z/OSMF base URL '${this.zosmfDirectBaseUrl}'`);
+      }
+    });
+  }
+
+  /**
+   * Compute the path to the API ML gateway root from the app-server's server
+   * root URI. Behind the gateway the app-server is registered under the 'zlux'
+   * service, so everything preceding that segment is the gateway root.
+   */
+  private deriveGatewayPrefix(serverRoot: string): string {
+    if (!serverRoot || serverRoot === '/') {
+      return '/';
+    }
+    const marker = '/zlux/';
+    const idx = serverRoot.indexOf(marker);
+    if (idx >= 0) {
+      return serverRoot.substring(0, idx) + '/';
+    }
+    return serverRoot.endsWith('/') ? serverRoot : serverRoot + '/';
+  }
+
+  /**
+   * Build a z/OSMF REST API URI. When behind the gateway the request routes
+   * through APIML; otherwise it is sent directly to z/OSMF via the app-server
+   * origin (or a configured base URL).
+   */
+  private zosmfApiUri(path: string): string {
+    if (this.behindGateway) {
+      return `${this.gatewayPrefix}${this.zosmfServiceId}/api/v1/zosmf/${path}`;
+    }
+    return `${this.zosmfDirectBaseUrl}zosmf/${path}`;
+  }
+
   // ------------------------------------------------------------------
-  // Helpers
+  // z/OS Jobs (via z/OSMF REST API)
+  // ------------------------------------------------------------------
+  private searchJobs(query: string): Observable<QuickSearchResult[]> {
+    const prefix = query.toUpperCase().replace(/[^A-Z0-9*]/g, '');
+    const uri = this.zosmfApiUri('restjobs/jobs');
+    const params = new HttpParams()
+      .set('prefix', prefix || '*')
+      .set('owner', '*')
+      .set('max-jobs', '20');
+    const headers = new HttpHeaders({
+      'Accept': 'application/json',
+      'X-CSRF-ZOSMF-HEADER': '*'
+    });
+
+    return this.http.get<any[]>(uri, { params, headers }).pipe(
+      map(jobs => {
+        if (!Array.isArray(jobs)) return [];
+        return jobs.map(job => ({
+          category: 'z/OS Job' as QuickSearchResultCategory,
+          label: `${job.jobname} (${job.jobid})`,
+          description: `Owner: ${job.owner} | Status: ${job.status || 'UNKNOWN'}`,
+          actionMetadata: {
+            type: 'launch-app' as const,
+            targetPluginId: 'org.zowe.explorer-jes',
+            data: { owner: job.owner, prefix: job.jobname, jobId: job.jobid },
+          },
+          action: () => this.openJobInJes(job)
+        }));
+      }),
+      catchError(err => {
+        this.logger.warn('Quick search: job search failed', err);
+        return of([]);
+      })
+    );
+  }
+
+  private openJobInJes(job: any): void {
+    const jesDef = this.resolvePlugin('org.zowe.explorer-jes');
+    if (jesDef) {
+      this.applicationManager.spawnApplication(jesDef as any, {
+        data: { owner: job.owner, prefix: job.jobname, jobId: job.jobid }
+      });
+    } else {
+      this.logger.warn('Quick search: JES Explorer not installed');
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // TSO Commands (via z/OSMF stateless REST API)
+  // ------------------------------------------------------------------
+  submitTsoCommand(cmd: string): Observable<QuickSearchResult[]> {
+    if (!cmd) return of([]);
+    const uri = this.zosmfApiUri('tsoApp/v1/tso');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'X-CSRF-ZOSMF-HEADER': '*'
+    });
+    const body = {
+      tsoCmd: cmd,
+      cmdState: 'stateless'
+    };
+
+    return this.http.put<any>(uri, body, { headers }).pipe(
+      map(resp => {
+        const lines: string[] = (resp?.cmdResponse || [])
+          .map((item: any) => item.message || '')
+          .filter((line: string) => line.trim().length > 0);
+        const output = lines.join('\n') || '(no output)';
+        return [{
+          category: 'TSO Command' as QuickSearchResultCategory,
+          label: `TSO> ${cmd}`,
+          description: lines.length > 0 ? lines[0] : '(no output)',
+          output: output,
+          actionMetadata: {
+            type: 'copy' as const,
+            text: output,
+          },
+          action: () => {
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(output);
+            }
+          }
+        }];
+      }),
+      catchError(err => {
+        this.logger.warn('Quick search: TSO command failed', err);
+        const errMsg = err?.error?.msgData?.[0]?.messageText
+          || err?.message
+          || 'Command failed';
+        return of([{
+          category: 'TSO Command' as QuickSearchResultCategory,
+          label: `TSO> ${cmd}`,
+          description: `Error: ${errMsg}`,
+          output: `Error: ${errMsg}`,
+          actionMetadata: { type: 'none' as const },
+          action: () => {}
+        }]);
+      }),
+      tap(results => {
+        this.setLastTsoResult(results, cmd);
+        this.addToHistory('tso', cmd);
+        if (!this.isVisible()) {
+          this.fireTsoNotification(cmd, results);
+        }
+      })
+    );
+  }
+
+  private fireTsoNotification(cmd: string, results: QuickSearchResult[]): void {
+    const nm = ZoweZLUX.notificationManager;
+    if (!nm) return;
+    const isError = results.length > 0 && results[0].output?.startsWith('Error:');
+    const title = isError ? 'TSO Command Failed' : 'TSO Command Complete';
+    const firstLine = results[0]?.description || cmd;
+    const message = `${cmd} -- ${firstLine}`;
+    nm.notify(nm.createNotification(title, message, 1, 'org.zowe.zlux.ng2desktop'));
+  }
+
+  // ------------------------------------------------------------------
+  // MVS Console Commands (via z/OSMF REST Console API)
+  // ------------------------------------------------------------------
+  submitConsoleCommand(cmd: string): Observable<QuickSearchResult[]> {
+    if (!cmd) return of([]);
+    const uri = this.zosmfApiUri('restconsoles/consoles/defcn');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'X-CSRF-ZOSMF-HEADER': '*'
+    });
+    const body = { cmd: cmd };
+
+    return this.http.put<any>(uri, body, { headers }).pipe(
+      map(resp => {
+        const raw = resp?.['cmd-response'] || '';
+        const output = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim() || '(no output)';
+        const firstLine = output.split('\n')[0];
+        return [{
+          category: 'MVS Console' as QuickSearchResultCategory,
+          label: `MVS> ${cmd}`,
+          description: firstLine,
+          output: output,
+          actionMetadata: {
+            type: 'copy' as const,
+            text: output,
+          },
+          action: () => {
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(output);
+            }
+          }
+        }];
+      }),
+      catchError(err => {
+        this.logger.warn('Quick search: MVS console command failed', err);
+        const errMsg = err?.error?.msgData?.[0]?.messageText
+          || err?.error?.message
+          || err?.message
+          || 'Command failed';
+        return of([{
+          category: 'MVS Console' as QuickSearchResultCategory,
+          label: `MVS> ${cmd}`,
+          description: `Error: ${errMsg}`,
+          output: `Error: ${errMsg}`,
+          actionMetadata: { type: 'none' as const },
+          action: () => {}
+        }]);
+      }),
+      tap(results => {
+        this.addToHistory('mvs', cmd);
+        if (!this.isVisible()) {
+          this.fireConsoleNotification(cmd, results);
+        }
+      })
+    );
+  }
+
+  private fireConsoleNotification(cmd: string, results: QuickSearchResult[]): void {
+    const nm = ZoweZLUX.notificationManager;
+    if (!nm) return;
+    const isError = results.length > 0 && results[0].output?.startsWith('Error:');
+    const title = isError ? 'MVS Console Command Failed' : 'MVS Console Command Complete';
+    const firstLine = results[0]?.description || cmd;
+    const message = `${cmd} -- ${firstLine}`;
+    nm.notify(nm.createNotification(title, message, 1, 'org.zowe.zlux.ng2desktop'));
+  }
+
+  // ------------------------------------------------------------------
+  // APIML Services (via API Catalog gateway)
+  // ------------------------------------------------------------------
+  private searchApimlServices(query: string): Observable<QuickSearchResult[]> {
+    const gatewayUri = `${this.gatewayPrefix}apicatalog/api/v1/containers`;
+    return this.http.get<any[]>(gatewayUri).pipe(
+      map(containers => {
+        if (!Array.isArray(containers)) return [];
+        const q = query.toLowerCase();
+        const results: QuickSearchResult[] = [];
+        for (const container of containers) {
+          const services = container.services || [];
+          for (const svc of services) {
+            const id = (svc.serviceId || '').toLowerCase();
+            const title = (svc.title || '').toLowerCase();
+            if (id.includes(q) || title.includes(q)) {
+              results.push({
+                category: 'APIML Service' as QuickSearchResultCategory,
+                label: svc.title || svc.serviceId,
+                description: `Service: ${svc.serviceId} | Status: ${svc.status || 'N/A'}`,
+                actionMetadata: {
+                  type: 'launch-app' as const,
+                  targetPluginId: 'org.zowe.api.catalog',
+                  data: { serviceId: svc.serviceId || svc.id },
+                },
+                action: () => this.openApiCatalog(svc)
+              });
+            }
+          }
+        }
+        return results.slice(0, 10);
+      }),
+      catchError(err => {
+        this.logger.warn('Quick search: APIML service search failed', err);
+        return of([]);
+      })
+    );
+  }
+
+  private openApiCatalog(service: any): void {
+    const catalogDef = this.resolvePlugin('org.zowe.api.catalog');
+    if (catalogDef) {
+      this.applicationManager.spawnApplication(catalogDef as any, {
+        data: { serviceId: service.serviceId || service.id }
+      });
+    } else {
+      this.logger.info('Quick search: API Catalog not installed');
+    }
+  }
+
+  // ==================================================================
+  // Command history persistence (via the Zowe config dataservice)
+  // ==================================================================
+
+  /** Load persisted history from the Zowe config dataservice. */
+  loadHistory(): void {
+    const uri = this.historyConfigUri();
+    this.http.get<any>(uri).pipe(
+      catchError(() => of(null))
+    ).subscribe(resp => {
+      const data = resp?.contents || resp;
+      if (data) {
+        if (Array.isArray(data.tso)) {
+          this.tsoHistory = data.tso.slice(0, this.MAX_HISTORY);
+        }
+        if (Array.isArray(data.mvs)) {
+          this.mvsHistory = data.mvs.slice(0, this.MAX_HISTORY);
+        }
+      }
+      this.logger.debug('Quick search: command history loaded');
+    });
+  }
+
+  /** Add a command to the front of the named history list. */
+  addToHistory(category: HistoryCategory, cmd: string): void {
+    const history = this.getHistoryArray(category);
+    const idx = history.indexOf(cmd);
+    if (idx !== -1) {
+      history.splice(idx, 1);
+    }
+    history.unshift(cmd);
+    if (history.length > this.MAX_HISTORY) {
+      history.length = this.MAX_HISTORY;
+    }
+    this.scheduleSaveHistory();
+  }
+
+  /** Get the raw history strings for a category. */
+  getHistory(category: HistoryCategory): string[] {
+    return this.getHistoryArray(category);
+  }
+
+  /** Clear all history for a category. */
+  clearHistory(category: HistoryCategory): void {
+    this.getHistoryArray(category).length = 0;
+    this.scheduleSaveHistory();
+  }
+
+  /** Remove a single item from a category's history. */
+  removeHistoryItem(category: HistoryCategory, cmd: string): void {
+    const history = this.getHistoryArray(category);
+    const idx = history.indexOf(cmd);
+    if (idx !== -1) {
+      history.splice(idx, 1);
+    }
+    this.scheduleSaveHistory();
+  }
+
+  /**
+   * Build QuickSearchResult[] for the history of a given category.
+   * Used by providers to return history when a bare prefix is typed.
+   */
+  buildHistoryResults(category: string, prefix: string, historyCategory: HistoryCategory, providerId: string): QuickSearchResult[] {
+    const history = this.getHistoryArray(historyCategory);
+    const cat = category as QuickSearchResultCategory;
+    return history.map(cmd => ({
+      category: cat,
+      label: prefix + ' ' + cmd,
+      description: 'Recent command',
+      historyItem: true,
+      historyCommand: cmd,
+      providerId: providerId,
+      actionMetadata: { type: 'none' as const },
+      action: () => {}
+    }));
+  }
+
+  private getHistoryArray(category: HistoryCategory): string[] {
+    return category === 'tso' ? this.tsoHistory : this.mvsHistory;
+  }
+
+  private historyConfigUri(): string {
+    return ZoweZLUX.uriBroker.pluginConfigForScopeUri(
+      ZoweZLUX.pluginManager.getDesktopPlugin(), 'user', 'quickSearch', 'history.json'
+    );
+  }
+
+  private scheduleSaveHistory(): void {
+    if (this.historySaveDebounce !== null) {
+      clearTimeout(this.historySaveDebounce);
+    }
+    this.historySaveDebounce = setTimeout(() => {
+      this.historySaveDebounce = null;
+      this.saveHistory();
+    }, 1000);
+  }
+
+  private saveHistory(): void {
+    const uri = this.historyConfigUri();
+    const payload = {
+      _objectType: 'org.zowe.zlux.ng2desktop.quickSearch.history',
+      _metaDataVersion: '1.0.0',
+      tso: this.tsoHistory,
+      mvs: this.mvsHistory
+    };
+    this.http.put(uri, payload).pipe(
+      catchError(err => {
+        this.logger.warn('Quick search: failed to save command history', err);
+        return of(null);
+      })
+    ).subscribe(() => {
+      this.logger.debug('Quick search: command history saved');
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Heuristics
   // ------------------------------------------------------------------
   private looksLikeDataset(q: string): boolean {
     // Dataset names are uppercase, contain dots, letters, digits
-    // Match patterns like "SYS1.PARM*", "USER.DATA", "IBMUSER.*"
     return /^[A-Z$#@][A-Z0-9$#@.*()\-]{1,43}$/i.test(q) && q.includes('.');
+  }
+
+  private looksLikeJobFilter(q: string): boolean {
+    return /^[A-Z0-9*?]{1,8}$/i.test(q) && !q.includes('.');
+  }
+
+  private looksLikeServiceName(q: string): boolean {
+    return !q.startsWith('/') && /^[A-Za-z][A-Za-z0-9._-]*$/.test(q);
   }
 }
 

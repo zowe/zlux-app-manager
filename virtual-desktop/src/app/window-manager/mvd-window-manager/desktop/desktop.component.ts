@@ -12,11 +12,8 @@
 
 import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
 import { ContextMenuItem } from 'pluginlib/inject-resources';
 import { WindowManagerService } from '../shared/window-manager.service';
-import { KeybindingService } from '../shared/keybinding.service';
-import { KeyCode } from '../shared/keycode-enum';
 import { BaseLogger } from 'virtual-desktop-logger';
 import { AuthenticationManager } from '../../../authentication-manager/authentication-manager.service';
 import { L10nTranslationService } from 'angular-l10n';
@@ -36,7 +33,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface, OnInit
   public isPersonalizationPanelVisible: boolean;
   public isQuickSearchVisible: boolean = false;
   private readonly log: ZLUX.ComponentLogger = BaseLogger;
-  private keyDownSub: Subscription;
+  private quickSearchShortcutHandler: (event: KeyboardEvent) => void;
 
   /* Default theme is a dark grey, with white text, on medium size desktop */
   public _theme: DesktopTheme = {
@@ -62,8 +59,7 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface, OnInit
     private authenticationService: AuthenticationManager,
     private http: HttpClient,
     private injector: Injector,
-    private translation: L10nTranslationService,
-    private keybindingService: KeybindingService
+    private translation: L10nTranslationService
   ) {
     // Workaround for AoT problem with namespaces (see angular/angular#15613)
     this.authenticationManager = this.injector.get(MVDHosting.Tokens.AuthenticationManagerToken);
@@ -88,23 +84,21 @@ export class DesktopComponent implements MVDHosting.LoginActionInterface, OnInit
     this.windowManager.contextMenuRequested.subscribe(menuDef => {
       this.contextMenuDef = menuDef;
     });
-    this.keybindingService.registerKeyDownEvent();
-    this.keyDownSub = this.keybindingService.keyDownEvent.subscribe((event: KeyboardEvent) => {
+    this.quickSearchShortcutHandler = (event: KeyboardEvent) => {
       if (!this.authenticationManager.getUsername()) {
         return;
       }
-      if (event.which === KeyCode.SPACE || event.code === 'Space') {
+      if (event.shiftKey && event.code === 'Space' && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
         event.stopPropagation();
         this.isQuickSearchVisible = !this.isQuickSearchVisible;
       }
-    });
+    };
+    document.addEventListener('keydown', this.quickSearchShortcutHandler, true);
   }
 
   ngOnDestroy(): void {
-    if (this.keyDownSub) {
-      this.keyDownSub.unsubscribe();
-    }
+    document.removeEventListener('keydown', this.quickSearchShortcutHandler, true);
   }
 
   onLogin(username: string, plugins: ZLUX.Plugin[]): boolean {

@@ -38,8 +38,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { IncludeExternalCssComponent } from 'app/shared/include-external-css.component';
 import { QuickSearchLauncherComponent } from './quick-search/quick-search-launcher.component';
 import { QuickSearchService } from './quick-search/quick-search.service';
-import { QuickSearchHistoryService } from './quick-search/quick-search-history.service';
-import { QuickSearchZosmfService } from './quick-search/quick-search-zosmf.service';
 
 
 @NgModule({
@@ -81,9 +79,7 @@ import { QuickSearchZosmfService } from './quick-search/quick-search-zosmf.servi
     { provide: MVDHosting.Tokens.ThemeEmitterToken, useExisting: ThemeEmitterService },
     { provide: MVDHosting.Tokens.QuickSearchToken, useExisting: QuickSearchService },
     KeybindingService,
-    QuickSearchHistoryService,
-    QuickSearchService,
-    QuickSearchZosmfService
+    QuickSearchService
   ]
 })
 export class WindowManagerModule {
