@@ -44,6 +44,14 @@ interface Context {
       }
     }
   };
+  tlsOptions?: {
+    ca?: Buffer[] | string[];
+    key?: Buffer[] | string[];
+    cert?: Buffer[] | string[];
+    rejectUnauthorized?: boolean;
+    ciphers?: string;
+    [key: string]: any;
+  };
   storage: any;
   logger: {
     info: (message: string) => void;
@@ -73,6 +81,7 @@ class ProxyDataService {
   private readonly startPort: number;
   private readonly endPort: number;
   private readonly keysAndCerts: KeysAndCerts;
+  private readonly tlsAgent: https.Agent;
   private readonly portRangeDefault = { start: 8551, end: 8580 };
   private readonly proxyServerByPort = new Map<number, Proxy>();
   private portRangeSource: string = 'default';
@@ -80,6 +89,7 @@ class ProxyDataService {
   constructor(context: Context) {
     this.context = context;
     this.keysAndCerts = this.getServerKeyAndCert();
+    this.tlsAgent = this.createTlsAgent();
     const { start, end } = this.getPortRange();
     this.startPort = start;
     this.endPort = end;
@@ -168,7 +178,8 @@ class ProxyDataService {
   private makeProxyOptions(url: string, hostname: string, proxyPort: number): httpProxy.ServerOptions {
     const baseOptions: httpProxy.ServerOptions = {
       target: 'dummy target',
-      secure: false,
+      secure: true,
+      agent: this.tlsAgent,
       changeOrigin: true,
       autoRewrite: true,
       followRedirects: true,
@@ -189,39 +200,31 @@ class ProxyDataService {
     this.context.logger.info(`about to create proxy for ${url}`);
     const proxyOptions = this.makeProxyOptions(url, hostname, port);
     const proxy = httpProxy.createProxyServer(proxyOptions);
-    proxy.on('proxyRes', (proxyRes: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) => this.handleProxyRes(proxyRes, req, res));
+    proxy.on('proxyRes', (proxyRes: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) => this.handleProxyRes(proxyRes, req, res, hostname));
     proxy.on('error', (err: Error, req: http.IncomingMessage, res: http.ServerResponse) => this.handleProxyError(err, req, res));
     proxy.on('econnreset', (err: Error, req: http.IncomingMessage, res: http.ServerResponse) => this.handleProxyEconnreset(err, req, res));
     return proxy.listen(port);
   }
 
-  private handleProxyRes(proxyRes: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) {
-    if (proxyRes.headers[X_FRAME_OPTIONS]) {
-      proxyRes.headers[X_FRAME_OPTIONS] = 'allowall';
-    }
+  private handleProxyRes(proxyRes: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse, hostname: string) {
+    delete proxyRes.headers[X_FRAME_OPTIONS];
     if (proxyRes.headers[CONTENT_SECURITY_POLICY]) {
       const cspHeaders = proxyRes.headers[CONTENT_SECURITY_POLICY];
-      proxyRes.headers[CONTENT_SECURITY_POLICY] = this.fixContentSecurityPolicyHeaders(cspHeaders);
+      proxyRes.headers[CONTENT_SECURITY_POLICY] = this.fixContentSecurityPolicyHeaders(cspHeaders, hostname);
     }
     this.context.logger.debug(`Modified Response headers from target ${JSON.stringify(proxyRes.headers, null, 2)}`);
   }
 
-  private fixContentSecurityPolicyHeaders(cspHeaders: string | string[]): string | string[] {
+  private fixContentSecurityPolicyHeaders(cspHeaders: string | string[], hostname: string): string | string[] {
     if (Array.isArray(cspHeaders)) {
-      return cspHeaders.map(header => this.fixContentSecurityPolicyHeader(header));
+      return cspHeaders.map(header => this.fixContentSecurityPolicyHeader(header, hostname));
     }
-    return this.fixContentSecurityPolicyHeader(cspHeaders);
+    return this.fixContentSecurityPolicyHeader(cspHeaders, hostname);
   }
 
-  private fixContentSecurityPolicyHeader(header: string): string {
+  private fixContentSecurityPolicyHeader(header: string, hostname: string): string {
     const csp = CSP.parse(header);
-    const directivesToRemove = [
-      'child-src',
-      'default-src',
-      'frame-src',
-      'frame-ancestors',
-    ];
-    directivesToRemove.forEach(directive => delete csp[directive])
+    csp['frame-ancestors'] = `https://${hostname}:*`;
     return CSP.stringify(csp);
   }
 
@@ -239,7 +242,7 @@ class ProxyDataService {
     return new Promise((resolve, reject) => {
       const isTLS = url.startsWith('https://');
       if (isTLS) {
-        https.get(url, (res: http.IncomingMessage) => this.processCheckRequest(resolve, reject, res));
+        https.get(url, { agent: this.tlsAgent }, (res: http.IncomingMessage) => this.processCheckRequest(resolve, reject, res));
       } else {
         http.get(url, (res: http.IncomingMessage) => this.processCheckRequest(resolve, reject, res));
       }
@@ -275,6 +278,22 @@ class ProxyDataService {
       keys = [];
     }
     return { keys, certs };
+  }
+
+  private createTlsAgent(): https.Agent {
+    const options: https.AgentOptions = {};
+    if (this.context.tlsOptions) {
+      if (this.context.tlsOptions.ca) {
+        options.ca = this.context.tlsOptions.ca;
+      }
+      if (this.context.tlsOptions.ciphers) {
+        options.ciphers = this.context.tlsOptions.ciphers;
+      }
+    }
+    if (!options.ca && this.keysAndCerts.certs.length > 0) {
+      options.ca = this.keysAndCerts.certs;
+    }
+    return new https.Agent(options);
   }
 
   getPortRange(): { start: number, end: number } {
