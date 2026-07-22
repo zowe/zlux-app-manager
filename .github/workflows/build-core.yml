@@ -1,5 +1,9 @@
 name: Trigger ZLUX Core Build
 
+permissions:
+  statuses: write
+  contents: read
+
 on:
   pull_request:
     types: [opened, reopened, synchronize]
