@@ -2,7 +2,7 @@ name: Trigger ZLUX Core Build
 
 permissions:
   statuses: write
-  contents: read
+  contents: write
 
 on:
   pull_request:
