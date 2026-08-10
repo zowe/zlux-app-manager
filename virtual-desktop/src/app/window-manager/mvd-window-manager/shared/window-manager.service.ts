@@ -73,8 +73,9 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
    */
   private lastWindowPositionMap: Map<String, Map<MVDWindowManagement.WindowId, WindowPosition>>;
 
-  contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]}>;
+  contextMenuRequested: Subject<{xPos: number, yPos: number, items: ContextMenuItem[]} | null>;
   readonly windowDeregisterEmitter: Subject<MVDWindowManagement.WindowId>;
+  readonly windowCreated: Subject<void>;
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   private viewportManager: MVDHosting.ViewportManagerInterface;
   private pluginManager: MVDHosting.PluginManagerInterface;
@@ -105,6 +106,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     this.lastWindowPositionMap = new Map();
     this.contextMenuRequested = new Subject();
     this.windowDeregisterEmitter = new Subject();
+    this.windowCreated = new Subject();
     ZoweZLUX.dispatcher.attachWindowManager({
       "maximize" : (id: MVDWindowManagement.WindowId) => {
         this.maximize(id);
@@ -557,6 +559,7 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     /* Default window actions */
     this.setWindowTitle(windowId, pluginImpl.defaultWindowTitle);
     this.requestWindowFocus(windowId);
+    this.windowCreated.next();
 
     return windowId;
   }
@@ -791,6 +794,15 @@ export class WindowManagerService implements MVDWindowManagement.WindowManagerSe
     } else {
       return false;
     }
+  }
+
+  clearFocusedWindow(): void {
+    this.focusedWindow = null;
+    this.setDesktopTitle();
+  }
+
+  hasFocusedWindow(): boolean {
+    return this.focusedWindow !== null;
   }
 
   getWindowEvents(windowId: MVDWindowManagement.WindowId): LocalWindowEvents {

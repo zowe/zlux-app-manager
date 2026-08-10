@@ -20,6 +20,7 @@ import { LaunchbarIconComponent } from './launchbar-icon/launchbar-icon.componen
 import { LaunchbarMenuComponent } from './launchbar-menu/launchbar-menu.component';
 import { LaunchbarWidgetComponent } from './launchbar-widget/launchbar-widget.component';
 import { LaunchbarInstanceViewComponent } from './launchbar-instance-view/launchbar-instance-view.component';
+import { LaunchbarFolderIconComponent } from './launchbar-folder-icon/launchbar-folder-icon.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarComponent } from './shared/snackbar/snackbar.component'
 import { SortArray } from './shared/sort-array'
@@ -39,6 +40,7 @@ import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
     LaunchbarMenuComponent,
     LaunchbarWidgetComponent,
     LaunchbarInstanceViewComponent,
+    LaunchbarFolderIconComponent,
     SnackbarComponent,
     SortArray
   ],
