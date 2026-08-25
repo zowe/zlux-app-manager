@@ -57,7 +57,7 @@ class BrowserPreferencesDataservice {
           // Reject any cookie name that is not an explicitly allowed preference. This blocks
           // overwriting session, auth, or CSRF cookies on the zLUX origin.
           if (!ALLOWED_PREFERENCE_COOKIES.has(key)) {
-            context.logger.warn('ZWED0018W', key); /*context.logger.warn('Rejected browser preference cookie, name=' + key);*/
+            context.logger.warn('ZWED0182W', key); /*context.logger.warn('Rejected browser preference cookie, name=' + key);*/
             continue;
           }
 
@@ -68,7 +68,7 @@ class BrowserPreferencesDataservice {
           // If the key is there but the value is null: clear the cookie by making it expire in the past
           if (value) {
             if (typeof value !== 'string' || value.length > MAX_PREFERENCE_VALUE_LENGTH) {
-              context.logger.warn('ZWED0019W', key); /*context.logger.warn('Rejected browser preference value, name=' + key);*/
+              context.logger.warn('ZWED0183W', key); /*context.logger.warn('Rejected browser preference value, name=' + key);*/
               continue;
             }
             expirationDate.setFullYear(expirationDate.getFullYear() + 100);
