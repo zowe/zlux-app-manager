@@ -1,5 +1,5 @@
 {
     "ZWED0017I":"Saw request, method=%s",
-    "ZWED0181W":"Rejected browser preference cookie, name=%s",
-    "ZWED0182W":"Rejected browser preference value, name=%s"
+    "ZWED0182W":"Rejected browser preference cookie, name=%s",
+    "ZWED0183W":"Rejected browser preference value, name=%s"
 }
