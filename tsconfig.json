@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES2017",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "paths": {
+      "@angular/core": ["./test/mocks/angular-core"]
+    }
+  },
+  "ts-node": {
+    "transpileOnly": true
+  }
+}
