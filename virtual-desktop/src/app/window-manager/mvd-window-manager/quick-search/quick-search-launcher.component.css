@@ -1,0 +1,421 @@
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/
+
+/* --------------------------------------------------------
+   Quick Search Launcher
+   -------------------------------------------------------- */
+
+.quick-search-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 99999;
+  animation: quickSearchFadeIn 0.15s ease-out;
+}
+
+.quick-search-panel {
+  position: absolute;
+  width: 640px;
+  min-width: 320px;
+  min-height: 60px;
+  background: #2b2b2e;
+  border-radius: 12px;
+  box-shadow: 0 16px 70px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: quickSearchSlideIn 0.18s ease-out;
+  cursor: grab;
+}
+
+/* --- Input row --- */
+.quick-search-input-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #323236;
+  border-radius: 12px 12px 0 0;
+  cursor: grab;
+}
+
+.quick-search-input-container {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.quick-search-search-icon {
+  font-size: 18px;
+  color: #aaa;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.quick-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f0f0f0;
+  font-size: 18px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  caret-color: #58a6ff;
+  cursor: text;
+}
+
+.quick-search-input.has-query {
+  flex: 0 0 auto;
+}
+
+.quick-search-input::placeholder {
+  color: #777;
+  font-size: 15px;
+}
+
+.quick-search-ghost-text {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #555;
+  font-size: 18px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.quick-search-ghost-typed {
+  visibility: hidden;
+}
+
+.quick-search-shortcut-hint {
+  color: #666;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.quick-search-spinner {
+  font-size: 16px;
+  color: #58a6ff;
+  margin-left: 8px;
+}
+
+/* --- Results container --- */
+.quick-search-results {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #555 transparent;
+}
+
+.quick-search-results::-webkit-scrollbar {
+  width: 6px;
+}
+
+.quick-search-results::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.quick-search-results::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+
+/* --- Category groups --- */
+.quick-search-category-group {
+  padding: 4px 0;
+}
+
+.quick-search-category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px 4px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #888;
+  user-select: none;
+}
+
+.quick-search-category-header i {
+  font-size: 12px;
+}
+
+.quick-search-clear-all {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: #666;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.quick-search-clear-all:hover {
+  color: #ccc;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.quick-search-history-remove {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #555;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.quick-search-result-item:hover .quick-search-history-remove,
+.quick-search-result-item.active .quick-search-history-remove {
+  opacity: 1;
+}
+
+.quick-search-history-remove:hover {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.12);
+}
+
+.quick-search-result-item.active .quick-search-history-remove {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.quick-search-result-item.active .quick-search-history-remove:hover {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.2);
+}
+
+/* --- Individual result --- */
+.quick-search-result-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.08s ease;
+  gap: 10px;
+}
+
+.quick-search-result-item:hover,
+.quick-search-result-item.active {
+  background: #3a3a3f;
+}
+
+.quick-search-result-item.active {
+  background: #0066d6;
+}
+
+.quick-search-result-icon-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.quick-search-result-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #aaa;
+  flex-shrink: 0;
+}
+
+.quick-search-result-item.active .quick-search-result-icon {
+  color: #fff;
+}
+
+.quick-search-result-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.quick-search-result-label {
+  font-size: 14px;
+  color: #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quick-search-result-item.active .quick-search-result-label {
+  color: #fff;
+}
+
+.quick-search-result-desc {
+  font-size: 11px;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.quick-search-result-item.active .quick-search-result-desc {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* --- Command output --- */
+.quick-search-tso-output {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 11px;
+  color: #c8d6e5;
+  background: #1e1e22;
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-top: 4px;
+  white-space: pre;
+  overflow-x: auto;
+  overflow-y: auto;
+  line-height: 1.4;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  tab-size: 8;
+}
+
+.quick-search-result-item.active .quick-search-tso-output {
+  background: rgba(0, 0, 0, 0.3);
+  color: #e8eef5;
+}
+
+/* --- No results --- */
+.quick-search-no-results {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 16px;
+  color: #888;
+  font-size: 13px;
+  justify-content: center;
+}
+
+/* --- Footer hints --- */
+.quick-search-footer {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  padding: 8px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #2b2b2e;
+}
+
+.quick-search-footer span {
+  font-size: 11px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* --- Resize handles --- */
+.quick-search-resize-handle {
+  position: absolute;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  z-index: 1;
+}
+
+.quick-search-resize-br {
+  right: 0;
+  cursor: nwse-resize;
+}
+
+.quick-search-resize-bl {
+  left: 0;
+  cursor: nesw-resize;
+}
+
+.quick-search-resize-br::after,
+.quick-search-resize-bl::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  width: 8px;
+  height: 8px;
+}
+
+.quick-search-resize-br::after {
+  right: 3px;
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.quick-search-resize-bl::after {
+  left: 3px;
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.quick-search-panel.is-dragging,
+.quick-search-panel.is-resizing {
+  user-select: none;
+  transition: none;
+}
+
+.quick-search-panel.is-dragging {
+  cursor: grabbing;
+}
+
+kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: inherit;
+  color: #aaa;
+  background: #3a3a3f;
+  border: 1px solid #555;
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
+/* --- Animations --- */
+@keyframes quickSearchFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes quickSearchSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/
