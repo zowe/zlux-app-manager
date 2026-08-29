@@ -1,5 +1,3 @@
-
-
 /*
   This program and the accompanying materials are
   made available under the terms of the Eclipse Public License v2.0 which accompanies
@@ -62,6 +60,7 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   private info: any[];
   private applicationManager: MVDHosting.ApplicationManagerInterface;
   public notifications: any[];
+  public zoweVersion: string | null = null;
 
   /* I18n strings */
 
@@ -149,8 +148,18 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
 
   ngOnInit(): void {
     this.date = new Date();
-
+    this.setZoweVersion();
     interval(1000).subscribe(() => this.date = new Date());
+  }
+
+  private setZoweVersion(): void {
+    ZoweZLUX.serverMetadata.getZoweVersion()
+      .then((version: string) => {
+        this.zoweVersion = version ? version : null;
+      })
+      .catch(() => {
+        this.zoweVersion = null;
+      });
   }
 
   getUsername(): string | null {
@@ -158,7 +167,11 @@ export class LaunchbarWidgetComponent implements MVDHosting.ZoweNotificationWatc
   }
 
   getPluginVersion(): string | null {
-    return "v. " + this.plugin.version;
+    return 'v. ' + this.plugin.version;
+  }
+
+  getZoweVersion(): string | null {
+    return this.zoweVersion ? `Zowe v. ${this.zoweVersion}` : null;
   }
 
   logout(): void {
