@@ -30,6 +30,7 @@ export class IFramePluginComponent implements OnInit {
   iframeId: string;
   instanceId: number = -1;
   frameSource: any;
+  frameOrigin: string = '';
   responses: any = {};
   DEFAULT_CLOSE_TIMEOUT: number = 5000;
   dragOn = false;
@@ -96,7 +97,26 @@ export class IFramePluginComponent implements OnInit {
       key: -1,
       originCall: originCall,
       instanceId: this.instanceId
-    }, '*')
+    }, this.frameOrigin)
+  }
+
+  /**
+   * The only trustworthy way to identify "the window this component's own iframe points at" is to
+   * look up that iframe by its own DOM id and compare its contentWindow, since a Window reference
+   * (message.source) cannot be spoofed by a third party. Some remote-host plugins host their real
+   * adapter in a nested child iframe, so that child's window is also accepted.
+   */
+  private getOwnIframeWindow(): Window | null {
+    const iframe = document.getElementById(this.iframeId) as HTMLIFrameElement | null;
+    return iframe ? iframe.contentWindow : null;
+  }
+
+  private isMessageFromOwnIframe(message: any): boolean {
+    const ownWindow = this.getOwnIframeWindow();
+    if (!ownWindow || !message.source) {
+      return false;
+    }
+    return message.source === ownWindow || message.source.parent === ownWindow;
   }
 
   private registerWindowEvents() {
@@ -142,6 +162,10 @@ export class IFramePluginComponent implements OnInit {
       || message.data.request.instanceId === undefined) {
       return;
     }
+    if (!this.isMessageFromOwnIframe(message)) {
+      this.logger.warn("ZWED5324W", this.iframeId, message.origin); //this.logger.warn(`Rejected postMessage for iframe ${this.iframeId} not originating from its own contentWindow, origin=${message.origin}`);
+      return;
+    }
     let data: any = message.data;
     let key: number = message.data.key;
     let fnString: string = data.request.function;
@@ -149,6 +173,7 @@ export class IFramePluginComponent implements OnInit {
     if (split[0] === 'registerAdapterInstance' && this.instanceId == -1) {
       this.instanceId = data.request.instanceId;
       this.frameSource = message.source;
+      this.frameOrigin = message.origin;
       try {
         this.frameSource.postMessage({
           key: -1,
@@ -157,7 +182,7 @@ export class IFramePluginComponent implements OnInit {
             launchMetadata: this.launchMetadata
           },
           instanceId: this.instanceId
-        }, '*')
+        }, this.frameOrigin)
       } catch (e) {
         this.frameSource.postMessage({
           key: -1,
@@ -167,7 +192,7 @@ export class IFramePluginComponent implements OnInit {
           },
           instanceId: this.instanceId,
           error: 'Unable to parse plugin definition'
-        }, '*');
+        }, this.frameOrigin);
         this.logger.warn("ZWED5172W", e); //this.logger.warn('Unable to parse plugin definition.  Error: ', e);
       }
       this.windowEvents.minimized.subscribe(() => {
@@ -208,14 +233,14 @@ export class IFramePluginComponent implements OnInit {
       });
       return;
     }
-    if (data.request.instanceId === this.instanceId) {
+    if (data.request.instanceId === this.instanceId && message.source === this.frameSource) {
       this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
         message.source.postMessage({
           key: key,
           value: res,
           originCall: data.request.function,
           instanceId: data.request.instanceId
-        }, '*');
+        }, this.frameOrigin);
       });
     }
     return;
@@ -246,7 +271,7 @@ export class IFramePluginComponent implements OnInit {
     return (objCopy === undefined) ? undefined : objCopy;
   }
 
-  private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>, type: string) {
+  private addActionsToContextMenu(key: number, source: any, origin: string, itemsArray: Array<any>, type: string) {
     try {
       let copy = JSON.parse(JSON.stringify(itemsArray));
       for (let i = 0; i < copy.length; i++) {
@@ -256,7 +281,7 @@ export class IFramePluginComponent implements OnInit {
             originCall: type + '.spawnContextMenu',
             instanceId: this.instanceId,
             contextMenuItemIndex: i
-          }, '*')
+          }, origin)
         }
       }
       return copy;
@@ -277,7 +302,7 @@ export class IFramePluginComponent implements OnInit {
         fnRet = fn();
       } else {
         if (fnString == 'windowActions.spawnContextMenu' && Array.isArray(args[2])) {
-          args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2], 'windowActions')
+          args[2] = this.addActionsToContextMenu(message.data.key, message.source, message.origin, args[2], 'windowActions')
         }
         fnRet = fn(...args);
       }
@@ -306,7 +331,7 @@ export class IFramePluginComponent implements OnInit {
               key: message.data.key,
               originCall: 'viewportEvents.callCloseHandler',
               instanceId: that.instanceId
-            }, '*')
+            }, message.origin)
             setTimeout(() => {
               resolve();
             }, that.DEFAULT_CLOSE_TIMEOUT)
@@ -314,7 +339,7 @@ export class IFramePluginComponent implements OnInit {
         }
         return fn(...args);
       } else if (fnString == 'viewportEvents.spawnContextMenu' && Array.isArray(args[2])) {
-        args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2], 'viewportEvents');
+        args[2] = this.addActionsToContextMenu(message.data.key, message.source, message.origin, args[2], 'viewportEvents');
         return fn(...args);
       }
       return undefined;
@@ -335,8 +360,8 @@ export class IFramePluginComponent implements OnInit {
           originCall: 'handleMessageAdded',
           notification: notification,
           instanceId: instanceId
-        }, '*')
-      } catch (e) { /* TODO: Every once in a while, message.source won't exist after app2app. 
+        }, message.origin)
+      } catch (e) { /* TODO: Every once in a while, message.source won't exist after app2app.
         This could be a timing issue with the echoes or at least, doesn't seem to affect app2app. */
         this.logger.warn("ZWED5199W", 'handleMessageAdded'); //this.logger.warn("Attempted to postMessage for type %s without source", e);
       }
@@ -348,8 +373,8 @@ export class IFramePluginComponent implements OnInit {
           originCall: 'handleMessageRemoved',
           notificationId: notificationId,
           instanceId: instanceId
-        }, '*')
-      } catch (e) { /* TODO: Every once in a while, message.source won't exist after app2app. 
+        }, message.origin)
+      } catch (e) { /* TODO: Every once in a while, message.source won't exist after app2app.
         This could be a timing issue with the echoes or at least, doesn't seem to affect app2app. */
         this.logger.warn("ZWED5199W", 'handleMessageRemoved'); //this.logger.warn("Attempted to postMessage for type %s without source", e);
       }
