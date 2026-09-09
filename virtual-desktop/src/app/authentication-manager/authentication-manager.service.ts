@@ -203,7 +203,7 @@ export class AuthenticationManager {
 
   private performPostLoginActions(launchAutoSaved?: boolean): Observable<any> {
     return new Observable((observer)=> {
-      this.pluginManager.loadApplicationPluginDefinitions().then((pluginDefs:MVDHosting.DesktopPluginDefinition[])=> {
+      this.pluginManager.loadApplicationPluginDefinitions(true).then((pluginDefs:MVDHosting.DesktopPluginDefinition[])=> {
         let plugins = pluginDefs.map(plugin => plugin.getBasePlugin());
         if (this.username != null) {
           for (let i = 0; i < this.postLoginActions.length; i++) {
