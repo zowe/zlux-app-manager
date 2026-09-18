@@ -4,6 +4,7 @@ All notable changes to the Zlux App Manager will be documented in this file.
 ## `3.6.0`
 - Security: Removed web-browser-app (org.zowe.zlux.ng2desktop.webbrowser) to address vulnerability in its proxy service.
 - Security: Validated postMessage sender identity and origin in the iframe plugin bridge (IFramePluginComponent) to prevent an arbitrary cross-origin window from invoking ZoweZLUX APIs.
+- Security: The browser-preferences dataservice now only sets an allowlist of preference cookies (language and locale). Preference cookies are now set with `secure` (over HTTPS) and `sameSite=strict`, and oversized values are rejected. ([#729](https://github.com/zowe/zlux-app-manager/pull/729))
 
 ## `3.5.0`
 - Enhancement: i18n functionality from the Zowe v2 Desktop has been added to v3. ([#684](https://github.com/zowe/zlux-app-manager/pull/684))
