@@ -33,7 +33,10 @@ module.exports = {
     },
     fallback: {
       fs: false,
-      os: false
+      os: false,
+      // zlux-shared's logger requires 'util' only when running under node; the
+      // browser bundle must not pull in a polyfill for it.
+      util: false
     }
   },
   "resolveLoader": {
