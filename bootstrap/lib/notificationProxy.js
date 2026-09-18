@@ -46,24 +46,18 @@ exports.adminNotificationWebsocketRouter = function(context) {
       router.post('/write', function(req, res) {
         if (context.plugin.server.config.user.dataserviceAuthentication.rbac) {
             if (req.body.recipient === INDIVIDUAL) {
-                let index = client_names.indexOf(req.body.username.toUpperCase())
-                if (index != -1) {
-                    let sent = false;
-                    clients[index].forEach(function(instance) {
-                        instance.send(JSON.stringify({'from': req.username, 'notification': req.body.notification, "to": req.body.recipient}))
-                        sent = true;
-                    })
-                    if (sent) {
-                        res.status(201).json({"Response" : "ZWED0000I - Message sent to " + req.body.recipient});
-                    } else {
-                        res.status(500).json({"Response" : "ZWED0004E - Server error"});
-                    }
+                if (req.body.username === "") {
+                    res.status(400).json({"Response" : "ZWED0002E - Recipient input cannot be blank"});
                 } else {
-                    if (req.body.username === "") {
-                        res.status(404).json({"Response" : "ZWED0002E - Recipient input cannot be blank"});
-                    } else {
-                        res.status(404).json({"Response" : "ZWED0003E - " + req.body.username + " is not a valid user or is not online"});
+                    let index = client_names.indexOf(req.body.username.toUpperCase())
+                    if (index != -1) {
+                        clients[index].forEach(function(instance) {
+                            instance.send(JSON.stringify({'from': req.username, 'notification': req.body.notification, "to": req.body.recipient}))
+                        })
                     }
+                    // Response intentionally does not reveal whether the recipient exists or is
+                    // online, to prevent using this endpoint to enumerate logged-in users.
+                    res.status(202).json({"Response" : "ZWED0000I - Notification submitted for " + req.body.recipient});
                 }
             } else if (req.body.recipient === EVERYONE){
                 let sent = false;
