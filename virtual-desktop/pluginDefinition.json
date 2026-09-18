@@ -16,6 +16,9 @@
       "actions": {
         "aggregationPolicy": "none"
       },
+      "quickSearch": {
+        "aggregationPolicy": "none"
+      },
       "ui": {
         "subResources":{
           "launchbar": {
