@@ -1,0 +1,60 @@
+name: OSSF Scorecard Using Actions
+
+on:
+  schedule:
+    - cron: '0 6 1 * *'  # Runs at 06:00 UTC on the 1st day of every month
+  pull_request:
+    branches: 
+      - 'v*.x/staging'
+      - 'v*.x/rc'
+      - 'v*.x/master'
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+
+jobs:
+  scorecard:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run OSSF Scorecard analysis
+        uses: ossf/scorecard-action@05b42c624433fc40578a4040d5cf5e36ddca8cde
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: false
+
+      - name: Generate Scorecard Findings Summary
+        shell: bash
+        run: |
+          echo "# Scorecard Results" > scorecard-summary.md
+          echo "" >> scorecard-summary.md
+          echo "**Repository:** https://github.com/${GITHUB_REPOSITORY}" >> scorecard-summary.md
+          echo "**Workflow Run:** https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" >> scorecard-summary.md
+          echo "" >> scorecard-summary.md
+          echo "| Check ID | Findings |" >> scorecard-summary.md
+          echo "|----------|----------|" >> scorecard-summary.md
+          for id in TokenPermissionsID PinnedDependenciesID BranchProtectionID ContributorsID DangerousWorkflowID; do
+            count=$(jq --arg id "$id" '[.runs[].results[] | select(.ruleId == $id)] | length' results.sarif)
+            echo "| $id | $count |" >> scorecard-summary.md
+          done
+
+      - name: Upload Scorecard SARIF results
+        uses: actions/upload-artifact@v4
+        with:
+          name: scorecard-sarif
+          path: results.sarif
+          retention-days: 7
+
+      - name: Create GitHub Issue for Scorecard Findings
+        uses: peter-evans/create-issue-from-file@v4
+        with:
+          token: ${{ secrets.GHA_CREATE_ISSUE }}
+          repository: zowe/zlux
+          title: "OSSF Scorecard Results - ${{ github.run_id }}"
+          content-filepath: scorecard-summary.md
