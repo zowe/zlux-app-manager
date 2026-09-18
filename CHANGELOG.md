@@ -5,6 +5,7 @@ All notable changes to the Zlux App Manager will be documented in this file.
 - Security: Removed web-browser-app (org.zowe.zlux.ng2desktop.webbrowser) to address vulnerability in its proxy service.
 - Security: Validated postMessage sender identity and origin in the iframe plugin bridge (IFramePluginComponent) to prevent an arbitrary cross-origin window from invoking ZoweZLUX APIs.
 - Security: The browser-preferences dataservice now only sets an allowlist of preference cookies (language and locale). Preference cookies are now set with `secure` (over HTTPS) and `sameSite=strict`, and oversized values are rejected. ([#729](https://github.com/zowe/zlux-app-manager/pull/729))
+- Security: Iframe applications are now framed with a restricted capability set. Scripts, same-origin access, forms, popups, modals and downloads remain available, so existing applications are unaffected, but a framed application can no longer navigate the desktop window. The restriction is inherited by remote applications loaded through a `destination` wrapper. The frame also sends a `strict-origin-when-cross-origin` referrer, so an application served by another host no longer receives the desktop's full URL.
 
 ## `3.5.0`
 - Enhancement: i18n functionality from the Zowe v2 Desktop has been added to v3. ([#684](https://github.com/zowe/zlux-app-manager/pull/684))
