@@ -15,8 +15,33 @@
    Can determine what actions to take by knowing if it is or isnt embedded in ZLUX via IFrame.
 */
 
+/* The origin of the desktop that drives this adapter. It cannot be read directly, because
+   a plugin may be served from a different origin than the desktop, so it is learned from
+   the first message that passes the sender check below and pinned for the rest of the
+   session. Every outbound message is addressed to it rather than to a wildcard. */
+let desktopOrigin = null;
+
+/* The desktop always talks to the adapter from the top-level browsing context: both the
+   application manager, which delivers dispatchData, and the iframe plugin component, which
+   answers RPC calls, run in the top frame. That is also true for a remote-host plugin, where
+   the adapter runs in a nested iframe but window.top is still the desktop. A Window reference
+   cannot be forged by a third party, so comparing message.source to window.top is the
+   adapter-side counterpart of the contentWindow check the desktop performs on its own iframe. */
+function isMessageFromDesktop(message) {
+    return !!message.source && message.source === window.top;
+}
+
 let messageHandler = function(message) {
     let data = message.data;
+    if(data === null || typeof data !== 'object') return;
+    if(data.dispatchData === undefined && data.key === undefined) return;
+    if(!isMessageFromDesktop(message) || (desktopOrigin !== null && message.origin !== desktopOrigin)){
+        console.log('ZWED5325I - Ignored a message that did not come from the desktop window, origin=', message.origin);
+        return;
+    }
+    if(desktopOrigin === null){
+        desktopOrigin = message.origin;
+    }
     if(data.dispatchData){
         if(ZoweZLUX.iframe.instanceId === -1 && data.dispatchData.instanceId !== undefined){
             ZoweZLUX.iframe.instanceId = data.dispatchData.instanceId;
@@ -104,6 +129,8 @@ window.addEventListener('message', messageHandler);
 
 window.addEventListener("load", function () {
     console.log('ZWED5009I - iFrame Adapter has loaded!');
+    /* This beacon is sent before any message has been received, so the desktop origin is not
+       known yet and a wildcard is unavoidable. It carries a fixed string and no plugin data. */
     window.top.postMessage('iframeload', '*');
 });
 
@@ -114,6 +141,12 @@ window.addEventListener("unload", function () {
 
 function translateFunction(functionString, args){
     return new Promise((resolve, reject) => {
+        if(desktopOrigin === null){
+            reject({
+                error: "ZWED5326E - Cannot send a message to the desktop before its origin has been established"
+            })
+            return;
+        }
         if(typeof functionString !== 'string' || !Array.isArray(args)){
             reject({
                 error: "ZWED5013E - functionString must be of type string, args must be an array of type object"
@@ -153,7 +186,7 @@ function translateFunction(functionString, args){
                 resolve(res);
             }
         }
-        window.top.postMessage({key, request}, '*');
+        window.top.postMessage({key, request}, desktopOrigin);
     })
 }
 
@@ -187,7 +220,15 @@ var ZoweZLUX = {
         //True - Single app mode, False - We are in regular desktop mode
         isSingleAppMode() {
             return new Promise(function(resolve, reject)  {
-                if (window.top.GIZA_PLUGIN_TO_BE_LOADED) {
+                let standaloneRequested = false;
+                try {
+                    standaloneRequested = !!window.top.GIZA_PLUGIN_TO_BE_LOADED;
+                } catch (e) {
+                    /* window.top belongs to another origin, so its globals cannot be read.
+                       Fall back to waiting for the plugin definition below. */
+                    standaloneRequested = false;
+                }
+                if (standaloneRequested) {
                     resolve(true); //Standalone mode
                 } else {
                     //resolve(false) doesn't work great here and fails timing situations in some browsers (for example: Firefox)
@@ -213,7 +254,15 @@ var ZoweZLUX = {
         //True - Standalone + using simple window manager, False - We are in regular desktop or using the MVD window manager for single app mode
         isSingleAppModeSimple() {
             return new Promise(function(resolve, reject)  {
-                if (window.top.GIZA_SIMPLE_CONTAINER_REQUESTED) {
+                let simpleContainerRequested = false;
+                try {
+                    simpleContainerRequested = !!window.top.GIZA_SIMPLE_CONTAINER_REQUESTED;
+                } catch (e) {
+                    /* window.top belongs to another origin, so its globals cannot be read.
+                       Fall back to waiting for the plugin definition below. */
+                    simpleContainerRequested = false;
+                }
+                if (simpleContainerRequested) {
                     resolve(true); //Standalone mode
                 } else {
                     //resolve(false) doesn't work great here and fails timing situations in some browsers (for example: Firefox)

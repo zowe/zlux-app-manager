@@ -2,8 +2,10 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 ## `3.6.0`
-- Security: Removed web-browser-app (org.zowe.zlux.ng2desktop.webbrowser) to address vulnerability in its proxy service.
-- Security: Validated postMessage sender identity and origin in the iframe plugin bridge (IFramePluginComponent) to prevent an arbitrary cross-origin window from invoking ZoweZLUX APIs.
+- Security: Removed web-browser-app (org.zowe.zlux.ng2desktop.webbrowser) to address vulnerability in its proxy service. ([#722](https://github.com/zowe/zlux-app-manager/pull/722))
+- Security: Validated postMessage sender identity and origin in the iframe plugin bridge (IFramePluginComponent) to prevent an arbitrary cross-origin window from invoking ZoweZLUX APIs. ([#727](https://github.com/zowe/zlux-app-manager/pull/727))
+- Security: The iframe adapter now accepts messages only from the desktop window and addresses its own messages to the desktop origin rather than to any origin. ([#732](https://github.com/zowe/zlux-app-manager/pull/732))
+- Bugfix: The iframe adapter's `isSingleAppMode` and `isSingleAppModeSimple` no longer throw when the plugin is served from a different origin than the desktop. ([#732](https://github.com/zowe/zlux-app-manager/pull/732))
 - Security: The browser-preferences dataservice now only sets an allowlist of preference cookies (language and locale). Preference cookies are now set with `secure` (over HTTPS) and `sameSite=strict`, and oversized values are rejected. ([#729](https://github.com/zowe/zlux-app-manager/pull/729))
 - Security: Iframe applications are now framed with a restricted capability set. Scripts, same-origin access, forms, popups, modals and downloads remain available, so existing applications are unaffected, but a framed application can no longer navigate the desktop window. The restriction is inherited by remote applications loaded through a `destination` wrapper. The frame also sends a `strict-origin-when-cross-origin` referrer, so an application served by another host no longer receives the desktop's full URL.
 
