@@ -36,7 +36,7 @@ var config = {
         /* Javascript source map loader */
         'enforce': 'pre',
         'test': /\.js$/,
-        'loader': 'source-map-loader',
+        'use': 'source-map-loader',
         'exclude': [
           /\/node_modules\//
         ]
@@ -44,44 +44,39 @@ var config = {
       {
         /* JSON inline loader */
         'test': /\.json$/,
-        'loader': 'json-loader'
+        'use': 'json-loader'
       },
       {
         /* HTML URL resolution loader */
         'test': /\.html$/,
-        'loader': 'html-loader'
-      },
-      {
-        'test': /\.svg$/,
-        'loader': 'svg-sprite-loader'
+        'use': 'html-loader'
       },
       {
         /* External file loader */
         'test': /\.eot$/,
-        'loader': 'file-loader?name=[name].[hash:20].[ext]'
+        'use': 'file-loader?name=[name].[hash:20].[ext]'
       },
       {
-        /* External (or inline) file loader */
-        'test': /\.(jpg|png|gif|otf|ttf|woff|woff2|cur|ani)$/,
-        'loader': 'url-loader?name=[name].[hash:20].[ext]&limit=10000'
-      },
-      {
-        /* CSS URL loader, TODO: reconsider */
-        'test': /\.css$/,
-        'use': [
-          'exports-loader?module.exports.toString()',
-          {
-            'loader': 'css-loader',
-            'options': {
-              'sourceMap': false
-            }
+        test: /\.(jpg|png|gif|otf|ttf|woff|woff2|cur|ani|svg)$/,
+        type: 'asset',
+        generator: {
+          filename: '[name].[hash:20].[ext]'
+        },
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10000
           }
-        ]
+        }
+      },
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
+        
       },
       {
         /* TS and angular loader */
         'test': /\.(ts|tsx)$/,
-        'loaders': [
+        'use': [
           'ts-loader',
         ]
       }
