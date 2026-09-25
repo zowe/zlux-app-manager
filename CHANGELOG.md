@@ -7,6 +7,7 @@ All notable changes to the Zlux App Manager will be documented in this file.
 - Security: The iframe adapter now accepts messages only from the desktop window and addresses its own messages to the desktop origin rather than to any origin. ([#732](https://github.com/zowe/zlux-app-manager/pull/732))
 - Bugfix: The iframe adapter's `isSingleAppMode` and `isSingleAppModeSimple` no longer throw when the plugin is served from a different origin than the desktop. ([#732](https://github.com/zowe/zlux-app-manager/pull/732))
 - Security: The browser-preferences dataservice now only sets an allowlist of preference cookies (language and locale). Preference cookies are now set with `secure` (over HTTPS) and `sameSite=strict`, and oversized values are rejected. ([#729](https://github.com/zowe/zlux-app-manager/pull/729))
+- Security: Iframe applications are now framed with a restricted capability set. Scripts, same-origin access, forms, popups, modals and downloads remain available, so existing applications are unaffected, but a framed application can no longer navigate the desktop window. The restriction is inherited by remote applications loaded through a `destination` wrapper. The frame also sends a `strict-origin-when-cross-origin` referrer, so an application served by another host no longer receives the desktop's full URL. ([#733](https://github.com/zowe/zlux-app-manager/pull/733))
 
 ## `3.5.0`
 - Enhancement: i18n functionality from the Zowe v2 Desktop has been added to v3. ([#684](https://github.com/zowe/zlux-app-manager/pull/684))
