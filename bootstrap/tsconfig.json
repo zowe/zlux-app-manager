@@ -28,9 +28,7 @@
     "skipLibCheck": true,
     "strictNullChecks": true,
     "target": "es5",
-    "types": [
-      "core-js"
-    ],
+    "types": [],
     "typeRoots": [
       "node_modules/@types"
     ],
