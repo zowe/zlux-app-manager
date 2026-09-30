@@ -11,9 +11,8 @@
     "build": "ng build && npm run copy",
     "build:externals": "exit 0",
     "compress": "node gzip.mjs",
-    "copy": "cpx node_modules/requirejs/require.js web/",
-    "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json",
-    "lint": "tslint -c tslint.json \"src/**/*.ts\""
+    "copy": "node -e \"const fs=require('fs');fs.mkdirSync('web',{recursive:true});fs.copyFileSync('node_modules/requirejs/require.js','web/require.js')\"",
+    "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json"
   },
   "dependencies": {
     "@angular/animations": "18.2.14",
@@ -30,15 +29,14 @@
     "@popperjs/core": "2.11.8",
     "@zlux/widgets": "github:zowe/zlux-widgets#v3.x/master",
     "angular-l10n": "17.0.1",
-    "bootstrap": "5.3.2",
-    "core-js": "3.38.1",
+    "bootstrap": "5.3.8",
+    "core-js": "3.50.0",
     "font-awesome": "4.7.0",
-    "moment": "2.29.4",
+    "moment": "2.31.0",
     "ngx-file-drop": "16.0.0",
-    "popper.js": "1.14.7",
-    "requirejs": "2.3.7",
-    "rxjs": "7.8.1",
-    "tslib": "2.6.3",
+    "requirejs": "2.3.8",
+    "rxjs": "7.8.2",
+    "tslib": "2.8.1",
     "typeface-roboto": "1.1.13",
     "zone.js": "0.14.10"
   },
@@ -47,14 +45,9 @@
     "@angular/cli": "18.2.14",
     "@angular/compiler-cli": "18.2.14",
     "@ngtools/webpack": "18.2.14",
-    "@types/node": "20.12.7",
-    "@types/xmldom": "0.1.29",
-    "codelyzer": "6.0.2",
-    "cpx": "1.5.0",
+    "@types/node": "22.20.4",
     "ngx-i18nsupport": "0.17.1",
-    "tslint": "6.1.0",
-    "tslint-react": "5.0.0",
-    "typescript": "5.4.5"
+    "typescript": "5.5.4"
   },
   "overrides": {
     "picomatch@2.3.1": "2.3.2"
