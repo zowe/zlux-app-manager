@@ -12,7 +12,9 @@
     "build:externals": "exit 0",
     "compress": "node gzip.mjs",
     "copy": "node -e \"const fs=require('fs');fs.mkdirSync('web',{recursive:true});fs.copyFileSync('node_modules/requirejs/require.js','web/require.js')\"",
-    "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json"
+    "i18n": "ng-xi18n -p tsconfig.ngx-i18n.json --i18nFormat=xlf  --outFile=messages.xlf && xliffmerge -p xliffmerge.json",
+    "lint": "eslint src --max-warnings 1045",
+    "lint:fix": "eslint src --fix"
   },
   "dependencies": {
     "@angular/animations": "18.2.14",
@@ -42,12 +44,17 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "18.2.14",
+    "@angular-eslint/eslint-plugin": "^18.4.3",
+    "@angular-eslint/eslint-plugin-template": "^18.4.3",
+    "@angular-eslint/template-parser": "^18.4.3",
     "@angular/cli": "18.2.14",
     "@angular/compiler-cli": "18.2.14",
     "@ngtools/webpack": "18.2.14",
     "@types/node": "22.20.4",
+    "eslint": "^9.39.5",
     "ngx-i18nsupport": "0.17.1",
-    "typescript": "5.5.4"
+    "typescript": "5.5.4",
+    "typescript-eslint": "^8.71.0"
   },
   "overrides": {
     "picomatch@2.3.1": "2.3.2"
