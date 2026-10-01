@@ -10,7 +10,6 @@
   Copyright Contributors to the Zowe Project.
 */
 
-//import 'systemjs'; did old versions of Angular require SystemJS?
 import 'core-js/es/promise'
 
 

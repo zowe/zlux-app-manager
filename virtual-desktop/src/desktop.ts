@@ -34,10 +34,9 @@ import { StartURLManager } from '../src/app/start-url-manager/start-url-manager.
 
 /* Load globals */
 // import 'jquery';
-// Dropdown component in workflows-app requires bootstrap JS components and popper.js
-// In Zowe v2 we remove the workflows-app
-// TODO: consider to remove the two imports below
-import 'popper.js';
+// Bootstrap's JS components are kept for any plugin that relies on them being
+// present globally. Bootstrap 5 positions via @popperjs/core, which it imports
+// itself; the legacy popper.js v1 global it once needed is no longer used.
 import 'bootstrap';
 import 'zone.js';
 
