@@ -57,10 +57,6 @@
     "typescript": "5.4.5"
   },
   "overrides": {
-    "picomatch@2.3.1": "2.3.2",
-    "@zlux/widgets": {
-      "rxjs": "$rxjs",
-      "tslib": "$tslib"
-    }
+    "picomatch@2.3.1": "2.3.2"
   }
 }
