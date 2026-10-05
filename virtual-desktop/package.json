@@ -39,7 +39,7 @@
     "popper.js": "1.14.7",
     "requirejs": "2.3.8",
     "rxjs": "7.8.2",
-    "tslib": "2.8.1",
+    "tslib": "2.6.3",
     "typeface-roboto": "1.1.13",
     "zone.js": "0.14.10"
   },
@@ -54,7 +54,7 @@
     "@types/node": "22.20.4",
     "eslint": "^9.39.5",
     "ngx-i18nsupport": "0.17.1",
-    "typescript": "5.5.4",
+    "typescript": "5.4.5",
     "typescript-eslint": "^8.71.0"
   },
   "overrides": {
