@@ -37,8 +37,8 @@
     "ngx-file-drop": "16.0.0",
     "popper.js": "1.14.7",
     "requirejs": "2.3.7",
-    "rxjs": "7.8.1",
-    "tslib": "2.6.3",
+    "rxjs": "7.8.0",
+    "tslib": "2.3.0",
     "typeface-roboto": "1.1.13",
     "zone.js": "0.14.10"
   },
