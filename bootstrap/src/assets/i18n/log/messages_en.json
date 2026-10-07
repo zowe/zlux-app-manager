@@ -42,6 +42,7 @@
     "ZWED5042I":"dispatcher.invokeAction on context %s",
     "ZWED5043I":"RESERVED: MVD standalone container requested with pluginId %s",
     "ZWED5324I":"RESERVED: The requested Desktop version (%s) is in maintenance mode. To use the newest Desktop version instead, remove the query parameter 'use-v2-desktop'.",
+    "ZWED5325I":"RESERVED: Ignored a message that did not come from the desktop window, origin=%s",
 
     "ZWED5000W":"RESERVED: Desktop attempted to change instanceId for iframe instance=%s, message=%s",
     "ZWED5001W":"pluginWSUri not implemented yet!",
@@ -99,5 +100,6 @@
     "ZWED5040E":"RESERVED: Plugin version is not a string",
     "ZWED5041E":"RESERVED: Plugin type is not present",
     "ZWED5042E":"RESERVED: Plugin type is not a string",
-    "ZWED5043E":"RESERVED: %s is not a valid semantic version"
+    "ZWED5043E":"RESERVED: %s is not a valid semantic version",
+    "ZWED5326E":"RESERVED: Cannot send a message to the desktop before its origin has been established"
 }

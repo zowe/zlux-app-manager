@@ -45,6 +45,8 @@ export class ContextMenuComponent implements AfterViewInit {
   isNavigable: boolean; // True if menu is keyboard-navigable, false otherwise. Only one menu can be navigable at a time.
   _propagateChildLeft: boolean; // True if child menus will appear to the left of their parent.
   _parentText: string; // Text of parent menu item
+  _ulMaxHeight: string | null = null; // Dynamic max-height for child menu scrolling
+  _baseY: number; // Original yPos before flip adjustment
   children: { [key: string]: any }; // Array of child elements
 
   @ViewChild('contextmenu')
@@ -65,7 +67,8 @@ export class ContextMenuComponent implements AfterViewInit {
           this.newX = this.newX + 3;
         }
       } else {
-        this.newY = this.validateY(this.newY, (ContextMenuComponent.ItemHeight*this.menuItems.length), this.parentY);
+        // Store original Y for recalculation when parent becomes active
+        this._baseY = this.newY;
       }
       contextmenu.nativeElement.style.opacity = 1;
       this.menuHeight = contextmenu.nativeElement.clientHeight;
@@ -106,6 +109,9 @@ export class ContextMenuComponent implements AfterViewInit {
   @Input() set isParentActive(isParentActive: boolean) {
     this._isParentActive = isParentActive; // Set _isParentActive based on input
     this.activeIndex = isParentActive ? this.activeIndex : -1; // If parent not active, reset this.activeIndex to -1
+    if (isParentActive && this._isChildMenu) {
+      this.updateChildMenuPosition();
+    }
   };
   
   // Set value of isNavigable based on input parentNavigable.
@@ -212,6 +218,31 @@ export class ContextMenuComponent implements AfterViewInit {
       yPos = yPos + difference;
     }
     return yPos;
+  }
+
+  /** Recalculate child menu position and max-height each time it becomes visible */
+  private updateChildMenuPosition(): void {
+    const itemH = ContextMenuComponent.ItemHeight || 0;
+    const screenH = window.innerHeight - 10;
+    const theoreticalH = itemH * this.menuItems.length;
+    const spaceBelow = screenH - this.parentY;
+    const spaceAbove = this.parentY + itemH - 10;
+
+    // Reset Y to original value before recalculating
+    this.newY = this._baseY;
+
+    if (theoreticalH <= spaceBelow) {
+      // Fits below without constraint
+      this._ulMaxHeight = null;
+    } else if (spaceBelow >= spaceAbove) {
+      // More space below -- constrain and scroll
+      this._ulMaxHeight = spaceBelow + 'px';
+    } else {
+      // More space above -- flip upward and scroll if needed
+      const effectiveH = Math.min(theoreticalH, spaceAbove);
+      this._ulMaxHeight = effectiveH < theoreticalH ? effectiveH + 'px' : null;
+      this.newY = itemH - effectiveH;
+    }
   }
 
   // Triggered when menu item clicked.

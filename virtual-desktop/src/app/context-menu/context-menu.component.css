@@ -53,6 +53,10 @@ li.disabled {
   margin: 0;
 }
 
+.context-menu.child-menu>ul {
+  overflow-y: auto;
+}
+
 .context-menu .menu-item {
   background-color: #1f242d; /* Blue-shifted version of Cool Gray 90 */
   width: 100%;

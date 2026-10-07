@@ -1,0 +1,241 @@
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/
+
+.shortcut-properties-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9500;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shortcut-properties-panel {
+  background-color: #2b2b30;
+  border-radius: 8px;
+  width: 420px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  color: #e0e0e0;
+  font-size: 13px;
+}
+
+.shortcut-properties-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.shortcut-properties-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.shortcut-properties-close {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.shortcut-properties-close:hover {
+  color: #ffffff;
+}
+
+.shortcut-properties-body {
+  padding: 16px;
+}
+
+/* Icon preview section */
+.shortcut-properties-icon-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.shortcut-properties-icon-preview {
+  width: 48px;
+  height: 48px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+
+.shortcut-properties-icon-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.shortcut-properties-icon-letter {
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.shortcut-properties-display-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #ffffff;
+  word-break: break-word;
+}
+
+/* Divider */
+.shortcut-properties-divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.08);
+  margin: 12px 0;
+}
+
+/* Section */
+.shortcut-properties-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.shortcut-properties-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #aaaaaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+/* Row */
+.shortcut-properties-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.shortcut-properties-label {
+  color: #999999;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.shortcut-properties-value {
+  color: #e0e0e0;
+  font-size: 12px;
+  text-align: right;
+  word-break: break-all;
+}
+
+.shortcut-properties-mono {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+}
+
+/* Icon change input */
+.shortcut-properties-icon-input-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.shortcut-properties-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: #e0e0e0;
+  padding: 4px 8px;
+  font-size: 12px;
+  outline: none;
+}
+
+.shortcut-properties-input:focus {
+  border-color: rgba(100, 150, 255, 0.5);
+}
+
+/* Buttons */
+.shortcut-properties-btn {
+  background-color: rgba(100, 150, 255, 0.3);
+  border: 1px solid rgba(100, 150, 255, 0.4);
+  border-radius: 4px;
+  color: #d0d8ff;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.shortcut-properties-btn:hover {
+  background-color: rgba(100, 150, 255, 0.45);
+}
+
+.shortcut-properties-btn-secondary {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #bbbbbb;
+}
+
+.shortcut-properties-btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Textarea for launch metadata */
+.shortcut-properties-textarea {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: #e0e0e0;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: 'Courier New', Courier, monospace;
+  outline: none;
+  resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.shortcut-properties-textarea:focus {
+  border-color: rgba(100, 150, 255, 0.5);
+}
+
+.shortcut-properties-metadata-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.shortcut-properties-error {
+  color: #ff6666;
+  font-size: 12px;
+}
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/

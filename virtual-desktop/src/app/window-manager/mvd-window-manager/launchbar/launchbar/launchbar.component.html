@@ -27,6 +27,9 @@
     <rs-com-launchbar-icon *ngFor="let item of pinnedItems" [launchbarItem]="item" [theme]="_theme" (contextmenu)="onRightClick($event, item)"
     (mousedown)="onMouseDown($event, item)" (mousemove)="onMouseMove($event, item)">
     </rs-com-launchbar-icon>
+    <rs-com-launchbar-folder-icon *ngFor="let folder of pinnedFolders" [folder]="folder" [childShortcuts]="getShortcutsInFolder(folder.id)" [pluginMap]="pluginMap" [theme]="_theme"
+    (folderClicked)="onPinnedFolderClick($event)" (folderRightClicked)="onPinnedFolderRightClick($event.event, $event.folder)">
+    </rs-com-launchbar-folder-icon>
     <rs-com-launchbar-icon *ngFor="let item of runningItems" [launchbarItem]="item" [theme]="_theme" (contextmenu)="onRightClick($event, item)"
     (mousedown)="onMouseDown($event, item)">
     </rs-com-launchbar-icon>

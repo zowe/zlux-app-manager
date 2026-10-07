@@ -1,0 +1,69 @@
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->
+<div class="desktop-icon"
+     [ngStyle]="positionStyle"
+     [class.highlighted]="isHighlighted"
+     [class.dragging]="isDragging || multiDragDelta"
+     [class.folder-drop-target]="showFolderPreview"
+     (click)="onClick($event)"
+     (dblclick)="onDblClick($event)"
+     (contextmenu)="onRightClick($event)"
+     (mousedown)="onMouseDown($event)">
+
+  <!-- Folder preview: translucent grid of the two icons that would form a folder -->
+  <ng-container *ngIf="showFolderPreview; else normalIcon">
+    <div class="desktop-icon-folder-preview"
+         [style.width.px]="iconImageSize" [style.height.px]="iconImageSize">
+      <ng-container *ngFor="let icon of folderPreviewIcons">
+        <div class="desktop-icon-folder-preview-cell"
+             [style.width.px]="miniIconSize" [style.height.px]="miniIconSize">
+          <div class="desktop-icon-folder-preview-mini" *ngIf="icon.url"
+               [style.background-image]="'url(' + icon.url + ')'"
+               [style.width.px]="miniIconSize - 2" [style.height.px]="miniIconSize - 2">
+          </div>
+          <span class="desktop-icon-folder-preview-letter" *ngIf="!icon.url"
+                [style.font-size.px]="miniIconSize * 0.5">{{ icon.label?.charAt(0) }}</span>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <ng-template #normalIcon>
+    <div class="desktop-icon-image" *ngIf="iconUrl" [style.background-image]="'url(' + iconUrl + ')'"
+         [style.width.px]="iconImageSize" [style.height.px]="iconImageSize"></div>
+    <div class="desktop-icon-image desktop-icon-placeholder" *ngIf="!iconUrl"
+         [style.width.px]="iconImageSize" [style.height.px]="iconImageSize">
+      <span class="desktop-icon-letter" [style.font-size.px]="iconLetterSize">{{ label?.charAt(0) }}</span>
+    </div>
+  </ng-template>
+
+  <span class="desktop-icon-label" *ngIf="!isRenaming" [style.font-size.px]="iconFontSize" [title]="label">{{ label }}</span>
+  <input *ngIf="isRenaming" #renameInput
+    class="desktop-icon-rename-input"
+    [class.rename-error]="renameError"
+    [style.font-size.px]="iconFontSize"
+    [value]="renameValue"
+    (input)="renameValue = $any($event.target).value"
+    (blur)="confirmRename()"
+    (keydown)="onRenameKeydown($event)"
+    (click)="$event.stopPropagation()"
+    (dblclick)="$event.stopPropagation()"
+    (mousedown)="$event.stopPropagation()" />
+</div>
+
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->

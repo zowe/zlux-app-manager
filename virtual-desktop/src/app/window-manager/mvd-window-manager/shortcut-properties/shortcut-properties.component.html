@@ -1,0 +1,116 @@
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->
+<div class="shortcut-properties-overlay" (click)="onOverlayClick($event)">
+  <div class="shortcut-properties-panel" (click)="onPanelClick($event)">
+    <div class="shortcut-properties-header">
+      <span class="shortcut-properties-title">Properties</span>
+      <button class="shortcut-properties-close" (click)="onClose()">&times;</button>
+    </div>
+
+    <div class="shortcut-properties-body">
+      <!-- Icon preview and change -->
+      <div class="shortcut-properties-icon-section">
+        <div class="shortcut-properties-icon-preview"
+             *ngIf="iconUrl"
+             [style.background-image]="'url(' + iconUrl + ')'">
+        </div>
+        <div class="shortcut-properties-icon-preview shortcut-properties-icon-placeholder"
+             *ngIf="!iconUrl">
+          <span class="shortcut-properties-icon-letter">{{ displayName.charAt(0) }}</span>
+        </div>
+        <span class="shortcut-properties-display-name">{{ displayName }}</span>
+      </div>
+
+      <div class="shortcut-properties-divider"></div>
+
+      <!-- General info -->
+      <div class="shortcut-properties-section">
+        <div class="shortcut-properties-row" *ngIf="displayName !== originalName">
+          <span class="shortcut-properties-label">Original Name</span>
+          <span class="shortcut-properties-value">{{ originalName }}</span>
+        </div>
+        <div class="shortcut-properties-row">
+          <span class="shortcut-properties-label">Plugin ID</span>
+          <span class="shortcut-properties-value shortcut-properties-mono">{{ pluginId }}</span>
+        </div>
+        <div class="shortcut-properties-row" *ngIf="pluginVersion">
+          <span class="shortcut-properties-label">Version</span>
+          <span class="shortcut-properties-value">{{ pluginVersion }}</span>
+        </div>
+      </div>
+
+      <!-- Change icon -->
+      <div class="shortcut-properties-divider"></div>
+      <div class="shortcut-properties-section">
+        <span class="shortcut-properties-section-title">Change Icon</span>
+        <div class="shortcut-properties-icon-input-row">
+          <input class="shortcut-properties-input"
+                 type="text"
+                 placeholder="Icon URL"
+                 [value]="newIconUrl"
+                 (input)="newIconUrl = $any($event.target).value; iconUrlError = ''" />
+          <button class="shortcut-properties-btn" (click)="onSaveIcon()">Apply</button>
+          <button class="shortcut-properties-btn shortcut-properties-btn-secondary" (click)="onClearIcon()">Reset</button>
+        </div>
+        <span class="shortcut-properties-error" *ngIf="iconUrlError">{{ iconUrlError }}</span>
+      </div>
+
+      <!-- Action details (only for action shortcuts) -->
+      <ng-container *ngIf="hasAction">
+        <div class="shortcut-properties-divider"></div>
+        <div class="shortcut-properties-section">
+          <span class="shortcut-properties-section-title">App-to-App Action</span>
+          <div class="shortcut-properties-row">
+            <span class="shortcut-properties-label">Action ID</span>
+            <span class="shortcut-properties-value shortcut-properties-mono">{{ actionId }}</span>
+          </div>
+          <div class="shortcut-properties-row">
+            <span class="shortcut-properties-label">Action Name</span>
+            <span class="shortcut-properties-value">{{ actionName }}</span>
+          </div>
+          <div class="shortcut-properties-row">
+            <span class="shortcut-properties-label">Type</span>
+            <span class="shortcut-properties-value">{{ actionType }}</span>
+          </div>
+          <div class="shortcut-properties-row">
+            <span class="shortcut-properties-label">Target Plugin</span>
+            <span class="shortcut-properties-value shortcut-properties-mono">{{ targetPluginId }}</span>
+          </div>
+          <div class="shortcut-properties-row">
+            <span class="shortcut-properties-label">Target Mode</span>
+            <span class="shortcut-properties-value">{{ targetMode }}</span>
+          </div>
+        </div>
+
+        <div class="shortcut-properties-divider"></div>
+        <div class="shortcut-properties-section">
+          <span class="shortcut-properties-section-title">Launch Metadata</span>
+          <textarea class="shortcut-properties-textarea"
+                    [value]="launchMetadataJson"
+                    (input)="launchMetadataJson = $any($event.target).value"
+                    rows="6"></textarea>
+          <div class="shortcut-properties-metadata-actions">
+            <button class="shortcut-properties-btn" (click)="onSaveLaunchMetadata()">Save Metadata</button>
+            <span class="shortcut-properties-error" *ngIf="launchMetadataError">{{ launchMetadataError }}</span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
+<!--
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+-->

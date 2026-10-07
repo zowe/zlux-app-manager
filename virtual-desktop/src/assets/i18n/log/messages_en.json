@@ -92,6 +92,7 @@
     "ZWED5197W":"Unable to find registered action for identifier %s specified in app2app query URL parameter",
     "ZWED5198W":"Attempted to close standalone mode app window, ID=%s",
     "ZWED5199W":"Attempted to postMessage for type %s without source",
+    "ZWED5324W":"Rejected postMessage for iframe %s not originating from its own contentWindow, origin=%s",
 
     "ZWED5143E":"Plugin ID required. Use query parameter ?pluginId",
     "ZWED5144E":"Cannot find plugin with ID=%s",

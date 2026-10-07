@@ -31,7 +31,7 @@
                 "output": "assets"
               },
               {
-                "glob": "**/*",
+                "glob": "*.mjs",
                 "input": "node_modules/@angular/common/locales",
                 "output": "locales"
               }

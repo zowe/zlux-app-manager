@@ -56,6 +56,7 @@ export class LanguageComponent {
   ) {
     this.isRestartWindowVisible = false;
     this.isVeilVisible = false;
+    this.idLanguage = this.languageLocaleService.getBaseLanguage();
     this.updateLanguageSelection();
     this.updateLanguageStrings();
     if (this.windowActions) {this.windowActions.setTitle(this.Languages); }
