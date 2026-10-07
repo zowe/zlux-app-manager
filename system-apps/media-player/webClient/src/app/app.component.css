@@ -1,0 +1,204 @@
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/
+
+/* ── Container ─────────────────────────────────────────────────────────── */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #1c1c1c;
+  color: #f0f0f0;
+  font-family: 'IBM Plex Sans', Arial, sans-serif;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ── Shared media wrapper ───────────────────────────────────────────────── */
+
+.media-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #1c1c1c;
+}
+
+/* ── File header bar ────────────────────────────────────────────────────── */
+
+.media-header {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #3a3a3a;
+  flex-shrink: 0;
+}
+
+.media-icon {
+  font-size: 1rem;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.media-filename {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #c6c6c6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Video element ──────────────────────────────────────────────────────── */
+
+.media-element {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  background-color: #000;
+  display: block;
+}
+
+/* Native controls in most browsers look better on a dark background */
+video.media-element {
+  object-fit: contain;
+}
+
+/* ── Audio decoration ────────────────────────────────────────────────────── */
+
+.audio-container {
+  justify-content: center;
+  align-items: center;
+}
+
+.audio-art {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+}
+
+.audio-art-icon {
+  font-size: 6rem;
+  color: #4589ff;
+  user-select: none;
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%   { opacity: 1;   transform: scale(1); }
+  50%  { opacity: 0.6; transform: scale(1.08); }
+  100% { opacity: 1;   transform: scale(1); }
+}
+
+.audio-element {
+  width: 100%;
+  flex: 0 0 auto;
+  background-color: #2d2d2d;
+}
+
+/* ── Placeholder screen ─────────────────────────────────────────────────── */
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  color: #8d8d8d;
+}
+
+.placeholder-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  color: #4589ff;
+}
+
+.placeholder-text {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.placeholder-hint {
+  font-size: 0.8rem;
+  margin: 0;
+  color: #6f6f6f;
+}
+
+.placeholder-hint code {
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  background-color: #3d3d3d;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  color: #78a9ff;
+}
+
+/* ── Error screen ───────────────────────────────────────────────────────── */
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 3rem;
+  color: #fa4d56;
+  margin-bottom: 12px;
+}
+
+.error-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fa4d56;
+  margin: 0 0 8px 0;
+}
+
+.error-message {
+  font-size: 0.9rem;
+  color: #f0f0f0;
+  margin: 0 0 8px 0;
+}
+
+.error-path {
+  font-size: 0.75rem;
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  color: #8d8d8d;
+  word-break: break-all;
+  margin: 0 0 16px 0;
+}
+
+.error-hint {
+  font-size: 0.78rem;
+  color: #6f6f6f;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/*
+  This program and the accompanying materials are
+  made available under the terms of the Eclipse Public License v2.0 which accompanies
+  this distribution, and is available at https://www.eclipse.org/legal/epl-v20.html
+
+  SPDX-License-Identifier: EPL-2.0
+
+  Copyright Contributors to the Zowe Project.
+*/

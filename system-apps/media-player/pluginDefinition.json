@@ -1,0 +1,28 @@
+{
+  "identifier": "org.zowe.zlux.multimedia",
+  "apiVersion": "2.0.0",
+  "pluginVersion": "1.0.0",
+  "pluginType": "application",
+  "license": "EPL-2.0",
+  "author": "Zowe",
+  "homepage": "https://github.com/zowe/zlux-app-manager",
+  "isSystemPlugin": true,
+  "webContent": {
+    "framework": "angular",
+    "entryPoint": {
+      "2.0": "main.js",
+      "3.0": "v3/main.js"
+    },
+    "launchDefinition": {
+      "pluginShortNameKey": "Media Player",
+      "pluginShortNameDefault": "Media Player",
+      "imageSrc": "assets/v3/icon.png"
+    },
+    "descriptionKey": "Media Player",
+    "descriptionDefault": "HTML5 media player for audio and video files on z/OS Unix System Services",
+    "defaultWindowStyle": {
+      "width": 720,
+      "height": 480
+    }
+  }
+}
