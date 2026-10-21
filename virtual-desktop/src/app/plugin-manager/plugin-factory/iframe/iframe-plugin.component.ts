@@ -14,7 +14,7 @@ import {
 } from '../../../../pluginlib/inject-resources';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { BaseLogger } from '../../../../app/shared/logger'
-import { IFRAME_NAME_PREFIX } from 'app/shared/named-elements';
+import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from 'app/shared/named-elements';
 import { IFramePluginFactory } from './iframe-plugin-factory';
 
 @Component({
@@ -101,22 +101,55 @@ export class IFramePluginComponent implements OnInit {
   }
 
   /**
-   * The only trustworthy way to identify "the window this component's own iframe points at" is to
-   * look up that iframe by its own DOM id and compare its contentWindow, since a Window reference
-   * (message.source) cannot be spoofed by a third party. Some remote-host plugins host their real
-   * adapter in a nested child iframe, so that child's window is also accepted.
+   * The window the adapter runs in, which is the same window the application manager delivers
+   * dispatchData to: the inner iframe named INNER_IFRAME_NAME when this iframe is a remote-app
+   * wrapper served from the desktop origin, otherwise this component's own iframe. Exactly that
+   * window is accepted; any other frame the plugin page embeds (previewed documents, third-party
+   * content) is not. A Window reference (message.source) cannot be spoofed by a third party.
    */
-  private getOwnIframeWindow(): Window | null {
+  private getAdapterFrame(): HTMLIFrameElement | null {
     const iframe = document.getElementById(this.iframeId) as HTMLIFrameElement | null;
-    return iframe ? iframe.contentWindow : null;
+    if (!iframe || !iframe.contentWindow) {
+      return null;
+    }
+    try {
+      const innerIframe = iframe.contentWindow.document.getElementById(INNER_IFRAME_NAME);
+      // The element belongs to the wrapper's realm, so instanceof HTMLIFrameElement would be false.
+      if (innerIframe && innerIframe.tagName === 'IFRAME') {
+        return innerIframe as HTMLIFrameElement;
+      }
+    } catch (e) {
+      // The plugin page has another origin than the desktop, so it is not a wrapper.
+    }
+    return iframe;
   }
 
-  private isMessageFromOwnIframe(message: any): boolean {
-    const ownWindow = this.getOwnIframeWindow();
-    if (!ownWindow || !message.source) {
+  /**
+   * The origin the adapter frame was pointed at. A WindowProxy stays the same object when its frame
+   * navigates, so the window check alone would still accept the frame after it moved to another
+   * origin; the sender's origin must also match.
+   */
+  private getExpectedOrigin(frame: HTMLIFrameElement): string | null {
+    try {
+      const origin = new URL(frame.src, frame.ownerDocument.baseURI).origin;
+      return origin === 'null' ? null : origin;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  private isMessageFromAdapterFrame(message: any): boolean {
+    if (!message.source) {
       return false;
     }
-    return message.source === ownWindow || message.source.parent === ownWindow;
+    if (this.frameSource) {
+      return message.source === this.frameSource && message.origin === this.frameOrigin;
+    }
+    const frame = this.getAdapterFrame();
+    if (!frame || message.source !== frame.contentWindow) {
+      return false;
+    }
+    return message.origin === this.getExpectedOrigin(frame);
   }
 
   private registerWindowEvents() {
@@ -162,7 +195,7 @@ export class IFramePluginComponent implements OnInit {
       || message.data.request.instanceId === undefined) {
       return;
     }
-    if (!this.isMessageFromOwnIframe(message)) {
+    if (!this.isMessageFromAdapterFrame(message)) {
       this.logger.warn("ZWED5324W", this.iframeId, message.origin); //this.logger.warn(`Rejected postMessage for iframe ${this.iframeId} not originating from its own contentWindow, origin=${message.origin}`);
       return;
     }
@@ -171,6 +204,11 @@ export class IFramePluginComponent implements OnInit {
     let fnString: string = data.request.function;
     let split: Array<string> = fnString.split('.');
     if (split[0] === 'registerAdapterInstance' && this.instanceId == -1) {
+      // Only the adapter for the instance this component was created for may register, and only once.
+      if (data.request.instanceId !== this.iFramePluginFactory.instanceId) {
+        this.logger.warn("ZWED5324W", this.iframeId, message.origin);
+        return;
+      }
       this.instanceId = data.request.instanceId;
       this.frameSource = message.source;
       this.frameOrigin = message.origin;
@@ -233,7 +271,8 @@ export class IFramePluginComponent implements OnInit {
       });
       return;
     }
-    if (data.request.instanceId === this.instanceId && message.source === this.frameSource) {
+    if (data.request.instanceId === this.instanceId && message.source === this.frameSource
+      && message.origin === this.frameOrigin) {
       this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
         message.source.postMessage({
           key: key,
