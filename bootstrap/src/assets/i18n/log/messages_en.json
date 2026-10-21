@@ -101,5 +101,7 @@
     "ZWED5041E":"RESERVED: Plugin type is not present",
     "ZWED5042E":"RESERVED: Plugin type is not a string",
     "ZWED5043E":"RESERVED: %s is not a valid semantic version",
-    "ZWED5326E":"RESERVED: Cannot send a message to the desktop before its origin has been established"
+    "ZWED5326E":"RESERVED: Cannot send a message to the desktop before it has contacted this page from an allowed origin",
+    "ZWED5327W":"RESERVED: Ignoring a desktop origin that is not an absolute http(s) origin, value=%s",
+    "ZWED5328W":"RESERVED: No valid desktop origin is configured, so the desktop will not be contacted"
 }
