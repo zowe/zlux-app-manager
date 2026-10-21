@@ -15,10 +15,42 @@
    Can determine what actions to take by knowing if it is or isnt embedded in ZLUX via IFrame.
 */
 
-/* The origin of the desktop that drives this adapter. It cannot be read directly, because
-   a plugin may be served from a different origin than the desktop, so it is learned from
-   the first message that passes the sender check below and pinned for the rest of the
-   session. Every outbound message is addressed to it rather than to a wildcard. */
+/* The origins the desktop may be served from. They come from the plugin page itself and are never
+   learned from incoming messages: a page that frames a plugin URL is window.top, so trusting the
+   first message from window.top would let any embedder pose as the desktop, inject constructorData,
+   answer pending calls with values of its choosing and receive the arguments of every call.
+   By default the desktop must share this page's origin, which holds for plugins served by the zLUX
+   server and for destination wrappers. A page served from another origin must list the desktop
+   origins explicitly (space or comma separated), for example:
+     <meta name="zlux-desktop-origin" content="https://desktop.example.com:7554">
+   The list is read on first use, so the meta tag may appear anywhere in the document. */
+let allowedDesktopOrigins = null;
+
+function getAllowedDesktopOrigins() {
+    if (allowedDesktopOrigins !== null) {
+        return allowedDesktopOrigins;
+    }
+    const meta = document.querySelector('meta[name="zlux-desktop-origin"]');
+    const configured = meta ? (meta.getAttribute('content') || '').trim() : '';
+    const candidates = configured ? configured.split(/[\s,]+/) : [window.location.origin];
+    allowedDesktopOrigins = [];
+    candidates.forEach(function(value) {
+        let origin = null;
+        try {
+            origin = new URL(value).origin;
+        } catch (e) {
+            origin = null;
+        }
+        if (origin === null || origin === 'null') {
+            console.warn('ZWED5327W - Ignoring a desktop origin that is not an absolute http(s) origin, value=', value);
+        } else if (allowedDesktopOrigins.indexOf(origin) === -1) {
+            allowedDesktopOrigins.push(origin);
+        }
+    });
+    return allowedDesktopOrigins;
+}
+
+/* The allowed origin the desktop actually spoke from. Every outbound call is addressed to it. */
 let desktopOrigin = null;
 
 /* The desktop always talks to the adapter from the top-level browsing context: both the
@@ -26,16 +58,24 @@ let desktopOrigin = null;
    answers RPC calls, run in the top frame. That is also true for a remote-host plugin, where
    the adapter runs in a nested iframe but window.top is still the desktop. A Window reference
    cannot be forged by a third party, so comparing message.source to window.top is the
-   adapter-side counterpart of the contentWindow check the desktop performs on its own iframe. */
+   adapter-side counterpart of the contentWindow check the desktop performs on its own iframe.
+   It only proves the sender is the top frame, not that the top frame is the desktop, so the
+   sender's origin must also be one of the allowed desktop origins. */
 function isMessageFromDesktop(message) {
-    return !!message.source && message.source === window.top;
+    if (!message.source || message.source !== window.top) {
+        return false;
+    }
+    if (desktopOrigin !== null) {
+        return message.origin === desktopOrigin;
+    }
+    return getAllowedDesktopOrigins().indexOf(message.origin) !== -1;
 }
 
 let messageHandler = function(message) {
     let data = message.data;
     if(data === null || typeof data !== 'object') return;
     if(data.dispatchData === undefined && data.key === undefined) return;
-    if(!isMessageFromDesktop(message) || (desktopOrigin !== null && message.origin !== desktopOrigin)){
+    if(!isMessageFromDesktop(message)){
         console.log('ZWED5325I - Ignored a message that did not come from the desktop window, origin=', message.origin);
         return;
     }
@@ -129,9 +169,23 @@ window.addEventListener('message', messageHandler);
 
 window.addEventListener("load", function () {
     console.log('ZWED5009I - iFrame Adapter has loaded!');
-    /* This beacon is sent before any message has been received, so the desktop origin is not
-       known yet and a wildcard is unavoidable. It carries a fixed string and no plugin data. */
-    window.top.postMessage('iframeload', '*');
+    /* The beacon goes only to allowed desktop origins; postMessage drops it if the top frame has
+       any other origin. Where the browser exposes the top frame's origin, the list is narrowed to
+       it so that a multi-origin configuration does not log a mismatch for every other entry. */
+    const allowed = getAllowedDesktopOrigins();
+    if (allowed.length === 0) {
+        console.warn('ZWED5328W - No valid desktop origin is configured, so the desktop will not be contacted');
+        return;
+    }
+    let targets = allowed;
+    const ancestors = window.location.ancestorOrigins;
+    if (ancestors && ancestors.length > 0) {
+        const topOrigin = ancestors[ancestors.length - 1];
+        targets = allowed.filter(function(origin) { return origin === topOrigin; });
+    }
+    targets.forEach(function(origin) {
+        window.top.postMessage('iframeload', origin);
+    });
 });
 
 window.addEventListener("unload", function () {
@@ -143,7 +197,7 @@ function translateFunction(functionString, args){
     return new Promise((resolve, reject) => {
         if(desktopOrigin === null){
             reject({
-                error: "ZWED5326E - Cannot send a message to the desktop before its origin has been established"
+                error: "ZWED5326E - Cannot send a message to the desktop before it has contacted this page from an allowed origin"
             })
             return;
         }
