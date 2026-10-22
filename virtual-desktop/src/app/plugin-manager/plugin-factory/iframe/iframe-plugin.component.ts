@@ -17,6 +17,64 @@ import { BaseLogger } from '../../../../app/shared/logger'
 import { IFRAME_NAME_PREFIX } from 'app/shared/named-elements';
 import { IFramePluginFactory } from './iframe-plugin-factory';
 
+/**
+ * The calls an iframe may make into the desktop. These mirror what bootstrap/web/iframe-adapter.js
+ * exposes, plus registerAdapterInstance and resolveCloseHandler which the adapter sends internally.
+ * Anything else, such as ZoweZLUX.pluginManager.includeScript or a path through constructor/__proto__,
+ * would let iframe content run arbitrary desktop functions, so it is rejected before any property
+ * lookup happens.
+ */
+const IFRAME_CALLABLE_FUNCTIONS: ReadonlySet<string> = new Set([
+  'registerAdapterInstance',
+  'resolveCloseHandler',
+  'ZoweZLUX.pluginManager.getPlugin',
+  'ZoweZLUX.pluginManager.loadPlugins',
+  'ZoweZLUX.uriBroker.desktopRootUri',
+  'ZoweZLUX.uriBroker.datasetMetadataHlqUri',
+  'ZoweZLUX.uriBroker.datasetMetadataUri',
+  'ZoweZLUX.uriBroker.datasetCopyUri',
+  'ZoweZLUX.uriBroker.datasetContentsUri',
+  'ZoweZLUX.uriBroker.VSAMdatasetContentsUri',
+  'ZoweZLUX.uriBroker.unixFileUri',
+  'ZoweZLUX.uriBroker.omvsSegmentUri',
+  'ZoweZLUX.uriBroker.rasUri',
+  'ZoweZLUX.uriBroker.serverRootUri',
+  'ZoweZLUX.uriBroker.pluginResourceUri',
+  'ZoweZLUX.uriBroker.pluginListUri',
+  'ZoweZLUX.uriBroker.pluginConfigForScopeUri',
+  'ZoweZLUX.uriBroker.pluginConfigUri',
+  'ZoweZLUX.uriBroker.pluginWSUri',
+  'ZoweZLUX.uriBroker.pluginRESTUri',
+  'ZoweZLUX.dispatcher.getAbstractActionById',
+  'ZoweZLUX.dispatcher.getAbstractActions',
+  'ZoweZLUX.dispatcher.makeAction',
+  'ZoweZLUX.dispatcher.makeActionFromObject',
+  'ZoweZLUX.dispatcher.invokeAction',
+  'ZoweZLUX.dispatcher.registerAction',
+  'ZoweZLUX.dispatcher.registerAbstractAction',
+  'ZoweZLUX.notificationManager.notify',
+  'ZoweZLUX.notificationManager.serverNotify',
+  'ZoweZLUX.notificationManager.dismissNotification',
+  'ZoweZLUX.notificationManager.removeAll',
+  'ZoweZLUX.notificationManager.getCount',
+  'ZoweZLUX.notificationManager.addMessageHandler',
+  'ZoweZLUX.notificationManager.removeMessageHandler',
+  'ZoweZLUX.notificationManager.createNotification',
+  'ZoweZLUX.globalization.getLanguage',
+  'ZoweZLUX.globalization.getLocale',
+  'ZoweZLUX.globalization.setLanguage',
+  'ZoweZLUX.globalization.setLocale',
+  'windowActions.close',
+  'windowActions.minimize',
+  'windowActions.maximize',
+  'windowActions.restore',
+  'windowActions.setTitle',
+  'windowActions.setPosition',
+  'windowActions.spawnContextMenu',
+  'viewportEvents.registerCloseHandler',
+  'viewportEvents.spawnContextMenu'
+]);
+
 @Component({
   selector: 'rs-com-mvd-iframe-component',
   templateUrl: './iframe-plugin.component.html',
@@ -406,6 +464,10 @@ export class IFramePluginComponent implements OnInit {
   private translateFunction(message: any) {
     let args = message.data.request.args || [];
     let fnString: string = message.data.request.function;
+    if (!IFRAME_CALLABLE_FUNCTIONS.has(fnString)) {
+      this.logger.warn("ZWED5327W", this.iframeId, fnString); //this.logger.warn(`Rejected call from iframe ${this.iframeId} to function not available to iframes, function=${fnString}`);
+      return undefined;
+    }
     let split: Array<string> = fnString.split('.');
     if (split.length > 0) {
       switch (split[0]) {
