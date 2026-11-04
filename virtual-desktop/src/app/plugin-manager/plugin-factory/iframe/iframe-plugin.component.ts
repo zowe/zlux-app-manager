@@ -12,6 +12,65 @@ import { Angular2InjectionTokens, Angular2PluginWindowActions, Angular2PluginWin
   Angular2PluginSessionEvents, Angular2PluginViewportEvents, Angular2PluginThemeEvents } from '../../../../pluginlib/inject-resources';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { BaseLogger } from '../../../../app/shared/logger'
+import { INNER_IFRAME_NAME } from '../../../shared/named-elements';
+
+/**
+ * The calls an iframe may make into the desktop. These mirror what bootstrap/web/iframe-adapter.js
+ * exposes, plus registerAdapterInstance and resolveCloseHandler which the adapter sends internally.
+ * Anything else, such as ZoweZLUX.pluginManager.includeScript or a path through constructor/__proto__,
+ * would let iframe content run arbitrary desktop functions, so it is rejected before any property
+ * lookup happens.
+ */
+const IFRAME_CALLABLE_FUNCTIONS: ReadonlySet<string> = new Set([
+  'registerAdapterInstance',
+  'resolveCloseHandler',
+  'ZoweZLUX.pluginManager.getPlugin',
+  'ZoweZLUX.pluginManager.loadPlugins',
+  'ZoweZLUX.uriBroker.desktopRootUri',
+  'ZoweZLUX.uriBroker.datasetMetadataHlqUri',
+  'ZoweZLUX.uriBroker.datasetMetadataUri',
+  'ZoweZLUX.uriBroker.datasetCopyUri',
+  'ZoweZLUX.uriBroker.datasetContentsUri',
+  'ZoweZLUX.uriBroker.VSAMdatasetContentsUri',
+  'ZoweZLUX.uriBroker.unixFileUri',
+  'ZoweZLUX.uriBroker.omvsSegmentUri',
+  'ZoweZLUX.uriBroker.rasUri',
+  'ZoweZLUX.uriBroker.serverRootUri',
+  'ZoweZLUX.uriBroker.pluginResourceUri',
+  'ZoweZLUX.uriBroker.pluginListUri',
+  'ZoweZLUX.uriBroker.pluginConfigForScopeUri',
+  'ZoweZLUX.uriBroker.pluginConfigUri',
+  'ZoweZLUX.uriBroker.pluginWSUri',
+  'ZoweZLUX.uriBroker.pluginRESTUri',
+  'ZoweZLUX.dispatcher.getAbstractActionById',
+  'ZoweZLUX.dispatcher.getAbstractActions',
+  'ZoweZLUX.dispatcher.makeAction',
+  'ZoweZLUX.dispatcher.makeActionFromObject',
+  'ZoweZLUX.dispatcher.invokeAction',
+  'ZoweZLUX.dispatcher.registerAction',
+  'ZoweZLUX.dispatcher.registerAbstractAction',
+  'ZoweZLUX.notificationManager.notify',
+  'ZoweZLUX.notificationManager.serverNotify',
+  'ZoweZLUX.notificationManager.dismissNotification',
+  'ZoweZLUX.notificationManager.removeAll',
+  'ZoweZLUX.notificationManager.getCount',
+  'ZoweZLUX.notificationManager.addMessageHandler',
+  'ZoweZLUX.notificationManager.removeMessageHandler',
+  'ZoweZLUX.notificationManager.createNotification',
+  'ZoweZLUX.globalization.getLanguage',
+  'ZoweZLUX.globalization.getLocale',
+  'ZoweZLUX.globalization.setLanguage',
+  'ZoweZLUX.globalization.setLocale',
+  'windowActions.close',
+  'windowActions.minimize',
+  'windowActions.maximize',
+  'windowActions.restore',
+  'windowActions.setTitle',
+  'windowActions.setPosition',
+  'windowActions.spawnContextMenu',
+  'viewportEvents.registerCloseHandler',
+  'viewportEvents.spawnContextMenu'
+]);
 
 @Component({
     templateUrl: './iframe-plugin.component.html'
@@ -22,8 +81,12 @@ export class IFramePluginComponent {
   private readonly logger: ZLUX.ComponentLogger = BaseLogger;
   startingPage: SafeResourceUrl;
   iframeId: string;
+  /* The desktop instance this component was created for (set by IFramePluginFactory). Only the
+     adapter that announces this instance may register. */
+  pluginInstanceId: number = -1;
   instanceId: number = -1;
   frameSource: any;
+  frameOrigin: string = '';
   responses: any = {};
   DEFAULT_CLOSE_TIMEOUT: number = 5000;
 
@@ -46,12 +109,69 @@ export class IFramePluginComponent {
       key: -1,
       originCall: originCall,
       instanceId: this.instanceId
-    }, '*')
+    }, this.frameOrigin)
   }
-  
+
+  /**
+   * The window the adapter runs in, which is the same window the application manager delivers
+   * dispatchData to: the inner iframe named INNER_IFRAME_NAME when this iframe is a remote-app
+   * wrapper served from the desktop origin, otherwise this component's own iframe. Exactly that
+   * window is accepted; any other frame the plugin page embeds (previewed documents, third-party
+   * content) and any other window holding a reference to the desktop is not. A Window reference
+   * (message.source) cannot be spoofed by a third party.
+   */
+  private getAdapterFrame(): HTMLIFrameElement | null {
+    const iframe = document.getElementById(this.iframeId) as HTMLIFrameElement | null;
+    if(!iframe || !iframe.contentWindow){
+      return null;
+    }
+    try{
+      const innerIframe = iframe.contentWindow.document.getElementById(INNER_IFRAME_NAME);
+      // The element belongs to the wrapper's realm, so instanceof HTMLIFrameElement would be false.
+      if(innerIframe && innerIframe.tagName === 'IFRAME'){
+        return innerIframe as HTMLIFrameElement;
+      }
+    }catch(e){
+      // The plugin page has another origin than the desktop, so it is not a wrapper.
+    }
+    return iframe;
+  }
+
+  /**
+   * The origin the adapter frame was pointed at. A WindowProxy stays the same object when its frame
+   * navigates, so the window check alone would still accept the frame after it moved to another
+   * origin; the sender's origin must also match.
+   */
+  private getExpectedOrigin(frame: HTMLIFrameElement): string | null {
+    try{
+      const origin = new URL(frame.src, frame.ownerDocument.baseURI).origin;
+      return origin === 'null' ? null : origin;
+    }catch(e){
+      return null;
+    }
+  }
+
+  private isMessageFromAdapterFrame(message: any): boolean {
+    if(!message.source){
+      return false;
+    }
+    if(this.frameSource){
+      return message.source === this.frameSource && message.origin === this.frameOrigin;
+    }
+    const frame = this.getAdapterFrame();
+    if(!frame || message.source !== frame.contentWindow){
+      return false;
+    }
+    return message.origin === this.getExpectedOrigin(frame);
+  }
+
   private postMessageListener(message: any): void {
-    if(!message.data.request || !message.data.request.function || message.data.key === undefined
+    if(!message.data || !message.data.request || !message.data.request.function || message.data.key === undefined
         || message.data.request.instanceId === undefined){
+      return;
+    }
+    if(!this.isMessageFromAdapterFrame(message)){
+      this.logger.warn("ZWED5324W", this.iframeId, message.origin); //this.logger.warn(`Rejected postMessage for iframe ${this.iframeId} not originating from its adapter window and origin, origin=${message.origin}`);
       return;
     }
     let data: any = message.data;
@@ -59,8 +179,14 @@ export class IFramePluginComponent {
     let fnString: string = data.request.function;
     let split: Array<string> = fnString.split('.');
     if(split[0] === 'registerAdapterInstance' && this.instanceId == -1){
+      // Only the adapter for the instance this component was created for may register, and only once.
+      if(this.pluginInstanceId === -1 || data.request.instanceId !== this.pluginInstanceId){
+        this.logger.warn("ZWED5324W", this.iframeId, message.origin);
+        return;
+      }
       this.instanceId = data.request.instanceId;
       this.frameSource = message.source;
+      this.frameOrigin = message.origin;
       try{
         this.frameSource.postMessage({
           key: -1,
@@ -69,7 +195,7 @@ export class IFramePluginComponent {
             launchMetadata: this.launchMetadata
           },
           instanceId: this.instanceId
-        }, '*')
+        }, this.frameOrigin)
       }catch(e){
         this.frameSource.postMessage({
           key: -1,
@@ -79,7 +205,7 @@ export class IFramePluginComponent {
           },
           instanceId: this.instanceId,
           error: 'Unable to parse plugin definition'
-        }, '*');
+        }, this.frameOrigin);
         this.logger.warn("ZWED5172W", e); //this.logger.warn('Unable to parse plugin definition.  Error: ', e);
       }
       this.windowEvents.minimized.subscribe(() => {
@@ -120,14 +246,15 @@ export class IFramePluginComponent {
       });
       return;
     }
-    if(data.request.instanceId === this.instanceId){
+    if(data.request.instanceId === this.instanceId && message.source === this.frameSource
+        && message.origin === this.frameOrigin){
       this.resolvePromisesRecursively(this.translateFunction(message)).then(res => {
         message.source.postMessage({
           key: key,
           value: res,
           originCall: data.request.function,
           instanceId: data.request.instanceId
-        }, '*');
+        }, this.frameOrigin);
       });
     }
     return;
@@ -158,7 +285,7 @@ export class IFramePluginComponent {
     return (objCopy === undefined) ? undefined : objCopy;
   }
 
-  private addActionsToContextMenu(key: number, source: any, itemsArray: Array<any>, type: string){
+  private addActionsToContextMenu(key: number, source: any, origin: string, itemsArray: Array<any>, type: string){
     try{
       let copy = JSON.parse(JSON.stringify(itemsArray));
       for(let i = 0; i < copy.length; i++){
@@ -168,7 +295,7 @@ export class IFramePluginComponent {
             originCall: type+'.spawnContextMenu',
             instanceId: this.instanceId,
             contextMenuItemIndex: i
-          }, '*')
+          }, origin)
         }
       }
       return copy;
@@ -189,7 +316,7 @@ export class IFramePluginComponent {
         fnRet = fn();
       } else {
         if(fnString == 'windowActions.spawnContextMenu' && Array.isArray(args[2])){
-          args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2], 'windowActions')
+          args[2] = this.addActionsToContextMenu(message.data.key, message.source, message.origin, args[2], 'windowActions')
         }
         fnRet = fn(...args);
       }
@@ -218,7 +345,7 @@ export class IFramePluginComponent {
               key: message.data.key,
               originCall: 'viewportEvents.callCloseHandler',
               instanceId: that.instanceId
-            }, '*')
+            }, message.origin)
             setTimeout(() => {
               resolve();
             }, that.DEFAULT_CLOSE_TIMEOUT)
@@ -226,7 +353,7 @@ export class IFramePluginComponent {
         }
         return fn(...args);
       } else if(fnString == 'viewportEvents.spawnContextMenu' && Array.isArray(args[2])){
-        args[2] = this.addActionsToContextMenu(message.data.key, message.source, args[2], 'viewportEvents');
+        args[2] = this.addActionsToContextMenu(message.data.key, message.source, message.origin, args[2], 'viewportEvents');
         return fn(...args);
       }
       return undefined;
@@ -247,7 +374,7 @@ export class IFramePluginComponent {
           originCall: 'handleMessageAdded',
           notification: notification,
           instanceId: instanceId
-        }, '*')
+        }, message.origin)
       } catch (e) { /* TODO: Every once in a while, message.source won't exist after app2app. 
         This could be a timing issue with the echoes or at least, doesn't seem to affect app2app. */
         this.logger.warn("ZWED5199W", 'handleMessageAdded'); //this.logger.warn("Attempted to postMessage for type %s without source", e);
@@ -260,7 +387,7 @@ export class IFramePluginComponent {
           originCall: 'handleMessageRemoved',
           notificationId: notificationId,
           instanceId: instanceId
-        }, '*')
+        }, message.origin)
       } catch (e) { /* TODO: Every once in a while, message.source won't exist after app2app. 
         This could be a timing issue with the echoes or at least, doesn't seem to affect app2app. */
         this.logger.warn("ZWED5199W", 'handleMessageRemoved'); //this.logger.warn("Attempted to postMessage for type %s without source", e);
@@ -293,6 +420,10 @@ export class IFramePluginComponent {
   private translateFunction(message: any){
     let args = message.data.request.args || [];
     let fnString: string = message.data.request.function;
+    if(!IFRAME_CALLABLE_FUNCTIONS.has(fnString)){
+      this.logger.warn("ZWED5327W", this.iframeId, fnString); //this.logger.warn(`Rejected call from iframe ${this.iframeId} to function not available to iframes, function=${fnString}`);
+      return undefined;
+    }
     let split: Array<string> = fnString.split('.');
     if(split.length > 0){
       switch(split[0]){

@@ -88,6 +88,7 @@ export class IFramePluginFactory extends PluginFactory {
     class IFrameComponentClass extends IFramePluginComponent {
       startingPage: SafeResourceUrl = safeStartingPageUri;
       iframeId:string = theIframeId;
+      pluginInstanceId: number = instanceId;
       iFrameMouseOver(event: any) {
         iFrameElement = event.target;
         if(dragOn) {

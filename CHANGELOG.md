@@ -2,6 +2,11 @@
 
 All notable changes to the Zlux App Manager will be documented in this file.
 
+## `2.18.6`
+
+- Security: The iframe plugin bridge (IFramePluginComponent) now validates who is talking to it. Messages are accepted only from the frame the desktop delivers launch data to (the application's iframe, or the `zluxIframe` inside a `destination` wrapper) and only from the origin that frame was loaded from, rechecked on every call. Previously any window holding a reference to the desktop, or any frame nested in an application page, could register as the application's adapter, call desktop functions and receive the results. Registration is also tied to the application's own instance, and replies are addressed to the adapter's origin instead of `*`.
+- Security: Iframe applications can now call only the fixed set of desktop functions that the iframe adapter exposes. Other `ZoweZLUX`, `windowActions` and `viewportEvents` functions, such as `ZoweZLUX.pluginManager.includeScript`, are rejected with `ZWED5327W`.
+
 ## `2.18.5`
 
 - Security: Removed web-browser-app (org.zowe.zlux.ng2desktop.webbrowser) to address vulnerability in its proxy service.
