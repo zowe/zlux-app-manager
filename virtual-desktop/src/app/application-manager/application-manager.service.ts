@@ -29,7 +29,8 @@ import { FailureModule } from './load-failure/failure.module';
 import { ViewportManager } from './viewport-manager/viewport-manager.service';
 import { EmbeddedInstance } from 'pluginlib/inject-resources';
 import { BaseLogger } from 'virtual-desktop-logger';
-import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from '../shared/named-elements';
+import { IFRAME_NAME_PREFIX } from '../shared/named-elements';
+import { getAdapterFrame, getAdapterFrameOrigin, usesRemoteWrapper } from '../shared/adapter-frame';
 import { LanguageLocaleService } from '../i18n/language-locale.service';
 
 @Injectable()
@@ -64,20 +65,25 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     ZoweZLUX.dispatcher.setPostMessageHandler((instanceId: MVDHosting.InstanceId, message: any) => {
       let applicationInstance: ApplicationInstance | undefined = this.applicationInstances.get(instanceId);
       if (applicationInstance) {
-        let theIframe: HTMLElement | null = document.getElementById(`${IFRAME_NAME_PREFIX}${instanceId}`);
-        if (theIframe) {
-          /* checking if iframe-in-iframe, which we can see in a remote host scenario.
-             Sending the message to the wrong iframe will result in the message being dropped.
-             The inner iframe is not under control of the zlux framework, so the name here is by convention.
-             If people use the wrong name, they get nothing.
-          */
-          let secondIframe = (theIframe as HTMLIFrameElement).contentWindow?.document.getElementById(INNER_IFRAME_NAME);
-          if (secondIframe) {
-            theIframe = secondIframe;
+        /* A destination plugin's adapter runs in the inner iframe of the app server's wrapper page, which
+           can be seen in a remote host scenario; any other plugin's adapter runs in the plugin's own iframe.
+           Sending the message to the wrong iframe will result in the message being dropped. */
+        const iframeId = `${IFRAME_NAME_PREFIX}${instanceId}`;
+        const remoteWrapper = usesRemoteWrapper(applicationInstance.plugin.getBasePlugin());
+        const adapterFrame = getAdapterFrame(iframeId, remoteWrapper);
+        if (adapterFrame) {
+          /* Addressed to the origin the frame was pointed at rather than '*': if the document in it has
+             since navigated or been redirected elsewhere, the browser drops the message instead of handing
+             launch and app2app data to that page. */
+          const targetOrigin = getAdapterFrameOrigin(adapterFrame);
+          if (targetOrigin) {
+            this.logger.debug(`ZWED5292I`, applicationInstance); //this.logger.debug(`PostMessage for instance=`,applicationInstance);
+            adapterFrame.contentWindow!.postMessage(message, targetOrigin);
+          } else {
+            this.logger.warn("ZWED5329W", applicationInstance.plugin.getIdentifier(), instanceId); //this.logger.warn(`iframe postMessage not sent, frame has no origin to address for ${applicationInstance.plugin.getIdentifier()}, id=${instanceId}`);
           }
-          this.logger.debug(`ZWED5292I`, applicationInstance); //this.logger.debug(`PostMessage for instance=`,applicationInstance);
-          let iframeWindow: Window | null = (theIframe as HTMLIFrameElement).contentWindow!;
-          iframeWindow.postMessage(message, "*");
+        } else if (remoteWrapper && document.getElementById(iframeId)) {
+          this.logger.warn("ZWED5323I", applicationInstance.plugin.getIdentifier(), instanceId); //this.logger.warn(`iframe postMessage failed, second iframe not found for ${applicationInstance.plugin.getIdentifier()}, id=${instanceId}`);
         } else {
           this.logger.warn("ZWED5293I", applicationInstance.plugin.getIdentifier(), instanceId); //this.logger.warn(`iframe postMessage failed, no iframe found for ${applicationInstance.plugin.getIdentifier()}, id=${instanceId}`);
         }
@@ -85,28 +91,40 @@ export class ApplicationManager implements MVDHosting.ApplicationManagerInterfac
     });
     window.addEventListener('message', (message: any) => {
       if (message.data === 'iframeload') {
-        this.applicationInstances.forEach((appInstance) => {
-          let instance = appInstance.instanceId;
-          const iframe: HTMLElement | null = document.getElementById(`${IFRAME_NAME_PREFIX}${instance}`);
-          if (iframe) {
-            // this always resolved as true oddly enough
-            if ((iframe as any).contentWindow === message.source
-              || (iframe as any).contentWindow === message.source.parent
-              || ((iframe as any).src.indexOf(message.origin) == 0)) {
-              //            if ((iframe as any).contentWindow.frameElement.id === message.source.frameElement.id) {
-              //it's this one
-              const appInstance = this.applicationInstances.get(instance);
-              if (appInstance) {
-                const pluginId = appInstance.plugin.getIdentifier();
-                this.logger.info(`ZWED5057I`, pluginId, instance); /*this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);*/
-                return ZoweZLUX.dispatcher.iframeLoaded(instance, pluginId);
-              }
-            }
-          }
-        });
-        this.logger.warn(`ZWED5189W`); //this.logger.warn(`No iframe identified as source of message`);
+        const appInstance = this.findInstanceForAdapterWindow(message.source, message.origin);
+        if (appInstance) {
+          const pluginId = appInstance.plugin.getIdentifier();
+          this.logger.info(`ZWED5057I`, pluginId, appInstance.instanceId); /*this.logger.info(`Iframe loaded: ${pluginId}, instance=${instance}`);*/
+          ZoweZLUX.dispatcher.iframeLoaded(appInstance.instanceId, pluginId);
+        } else {
+          this.logger.warn(`ZWED5189W`); //this.logger.warn(`No iframe identified as source of message`);
+        }
       }
     });
+  }
+
+  /**
+   * The application whose adapter frame is the given window, provided the message came from the origin
+   * that frame was pointed at. iframeload releases the launch data queued for a plugin to the instance it
+   * names, so it is accepted only from that instance's own adapter: not from a frame nested in the
+   * application's page, not from a page the frame has navigated to, and not from another application.
+   */
+  private findInstanceForAdapterWindow(source: any, origin: string): ApplicationInstance | undefined {
+    let found: ApplicationInstance | undefined;
+    if (!source) {
+      return found;
+    }
+    this.applicationInstances.forEach((appInstance) => {
+      if (found) {
+        return;
+      }
+      const adapterFrame = getAdapterFrame(`${IFRAME_NAME_PREFIX}${appInstance.instanceId}`,
+                                           usesRemoteWrapper(appInstance.plugin.getBasePlugin()));
+      if (adapterFrame && adapterFrame.contentWindow === source && origin === getAdapterFrameOrigin(adapterFrame)) {
+        found = appInstance;
+      }
+    });
+    return found;
   }
 
   private generateInstanceId(): MVDHosting.InstanceId {

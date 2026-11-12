@@ -14,7 +14,8 @@ import {
 } from '../../../../pluginlib/inject-resources';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { BaseLogger } from '../../../../app/shared/logger'
-import { IFRAME_NAME_PREFIX, INNER_IFRAME_NAME } from 'app/shared/named-elements';
+import { IFRAME_NAME_PREFIX } from 'app/shared/named-elements';
+import { getAdapterFrame, getAdapterFrameOrigin, usesRemoteWrapper } from 'app/shared/adapter-frame';
 import { IFramePluginFactory } from './iframe-plugin-factory';
 
 @Component({
@@ -31,6 +32,8 @@ export class IFramePluginComponent implements OnInit {
   instanceId: number = -1;
   frameSource: any;
   frameOrigin: string = '';
+  /* Whether this plugin is a destination plugin, whose adapter runs inside the app server's wrapper page. */
+  remoteWrapper: boolean = false;
   responses: any = {};
   DEFAULT_CLOSE_TIMEOUT: number = 5000;
   dragOn = false;
@@ -57,6 +60,7 @@ export class IFramePluginComponent implements OnInit {
     const pluginDefinition = this.iFramePluginFactory.pluginDefinition;
     const instanceId = this.iFramePluginFactory.instanceId;
     const basePlugin = pluginDefinition.getBasePlugin();
+    this.remoteWrapper = usesRemoteWrapper(basePlugin);
     const startingPageUri = this.getStartingPageUri(basePlugin);
     this.logger.debug('ZWED5308I', startingPageUri); //this.logger.debug('iframe startingPageUri', startingPageUri);
     const safeStartingPageUri: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(startingPageUri);
@@ -75,7 +79,7 @@ export class IFramePluginComponent implements OnInit {
     let startingPageUri;
 
     //remote iframe with destination property
-    if (basePlugin.getWebContent().destination > '') {
+    if (usesRemoteWrapper(basePlugin)) {
       startingPageUri = ZoweZLUX.uriBroker.pluginIframeUri(basePlugin, '');
     }
     //iframe with startingPage property
@@ -100,44 +104,6 @@ export class IFramePluginComponent implements OnInit {
     }, this.frameOrigin)
   }
 
-  /**
-   * The window the adapter runs in, which is the same window the application manager delivers
-   * dispatchData to: the inner iframe named INNER_IFRAME_NAME when this iframe is a remote-app
-   * wrapper served from the desktop origin, otherwise this component's own iframe. Exactly that
-   * window is accepted; any other frame the plugin page embeds (previewed documents, third-party
-   * content) is not. A Window reference (message.source) cannot be spoofed by a third party.
-   */
-  private getAdapterFrame(): HTMLIFrameElement | null {
-    const iframe = document.getElementById(this.iframeId) as HTMLIFrameElement | null;
-    if (!iframe || !iframe.contentWindow) {
-      return null;
-    }
-    try {
-      const innerIframe = iframe.contentWindow.document.getElementById(INNER_IFRAME_NAME);
-      // The element belongs to the wrapper's realm, so instanceof HTMLIFrameElement would be false.
-      if (innerIframe && innerIframe.tagName === 'IFRAME') {
-        return innerIframe as HTMLIFrameElement;
-      }
-    } catch (e) {
-      // The plugin page has another origin than the desktop, so it is not a wrapper.
-    }
-    return iframe;
-  }
-
-  /**
-   * The origin the adapter frame was pointed at. A WindowProxy stays the same object when its frame
-   * navigates, so the window check alone would still accept the frame after it moved to another
-   * origin; the sender's origin must also match.
-   */
-  private getExpectedOrigin(frame: HTMLIFrameElement): string | null {
-    try {
-      const origin = new URL(frame.src, frame.ownerDocument.baseURI).origin;
-      return origin === 'null' ? null : origin;
-    } catch (e) {
-      return null;
-    }
-  }
-
   private isMessageFromAdapterFrame(message: any): boolean {
     if (!message.source) {
       return false;
@@ -145,11 +111,11 @@ export class IFramePluginComponent implements OnInit {
     if (this.frameSource) {
       return message.source === this.frameSource && message.origin === this.frameOrigin;
     }
-    const frame = this.getAdapterFrame();
+    const frame = getAdapterFrame(this.iframeId, this.remoteWrapper);
     if (!frame || message.source !== frame.contentWindow) {
       return false;
     }
-    return message.origin === this.getExpectedOrigin(frame);
+    return message.origin === getAdapterFrameOrigin(frame);
   }
 
   private registerWindowEvents() {
