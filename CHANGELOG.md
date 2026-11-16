@@ -1,6 +1,14 @@
 # Zlux App Manager Changelog
 
 All notable changes to the Zlux App Manager will be documented in this file.
+## `3.6.0`
+- Security: Removed web-browser-app (org.zowe.zlux.ng2desktop.webbrowser) to address vulnerability in its proxy service. ([#722](https://github.com/zowe/zlux-app-manager/pull/722))
+- Security: Validated postMessage sender identity and origin in the iframe plugin bridge (IFramePluginComponent) to prevent an arbitrary cross-origin window from invoking ZoweZLUX APIs. ([#727](https://github.com/zowe/zlux-app-manager/pull/727))
+- Security: The iframe adapter now accepts messages only from the desktop window and addresses its own messages to the desktop origin rather than to any origin. ([#732](https://github.com/zowe/zlux-app-manager/pull/732))
+- Bugfix: The iframe adapter's `isSingleAppMode` and `isSingleAppModeSimple` no longer throw when the plugin is served from a different origin than the desktop. ([#732](https://github.com/zowe/zlux-app-manager/pull/732))
+- Security: The browser-preferences dataservice now only sets an allowlist of preference cookies (language and locale). Preference cookies are now set with `secure` (over HTTPS) and `sameSite=strict`, and oversized values are rejected. ([#729](https://github.com/zowe/zlux-app-manager/pull/729))
+- Security: Iframe applications are now framed with a restricted capability set. Scripts, same-origin access, forms, popups, modals and downloads remain available, so existing applications are unaffected, but a framed application can no longer navigate the desktop window. The restriction is inherited by remote applications loaded through a `destination` wrapper. The frame also sends a `strict-origin-when-cross-origin` referrer, so an application served by another host no longer receives the desktop's full URL. ([#733](https://github.com/zowe/zlux-app-manager/pull/733))
+- Security: The iframe plugin bridge (IFramePluginComponent) now accepts the adapter only from the frame the desktop delivers launch data to (the application's iframe, or the `zluxIframe` inside a `destination` wrapper) and only from the origin that frame was loaded from. Previously any frame nested in an application page, such as a previewed document or third-party content, could register first as the application's adapter and receive its plugin definition, launch metadata and API channel. Registration is now also tied to the application's own instance, and the sender's origin is rechecked on every call. ([#738](https://github.com/zowe/zlux-app-manager/pull/738))
 
 ## `3.5.0`
 - Enhancement: i18n functionality from the Zowe v2 Desktop has been added to v3. ([#684](https://github.com/zowe/zlux-app-manager/pull/684))

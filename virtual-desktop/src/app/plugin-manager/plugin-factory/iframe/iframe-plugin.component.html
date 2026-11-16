@@ -9,7 +9,30 @@
   Copyright Contributors to the Zowe Project.
 -->
 
+<!--
+  An application's starting page may be served by this host or by another one, so the frame is
+  given the narrowest capability set that still runs every supported application. The grants are
+  each load bearing: scripts and same-origin for the adapter and for applications that hold their
+  own session, forms for applications that sign in or submit input, popups (escaping the sandbox,
+  so an opened window is not itself confined) for window.open, and modals and downloads for
+  applications that prompt or emit files.
+
+  What is withheld matters more than what is granted. Absent any allow-top-navigation token the
+  framed document cannot move the desktop window out from under the user, which is the capability
+  a frame has least need of and which nothing in this product relies on. These flags are inherited
+  by nested frames, so a remote application served through a destination wrapper is covered too.
+
+  Declared as plain attributes rather than bindings on purpose: static attributes are applied when
+  the element is created, whereas a binding would not run until the update pass, after the element
+  is live and the src navigation has already been committed.
+
+  referrerpolicy keeps a cross-origin starting page from learning the desktop's full URL, while
+  still sending a same-origin referrer, which the server relies on to resolve the external host of
+  a destination-style application.
+-->
   <iframe [id]="iframeId" class="mvd-iframe" frameborder="0" width="100%" height="100%" 
+  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads"
+  referrerpolicy="strict-origin-when-cross-origin"
   [src]="startingPage" (mouseover)="iFrameMouseOver($event)" title="Iframe App"></iframe>
 
 <!-- 
